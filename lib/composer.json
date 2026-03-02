@@ -1,0 +1,8 @@
+{
+  "config": {
+    "vendor-dir": "interventionimage"
+  },
+  "require": {
+    "intervention/image": "^3.11"
+  }
+}

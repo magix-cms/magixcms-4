@@ -1,0 +1,201 @@
+// Assurez-vous que ce fichier importe bien les variables et mixins de Bootstrap
+@import "../abstract/core";
+
+#aside {
+  // ==========================================
+  // 1. BASE STYLES & SCROLLBAR
+  // ==========================================
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background-color: var(--bs-dark);
+  z-index: 1050;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    &:hover { background: rgba(255, 255, 255, 0.3); }
+  }
+
+  // ==========================================
+  // 1.5. LE LOGO (Brand)
+  // ==========================================
+  .sidebar-brand {
+    padding: 0.6rem 0.75rem;
+    width: 100%;
+
+    i {
+      width: 1.5rem;
+      display: inline-flex;
+      justify-content: center;
+      margin-right: 0.75rem;
+    }
+  }
+
+  // ==========================================
+  // 2. LIENS ET BOUTONS PRINCIPAUX (Dashboard & Menus Parents)
+  // ==========================================
+  // Utilisation de :is() pour cibler les deux sans alourdir la spécificité
+  :is(.nav-link, .btn-toggle) {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 4px;
+    border: none;
+    border-radius: 8px;
+
+    // État par défaut (inactif)
+    color: rgba(255, 255, 255, 0.7);
+    background-color: transparent;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+
+    i {
+      width: 1.5rem;
+      display: inline-flex;
+      justify-content: center;
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    // ÉTAT SURVOL
+    &:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    // ÉTAT ACTIF (Ex: Dashboard)
+    // On utilise un sélecteur un peu plus spécifique pour battre Bootstrap sans !important
+    &.active {
+      color: #fff;
+      background-color: var(--bs-primary); // FOND BLEU VIF
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+      i {
+        color: #fff; // Icône blanche pour contraster sur le fond bleu
+      }
+    }
+  }
+
+  // ==========================================
+  // 3. INDICATEURS D'OUVERTURE (+ / -)
+  // ==========================================
+  .btn-toggle::after {
+    width: 1.25em;
+    line-height: 0;
+    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 4v8M4 8h8'/%3e%3c/svg%3e");
+    transition: all .2s ease;
+    margin-left: auto;
+  }
+
+  .btn-toggle[aria-expanded="true"]::after {
+    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.85%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");
+  }
+
+  // ==========================================
+  // 4. SOUS-MENUS
+  // ==========================================
+  .btn-toggle-nav a {
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    transition: all 0.2s;
+    text-decoration: none;
+
+    &:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.05);
+      // On utilise transform pour le mouvement au lieu du padding pour éviter les sauts
+      transform: translateX(4px);
+    }
+
+    // ÉTAT ACTIF : Sous-menu (ex: Liste des pages)
+    &.active-sub {
+      color: #fff;
+      background-color: rgba(var(--bs-primary-rgb), 0.2); // Fond bleu très léger pour distinguer des parents
+      border-left: 3px solid var(--bs-primary); // Barre bleue
+      font-weight: 600;
+      transform: none; // Annule l'effet de glissement si actif
+
+      i {
+        color: var(--bs-primary); // L'icône prend la couleur du thème
+        opacity: 1;
+      }
+    }
+  }
+
+  // ==========================================
+  // 5. RESPONSIVE & ÉTAT RÉDUIT (Mixins Bootstrap)
+  // ==========================================
+  @include media-breakpoint-up(lg) {
+    position: relative;
+
+    &.is-toggled {
+      width: 80px;
+
+      .menu-text, .btn-toggle::after { display: none; }
+      .collapse { display: none !important; }
+
+      :is(.nav-link, .btn-toggle) {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+
+        i {
+          margin-right: 0;
+          font-size: 1.5rem;
+        }
+      }
+
+      // Design spécifique pour l'icône active en mode réduit
+      .nav-link.active {
+        width: 50px;
+        margin: 0 auto 5px auto;
+        border-radius: 10px;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+    &.is-toggled {
+      left: 0;
+    }
+  }
+}
+
+// ==========================================
+// 6. BACKDROP (Fond sombre Mobile)
+// ==========================================
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.show {
+    display: block;
+    opacity: 1;
+  }
+
+  @include media-breakpoint-up(lg) {
+    display: none !important;
+  }
+}

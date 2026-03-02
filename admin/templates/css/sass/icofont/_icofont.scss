@@ -1,0 +1,126 @@
+// base/_icofont.scss
+@import "ico-variables";
+@import "ico-style"; // C'est ici qu'on retrouve la boucle @each des .ico-xxx
+
+// ==========================================
+// 1. POLICE PERSONNALISÉE (IcoMoon)
+// ==========================================
+@font-face {
+  font-family: "#{$icomoon-font-family}";
+  src: url("#{$icomoon-font-path}/#{$icomoon-font-family}.ttf") format("truetype"),
+  url("#{$icomoon-font-path}/#{$icomoon-font-family}.woff") format("woff"),
+  url("#{$icomoon-font-path}/#{$icomoon-font-family}.svg##{$icomoon-font-family}") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.ico {
+  speak: never; // 'none' est devenu 'never' dans les specs récentes
+  display: inline-block;
+  vertical-align: -0.125em; // Aligne l'icône sur la même base que Bootstrap Icons
+  line-height: 1;
+
+  // Pour que la taille soit cohérente avec les icônes Bootstrap par défaut
+  font-size: 1.1em;
+}
+
+// ==========================================
+// 2. COMPATIBILITÉ MATERIAL ICONS
+// ==========================================
+.material-icons {
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+// ==========================================
+// 3. COMPATIBILITÉ FONTAWESOME (Classes génériques)
+// ==========================================
+.fa, .fab, .fas, .far {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+// Largeur fixe (Fixed Width)
+.fa-fw {
+  text-align: center;
+  width: calc(20em / 16); // Syntaxe SCSS pour le calcul
+}
+
+// ==========================================
+// 4. ANIMATIONS (Spin & Pulse)
+// ==========================================
+// Utile pour vos loaders de formulaires ou de tri
+.fa-spin {
+  animation: ico-spin 2s infinite linear;
+}
+
+.fa-pulse {
+  animation: ico-spin 1s infinite steps(8);
+}
+
+@keyframes ico-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// base/_icofont.scss (à ajouter à la fin du fichier)
+
+// ==========================================
+// 5. HELPERS INTELLIGENTS (Couleurs et Marges)
+// ==========================================
+
+.ico {
+  // 1. Héritage parfait de la couleur
+  // L'icône prendra toujours la couleur exacte du texte de son parent.
+  // S'il est dans un <button class="btn-primary">, il sera blanc.
+  // S'il est dans un <div class="text-danger">, il sera rouge.
+  color: currentColor;
+  transition: color 0.2s ease-in-out; // Animation douce au survol d'un lien
+}
+
+// 2. Marges automatiques dans les boutons Bootstrap
+// Plus besoin d'écrire class="ico ico-edit me-2" à chaque fois !
+.btn {
+  .ico {
+    // Si l'icône est placée AVANT le texte du bouton
+    &:first-child:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+
+    // Si l'icône est placée APRÈS le texte du bouton
+    &:last-child:not(:first-child) {
+      margin-left: 0.5rem;
+    }
+
+    // Si le bouton ne contient QUE l'icône (Bouton carré d'action)
+    &:only-child {
+      margin-left: 0;
+      margin-right: 0;
+      font-size: 1.2em; // On grossit un peu l'icône pour qu'elle remplisse le bouton
+    }
+  }
+}
+
+// 3. Tailles rapides (optionnel, pour vos Dashboard Cards)
+.ico-sm { font-size: 0.875em; }
+.ico-lg { font-size: 1.333em; }
+.ico-xl { font-size: 2em; }
+.ico-xxl { font-size: 3em; }

@@ -1,0 +1,67 @@
+/*
+ # -- BEGIN LICENSE BLOCK ----------------------------------
+ # (Ton bloc de licence conservé)
+ # -- END LICENSE BLOCK -----------------------------------
+ */
+
+tinymce.PluginManager.requireLangPack('mc_product');
+
+/**
+ * MAGIX CMS - Product Linker
+ * Version 2.0.0 - Compatible TinyMCE 7 (Vanilla JS)
+ */
+tinymce.PluginManager.add('mc_product', function(editor, url) {
+
+    const _ = (text) => editor.translate(text);
+
+    // 1. LE FIX SVG INLINE :
+    // Remplace le contenu de <path> par celui de ton id="product" dans mc_icons.svg
+    const productSvg = `<svg width="24" height="24" viewBox="0 0 24 24">
+        <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/>
+    </svg>`;
+
+    // Enregistrement de l'icône dans le registre de TinyMCE
+    editor.ui.registry.addIcon('product', productSvg);
+
+    /* 2. Dialogue pour choisir un produit */
+    const showDialog = () => {
+        editor.windowManager.openUrl({
+            title: _('mc_product Title') || 'Insérer un produit',
+            // Fix URL : Utilisation sécurisée de baseadmin
+            url: (typeof baseadmin !== 'undefined')
+                ? '/' + baseadmin + '/plugins/mc_product/product.php'
+                : url + '/product.php',
+            width: 800,
+            height: 550
+        });
+    };
+
+    // 3. Bouton de barre d'outils
+    editor.ui.registry.addButton('mc_product', {
+        icon: 'product',
+        tooltip: _('mc_product Tooltip') || 'Lien vers un produit',
+        onAction: showDialog,
+        onSetup: (api) => {
+            // Désactiver le bouton si une image est sélectionnée
+            const nodeChangeHandler = (e) => api.setEnabled(e.element.nodeName !== 'IMG');
+            editor.on('NodeChange', nodeChangeHandler);
+            return () => editor.off('NodeChange', nodeChangeHandler);
+        }
+    });
+
+    // 4. Menu "Insertion"
+    editor.ui.registry.addMenuItem('mc_product', {
+        icon: 'product',
+        text: _('mc_product Title') || 'Produit',
+        onAction: showDialog
+    });
+
+    // 5. Metadata de ton plugin
+    return {
+        getMetadata: () => ({
+            name: "Magix CMS Product",
+            author: "Gerits Aurelien",
+            version: "2.0.0"
+        })
+    };
+});

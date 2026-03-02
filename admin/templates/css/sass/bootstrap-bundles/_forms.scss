@@ -1,0 +1,15 @@
+// bootstrap-bundles/_forms.scss
+
+// 1. Racine : Le point d'entrée des formulaires
+@import "../bootstrap5/forms";
+
+// 2. Sous-dossier "forms" : Les éléments de base
+@import "../bootstrap5/forms/form-control";
+@import "../bootstrap5/forms/form-select";
+@import "../bootstrap5/forms/form-check";
+@import "../bootstrap5/forms/form-range";
+@import "../bootstrap5/forms/form-text";
+
+// 3. Racine : Les composants de groupe (C'est ICI que ça bloque souvent)
+@import "../bootstrap5/forms/input-group";      // Pas de /forms/ ici !
+@import "../bootstrap5/forms/floating-labels";   // Pas de /forms/ ici non plus !

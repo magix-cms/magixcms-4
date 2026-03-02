@@ -1,0 +1,19 @@
+// product.scss
+
+// 1. On charge la boîte à outils (Variables, Mixins, Fonctions)
+// Ça ne génère AUCUN code CSS inutile dans product.css !
+@import "abstract/core";
+
+// 2. Le code spécifique à la page produit
+.product-header {
+  // Utilisez $primary ou la fonction map-get
+  background-color: $primary;
+
+  // Vous avez accès à tous vos mixins !
+  @include button-ghost-slide($primary);
+}
+
+.product-card {
+  // Si vous voulez utiliser la couleur "green" de votre map
+  border: 2px solid map-get($theme-color-map, "green");
+}

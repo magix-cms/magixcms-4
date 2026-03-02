@@ -1,0 +1,24 @@
+// abstract/_core.scss
+
+// 1. Fonctions Bootstrap
+@import "../bootstrap5/functions";
+
+// 2. Nos variables et mixins
+@import "variables";
+@import "mixins";
+
+// 3. Variables Bootstrap
+@import "../bootstrap5/variables";
+@import "../bootstrap5/variables-dark";
+
+// 4. Fusion des couleurs
+$theme-colors: map-merge($theme-colors, $theme-color-map);
+
+// 5. NÉCESSAIRE : Maps Bootstrap (génère les versions RGB)
+@import "../bootstrap5/maps";
+
+// 6. Mixins Bootstrap
+@import "../bootstrap5/mixins";
+
+// 7. Utilitaires Bootstrap (Optionnel, mais souvent utile pour les maps d'utilitaires)
+@import "../bootstrap5/utilities";

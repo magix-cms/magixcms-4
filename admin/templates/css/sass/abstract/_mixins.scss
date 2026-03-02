@@ -1,0 +1,170 @@
+// abstract/_mixins.scss
+
+@function generate-palette($color) {
+  @return (
+          "darker":  darken($color, 15%),
+          "dark":    darken($color, 7%),
+          "base":    $color,
+          "light":   lighten($color, 15%),
+          "lighter": lighten($color, 30%)
+  );
+}
+
+@function get-contrast-txt($color) {
+  @if (lightness($color) > 65) { @return #000; }
+  @else { @return #fff; }
+}
+
+// ==========================================
+// 1. LES EFFETS GHOST (Animations CSS)
+// ==========================================
+
+// GLISSANT (Diagonale)
+@mixin button-ghost-slide($color) {
+  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+  background-color: transparent !important;
+  border: 1px solid $color; color: $color;
+  transition: all 0.4s ease;
+
+  &:before {
+    content: ''; position: absolute;
+    top: 0; left: -150%; width: 120%; height: 100%;
+    background-color: $color;
+    transform: skewX(-25deg); z-index: -1;
+    transition: left 0.4s ease-in-out;
+  }
+  &:hover {
+    color: get-contrast-txt($color) !important;
+    &:before { left: -10%; }
+  }
+  @include color-mode(dark) {
+    $dark-color: if(lightness($color) < 30, lighten($color, 30%), $color);
+    border-color: $dark-color; color: $dark-color;
+    &:before { background-color: $dark-color; }
+    &:hover { color: get-contrast-txt($dark-color) !important; }
+  }
+}
+
+// RIDEAU (Haut en Bas)
+@mixin button-ghost-curtain($color) {
+  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+  background-color: transparent !important;
+  border: 1px solid $color; color: $color;
+
+  &:before {
+    content: ''; position: absolute;
+    width: 100%; height: 0; top: 0; left: 0;
+    background-color: $color; z-index: -1;
+    transition: height 0.3s ease-in-out;
+  }
+  &:hover {
+    color: get-contrast-txt($color) !important;
+    &:before { height: 100%; }
+  }
+  @include color-mode(dark) {
+    $dark-color: if(lightness($color) < 30, lighten($color, 30%), $color);
+    border-color: $dark-color; color: $dark-color;
+    &:before { background-color: $dark-color; }
+    &:hover { color: get-contrast-txt($dark-color) !important; }
+  }
+}
+
+// REVEAL (Ouverture centrale)
+@mixin button-ghost-reveal($color) {
+  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+  background-color: transparent !important;
+  border: 1px solid $color; color: $color;
+
+  &:before {
+    content: ''; position: absolute;
+    width: 100%; height: 100%; top: 0; left: 0;
+    background-color: $color; z-index: -1;
+    transform: scaleY(0);
+    transition: transform 0.3s ease-in-out;
+  }
+  &:hover {
+    color: get-contrast-txt($color) !important;
+    &:before { transform: scaleY(1); }
+  }
+  @include color-mode(dark) {
+    $dark-color: if(lightness($color) < 30, lighten($color, 30%), $color);
+    border-color: $dark-color; color: $dark-color;
+    &:before { background-color: $dark-color; }
+    &:hover { color: get-contrast-txt($dark-color) !important; }
+  }
+}
+
+// ==========================================
+// 2. LES EFFETS INVERT (Remplissage Gauche->Droite)
+// ==========================================
+
+// Ce mixin remplace vos anciens `-outline`, `-invert`, `-white` et `-invert-transparent`
+@mixin button-invert-fill($base-color, $hover-color, $opacity: 1) {
+  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+  background-color: transparent !important;
+  border: 1px solid $base-color; color: $base-color;
+  transition: all 0.3s ease;
+
+  &:before {
+    content: ''; position: absolute;
+    top: 0; left: 0; width: 0; height: 100%;
+    background-color: if($opacity < 1, rgba($hover-color, $opacity), $hover-color);
+    z-index: -1; transition: width 0.3s ease;
+  }
+  &:hover {
+    border-color: $hover-color;
+    color: get-contrast-txt($hover-color) !important;
+    &:before { width: 100%; }
+  }
+  @include color-mode(dark) {
+    $dark-base: if(lightness($base-color) < 30, lighten($base-color, 30%), $base-color);
+    $dark-hover: if(lightness($hover-color) < 30, lighten($hover-color, 30%), $hover-color);
+    border-color: $dark-base; color: $dark-base;
+    &:before { background-color: if($opacity < 1, rgba($dark-hover, $opacity), $dark-hover); }
+    &:hover {
+      border-color: $dark-hover;
+      color: get-contrast-txt($dark-hover) !important;
+    }
+  }
+}
+
+// ==========================================
+// 3. L'EFFET GLASSMORPHISM
+// ==========================================
+
+@mixin button-glass($color) {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  isolation: isolate;
+
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: $color;
+
+  &:hover {
+    background-color: $color !important;
+    border-color: $color;
+    color: get-contrast-txt($color) !important;
+    transform: translateY(-2px);
+  }
+  @include color-mode(dark) {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.1);
+    $dark-color: if(lightness($color) < 20, lighten($color, 40%), $color);
+    color: $dark-color;
+    &:hover {
+      background-color: $color !important;
+      color: get-contrast-txt($color) !important;
+    }
+  }
+}
+// À ajouter dans vos mixins si vous voulez personnaliser vos inputs
+@mixin custom-form-focus($color) {
+  .form-control:focus {
+    border-color: lighten($color, 10%);
+    box-shadow: 0 0 0 0.25rem rgba($color, 0.25);
+  }
+}

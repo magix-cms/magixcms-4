@@ -1,0 +1,68 @@
+// layout/_admin-header.scss
+@import "../abstract/core";
+
+#topbar {
+  // On fixe une hauteur confortable
+  height: 64px;
+  z-index: 1030; // Juste en dessous du menu latéral (1050)
+
+  // Animation douce pour le bouton Hamburger
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: var(--bs-body-color);
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+
+    &:hover, &:focus {
+      background-color: rgba(0, 0, 0, 0.05); // Fond gris très léger au survol
+    }
+  }
+
+  // --- Avatar du Profil ---
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  // On nettoie la flèche par défaut du dropdown Bootstrap
+  .profile-dropdown {
+    &::after {
+      margin-left: 0.5rem;
+      vertical-align: middle;
+      transition: transform 0.2s ease;
+    }
+
+    // La flèche tourne quand le menu s'ouvre
+    &.show::after {
+      transform: rotate(180deg);
+    }
+  }
+
+  // --- Style du menu déroulant (Dropdown) ---
+  .dropdown-menu {
+    min-width: 240px;
+    border-radius: 12px; // Un arrondi plus moderne
+
+    .dropdown-item {
+      transition: background-color 0.2s ease;
+      border-radius: 6px; // Les éléments du menu sont aussi arrondis
+      margin: 0 0.25rem; // Petite marge interne pour détacher les liens du bord
+      width: auto;
+
+      &:hover {
+        background-color: var(--bs-secondary-bg);
+      }
+    }
+  }
+}
+
+// Adaptations pour le Dark Mode (si vous l'activez plus tard)
+[data-bs-theme="dark"] #topbar {
+  .btn-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}

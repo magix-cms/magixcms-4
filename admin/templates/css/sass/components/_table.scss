@@ -1,0 +1,24 @@
+/* Force les colonnes étroites à ne prendre que le strict nécessaire */
+.table th.text-center, .table td.text-center {
+  width: 1%;
+  white-space: nowrap;
+}
+/* Change le curseur quand on survole la poignée */
+.sort-handle {
+  cursor: grab !important;
+}
+
+/* Change le curseur pendant qu'on déplace (clic maintenu) */
+.sort-handle:active {
+  cursor: grabbing !important;
+}
+
+/* Optionnel : change la couleur de l'icône au survol pour l'effet interactif */
+.sort-handle:hover i {
+  color: #0d6efd; /* Bleu Bootstrap */
+}
+.fade-out {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.4s ease-in-out;
+}

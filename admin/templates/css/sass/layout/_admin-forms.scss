@@ -1,0 +1,156 @@
+// layout/_admin-forms.scss
+
+// ==========================================
+// 1. INPUTS & SELECTS (Design épuré)
+// ==========================================
+// On utilise :is pour grouper avec la spécificité des classes
+:is(.form-control, .form-select) {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.25rem rgba($primary, 0.15);
+  }
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+    font-size: 0.9rem;
+  }
+}
+
+// ==========================================
+// 2. LE SWITCH MAGIX (Version Spécificité Haute)
+// ==========================================
+// On cible le parent pour verrouiller le contexte
+.form-check.form-switch {
+  padding-left: 3em;
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+
+  // On utilise :is pour matcher l'input avec précision
+  .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 2.8em;
+    height: 1.4em;
+    margin-left: -3em;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+
+    // État de base (Rail) - On utilise :where pour les styles par défaut
+   /* &:where(:not(:checked)) {
+      background-color: rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    // Le bouton rond blanc
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='white'/%3e%3c/svg%3e");
+    background-position: left center;
+    background-repeat: no-repeat;
+    transition: background-position 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s;
+    */
+    // ÉTAT ACTIVÉ
+    // :is(.checked, [checked]) permet de couvrir le toggle dynamique ET l'attribut HTML initial
+    /*&:is(:checked, [checked]) {
+      background-color: $primary;
+      border-color: $primary;
+      background-position: right center;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba($primary, 0.2);
+      outline: 0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }*/
+  }
+
+  .form-check-label {
+    margin-left: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+}
+
+// ==========================================
+// 3. FLOATING LABELS
+// ==========================================
+.form-floating {
+  > label {
+    padding-left: 1rem;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  // Utilisation de :is pour la propreté du focus
+  > .form-control:focus ~ label {
+    color: $primary;
+  }
+}
+
+// ==========================================
+// 4. ACCORDIONS & TOOLS
+// ==========================================
+.accordion-item {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// Spécificité augmentée pour TinyMCE sans !important
+:where(.tox-tinymce) {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+// ==========================================
+// 5. CORRECTIFS DE RENDU (Safety Layer)
+// ==========================================
+// On utilise :is pour cibler l'état actif du panneau
+.tab-pane:is(.active, .show) {
+  visibility: visible;
+  opacity: 1;
+  display: block; // On remplace le flex/none de bootstrap si besoin
+
+  .form-check-input {
+    // Ici on garde l'opacity forcée au cas où un script parent ferait du zèle
+    opacity: 1;
+    visibility: visible;
+  }
+}
+// layout/_admin-forms.scss
+
+.toast-container {
+  z-index: 1100; // Doit être au-dessus de tout
+}
+
+.magix-toast {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  &.bg-success { background-color: #198754 !important; }
+  &.bg-danger { background-color: #dc3545 !important; }
+
+  .toast-header {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+  }
+
+  .toast-body {
+    color: white;
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+}

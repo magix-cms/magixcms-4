@@ -1,0 +1,56 @@
+/* 1. On fige le body */
+body.tox-fullscreen {
+  overflow: hidden !important;
+}
+
+/* 2. Reset des parents (Sauf l'éditeur et ses outils auxiliaires) */
+body.tox-fullscreen div:not(.tox):not(.tox-tinymce):not(.tox-fullscreen):not(.tox-tinymce-aux):not(.tox-tinymce-aux *) {
+  position: static !important;
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+}
+
+/* 3. Masquage des éléments du CMS */
+body.tox-fullscreen .main-sidebar,
+body.tox-fullscreen .main-header,
+body.tox-fullscreen header,
+body.tox-fullscreen footer {
+  display: none !important;
+}
+
+/* 4. L'éditeur en plein écran (Z-index 9999) */
+.tox-tinymce.tox-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important; /* On baisse un peu pour laisser de la place au dessus */
+}
+
+/* 5. LE FIX POUR LES MODALES ET LES MENUS (Z-index 10000+) */
+
+/* On donne juste la priorité z-index au conteneur auxiliaire */
+body.tox-fullscreen .tox-tinymce-aux {
+  position: relative !important;
+  z-index: 10001 !important;
+}
+
+/* On centre la modale (Code Editor, Plugins) par-dessus l'écran */
+body.tox-fullscreen .tox-tinymce-aux .tox-dialog-wrap {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* On empêche la modale de dépasser de l'écran */
+body.tox-fullscreen .tox-tinymce-aux .tox-dialog {
+  max-height: 95vh !important;
+  margin: auto !important;
+}

@@ -1,0 +1,74 @@
+// sass/login.scss
+@import "abstract/core";
+
+// On utilise le body ID pour être certain de ne cibler que cette page
+#login-page {
+
+  .login-panel {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  // ==========================================
+  // MÉCANIQUE DU FLIP 3D
+  // ==========================================
+  .flip-container {
+    perspective: 1000px;
+    position: relative;
+    min-height: 400px; // Assure une hauteur fixe pour ne pas sauter pendant la rotation
+
+    .flipper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    &.flipped .flipper {
+      transform: rotateY(180deg);
+    }
+  }
+
+  .front, .back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background-color: var(--bs-body-bg); // Utilise la couleur de fond dynamique de BS5
+    border-radius: var(--bs-border-radius-lg);
+  }
+
+  .front {
+    z-index: 2;
+    transform: rotateY(0deg);
+  }
+
+  .back {
+    transform: rotateY(180deg);
+  }
+
+  // ==========================================
+  // STYLES ESTHÉTIQUES
+  // ==========================================
+  .input-group-text {
+    color: var(--bs-secondary-color);
+  }
+
+  .btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+
+    &:hover {
+      background-color: darken($primary, 8%);
+      border-color: darken($primary, 10%);
+    }
+  }
+}

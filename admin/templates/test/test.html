@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des 10 Boutons SASS - MagixCMS</title>
+
+    <link rel="stylesheet" href="../css/global.css">
+
+    <style>
+        body {
+            padding: 40px;
+            /* Une couleur de fond douce pour bien voir les boutons blancs/transparents */
+            background-color: #f0f2f5;
+        }
+        .demo-section {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+        /* Petit fond pour tester spécifiquement l'effet Glass */
+        .glass-container {
+            background: url('https://picsum.photos/400/200?random=1') center/cover;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mb-5 text-center">Catalogue des Boutons MagixCMS</h1>
+
+    <div class="demo-section">
+        <h3 class="mb-4 pb-2 border-bottom">Taille Normale (<code>.btn</code>)</h3>
+
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <button type="button" class="btn btn-main">Standard</button>
+
+            <button type="button" class="btn btn-main-gradient">Gradient</button>
+
+            <button type="button" class="btn btn-main-ghost-slide">Ghost Slide</button>
+
+            <button type="button" class="btn btn-main-ghost-curtain">Ghost Curtain</button>
+
+            <button type="button" class="btn btn-main-ghost-reveal">Ghost Reveal</button>
+
+            <button type="button" class="btn btn-main-outline">Outline</button>
+
+            <button type="button" class="btn btn-main-invert">Invert</button>
+
+            <button type="button" class="btn btn-main-white">White</button>
+
+            <button type="button" class="btn btn-main-invert-transparent">Invert Transparent</button>
+
+            <div class="glass-container">
+                <button type="button" class="btn btn-main-glass">Glassmorphism</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="demo-section">
+        <h3 class="mb-4 pb-2 border-bottom">Petite Taille (<code>.btn.btn-sm</code>)</h3>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-main btn-sm">Standard</button>
+
+            <button type="button" class="btn btn-main-gradient btn-sm">Gradient</button>
+
+            <button type="button" class="btn btn-main-ghost-slide btn-sm">Ghost Slide</button>
+
+            <button type="button" class="btn btn-main-ghost-curtain btn-sm">Ghost Curtain</button>
+
+            <button type="button" class="btn btn-main-ghost-reveal btn-sm">Ghost Reveal</button>
+
+            <button type="button" class="btn btn-main-outline btn-sm">Outline</button>
+
+            <button type="button" class="btn btn-main-invert btn-sm">Invert</button>
+
+            <button type="button" class="btn btn-main-white btn-sm">White</button>
+
+            <button type="button" class="btn btn-main-invert-transparent btn-sm">Invert Transparent</button>
+
+            <div class="glass-container p-2">
+                <button type="button" class="btn btn-main-glass btn-sm">Glassmorphism</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
