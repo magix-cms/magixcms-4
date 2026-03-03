@@ -10,7 +10,6 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Debug\Logger;
 use App\Component\Routing\UrlTool;
 use App\Component\Db\ConfigDb;
-// TODO: Importe ici ta classe de configuration de base de données (ex: use App\Backend\Db\ConfigDb;)
 
 class UploadTool
 {
@@ -19,63 +18,12 @@ class UploadTool
     protected UrlTool $urlTool;
     protected ImageManager $imageManager;
     protected Logger $logger;
-
     protected ConfigDb $imageConfig;
 
     private array $mimeTypes = [
-        'txt' => 'text/plain',
-        'htm' => 'text/html',
-        'html' => 'text/html',
-        'php' => 'text/html',
-        'css' => 'text/css',
-        'js' => 'application/javascript',
-        'json' => 'application/json',
-        'xml' => ['application/xml', 'text/xml'],
-        'swf' => 'application/x-shockwave-flash',
-        'flv' => 'video/x-flv',
-
-        // images
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'gif' => 'image/gif',
-        'bmp' => 'image/bmp',
-        'ico' => 'image/vnd.microsoft.icon',
-        'tiff' => 'image/tiff',
-        'tif' => 'image/tiff',
-        'svg' => 'image/svg+xml',
-        'svgz' => 'image/svg+xml',
-        'webp' => 'image/webp',
-
-        // archives
-        'zip' => 'application/zip',
-        'rar' => 'application/x-rar-compressed',
-        'exe' => 'application/x-msdownload',
-        'msi' => 'application/x-msdownload',
-        'cab' => 'application/vnd.ms-cab-compressed',
-
-        // audio/video
-        'mp3' => 'audio/mpeg',
-        'qt' => 'video/quicktime',
-        'mov' => 'video/quicktime',
-        'mp4' => 'video/mp4',
-        'mpeg' => 'video/mpeg',
-
-        // adobe & office
-        'pdf' => 'application/pdf',
-        'psd' => 'image/vnd.adobe.photoshop',
-        'ai' => 'application/postscript',
-        'eps' => 'application/postscript',
-        'doc' => 'application/msword',
-        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'xls' => 'application/vnd.ms-excel',
-        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif', 'webp' => 'image/webp',
+        // Ajoutez ici d'autres mimes si nécessaire (pdf, doc, etc.)
     ];
-
-    public string $image = '';
-    public string $file = '';
-    public array $images = [];
-    public array $files = [];
 
     public function __construct()
     {
@@ -85,307 +33,146 @@ class UploadTool
 
         $this->urlTool = new UrlTool();
         $this->logger = Logger::getInstance();
+        // Initialisation Intervention Image v3
         $this->imageManager = new ImageManager(new Driver());
-
+        // C'est ici qu'on charge la classe qui contient la requête SQL globale
         $this->imageConfig = new ConfigDb();
-
-        if (isset($_FILES['img']['name'])) $this->image = Url::clean($_FILES['img']['name']);
-        if (isset($_FILES['img_multiple']['name'])) $this->images = $_FILES['img_multiple']['name'];
-        if (isset($_FILES['file']['name'])) $this->file = Url::clean($_FILES['file']['name']);
-        if (isset($_FILES['files']['name'])) $this->files = $_FILES['files']['name'];
     }
 
-    public function mimeContentType(array $data): array
+    /**
+     * Méthode principale d'upload multiple
+     */
+    public function multipleImageUpload(string $module, string $attribute, string $root, array $directories = [], array $options = []): array
     {
-        $mimeContent = null;
-        if (isset($data['filename']) && file_exists($data['filename'])) {
-            $mimeContent = mime_content_type($data['filename']);
-        } elseif (isset($data['mime'])) {
-            $mimeContent = $data['mime'];
+        $results = [];
+        $postKey = $options['postKey'] ?? 'img_multiple';
+
+        // 1. Normalisation
+        $files = $this->normalizeFiles($_FILES[$postKey] ?? []);
+
+        if (empty($files)) {
+            return [['status' => false, 'msg' => 'Aucun fichier reçu.']];
         }
 
-        if ($mimeContent !== null) {
-            foreach ($this->mimeTypes as $key => $value) {
-                if (is_array($value) && in_array($mimeContent, $value)) {
-                    return ['type' => $key, 'mime' => $mimeContent];
+        // 2. Setup des dossiers
+        $relativePath = $root . '/' . implode('/', $directories);
+        $targetDir = $this->urlTool->dirUpload($relativePath, true);
+
+        // 3. Récupération dynamique des tailles pour CE module
+        $resizeConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
+
+        $currentSuffix = (int)($options['suffix'] ?? 0);
+        $baseName = $options['name'] ?? 'image';
+
+        foreach ($files as $file) {
+            if ($file['error'] !== UPLOAD_ERR_OK) continue;
+
+            // Incrément suffixe
+            if (!empty($options['suffix_increment'])) {
+                $currentSuffix++;
+            }
+
+            // A. Extension et Noms
+            $originalExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (empty($originalExt)) $originalExt = 'jpg';
+
+            $filenameNoExt = $baseName . '_' . $currentSuffix; // ex: page-contact_25
+            $finalFilename = $filenameNoExt . '.' . $originalExt; // ex: page-contact_25.jpg
+
+            $targetFilePath = $targetDir . $finalFilename;
+
+            try {
+                // B. Sauvegarde physique du MASTER (Format Original)
+                if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+                    throw new \Exception("Erreur déplacement fichier.");
                 }
-                if ($value === $mimeContent) {
-                    return ['type' => $key, 'mime' => $mimeContent];
-                }
+
+                // C. Génération : Master WebP + Toutes les déclinaisons (JPG + WebP)
+                $this->generateVariations($targetFilePath, $targetDir, $filenameNoExt, $originalExt, $resizeConfig);
+
+                $results[] = [
+                    'status' => true,
+                    'file'   => $finalFilename,
+                    'msg'    => 'Upload OK'
+                ];
+
+            } catch (\Throwable $e) {
+                $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
+                $results[] = ['status' => false, 'msg' => $e->getMessage()];
             }
         }
-        return ['type' => null, 'mime' => null];
+
+        return $results;
     }
 
-    private function imageValid(string $filename): bool
-    {
-        try {
-            if (!function_exists('exif_imagetype')) {
-                $size = @getimagesize($filename);
-                if (!$size) return false;
+    /**
+     * Génère le WebP Maître ET toutes les déclinaisons configurées
+     */
+    protected function generateVariations(
+        string $sourceFile,
+        string $targetDir,
+        string $filenameNoExt,
+        string $originalExt,
+        array $configs
+    ): void {
+        // 1. Lecture
+        $image = $this->imageManager->read($sourceFile);
 
-                return in_array($size['mime'], ['image/gif', 'image/jpeg', 'image/png', 'image/webp']);
-            } else {
-                $size = exif_imagetype($filename);
-                return in_array($size, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP]);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
-        }
-        return false;
-    }
+        // 2. Master WebP
+        $image->toWebp(quality: 80)->save($targetDir . $filenameNoExt . self::WEBP_EXT);
 
-    private function imgSizeMin(string $source, int $minw, int $minh): bool
-    {
-        $size = @getimagesize($source);
-        if (!$size) return false;
+        // 3. Déclinaisons
+        if (!empty($configs)) {
+            foreach ($configs as $conf) {
+                // Clone propre
+                $variant = clone $image;
 
-        [$width, $height] = $size;
-        return !($width < $minw || $height < $minh);
-    }
+                $prefix = $conf['prefix'];
+                $width  = (int)$conf['width'];
+                $height = (int)$conf['height'];
 
-    private function reArrayFiles(array $postFiles): array
-    {
-        $files = [];
-        $file_count = count($postFiles['name']);
-        $keys = array_keys($postFiles);
-
-        for ($i = 0; $i < $file_count; $i++) {
-            foreach ($keys as $key) {
-                $files[$i][$key] = $postFiles[$key][$i];
-            }
-        }
-        return $files;
-    }
-
-    private function createFormat(string $path, string $filename, string $ext, int $width, int $height, string $resize = 'basic', string $prefix = ''): string
-    {
-        if (!empty($prefix)) $prefix .= '_';
-
-        try {
-            $image = $this->imageManager->read($path . $filename . $ext);
-
-            switch ($resize) {
-                case 'adaptive':
-                    $image->coverDown($width, $height);
-                    break;
-                case 'basic':
-                default:
-                    $image->scaleDown($width, $height);
-                    break;
-            }
-
-            $image->save($path . $prefix . $filename . $ext, quality: 80);
-
-            if (function_exists('imagewebp')) {
-                $image->save($path . $prefix . $filename . self::WEBP_EXT, quality: 80);
-            }
-
-            return $path . $filename . $ext;
-        } catch (\Throwable $e) {
-            $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
-        }
-        return '';
-    }
-
-    public function getUploadImg(array $image, string $path, bool $debug = false): array
-    {
-        $msg = '';
-        $mimeContent = null;
-        $cleanName = $image["name"];
-
-        if ($image['error'] === UPLOAD_ERR_OK) {
-            if ($this->imageValid($image['tmp_name'])) {
-                $tmpImg = $image["tmp_name"];
-                $mimeContent = $this->mimeContentType(['filename' => $tmpImg]);
-
-                if (is_uploaded_file($tmpImg)) {
-                    $source = $tmpImg;
-                    $cleanName = Url::clean($image["name"]);
-                    $target = $this->urlTool->basePath($path);
-
-                    if (!is_dir($target)) {
-                        mkdir($target, 0755, true);
-                    }
-
-                    if (!move_uploaded_file($source, rtrim($target, DS) . DS . $cleanName)) {
-                        $msg .= 'Erreur lors de l\'écriture du fichier temporaire.';
-                    }
+                if (isset($conf['type']) && $conf['type'] === 'crop') {
+                    $variant->cover($width, $height);
                 } else {
-                    $msg .= 'Erreur d\'écriture disque.';
+                    $variant->scale(width: $width, height: $height);
                 }
-            } else {
-                $msg .= 'Format invalide (seuls jpg, png, gif, webp sont acceptés).';
+
+                // Sauvegarde JPG/PNG
+                $destName = $prefix . '_' . $filenameNoExt . '.' . $originalExt;
+                $variant->save($targetDir . $destName, quality: 80);
+
+                // Sauvegarde WebP
+                $destNameWebp = $prefix . '_' . $filenameNoExt . self::WEBP_EXT;
+                $variant->toWebp(quality: 80)->save($targetDir . $destNameWebp);
+
+                // IMPORTANT : Libérer la mémoire de la variante immédiatement
+                unset($variant);
             }
-        } else {
-            $msg .= match ($image['error']) {
-                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'Le fichier est trop volumineux.',
-                UPLOAD_ERR_CANT_WRITE => 'Erreur d\'écriture disque.',
-                UPLOAD_ERR_NO_FILE => 'Aucun fichier reçu.',
-                default => 'Erreur inconnue lors de l\'upload.',
-            };
         }
 
-        return [
-            'status' => empty($msg),
-            'notify' => empty($msg) ? 'upload' : 'upload_error',
-            'name' => $cleanName,
-            'tmp_name' => $image["tmp_name"],
-            'mimecontent' => $mimeContent,
-            'msg' => empty($msg) ? 'Upload réussi' : $msg
-        ];
+        // IMPORTANT : Libérer l'image maître
+        unset($image);
+        // Force le nettoyage PHP (utile pour les boucles d'images lourdes)
+        if (function_exists('gc_collect_cycles')) {
+            gc_collect_cycles();
+        }
     }
 
-    private function imagePostUploadProcess(array $upload, string $module, string $attribute, string $root, array $directories = [], array $options = [], bool $debug = false): array
+    private function normalizeFiles(array $files): array
     {
-        if (!$upload['status']) return [];
-
-        $dirImg = $this->urlTool->dirUpload($root, true);
-        $imageDirectories = $this->urlTool->dirUploadCollection($root, $directories, true);
-
-        $imageConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
-
-        if ($this->imgSizeMin($dirImg . $upload['name'], 25, 25)) {
-
-            if (!empty($options['edit']) && !empty($imageDirectories)) {
-                foreach ($imageDirectories as $dirPath) {
-                    $imgData = pathinfo($dirPath . $options['edit']);
-                    $filename = $imgData['filename'];
-                    $mimeContent = $this->mimeContentType(['filename' => $dirPath . $options['edit']]);
-                    $ext = '.' . ($mimeContent['type'] ?? 'jpg');
-
-                    foreach ($imageConfig as $key => $value) {
-                        $prefix = (isset($options['prefix']) ? (is_array($options['prefix']) ? $options['prefix'][$key] : $options['prefix']) : $value['prefix']) . '_';
-                        @unlink($dirPath . $prefix . $filename . $ext);
-                        @unlink($dirPath . $prefix . $filename . self::WEBP_EXT);
-                    }
-                    @unlink($dirPath . $filename . $ext);
-                    @unlink($dirPath . $filename . self::WEBP_EXT);
-                }
-            }
-
-            $fileInfo = pathinfo($upload['name']);
-            $ext = '.' . $fileInfo['extension'];
-            $originName = $fileInfo['filename'];
-            $filename = $originName;
-
-            if (!empty($options['name'])) {
-                $filename = $options['name'] . (!empty($options['suffix']) && !is_array($options['suffix']) ? '_' . $options['suffix'] : '');
-                rename($dirImg . $originName . $ext, $dirImg . $filename . $ext);
-            } elseif (!empty($options['suffix']) && !is_array($options['suffix'])) {
-                $filename = $originName . '_' . $options['suffix'];
-                rename($dirImg . $originName . $ext, $dirImg . $filename . $ext);
-            }
-
-            $source = $dirImg . $filename . $ext;
-
-            if (!empty($imageDirectories)) {
-                foreach ($imageDirectories as $dirPath) {
-                    if (!empty($imageConfig)) {
-                        foreach ($imageConfig as $key => $value) {
-                            $prefix = (isset($options['prefix']) ? (is_array($options['prefix']) ? $options['prefix'][$key] : $options['prefix']) : $value['prefix']) . '_';
-                            $suffix = (isset($options['suffix']) && is_array($options['suffix'])) ? $options['suffix'][$key] : '';
-
-                            $this->createFormat($dirPath, $filename . $suffix, $ext, (int)$value['width'], (int)$value['height'], $value['resize'], trim($prefix, '_'));
-                        }
-
-                        try {
-                            $image = $this->imageManager->read($source);
-                            $image->save($dirPath . $filename . $ext, quality: 90);
-                        } catch (\Throwable $e) {
-                            $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
-                        }
-                    }
-                }
-                if (!empty($dirImg)) @unlink($source);
-            }
-
-            if (isset($options['original_remove']) && $options['original_remove']) {
-                foreach ($imageDirectories as $dirPath) {
-                    @unlink($dirPath . $filename . $ext);
-                }
-            }
-
-            return [
-                'file' => $filename . $ext,
-                'status' => $upload['status'],
-                'notify' => $upload['notify'],
-                'msg' => $upload['msg']
-            ];
-        } else {
-            @unlink($dirImg . $upload['name']);
-        }
-
-        return [];
-    }
-
-    public function imageUpload(string $module, string $attribute, string $root, array $directories = [], array $options = [], bool $debug = false): array
-    {
-        $default = [
-            'postKey' => 'img',
-            'name' => '',
-            'edit' => false,
-            'suffix' => null,
-            'suffix_increment' => false,
-            'original_remove' => false,
-            'progress' => true,
-            'template' => null
-        ];
-
-        $options = array_merge($default, $options);
-        $postKey = $options['postKey'];
-
-        if (isset($_FILES[$postKey]['name']) && !empty($_FILES[$postKey]['name'])) {
-            try {
-                $resultUpload = $this->getUploadImg($_FILES[$postKey], $this->urlTool->dirUpload($root, false), $debug);
-                return $this->imagePostUploadProcess($resultUpload, $module, $attribute, $root, $directories, $options, $debug);
-            } catch (\Throwable $e) {
-                $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
+        $normalized = [];
+        if (isset($files['name']) && is_array($files['name'])) {
+            foreach ($files['name'] as $idx => $name) {
+                if (empty($name)) continue;
+                $normalized[] = [
+                    'name'     => $name,
+                    'type'     => $files['type'][$idx],
+                    'tmp_name' => $files['tmp_name'][$idx],
+                    'error'    => $files['error'][$idx],
+                    'size'     => $files['size'][$idx]
+                ];
             }
         }
-        return [];
-    }
-
-    public function multipleImageUpload(string $module, string $attribute, string $root, array $directories = [], array $options = [], bool $debug = false): array
-    {
-        $default = [
-            'postKey' => 'img_multiple',
-            'name' => '',
-            'edit' => false,
-            'suffix' => null,
-            'suffix_increment' => false,
-            'original_remove' => false,
-            'progress' => true,
-            'template' => null
-        ];
-
-        $options = array_merge($default, $options);
-        $postKey = $options['postKey'];
-
-        if (isset($_FILES[$postKey]['name']) && !empty($_FILES[$postKey]['name'])) {
-            try {
-                $resultData = [];
-                $uploadedFiles = $this->reArrayFiles($_FILES[$postKey]);
-
-                if (!empty($uploadedFiles)) {
-                    $resultUpload = [];
-                    foreach ($uploadedFiles as $file) {
-                        $resultUpload[] = $this->getUploadImg($file, $this->urlTool->dirUpload($root, false), $debug);
-                    }
-
-                    foreach ($resultUpload as $upload) {
-                        if (isset($options['suffix']) && $options['suffix_increment']) {
-                            $options['suffix']++;
-                        }
-                        $resultData[] = $this->imagePostUploadProcess($upload, $module, $attribute, $root, $directories, $options, $debug);
-                    }
-
-                    return $resultData;
-                }
-            } catch (\Throwable $e) {
-                $this->logger->log($e, 'php', 'error', Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
-            }
-        }
-        return [];
+        return $normalized;
     }
 }

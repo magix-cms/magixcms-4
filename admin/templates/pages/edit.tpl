@@ -3,9 +3,10 @@
 {block name='head:title'}{#edit_page#}{/block}
 
 {block name='article'}
+    {* En-tête simple (comme à l'origine) *}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="bi bi-file-earmark-richtext me-2"></i> {#edit_page#} 
+            <i class="bi bi-file-earmark-richtext me-2"></i> {#edit_page#}
         </h1>
         <a href="index.php?controller=Pages" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left"></i> {#back_to_list#}
@@ -15,16 +16,26 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white p-0 border-bottom-0">
             <ul class="nav nav-tabs nav-fill" id="pageTab" role="tablist">
+                {* Onglet 1 : Contenu *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active py-3 fw-bold" id="content-tab" data-bs-toggle="tab" data-bs-target="#content_pane" type="button" role="tab">
                         <i class="bi bi-pencil-square me-2"></i>{#content#}
                     </button>
                 </li>
+
+                {* Onglet 2 : Galerie (AJOUTÉ) *}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 fw-bold" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery_pane" type="button" role="tab">
+                        <i class="bi bi-images me-2"></i>Galerie
+                    </button>
+                </li>
+
+                {* Onglet 3 : Sous-pages *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link py-3 fw-bold" id="subpages-tab" data-bs-toggle="tab" data-bs-target="#subpages_pane" type="button" role="tab">
                         <i class="bi bi-diagram-3 me-2"></i>{#subpages#}
-                        <span class="badge {if $subpages|count > 0}bg-primary{else}bg-secondary{/if} ms-1">
-                            {$subpages|count|default:0}
+                        <span class="badge {if isset($subpages) && $subpages|count > 0}bg-primary{else}bg-secondary{/if} ms-1">
+                            {if isset($subpages)}{$subpages|count}{else}0{/if}
                         </span>
                     </button>
                 </li>
@@ -34,6 +45,9 @@
         <div class="card-body p-4">
             <div class="tab-content" id="pageTabContent">
 
+                {* ------------------------------------------------------------------
+                   ONGLET 1 : CONTENU (Code original conservé à 100%)
+                   ------------------------------------------------------------------ *}
                 <div class="tab-pane fade show active" id="content_pane" role="tabpanel">
                     <form id="edit_page_form" action="index.php?controller=Pages&action=edit&edit={$page_data.id_pages}" method="post" class="validate_form">
                         <input type="hidden" name="hashtoken" value="{$hashtoken}">
@@ -43,13 +57,11 @@
                         <div class="row mb-4 bg-light p-3 rounded border">
                             <div class="col-md-2 mb-3 mb-md-0">
                                 <label for="parent_id" class="form-label fw-medium text-muted small">{#id#} {#parent_page#}</label>
-                                {* 1. On retire le name="..." ici. Ce champ ne sert plus qu'à l'affichage visuel *}
                                 <input type="text" id="parent_id" class="form-control bg-white text-center" value="{$page_data.id_parent|default:0}" readonly disabled />
                             </div>
 
                             <div class="col-md-7 mb-3 mb-md-0">
                                 <label for="parent_select" class="form-label fw-medium">{#parent_page#}</label>
-                                {* 2. On met le VRAI name="id_parent" sur le select *}
                                 <select class="form-select selectpicker" data-live-search="true" id="parent_select" name="id_parent" onchange="document.getElementById('parent_id').value = this.value;">
                                     <option value="0">-- {#root_level#} (Aucun parent) --</option>
                                     {if isset($pagesSelect)}
@@ -58,7 +70,6 @@
                                             {if in_array($item.parent_pages, $incorrectParents)}
                                                 {if !in_array($item.id_pages, $incorrectParents)}{$incorrectParents[] = $item.id_pages}{/if}
                                             {elseif $item.id_pages != ($page_data.id_pages|default:0)}
-                                                {* 3. On utilise $page_data.id_parent pour cocher le bon parent *}
                                                 <option value="{$item.id_pages}" {if ($page_data.id_parent|default:0) == $item.id_pages}selected{/if}>
                                                     {$item.name_pages|default:'Page sans nom'} (ID: {$item.id_pages})
                                                 </option>
@@ -71,13 +82,7 @@
                             <div class="col-md-3">
                                 <label class="form-label fw-medium">{#menu#}</label>
                                 <div class="form-check form-switch fs-5 mt-1">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           role="switch"
-                                           id="menu_pages"
-                                           name="menu_pages"
-                                           value="1"
-                                            {if $page_data.menu_pages|default:0 == 1} checked="checked" {/if} />
+                                    <input class="form-check-input" type="checkbox" role="switch" id="menu_pages" name="menu_pages" value="1" {if $page_data.menu_pages|default:0 == 1} checked="checked" {/if} />
                                     <label class="form-check-label fs-6 text-muted" for="menu_pages">Visible</label>
                                 </div>
                             </div>
@@ -107,13 +112,7 @@
                                                 <label class="form-label fw-medium">Statut</label>
                                                 <div class="form-check form-switch fs-5 mt-1">
                                                     <input type="hidden" name="content[{$id}][published_pages]" value="0">
-                                                    <input class="form-check-input"
-                                                           type="checkbox"
-                                                           role="switch"
-                                                           id="switch_pub_{$id}"
-                                                           name="content[{$id}][published_pages]"
-                                                           value="1"
-                                                            {if $page_data.content.$id.published_pages|default:0 == 1} checked="checked" {/if} />
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="switch_pub_{$id}" name="content[{$id}][published_pages]" value="1" {if $page_data.content.$id.published_pages|default:0 == 1} checked="checked" {/if} />
                                                     <label class="form-check-label fs-6 text-muted" for="switch_pub_{$id}">Publiée</label>
                                                 </div>
                                             </div>
@@ -133,26 +132,21 @@
                                         </div>
 
                                         {* URLs (Rewriting & Public) *}
-                                        {* URLs (Rewriting & Public) *}
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label for="url_pages_{$id}" class="form-label fw-medium">{#url_rewriting#}</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text bg-light text-muted"><i class="bi bi-link-45deg"></i></span>
-
-                                                    {* Le champ modifiable avec son ID unique par langue *}
+                                                    {* Champ modifiable *}
                                                     <input type="text" class="form-control bg-light" id="url_pages_{$id}" name="content[{$id}][url_pages]" value="{$page_data.content.$id.url_pages|default:''}" readonly />
-
-                                                    {* Le bouton magique *}
+                                                    {* Bouton cadenas géré par MagixFormTools.js *}
                                                     <button class="btn btn-outline-secondary toggle-url-lock" type="button" data-target="url_pages_{$id}" title="Déverrouiller l'URL">
                                                         <i class="bi bi-lock"></i>
                                                     </button>
                                                 </div>
                                             </div>
-
                                             <div class="col-md-6">
                                                 <label for="public_url_{$id}" class="form-label fw-medium">URL Publique</label>
-                                                {* Ce champ est strictement en lecture seule et ne sera mis à jour qu'à la sauvegarde *}
                                                 <input type="text" class="form-control bg-light text-muted" id="public_url_{$id}" name="content[{$id}][public_url]" value="{$page_data.content.$id.public_url|default:''}" readonly disabled />
                                             </div>
                                         </div>
@@ -171,7 +165,7 @@
 
                                         {* Accordéons pour SEO et Liens *}
                                         <div class="accordion mb-3" id="advancedAccordion_{$id}">
-
+                                            {* Liens Personnalisés *}
                                             <div class="accordion-item border-0 bg-light rounded mb-2">
                                                 <h2 class="accordion-header">
                                                     <button class="accordion-button collapsed bg-transparent shadow-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#link_{$id}">
@@ -192,6 +186,7 @@
                                                 </div>
                                             </div>
 
+                                            {* SEO *}
                                             <div class="accordion-item border-0 bg-light rounded">
                                                 <h2 class="accordion-header">
                                                     <button class="accordion-button collapsed bg-transparent shadow-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#seo_{$id}">
@@ -226,6 +221,7 @@
                             {/if}
                         </div>
 
+                        {* BOUTON D'ACTION ORIGINAL EN BAS *}
                         <hr class="my-4">
                         <div class="d-flex justify-content-end">
                             <button type="submit" name="action" value="edit" class="btn btn-primary px-5">
@@ -235,6 +231,79 @@
                     </form>
                 </div>
 
+                {* --- ONGLET 2 : GALERIE --- *}
+                <div class="tab-pane fade" id="gallery_pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-12">
+
+                            {* Zone d'Upload via MagixForms *}
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-white py-3 border-bottom">
+                                    <h6 class="m-0 fw-bold text-primary"><i class="bi bi-cloud-upload me-2"></i> Ajouter des images</h6>
+                                </div>
+                                <div class="card-body bg-light">
+                                    {* 1. class="upload_form" : Active MagixForms
+                                       2. action="..." : L'URL de traitement
+                                       3. data-edit-id="..." : L'ID pour le rafraichissement auto
+                                    *}
+                                    <form class="upload_form"
+                                          action="index.php?controller=Pages&action=processUploadImages"
+                                          method="post"
+                                          enctype="multipart/form-data"
+                                          data-edit-id="{$page_data.id_pages}">
+
+                                        <input type="hidden" name="id" value="{$page_data.id_pages}">
+
+                                        <div class="row align-items-end g-3">
+                                            <div class="col-md-9">
+                                                <label for="img_multiple" class="form-label text-muted">Sélectionner des fichiers</label>
+                                                <input class="form-control" type="file" id="img_multiple" name="img_multiple[]" multiple accept="image/*">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="bi bi-upload me-2"></i> Envoyer
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {* Barre de progression compatible MagixForms *}
+                                        <div class="progress-container mt-3 d-none">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <small class="progress-status text-muted">Préparation...</small>
+                                                <small class="progress-percentage fw-bold">0%</small>
+                                            </div>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {* Conteneur Galerie
+                               ID="block-img" car MagixForms cherche cet ID dans refreshImagesBlock()
+                            *}
+                            <div id="block-img">
+                                {* Chargement initial via PHP ou Ajax au chargement de page *}
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                </div>
+                            </div>
+
+                            {* Bouton suppression de masse (Géré par MagixGallery.js, car spécifique) *}
+                            <div class="mt-3 pt-3 border-top">
+                                <button type="button" id="btn-delete-selection" class="btn btn-danger btn-sm disabled">
+                                    <i class="bi bi-trash me-1"></i> Supprimer la sélection
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {* ------------------------------------------------------------------
+                   ONGLET 3 : SOUS-PAGES (Code original conservé)
+                   ------------------------------------------------------------------ *}
                 <div class="tab-pane fade" id="subpages_pane" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 text-muted small text-uppercase fw-bold">{#children_pages#|default:'Sous-pages'}</h5>
@@ -254,47 +323,36 @@
         </div>
     </div>
 {/block}
+
 {block name="javascripts" append}
+    {* Librairie SortableJS pour le Drag&Drop *}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    {* 1. CORRECTION DES CHEMINS
+       Vérifiez si vos fichiers sont dans 'templates/js/' ou 'skin/admin/js/'
+    *}
+    <script src="templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
+    <script src="templates/js/MagixGallery.min.js?v={$smarty.now}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // On écoute les clics sur tous les boutons ayant la classe 'toggle-url-lock'
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.toggle-url-lock');
+            // 1. Initialise les utilitaires (Compteurs SEO, Cadenas URL...)
+            new MagixFormTools();
 
-                if (btn) {
-                    e.preventDefault();
+            // 2. Initialise MagixForms pour gérer l'UPLOAD et la PROGRESS BAR
+            // Il va chercher automatiquement les formulaires avec la classe .upload_form
+            new MagixForms('Pages');
 
-                    // On récupère l'ID du champ cible (ex: url_pages_1)
-                    const targetId = btn.getAttribute('data-target');
-                    const input = document.getElementById(targetId);
-                    const icon = btn.querySelector('i');
+            // 3. Initialise MagixGallery pour gérer le DELETE, DEFAULT et DRAG&DROP
+            // On ne lui passe PLUS les configurations d'upload car MagixForms s'en charge.
+            new MagixGallery({
+                controller: 'Pages',
+                itemId: {$page_data.id_pages},
 
-                    if (input) {
-                        // Si le champ est verrouillé, on le déverrouille
-                        if (input.hasAttribute('readonly')) {
-                            input.removeAttribute('readonly');
-                            input.classList.remove('bg-light'); // Enlève le fond gris
+                // IMPORTANT : Doit correspondre à l'ID dans le HTML (ligne 189 de votre code)
+                containerId: 'block-img',
 
-                            // Changement de l'icône (Cadenas ouvert)
-                            icon.classList.remove('bi-lock');
-                            icon.classList.add('bi-unlock', 'text-warning');
-                            btn.setAttribute('title', 'Verrouiller l\'URL');
-
-                            // Optionnel : On place le curseur dans le champ
-                            input.focus();
-                        }
-                        // Sinon, on le verrouille à nouveau
-                        else {
-                            input.setAttribute('readonly', 'readonly');
-                            input.classList.add('bg-light'); // Remet le fond gris
-
-                            // Changement de l'icône (Cadenas fermé)
-                            icon.classList.remove('bi-unlock', 'text-warning');
-                            icon.classList.add('bi-lock');
-                            btn.setAttribute('title', 'Déverrouiller l\'URL');
-                        }
-                    }
-                }
+                massDeleteBtnId: 'btn-delete-selection'
             });
         });
     </script>

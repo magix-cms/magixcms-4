@@ -289,6 +289,116 @@ class PagesDb extends BaseDb
         return false;
     }
     /**
+     * Insère une nouvelle image et la définit par défaut si c'est la première
+     */
+    public function insertImage(int $pageId, string $filename): bool
+    {
+        $qbCount = new QueryBuilder();
+        $qbCount->select(['COUNT(id_img) as total'])
+            ->from('mc_cms_page_img')
+            ->where('id_pages = :id', ['id' => $pageId]);
+
+        $countResult = $this->executeRow($qbCount);
+        $order = (int)($countResult['total'] ?? 0);
+        $isDefault = ($order === 0) ? 1 : 0;
+
+        $qbInsert = new QueryBuilder();
+        $qbInsert->insert('mc_cms_page_img', [
+            'id_pages'    => $pageId,
+            'name_img'    => $filename,
+            'order_img'   => $order,
+            'default_img' => $isDefault
+        ]);
+
+        return $this->executeInsert($qbInsert);
+    }
+
+    /**
+     * Met à jour l'ordre des images (Drag & Drop)
+     */
+    public function reorderImages(array $imageIds): bool
+    {
+        $success = true;
+        foreach ($imageIds as $index => $id) {
+            $qb = new QueryBuilder();
+            $qb->update('mc_cms_page_img', ['order_img' => $index])
+                ->where('id_img = :id_img', ['id_img' => (int)$id]);
+
+            if (!$this->executeUpdate($qb)) {
+                $success = false;
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Définit une image comme image par défaut pour une page
+     */
+    public function setDefaultImage(int $pageId, int $imageId): bool
+    {
+        // 1. On remet toutes les images de la page à 0
+        $qbReset = new QueryBuilder();
+        $qbReset->update('mc_cms_page_img', ['default_img' => 0])
+            ->where('id_pages = :id_pages', ['id_pages' => $pageId]);
+        $this->executeUpdate($qbReset);
+
+        // 2. On passe la nouvelle image à 1
+        $qbSet = new QueryBuilder();
+        $qbSet->update('mc_cms_page_img', ['default_img' => 1])
+            ->where('id_img = :id_img', ['id_img' => $imageId]);
+
+        return $this->executeUpdate($qbSet);
+    }
+
+    /**
+     * Récupère le plus grand ID pour le suffixe lors de l'upload
+     */
+    public function getLastImageId(int $pageId): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select(['MAX(id_img) as max_id'])
+            ->from('mc_cms_page_img')
+            ->where('id_pages = :id', ['id' => $pageId]);
+
+        $result = $this->executeRow($qb);
+        return (int)($result['max_id'] ?? 0);
+    }
+    /**
+     * Récupère toutes les images d'une page triées par ordre
+     */
+    public function fetchImagesByPage(int $pageId): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select(['*'])
+            ->from('mc_cms_page_img')
+            ->where('id_pages = :id', ['id' => $pageId])
+            ->orderBy('order_img', 'ASC');
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
+
+    /**
+     * Supprime une image de la base de données (et retourne ses infos pour suppression physique)
+     */
+    public function deleteImage(int $imageId): array|false
+    {
+        // 1. On récupère les infos de l'image avant de la supprimer
+        $qbSelect = new QueryBuilder();
+        $qbSelect->select(['*'])->from('mc_cms_page_img')->where('id_img = :id', ['id' => $imageId]);
+        $img = $this->executeRow($qbSelect);
+
+        if ($img) {
+            // 2. On supprime l'entrée en BDD
+            $qbDel = new QueryBuilder();
+            $qbDel->delete('mc_cms_page_img')->where('id_img = :id', ['id' => $imageId]);
+            if ($this->executeDelete($qbDel)) {
+                return $img; // On retourne l'image pour pouvoir effacer les fichiers physiques
+            }
+        }
+        return false;
+    }
+    /**
      * Utilitaire privé pour formater la date avant de l'envoyer dans la requête LIKE.
      * À remplacer si tu as un DateTool dans Magepattern.
      */

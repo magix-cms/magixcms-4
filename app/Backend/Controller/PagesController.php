@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Backend\Controller;
 
 use App\Backend\Db\PagesDb;
+use App\Component\Db\ConfigDb;       // Nécesaire pour connaître les tailles (s, m, l)
+use App\Component\Routing\UrlTool;   // Nécessaire pour le chemin absolu
+use App\Component\File\UploadTool;
+use App\Component\File\ImageTool;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
+use Magepattern\Component\File\FileTool; // Nécessaire pour la suppression physique
 
 class PagesController extends BaseController
 {
@@ -19,6 +24,7 @@ class PagesController extends BaseController
 
     public function run(): void
     {
+        // ... (Code identique au vôtre) ...
         // --- 1. MINI-ROUTEUR D'ACTION ---
         $action = $_GET['action'] ?? null;
         if ($action && $action !== 'run' && method_exists($this, $action)) {
@@ -30,7 +36,6 @@ class PagesController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
         $db = new PagesDb();
 
-        // Colonnes cibles (uniquement les données réelles)
         $targetColumns = ['id_pages', 'parent_pages', 'name_pages', 'published_pages', 'date_register'];
 
         $rawScheme = array_merge(
@@ -38,7 +43,6 @@ class PagesController extends BaseController
             $db->getTableScheme('mc_cms_page_content')
         );
 
-        // Simulation de la colonne virtuelle pour le nom du parent
         $rawScheme[] = ['column' => 'parent_pages', 'type' => 'varchar(255)'];
 
         $associations = [
@@ -58,7 +62,6 @@ class PagesController extends BaseController
         $result = $db->fetchAllPages($page, $limit, $search, $idLangue);
 
         if ($result !== false) {
-            // Le 3ème paramètre 'true' active le $sortable dans getItems
             $this->getItems('pages', $result['data'], true, $result['meta']);
         }
 
@@ -69,36 +72,32 @@ class PagesController extends BaseController
             'hashtoken'  => $token,
             'url_token'  => urlencode($token),
             'get_search' => $search,
-            'sortable'   => false,   // On force l'activation pour table-rows.tpl
-            'checkbox'   => true,   // On force l'activation des checkboxes
-            'edit'       => true,   // Active la colonne Actions (Edit)
-            'dlt'        => true    // Active la colonne Actions (Delete)
+            'sortable'   => false,
+            'checkbox'   => true,
+            'edit'       => true,
+            'dlt'        => true
         ]);
 
         $this->view->display('pages/index.tpl');
     }
-    /**
-     * Affiche le formulaire d'ajout et intercepte la création
-     */
+
+    // ... (Méthodes add, processAdd, edit, processSave, reorder, delete inchangées) ...
     public function add(): void
     {
         $db = new PagesDb();
         $idLangue = (int)$this->defaultLang['id_lang'];
-        $activeLangs = $db->fetchLanguages(); // Hérité de BaseDb !
+        $activeLangs = $db->fetchLanguages();
 
-        // --- INTERCEPTION POST ---
         if (Request::isMethod('POST')) {
             $this->processAdd($db);
             return;
         }
 
-        // On récupère uniquement la liste des pages pour le menu déroulant "Parent"
         $pagesSelect = $db->fetchAllPagesForSelect($idLangue);
 
-        // Assignation à la vue
         $this->view->assign([
             'pagesSelect' => $pagesSelect,
-            'langs'       => $activeLangs, // Très important pour afficher les onglets dans add.tpl
+            'langs'       => $activeLangs,
             'hashtoken'   => $this->session->getToken(),
             'url_token'   => urlencode($this->session->getToken())
         ]);
@@ -106,39 +105,29 @@ class PagesController extends BaseController
         $this->view->display('pages/add.tpl');
     }
 
-    /**
-     * Traite la création d'une nouvelle page (Structure puis Contenus)
-     */
     private function processAdd(PagesDb $db): void
     {
-        // 1. Sécurité
         $token = Request::isPost('hashtoken') ? $_POST['hashtoken'] : '';
         if (!$this->session->validateToken($token)) {
             $this->jsonResponse(false, 'Session expirée.', ['success' => false]);
         }
 
-        // 2. Traitement de la structure (Création)
         $idParent = (int)($_POST['id_parent'] ?? 0);
 
-        // On initialise les données obligatoires
         $mainData = [
             'menu_pages' => (int)($_POST['menu_pages'] ?? 0)
         ];
 
-        // L'ASTUCE EST ICI : On n'ajoute 'id_parent' que si c'est un vrai ID (> 0)
-        // S'il n'y est pas, MySQL mettra DEFAULT NULL sans faire d'erreur
         if ($idParent > 0) {
             $mainData['id_parent'] = $idParent;
         }
 
-        // On insère et on récupère le nouvel ID !
         $newId = $db->insertPageStructure($mainData);
 
         if (!$newId) {
             $this->jsonResponse(false, 'Erreur lors de la création de la structure de la page.', ['success' => false]);
         }
 
-        // 3. Traitement des contenus (Traductions)
         $success = true;
         $activeLangs = $db->fetchLanguages();
 
@@ -147,7 +136,6 @@ class PagesController extends BaseController
 
                 if (!isset($activeLangs[(int)$idLang])) continue;
 
-                // Nettoyage et génération du slug
                 $url = trim($values['url_pages'] ?? '');
                 if ($url === '') {
                     $url = Url::clean($values['name_pages'] ?? '');
@@ -169,17 +157,13 @@ class PagesController extends BaseController
                     'last_update'      => date('Y-m-d H:i:s')
                 ];
 
-                // On réutilise savePageContent !
-                // S'il ne trouve pas le couple ($newId + $idLang), il fera automatiquement un INSERT
                 if (!$db->savePageContent($newId, (int)$idLang, $data)) {
                     $success = false;
                 }
             }
         }
 
-        // 4. Réponse JSON finale
         if ($success) {
-            // Si c'est un succès, le JS (add_form) va rediriger l'utilisateur vers le listing (index.php?controller=Pages)
             $this->jsonResponse(true, 'La page a été créée avec succès.', [
                 'success' => true,
                 'type'    => 'add',
@@ -189,43 +173,28 @@ class PagesController extends BaseController
             $this->jsonResponse(false, 'Page créée, mais erreur lors de l\'enregistrement des contenus.', ['success' => false]);
         }
     }
-    /**
-     * @return void
-     * @throws \Smarty\Exception
-     */
-    /**
-     * Affiche le formulaire d'édition et intercepte la sauvegarde
-     */
-    /**
-     * Affiche le formulaire d'édition et intercepte la sauvegarde
-     */
+
     public function edit(): void
     {
         $id = (int)($_REQUEST['edit'] ?? $_POST['id_pages'] ?? 0);
         $db = new PagesDb();
 
         $idLangue = (int)$this->defaultLang['id_lang'];
-
-        // On récupère les langues actives pour les calculs d'URL
         $activeLangs = $db->fetchLanguages();
 
-        // --- INTERCEPTION POST ---
         if (Request::isMethod('POST')) {
             $this->processSave($db, $id);
             return;
         }
 
-        // 1. Chargement des données
         $pageData = $db->fetchPageById($id);
         if (!$pageData) {
-            // Ici tu peux ajouter une redirection vers le listing si l'ID n'existe pas
             return;
         }
 
         $children = $db->fetchPagesByParent($id, $idLangue);
         $pagesSelect = $db->fetchAllPagesForSelect($idLangue);
 
-        // 2. Préparation du schéma pour le listing des sous-pages (si nécessaire)
         $targetColumns = ['id_pages', 'parent_pages', 'name_pages', 'published_pages', 'date_register'];
         $rawScheme = array_merge(
             $db->getTableScheme('mc_cms_page'),
@@ -248,15 +217,12 @@ class PagesController extends BaseController
             $subpagesData = $this->getItems('subpages', $children, true);
         }
 
-        // 3. Calcul des URLs publiques pour l'affichage initial dans le template
         $controller = StringTool::strtolower($_GET['controller'] ?? 'pages');
         foreach ($activeLangs as $langId => $iso) {
             $slug = $pageData['content'][$langId]['url_pages'] ?? '';
-            // On injecte dynamiquement la clé public_url dans le tableau Smarty
             $pageData['content'][$langId]['public_url'] = '/' . $iso . '/' . $controller . '/' . $id . '-' . $slug . '/';
         }
 
-        // 4. Assignation finale
         $this->view->assign([
             'page_data'   => $pageData,
             'subpages'    => $subpagesData ?: $children,
@@ -273,18 +239,13 @@ class PagesController extends BaseController
         $this->view->display('pages/edit.tpl');
     }
 
-    /**
-     * Traite la sauvegarde des données (Structure + Contenu)
-     */
     private function processSave(PagesDb $db, int $idPage): void
     {
-        // 1. Sécurité
         $token = Request::isPost('hashtoken') ? $_POST['hashtoken'] : '';
         if (!$this->session->validateToken($token)) {
             $this->jsonResponse(false, 'Session expirée.', ['success' => false]);
         }
 
-        // 2. Vérification de l'ID
         if ($idPage === 0) {
             $idPage = (int)($_POST['id_pages'] ?? 0);
         }
@@ -297,7 +258,6 @@ class PagesController extends BaseController
         $activeLangs = $db->fetchLanguages();
         $controller = StringTool::strtolower($_GET['controller'] ?? 'pages');
 
-        // 3. Traitement de la structure (mc_cms_page)
         $idParent = (int)($_POST['id_parent'] ?? 0);
         $finalParentId = ($idParent > 0 && $idParent !== $idPage) ? $idParent : null;
 
@@ -310,18 +270,13 @@ class PagesController extends BaseController
             $success = false;
         }
 
-        // 4. SÉCURITÉ : Vérifie que le tableau content existe bien
         if (!isset($_POST['content']) || !is_array($_POST['content'])) {
             $this->jsonResponse(false, 'Erreur : Aucune donnée de traduction reçue.', ['success' => false]);
         }
 
-        // 5. Traitement des contenus
         foreach ($_POST['content'] as $idLang => $values) {
-
-            // ON NE SKIP PLUS LA BOUCLE ! On utilise 'fr' en dernier recours si la langue n'est pas indexée.
             $iso = $activeLangs[(int)$idLang] ?? 'fr';
 
-            // Nettoyage et génération du slug
             $url = trim($values['url_pages'] ?? '');
             if ($url === '') {
                 $url = Url::clean($values['name_pages'] ?? '');
@@ -329,7 +284,6 @@ class PagesController extends BaseController
                 $url = Url::clean($url);
             }
 
-            // Construction de l'URL publique
             $publicUrls[$idLang] = '/' . $iso . '/' . $controller . '/' . $idPage . '-' . $url . '/';
 
             $data = [
@@ -351,7 +305,6 @@ class PagesController extends BaseController
             }
         }
 
-        // 6. Réponse JSON
         if ($success) {
             $this->jsonResponse(true, 'La page a été mise à jour avec succès.', [
                 'success'     => true,
@@ -363,9 +316,7 @@ class PagesController extends BaseController
             $this->jsonResponse(false, 'Erreur SQL lors de l\'enregistrement des contenus.', ['success' => false]);
         }
     }
-    /**
-     * Méthode appelée en AJAX lors du drag & drop
-     */
+
     public function reorder(): void
     {
         if (ob_get_length()) ob_clean();
@@ -374,7 +325,6 @@ class PagesController extends BaseController
         $token = str_replace(' ', '+', $rawToken);
 
         if (!$this->session->validateToken($token)) {
-            // Changement ici : 'success' => false
             $this->sendJsonResponse(['success' => false, 'message' => 'Token invalide']);
         }
 
@@ -389,8 +339,6 @@ class PagesController extends BaseController
                     $db->updateOrderPages((int)$id, $position);
                     $position++;
                 }
-
-                // Changement ici : 'success' => true
                 $this->sendJsonResponse(['success' => true, 'message' => 'Ordre mis à jour']);
             } catch (\Exception $e) {
                 $this->sendJsonResponse(['success' => false, 'message' => $e->getMessage()]);
@@ -399,9 +347,7 @@ class PagesController extends BaseController
 
         $this->sendJsonResponse(['success' => false, 'message' => 'Données invalides']);
     }
-    /**
-     * Supprime une page via AJAX
-     */
+
     public function delete(): void
     {
         if (ob_get_length()) ob_clean();
@@ -411,10 +357,7 @@ class PagesController extends BaseController
             $this->sendJsonResponse(['success' => false, 'message' => 'Token invalide']);
         }
 
-        // On récupère soit un ID unique (bouton ligne), soit un tableau (bulk delete)
         $ids = $_POST['ids'] ?? [$_POST['id'] ?? null];
-
-        // Nettoyage et filtrage pour n'avoir que des entiers valides
         $cleanIds = array_filter(array_map('intval', (array)$ids));
 
         if (!empty($cleanIds)) {
@@ -423,16 +366,214 @@ class PagesController extends BaseController
                 $this->sendJsonResponse([
                     'success' => true,
                     'message' => count($cleanIds) > 1 ? 'Les pages ont été supprimées.' : 'La page a été supprimée.',
-                    'ids' => $cleanIds // On renvoie les IDs supprimés pour que le JS les retire du DOM
+                    'ids' => $cleanIds
                 ]);
             }
         }
 
         $this->sendJsonResponse(['success' => false, 'message' => 'Aucune page sélectionnée.']);
     }
+
     /**
-     * Envoie une réponse JSON et coupe l'exécution
+     * Traite l'upload multiple et renvoie une réponse JSON standardisée
      */
+    /**
+     * @return void
+     */
+    public function processUploadImages(): void
+    {
+        $idPage = (int)($_POST['id'] ?? 0);
+
+        // 1. Vérification de base
+        if ($idPage <= 0 || empty($_FILES['img_multiple']['name'][0])) {
+            $this->sendJsonResponse(['success' => false, 'message' => 'Aucun fichier reçu.']);
+        }
+
+        $db = new PagesDb();
+
+        // 2. Préparation
+        $pageData = $db->fetchPageById($idPage);
+        $idLangue = (int)$this->defaultLang['id_lang'];
+        $slug = !empty($pageData['content'][$idLangue]['url_pages']) ? $pageData['content'][$idLangue]['url_pages'] : 'page';
+
+        $uploadTool = new UploadTool();
+        $lastImageId = $db->getLastImageId($idPage);
+
+        // 3. Exécution Upload
+        $results = $uploadTool->multipleImageUpload(
+            'pages', 'pages', 'upload/pages', [(string)$idPage],
+            [
+                'postKey'          => 'img_multiple',
+                'suffix'           => $lastImageId,
+                'suffix_increment' => true,
+                'name'             => $slug
+            ]
+        );
+
+        // 4. Insertion BDD
+        $uploadedCount = 0;
+        $errors = [];
+
+        foreach ($results as $res) {
+            if ($res['status'] === true) {
+                if ($db->insertImage($idPage, $res['file'])) {
+                    $uploadedCount++;
+                }
+            } else {
+                $errors[] = $res['msg'];
+            }
+        }
+
+        // 5. Réponse JSON explicite pour le JS
+        if ($uploadedCount > 0) {
+            $this->sendJsonResponse([
+                'success' => true, // C'est la clé que le JS attend !
+                'message' => "$uploadedCount image(s) ajoutée(s).",
+                'uploaded' => $uploadedCount
+            ]);
+        } else {
+            $msg = !empty($errors) ? implode(', ', $errors) : 'Erreur lors du traitement.';
+            $this->sendJsonResponse(['success' => false, 'message' => $msg]);
+        }
+    }
+
+    public function processOrderImages(): void
+    {
+        $imageIds = $_POST['image'] ?? [];
+
+        if (!empty($imageIds) && is_array($imageIds)) {
+            $db = new PagesDb();
+
+            if ($db->reorderImages($imageIds)) {
+                $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
+            } else {
+                $this->jsonResponse(false, 'Une erreur est survenue lors de la sauvegarde de l\'ordre.');
+            }
+        } else {
+            $this->jsonResponse(false, 'Aucune donnée d\'ordre reçue.');
+        }
+    }
+
+    public function processSetDefaultImage(): void
+    {
+        $idPage = (int)($_POST['edit'] ?? 0);
+        $idImg = (int)($_POST['id_img'] ?? 0);
+
+        if ($idPage > 0 && $idImg > 0) {
+            $db = new PagesDb();
+
+            if ($db->setDefaultImage($idPage, $idImg)) {
+                $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
+            } else {
+                $this->jsonResponse(false, 'Erreur lors de la mise à jour de l\'image par défaut.');
+            }
+        } else {
+            $this->jsonResponse(false, 'Paramètres manquants.');
+        }
+    }
+
+    /**
+     * Supprime une ou plusieurs images (Base de données + Fichiers Physiques)
+     */
+    public function processDeleteImage(): void
+    {
+        // 1. Récupération des IDs
+        $ids = $_POST['ids'] ?? [];
+        if (empty($ids) && isset($_POST['id_img'])) {
+            $ids = [$_POST['id_img']];
+        }
+
+        $idPage = (int)($_POST['id_pages'] ?? 0);
+
+        if (!empty($ids)) {
+            $db = new PagesDb();
+            $configDb = new ConfigDb();
+            $urlTool = new UrlTool();
+
+            // 2. Récupération de la config des tailles (pour savoir quels fichiers supprimer)
+            $configs = $configDb->fetchImageSizes('pages', 'pages');
+
+            // 3. Définition du chemin physique absolu
+            // ex: /var/www/html/upload/pages/20/
+            $uploadDir = $urlTool->dirUpload('upload/pages/' . $idPage, true);
+
+            $deletedCount = 0;
+
+            foreach ($ids as $idImg) {
+                // Suppression BDD + Récupération des infos (nom du fichier)
+                $imgData = $db->deleteImage((int)$idImg);
+
+                if ($imgData && !empty($imgData['name_img'])) {
+                    // Liste des fichiers à supprimer
+                    $filesToDelete = [];
+                    $filename = $imgData['name_img'];
+                    $nameNoExt = pathinfo($filename, PATHINFO_FILENAME);
+                    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+
+                    // A. Fichiers Maîtres (Original + WebP)
+                    $filesToDelete[] = $uploadDir . $filename;
+                    $filesToDelete[] = $uploadDir . $nameNoExt . '.webp';
+
+                    // B. Fichiers Variantes (Préfixes + Original/WebP)
+                    if (!empty($configs)) {
+                        foreach ($configs as $conf) {
+                            $prefix = $conf['prefix'] . '_';
+                            // Format origine (ex: s_page.jpg)
+                            $filesToDelete[] = $uploadDir . $prefix . $filename;
+                            // Format WebP (ex: s_page.webp)
+                            $filesToDelete[] = $uploadDir . $prefix . $nameNoExt . '.webp';
+                        }
+                    }
+
+                    // 4. Suppression physique réelle via FileTool
+                    FileTool::remove($filesToDelete);
+
+                    $deletedCount++;
+                }
+            }
+
+            if ($deletedCount > 0) {
+                $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
+            }
+        }
+
+        $this->jsonResponse(false, 'Erreur lors de la suppression.');
+    }
+
+    /**
+     * Renvoie le HTML de la galerie mise à jour via AJAX
+     */
+    /**
+     * Renvoie le HTML de la galerie pour MagixForms (JSON)
+     * RMPLACE reloadGallery()
+     */
+    public function getImages(): void
+    {
+        // On récupère l'ID via 'edit' (standard MagixForms) ou 'id_pages'
+        $idPage = (int)($_GET['edit'] ?? $_GET['id_pages'] ?? 0);
+
+        if ($idPage > 0) {
+            $db = new PagesDb();
+            $images = $db->fetchImagesByPage($idPage);
+
+            $imageTool = new \App\Component\File\ImageTool();
+            $formattedImages = $imageTool->setModuleImages('pages', 'pages', $images, $idPage);
+
+            $this->view->assign([
+                'images'   => $formattedImages,
+                'id_pages' => $idPage
+            ]);
+
+            // On capture le HTML
+            $html = $this->view->fetch('components/gallery.tpl');
+
+            // On renvoie le JSON attendu par MagixForms
+            $this->sendJsonResponse(['result' => $html]);
+        }
+
+        $this->sendJsonResponse(['result' => '<div class="alert alert-danger">Erreur ID</div>']);
+    }
+
     private function sendJsonResponse(array $data): void
     {
         header('Content-Type: application/json');

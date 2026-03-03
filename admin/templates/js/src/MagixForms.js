@@ -183,98 +183,131 @@ class MagixForms {
         const uploadForms = document.querySelectorAll('.upload_form');
 
         uploadForms.forEach(form => {
+            // SÉCURITÉ ANTI-DOUBLON : Si le formulaire est déjà initialisé, on arrête tout.
+            if (form.dataset.magixInitialized === "true") return;
+            form.dataset.magixInitialized = "true";
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const fileInput = form.querySelector('input[type="file"]');
+
+            // 1. Gestion État Bouton
+            if (submitBtn && fileInput) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length > 0) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('disabled');
+                    } else {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('disabled');
+                    }
+                });
+            }
+
+            // 2. Écouteur Submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
+                e.stopImmediatePropagation(); // Empêche d'autres scripts de s'en mêler
+
+                // SÉCURITÉ ANTI-DOUBLE CLIC : Si déjà en cours d'envoi, on stop.
+                if (form.dataset.uploading === "true") return;
+
+                if (fileInput && fileInput.files.length === 0) {
+                    alert('Veuillez sélectionner un fichier.');
+                    return;
+                }
+
+                // VERROUILLAGE
+                form.dataset.uploading = "true";
+                if(submitBtn) submitBtn.disabled = true;
 
                 const formData = new FormData(form);
                 const url = form.getAttribute('action');
 
+                // UI Elements
                 const progressContainer = form.querySelector('.progress-container');
                 const progressBar = form.querySelector('.progress-bar');
                 const progressStatus = form.querySelector('.progress-status');
                 const progressPercentage = form.querySelector('.progress-percentage');
-                const submitBtn = form.querySelector('button[type="submit"]');
 
                 if (progressContainer) progressContainer.classList.remove('d-none');
                 if (progressBar) {
                     progressBar.style.width = '0%';
-                    progressBar.classList.remove('bg-success', 'bg-danger');
-                    progressBar.classList.add('bg-primary', 'progress-bar-animated');
+                    progressBar.className = 'progress-bar bg-primary progress-bar-animated';
                 }
-                submitBtn.disabled = true;
 
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', url, true);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-                let oldResponseLength = 0;
-
                 xhr.upload.addEventListener('progress', (event) => {
                     if (event.lengthComputable && progressBar) {
-                        const percentComplete = Math.round((event.loaded / event.total) * 50);
-                        progressBar.style.width = percentComplete + '%';
-                        if (progressPercentage) progressPercentage.textContent = percentComplete + '%';
-                        if (progressStatus) progressStatus.innerHTML = '<i class="bi bi-cloud-arrow-up"></i> Envoi des fichiers...';
-                    }
-                });
-
-                xhr.addEventListener('progress', () => {
-                    if (xhr.readyState !== 4) {
-                        const newResponse = xhr.responseText.substring(oldResponseLength);
-                        if (newResponse.trim() !== '') {
-                            try {
-                                const result = JSON.parse(newResponse.trim());
-                                if (result.progress && progressBar) {
-                                    progressBar.style.width = result.progress + '%';
-                                    if (progressPercentage) progressPercentage.textContent = result.progress + '%';
-                                }
-                                if (result.message && progressStatus) {
-                                    progressStatus.innerHTML = `<i class="bi bi-arrow-repeat bi-spin"></i> ${result.message}`;
-                                }
-                                oldResponseLength = xhr.responseText.length;
-                            } catch (e) {}
-                        }
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        progressBar.style.width = percent + '%';
+                        if (progressPercentage) progressPercentage.textContent = percent + '%';
+                        if (progressStatus) progressStatus.innerHTML = '<i class="bi bi-cloud-arrow-up"></i> Traitement image...';
                     }
                 });
 
                 xhr.onload = async () => {
-                    submitBtn.disabled = false;
+                    // DÉVERROUILLAGE
+                    form.dataset.uploading = "false";
 
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        let responseText = xhr.responseText;
-                        const jsonStart = responseText.lastIndexOf('{');
-                        if (jsonStart > 0) responseText = responseText.substring(jsonStart);
-
                         try {
+                            // Nettoyage de la réponse si des warnings PHP trainent
+                            let responseText = xhr.responseText;
+                            const jsonStart = responseText.indexOf('{');
+                            if (jsonStart > -1) responseText = responseText.substring(jsonStart);
+
                             const data = JSON.parse(responseText);
 
-                            if (data.status === 'success' || data.success) {
+                            if (data.success || data.status === 'success') {
+                                // SUCCÈS
                                 if (progressBar) {
                                     progressBar.style.width = '100%';
                                     progressBar.classList.replace('bg-primary', 'bg-success');
                                     progressBar.classList.remove('progress-bar-animated');
                                 }
                                 if (progressStatus) progressStatus.innerHTML = '<i class="bi bi-check-circle"></i> Terminé !';
-                                if (progressPercentage) progressPercentage.textContent = '100%';
+                                if (typeof MagixToast !== 'undefined') MagixToast.success('Upload réussi.');
 
-                                if (typeof MagixToast !== 'undefined') MagixToast.success(data.message || 'Fichiers traités avec succès.');
-
-                                // Rafraîchissement automatique du bloc d'images
+                                // Rafraîchissement
                                 this.refreshImagesBlock(form.dataset.editId);
+
+                                // Reset Form
                                 form.reset();
+                                if (submitBtn) { // On re-désactive car input vide
+                                    submitBtn.disabled = true;
+                                    submitBtn.classList.add('disabled');
+                                }
+
+                                // Cacher barre
+                                setTimeout(() => {
+                                    if(progressContainer) progressContainer.classList.add('d-none');
+                                    if(progressBar) progressBar.style.width = '0%';
+                                }, 1500);
                             } else {
+                                // ERREUR MÉTIER
+                                if(submitBtn) submitBtn.disabled = false;
                                 this._handleUploadError(data, progressBar, progressStatus);
                             }
                         } catch (e) {
-                            this._handleUploadError({ message: 'Réponse serveur invalide.' }, progressBar, progressStatus);
+                            console.error("JSON Error:", e, xhr.responseText);
+                            if(submitBtn) submitBtn.disabled = false;
+                            this._handleUploadError({ message: 'Erreur réponse serveur.' }, progressBar, progressStatus);
                         }
                     } else {
+                        if(submitBtn) submitBtn.disabled = false;
                         this._handleUploadError({ message: 'Erreur HTTP ' + xhr.status }, progressBar, progressStatus);
                     }
                 };
 
                 xhr.onerror = () => {
-                    submitBtn.disabled = false;
+                    form.dataset.uploading = "false";
+                    if(submitBtn) submitBtn.disabled = false;
                     this._handleUploadError({ message: 'Erreur réseau.' }, progressBar, progressStatus);
                 };
 
