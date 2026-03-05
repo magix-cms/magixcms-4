@@ -399,6 +399,51 @@ class PagesDb extends BaseDb
         return false;
     }
     /**
+     * Récupère les métadonnées d'une image pour toutes les langues
+     */
+    public function fetchImageMeta(int $idImg): array
+    {
+        $qb = new QueryBuilder();
+        // Remplacer 'mc_cms_page_img_content' par 'mc_about_img_content' dans AboutDb
+        $qb->select('*')->from('mc_cms_page_img_content')->where('id_img = :id', ['id' => $idImg]);
+        $results = $this->executeAll($qb);
+
+        $meta = [];
+        if ($results) {
+            foreach ($results as $row) {
+                $meta[$row['id_lang']] = $row;
+            }
+        }
+        return $meta;
+    }
+
+    /**
+     * Sauvegarde ou met à jour les métadonnées d'une image
+     */
+    public function saveImageMeta(int $idImg, int $idLang, array $data): bool
+    {
+        // Remplacer 'mc_cms_page_img_content' par 'mc_about_img_content' dans AboutDb
+        $table = 'mc_cms_page_img_content';
+
+        $qbCheck = new QueryBuilder();
+        $qbCheck->select(['id_img'])->from($table)
+            ->where('id_img = :img AND id_lang = :lang', ['img' => $idImg, 'lang' => $idLang]);
+
+        $exists = $this->executeRow($qbCheck);
+        $qb = new QueryBuilder();
+
+        if ($exists) {
+            $qb->update($table, $data)
+                ->where('id_img = :img AND id_lang = :lang', ['img' => $idImg, 'lang' => $idLang]);
+            return $this->executeUpdate($qb);
+        } else {
+            $data['id_img']  = $idImg;
+            $data['id_lang'] = $idLang;
+            $qb->insert($table, $data);
+            return $this->executeInsert($qb);
+        }
+    }
+    /**
      * Utilitaire privé pour formater la date avant de l'envoyer dans la requête LIKE.
      * À remplacer si tu as un DateTool dans Magepattern.
      */

@@ -5,25 +5,34 @@
     </a>
     <hr>
 
+    {* --- CORRECTION 1 : Standardisation --- *}
+    {assign var="current_c" value=$controller|default:''|lower}
+    {assign var="current_a" value=$smarty.get.action|default:''}
+
     <ul class="nav nav-pills flex-column mb-auto">
 
+        {* --- DASHBOARD --- *}
         <li class="nav-item mb-1">
             <a href="index.php?controller=Dashboard"
-               class="nav-link d-flex align-items-center {if $controller == 'Dashboard'}active{/if}">
-                <i class="bi bi-speedometer2"></i>
+               class="nav-link d-flex align-items-center {if $current_c == 'dashboard'}active{/if}">
+                <i class="bi bi-speedometer2 fs-5 me-3"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link {if $controller == 'Homepage'}active{/if}"
+
+        {* --- HOMEPAGE --- *}
+        <li class="nav-item mb-1">
+            <a class="nav-link d-flex align-items-center {if $current_c == 'homepage'}active{/if}"
                href="index.php?controller=Homepage">
-                <i class="bi bi-house-gear me-2"></i>
-                <span>{#homepage_management#}</span>
+                <i class="bi bi-house-gear fs-5 me-3"></i>
+                <span class="menu-text">{#homepage_management#}</span>
             </a>
         </li>
 
+        {* --- BLOC CATALOGUE --- *}
+        {if isset($mc_config.catalog) && $mc_config.catalog == 1}
         <li class="mb-1">
-            {assign var="is_boutique" value=($controller == 'products' || $controller == 'categories' || $controller == 'catalog')}
+            {assign var="is_boutique" value=($current_c == 'products' || $current_c == 'categories' || $current_c == 'catalog')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_boutique}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -31,47 +40,49 @@
                     aria-expanded="{if $is_boutique}true{else}false{/if}">
                 <i class="bi bi-shop fs-5 me-3"></i>
                 <span class="menu-text">Catalogue</span>
-                {* Pas de chevron, géré par le ::after du SCSS *}
             </button>
 
             <div class="collapse {if $is_boutique}show{/if}" id="menu-boutique">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
                     <li>
                         <a href="index.php?controller=catalog"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'catalog'}active-sub{/if}">
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'catalog'}active-sub{/if}">
                             <i class="bi bi-layout-text-window me-2 opacity-75"></i> Page catalogue
                         </a>
                     </li>
                     <li>
                         <a href="index.php?controller=categories&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'categories' && $smarty.get.action == 'add'}active-sub{/if}">
-                            <i class="bi bi-folder-plus me-2 opacity-75"></i> Ajouter une catégorie
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'categories' && $current_a == 'add'}active-sub{/if}">
+                            <i class="bi bi-folder-plus me-2 opacity-75"></i> Ajouter catégorie
                         </a>
                     </li>
                     <li>
                         <a href="index.php?controller=categories"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'categories' && !$smarty.get.action}active-sub{/if}">
-                            <i class="bi bi-folder2-open me-2 opacity-75"></i> Liste des catégories
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'categories' && $current_a != 'add'}active-sub{/if}">
+                            <i class="bi bi-folder2-open me-2 opacity-75"></i> Liste catégories
                         </a>
                     </li>
                     <li>
                         <a href="index.php?controller=products&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'products' && $smarty.get.action == 'add'}active-sub{/if}">
-                            <i class="bi bi-box-seam me-2 opacity-75"></i> Ajouter un produit
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'products' && $current_a == 'add'}active-sub{/if}">
+                            <i class="bi bi-box-seam me-2 opacity-75"></i> Ajouter produit
                         </a>
                     </li>
                     <li>
                         <a href="index.php?controller=products"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'products' && !$smarty.get.action}active-sub{/if}">
-                            <i class="bi bi-boxes me-2 opacity-75"></i> Liste des produits
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'products' && $current_a != 'add'}active-sub{/if}">
+                            <i class="bi bi-boxes me-2 opacity-75"></i> Liste produits
                         </a>
                     </li>
                 </ul>
             </div>
         </li>
+        {/if}
 
+        {* --- BLOC PAGES --- *}
+        {if isset($mc_config.pages) && $mc_config.pages == 1}
         <li class="mb-1">
-            {assign var="is_pages" value=($controller == 'pages')}
+            {assign var="is_pages" value=($current_c == 'Pages')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_pages}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -79,26 +90,197 @@
                     aria-expanded="{if $is_pages}true{else}false{/if}">
                 <i class="bi bi-files fs-5 me-3"></i>
                 <span class="menu-text">Gestion des pages</span>
-                {* Pas de chevron, géré par le ::after du SCSS *}
             </button>
 
             <div class="collapse {if $is_pages}show{/if}" id="menu-pages">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
                     <li>
-                        <a href="index.php?controller=pages"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'pages' && !$smarty.get.action}active-sub{/if}">
+                        <a href="index.php?controller=Pages"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'Pages' && $current_a != 'add'}active-sub{/if}">
                             <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des pages
                         </a>
                     </li>
                     <li>
-                        <a href="index.php?controller=pages&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $controller == 'pages' && $smarty.get.action == 'add'}active-sub{/if}">
+                        <a href="index.php?controller=Pages&action=add"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'Pages' && $current_a == 'add'}active-sub{/if}">
                             <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une page
                         </a>
                     </li>
                 </ul>
             </div>
         </li>
+        {/if}
 
+        {* --- BLOC ACTUALITÉS (NOUVEAU) --- *}
+        {if isset($mc_config.news) && $mc_config.news == 1}
+        <li class="mb-1">
+            {assign var="is_news" value=($current_c == 'news' || $current_c == 'newstag')}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_news}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-news"
+                    aria-expanded="{if $is_news}true{else}false{/if}">
+                <i class="bi bi-newspaper fs-5 me-3"></i>
+                <span class="menu-text">Actualités</span>
+            </button>
+
+            <div class="collapse {if $is_news}show{/if}" id="menu-news">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    <li>
+                        <a href="index.php?controller=News"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a != 'add'}active-sub{/if}">
+                            <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des actualités
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.php?controller=News&action=add"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a == 'add'}active-sub{/if}">
+                            <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une actualité
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.php?controller=NewsTag"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'newstag'}active-sub{/if}">
+                            <i class="bi bi-tags me-2 opacity-75"></i> Mots-clés (Tags)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        {/if}
+
+        {* --- BLOC ABOUT --- *}
+        {if isset($mc_config.about) && $mc_config.about == 1}
+        <li class="mb-1">
+            {assign var="is_about" value=($current_c == 'about')}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_about}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-about"
+                    aria-expanded="{if $is_about}true{else}false{/if}">
+                <i class="bi bi-info-circle fs-5 me-3"></i>
+                <span class="menu-text">Gestion About</span>
+            </button>
+
+            <div class="collapse {if $is_about}show{/if}" id="menu-about">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    <li>
+                        <a href="index.php?controller=About"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a != 'add'}active-sub{/if}">
+                            <i class="bi bi-list-ul me-2 opacity-75"></i> Liste About
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.php?controller=About&action=add"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a == 'add'}active-sub{/if}">
+                            <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        {/if}
+
+        {* --- BLOC CONFIGURATION --- *}
+        <li class="mb-1">
+            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal')}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_config}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-config"
+                    aria-expanded="{if $is_config}true{else}false{/if}">
+                <i class="bi bi-gear fs-5 me-3"></i>
+                <span class="menu-text">Configuration</span>
+            </button>
+
+            <div class="collapse {if $is_config}show{/if}" id="menu-config">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+
+                    {* 1. Entreprise *}
+                    <li>
+                        <a href="index.php?controller=Company"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'company'}active-sub{/if}">
+                            <i class="bi bi-building me-2 opacity-75"></i> Entreprise
+                        </a>
+                    </li>
+
+                    {* 2. Site & Serveur *}
+                    <li>
+                        <a href="index.php?controller=Setting"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'setting'}active-sub{/if}">
+                            <i class="bi bi-sliders me-2 opacity-75"></i> Site & Serveur
+                        </a>
+                    </li>
+
+                    {* 3. Domaines *}
+                    <li>
+                        <a href="index.php?controller=Domain"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'domain'}active-sub{/if}">
+                            <i class="bi bi-globe2 me-2 opacity-75"></i> Domaines
+                        </a>
+                    </li>
+
+                    {* 4. Langues *}
+                    <li>
+                        <a href="index.php?controller=Lang"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'lang'}active-sub{/if}">
+                            <i class="bi bi-translate me-2 opacity-75"></i> Langues
+                        </a>
+                    </li>
+
+                    {* 6. E-mails *}
+                    <li>
+                        <a href="index.php?controller=MailSetting"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'mailsetting' || $current_c == 'mail'}active-sub{/if}">
+                            <i class="bi bi-send me-2 opacity-75"></i> E-mails (SMTP)
+                        </a>
+                    </li>
+
+                    {* 7. SEO Global *}
+                    <li>
+                        <a href="index.php?controller=SeoGlobal"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'seoglobal'}active-sub{/if}">
+                            <i class="bi bi-search-heart me-2 opacity-75"></i> SEO Global
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </li>
+        {* --- BLOC UTILISATEURS & RÔLES --- *}
+        <li class="mb-1">
+            {assign var="is_team" value=($current_c == 'employee' || $current_c == 'role')}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_team}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-team"
+                    aria-expanded="{if $is_team}true{else}false{/if}">
+                <i class="bi bi-people fs-5 me-3"></i>
+                <span class="menu-text">Équipe & Droits</span>
+            </button>
+
+            <div class="collapse {if $is_team}show{/if}" id="menu-team">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    {* 1. Gestion des employés *}
+                    <li>
+                        <a href="index.php?controller=Employee"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'employee'}active-sub{/if}">
+                            <i class="bi bi-person-badge me-2 opacity-75"></i> Administrateurs
+                        </a>
+                    </li>
+
+                    {* 2. Gestion des Rôles (Permissions) *}
+                    {* On cache idéalement le menu rôle à ceux qui ne peuvent pas le voir, grâce à notre nouvelle variable ! *}
+                    {if !isset($user_permissions) || $user_permissions.view == 1}
+                        <li>
+                            <a href="index.php?controller=Role"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'role'}active-sub{/if}">
+                                <i class="bi bi-shield-lock me-2 opacity-75"></i> Rôles & Permissions
+                            </a>
+                        </li>
+                    {/if}
+                </ul>
+            </div>
+        </li>
     </ul>
 </aside>

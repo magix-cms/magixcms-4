@@ -18677,17 +18677,17 @@ textarea.form-control-lg {
   transition: all 0.4s ease-in-out;
 }
 
-#pageTab {
+#pageTab, #aboutTab, #configTab, #settingTab, #domainTab, #newsTab {
   display: flex;
   border-bottom: 2px solid #adb5bd;
   background-color: #f8f9fa;
   padding: 0;
   list-style: none;
 }
-#pageTab .nav-item {
+#pageTab .nav-item, #aboutTab .nav-item, #configTab .nav-item, #settingTab .nav-item, #domainTab .nav-item, #newsTab .nav-item {
   flex: 1;
 }
-#pageTab .nav-link {
+#pageTab .nav-link, #aboutTab .nav-link, #configTab .nav-link, #settingTab .nav-link, #domainTab .nav-link, #newsTab .nav-link {
   display: block;
   width: 100%;
   padding: 1rem 0.5rem;
@@ -18701,12 +18701,12 @@ textarea.form-control-lg {
   border-bottom: none;
   margin-right: 2px;
 }
-#pageTab .nav-link:hover:not(.active) {
+#pageTab .nav-link:hover:not(.active), #aboutTab .nav-link:hover:not(.active), #configTab .nav-link:hover:not(.active), #settingTab .nav-link:hover:not(.active), #domainTab .nav-link:hover:not(.active), #newsTab .nav-link:hover:not(.active) {
   background-color: rgb(202.336, 209.6, 216.864);
   border-color: rgb(130.6148648649, 142.75, 154.8851351351);
   color: #000;
 }
-#pageTab .nav-link:is(.active) {
+#pageTab .nav-link:is(.active), #aboutTab .nav-link:is(.active), #configTab .nav-link:is(.active), #settingTab .nav-link:is(.active), #domainTab .nav-link:is(.active), #newsTab .nav-link:is(.active) {
   color: var(--bs-primary);
   background-color: #ffffff;
   border-top: 4px solid var(--bs-primary);
@@ -18807,7 +18807,7 @@ textarea.form-control-lg {
 }
 #aside .btn-toggle-nav a.active-sub {
   color: #fff;
-  background-color: rgba(var(--bs-primary-rgb), 0.2);
+  background-color: rgba(var(--bs-primary-rgb), 0.8);
   border-left: 3px solid var(--bs-primary);
   font-weight: 600;
   transform: none;

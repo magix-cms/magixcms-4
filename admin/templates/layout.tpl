@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="templates/css/global.css">
+    <link rel="stylesheet" href="templates/css/glightbox.min.css">
     {*<link rel="stylesheet" href="templates/css/elfinder-flat.css">*}
     {block name="stylesheets"}{/block}
 </head>
@@ -54,43 +55,24 @@
 <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 {include file="components/modal-delete.tpl"}
 <div id="magix-toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+<div id="modal-container"></div>
 <script src="templates/js/vendor/bootstrap.bundle.min.js"></script>
 <script src="templates/js/vendor/Sortable.min.js"></script>
+<script src="templates/js/vendor/glightbox.min.js"></script>
+<script src="templates/js/MagixUITools.min.js?v={$smarty.now}"></script>
 
 {block name="javascripts"}
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('aside');
-            const backdrop = document.getElementById('sidebar-backdrop');
+            // Initialisation de la boite à outils UI
+            const uiTools = new MagixUITools({
+                sidebarId: 'aside',           // ID de votre sidebar
+                toggleId: 'sidebarToggle',    // ID de votre bouton hamburger
+                backdropId: 'sidebar-backdrop' // ID du div fond noir (si existant)
+            });
 
-            if (toggleBtn && sidebar) {
-                // Au clic sur le bouton Hamburger
-                toggleBtn.addEventListener('click', function() {
-                    sidebar.classList.toggle('is-toggled');
-
-                    // On gère le fond sombre uniquement si on est sur mobile (fenêtre < 992px)
-                    if (window.innerWidth < 992) {
-                        backdrop.classList.toggle('show');
-                    }
-                });
-
-                // Au clic sur le fond noir, on ferme tout
-                if (backdrop) {
-                    backdrop.addEventListener('click', function() {
-                        sidebar.classList.remove('is-toggled');
-                        backdrop.classList.remove('show');
-                    });
-                }
-
-                // Sécurité : Si on redimensionne la fenêtre (passage portrait/paysage), on nettoie
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth >= 992) {
-                        backdrop.classList.remove('show');
-                        // Optionnel : sidebar.classList.remove('is-toggled'); si vous voulez réinitialiser
-                    }
-                });
-            }
+            uiTools.init();
         });
     </script>
     {* @todo exemple pour les formulaires*}

@@ -20,19 +20,15 @@ class LangDb extends BaseDb
 
         $qb->select(['id_lang', 'iso_lang'])
             ->from('mc_lang', 'lang')
-            // Pas de variables dynamiques ici, donc le tableau de bind est vide
             ->where('lang.default_lang = 1', []);
 
-        // 2. Génération d'une clé UNIQUE liée au tag "lang"
         $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'lang');
-
-        // 3. Vérification du cache
         $cachedData = $cache->get($cacheKey);
-        if ($cachedData !== null) { // Attention, ton CacheTool retourne null et pas false
+
+        if ($cachedData !== null) {
             return $cachedData;
         }
 
-        // 4. Exécution SQL si pas de cache
         $data = $this->executeRow($qb);
 
         if ($data !== false) {
@@ -41,47 +37,51 @@ class LangDb extends BaseDb
 
         return $data;
     }
+
+    /**
+     * Définit une nouvelle langue par défaut
+     */
     public function updateDefaultLanguage(int $newIdLang): bool
     {
-        $qb = new QueryBuilder();
-        // ... Logique pour remettre tous les default_lang à 0
-        // ... Logique pour mettre le nouveau default_lang à 1
+        // 1. On remet toutes les langues à 0
+        $qbReset = new QueryBuilder();
+        $qbReset->update('mc_lang', ['default_lang' => 0]);
+        $this->executeUpdate($qbReset);
 
-        // Imaginons que l'update réussisse :
-        $success = true; // Résultat de ton Layer->execute()
+        // 2. On met la nouvelle langue à 1
+        $qbSet = new QueryBuilder();
+        $qbSet->update('mc_lang', ['default_lang' => 1])
+            ->where('id_lang = :id', ['id' => $newIdLang]);
+
+        $success = $this->executeUpdate($qbSet);
 
         if ($success) {
-            // C'EST ICI QUE TU VIDES LE CACHE !
+            // Nettoyage du cache
             $cacheDir = SQLCACHEADMIN . 'var/sql';
             $cache = new CacheTool($cacheDir);
-
-            // On supprime TOUS les fichiers de cache qui commencent par "lang_"
             $cache->clearByTag('lang');
         }
 
         return $success;
     }
+
     /**
      * Récupère toutes les langues pour le frontend formatées pour le dropdown.
-     * @return array Tableau associatif [id_lang => iso_lang]
      */
     public function getFrontendLanguages(): array
     {
         $qb = new QueryBuilder();
         $qb->select(['l.id_lang', 'l.iso_lang', 'l.name_lang', 'l.default_lang'])
             ->from('mc_lang', 'l')
-            // On trie exactement comme dans ton ancienne requête
             ->orderBy('l.default_lang', 'DESC')
             ->orderBy('l.id_lang', 'ASC');
 
-        // On utilise la nouvelle méthode executeAll de BaseDb
         $result = $this->executeAll($qb);
 
         if (!$result) {
             return [];
         }
 
-        // On formate le tableau comme ton ancien array_combine($id_lang, $iso_lang)
         $langs = [];
         foreach ($result as $row) {
             $langs[$row['id_lang']] = $row['iso_lang'];
@@ -89,9 +89,9 @@ class LangDb extends BaseDb
 
         return $langs;
     }
+
     /**
      * Compte le nombre de langues disponibles/actives.
-     * @return int
      */
     public function countActiveLanguages(): int
     {
@@ -100,11 +100,95 @@ class LangDb extends BaseDb
             ->from('mc_lang')
             ->where('active_lang = 1');
 
-
-
         $result = $this->executeRow($qb);
-
-        // On retourne l'entier trouvé, ou 0 si la table est vide
         return $result ? (int)$result['total'] : 0;
+    }
+
+    /**
+     * Récupère toutes les langues actives pour les lier aux domaines
+     */
+    public function fetchActiveLanguages(): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select('*')
+            ->from('mc_lang')
+            ->where('active_lang = 1')
+            ->orderBy('name_lang', 'ASC');
+
+        return $this->executeAll($qb) ?: [];
+    }
+
+    // --- PARTIE CRUD POUR L'ADMINISTRATION (LangController) ---
+
+    /**
+     * Récupère la liste paginée des langues pour le tableau de bord
+     */
+    public function fetchAllAdminLanguages(int $page = 1, int $limit = 25, array $search = []): array|false
+    {
+        $qb = new QueryBuilder();
+        $qb->select('*')->from('mc_lang');
+
+        // Tri par défaut : les langues par défaut en premier, puis actives, puis ordre alphabétique
+        $qb->orderBy('default_lang', 'DESC')
+            ->orderBy('active_lang', 'DESC')
+            ->orderBy('name_lang', 'ASC');
+
+        return $this->executePaginatedQuery($qb, $page, $limit);
+    }
+
+    /**
+     * Récupère une langue par son ID
+     */
+    public function fetchLanguageById(int $id): array|false
+    {
+        $qb = new QueryBuilder();
+        $qb->select('*')->from('mc_lang')->where('id_lang = :id', ['id' => $id]);
+        return $this->executeRow($qb);
+    }
+
+    /**
+     * Ajoute une nouvelle langue
+     */
+    public function insertLanguage(array $data): int|false
+    {
+        $qb = new QueryBuilder();
+        $qb->insert('mc_lang', $data);
+        if ($this->executeInsert($qb)) {
+            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+            return $this->getLastInsertId();
+        }
+        return false;
+    }
+
+    /**
+     * Met à jour une langue existante
+     */
+    public function updateLanguage(int $id, array $data): bool
+    {
+        $qb = new QueryBuilder();
+        $qb->update('mc_lang', $data)->where('id_lang = :id', ['id' => $id]);
+
+        $success = $this->executeUpdate($qb);
+        if ($success) {
+            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+        }
+        return $success;
+    }
+
+    /**
+     * Supprime une ou plusieurs langues
+     */
+    public function deleteLanguage(array $ids): bool
+    {
+        if (empty($ids)) return false;
+
+        $qb = new QueryBuilder();
+        $qb->delete('mc_lang')->whereIn('id_lang', $ids);
+
+        $success = $this->executeDelete($qb);
+        if ($success) {
+            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+        }
+        return $success;
     }
 }

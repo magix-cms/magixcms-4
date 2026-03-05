@@ -549,31 +549,84 @@ class PagesController extends BaseController
      */
     public function getImages(): void
     {
-        // On récupère l'ID via 'edit' (standard MagixForms) ou 'id_pages'
-        $idPage = (int)($_GET['edit'] ?? $_GET['id_pages'] ?? 0);
+        if (ob_get_length()) ob_clean();
+        $id = (int)($_GET['edit'] ?? $_GET['id_pages'] ?? 0);
 
-        if ($idPage > 0) {
-            $db = new PagesDb();
-            $images = $db->fetchImagesByPage($idPage);
+        $db = new PagesDb();
+        $images = $db->fetchImagesByPage($id);
+        $imageTool = new \App\Component\File\ImageTool();
+        $formatted = $imageTool->setModuleImages('pages', 'pages', $images, $id);
 
-            $imageTool = new \App\Component\File\ImageTool();
-            $formattedImages = $imageTool->setModuleImages('pages', 'pages', $images, $idPage);
+        $this->view->assign([
+            'images'    => $formatted,
+            'id_pages'  => $id,
+            'current_c' => 'Pages' // <--- LA CORRECTION EST ICI AUSSI
+        ]);
 
-            $this->view->assign([
-                'images'   => $formattedImages,
-                'id_pages' => $idPage
-            ]);
-
-            // On capture le HTML
-            $html = $this->view->fetch('components/gallery.tpl');
-
-            // On renvoie le JSON attendu par MagixForms
-            $this->sendJsonResponse(['result' => $html]);
-        }
-
-        $this->sendJsonResponse(['result' => '<div class="alert alert-danger">Erreur ID</div>']);
+        $html = $this->view->fetch('components/gallery.tpl');
+        $this->jsonResponse(true, 'OK', ['result' => $html]);
     }
 
+    /**
+     * AJAX : Récupère la modale d'édition des métadonnées d'une image
+     */
+    public function getImgMeta(): void
+    {
+        if (ob_get_length()) ob_clean();
+
+        $idImg = (int)($_GET['id_img'] ?? 0);
+
+        // ATTENTION : Laissez PagesDb() dans PagesController, et AboutDb() dans AboutController
+        $db = new PagesDb();
+
+        $langs = $db->fetchLanguages();
+        $meta = $db->fetchImageMeta($idImg);
+
+        // NOUVEAU : On récupère dynamiquement le nom du contrôleur depuis l'URL (GET)
+        // ex: Si on est sur l'URL index.php?controller=About, ça vaudra 'About'
+        $currentController = ucfirst($_GET['controller'] ?? 'Pages');
+
+        $this->view->assign([
+            'img_id'          => $idImg,
+            'langs'           => $langs,
+            'meta'            => $meta,
+            'controller_name' => $currentController // <-- La variable est maintenant dynamique !
+        ]);
+
+        $html = $this->view->fetch('components/modal-img-meta.tpl');
+
+        $this->jsonResponse(true, 'OK', ['html' => $html]);
+    }
+
+    /**
+     * AJAX : Sauvegarde les métadonnées de l'image
+     */
+    public function processSaveImgMeta(): void
+    {
+        if (ob_get_length()) ob_clean();
+
+        $idImg = (int)($_POST['id_img'] ?? 0);
+        $db = new PagesDb(); // Mettre AboutDb() dans AboutController
+        $success = true;
+
+        if ($idImg > 0 && isset($_POST['meta']) && is_array($_POST['meta'])) {
+            foreach ($_POST['meta'] as $idLang => $values) {
+                $data = [
+                    'title_img'   => FormTool::simpleClean($values['title_img'] ?? ''),
+                    'alt_img'     => FormTool::simpleClean($values['alt_img'] ?? ''),
+                    'caption_img' => FormTool::simpleClean($values['caption_img'] ?? '')
+                ];
+
+                if (!$db->saveImageMeta($idImg, (int)$idLang, $data)) {
+                    $success = false;
+                }
+            }
+        } else {
+            $success = false;
+        }
+
+        $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');
+    }
     private function sendJsonResponse(array $data): void
     {
         header('Content-Type: application/json');

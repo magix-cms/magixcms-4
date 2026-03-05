@@ -341,7 +341,6 @@
 
             // 2. Initialise MagixForms pour gérer l'UPLOAD et la PROGRESS BAR
             // Il va chercher automatiquement les formulaires avec la classe .upload_form
-            new MagixForms('Pages');
 
             // 3. Initialise MagixGallery pour gérer le DELETE, DEFAULT et DRAG&DROP
             // On ne lui passe PLUS les configurations d'upload car MagixForms s'en charge.

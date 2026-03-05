@@ -119,7 +119,7 @@
     // ÉTAT ACTIF : Sous-menu (ex: Liste des pages)
     &.active-sub {
       color: #fff;
-      background-color: rgba(var(--bs-primary-rgb), 0.2); // Fond bleu très léger pour distinguer des parents
+      background-color: rgba(var(--bs-primary-rgb), 0.8); // Fond bleu très léger pour distinguer des parents
       border-left: 3px solid var(--bs-primary); // Barre bleue
       font-weight: 600;
       transform: none; // Annule l'effet de glissement si actif

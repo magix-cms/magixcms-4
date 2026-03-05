@@ -51,23 +51,29 @@
 
                         {* Zone : Boutons d'actions *}
                         <div class="btn-group w-100 btn-group-sm" role="group">
-                            {* Bouton Éditer (Métadonnées) *}
-                            <a href="index.php?controller=Pages&action=edit&edit={$id_pages}&editimg={$img.id_img}"
-                               class="btn btn-light border text-primary" title="Éditer les infos">
-                                <i class="bi bi-pencil"></i>
-                            </a>
 
-                            {* Bouton Zoom (Lightbox) *}
-                            <a href="{$img.img.adaptive.src|default:$img.img.basic.src}"
-                               target="_blank"
-                               class="btn btn-light border text-dark img-zoom" title="Voir">
+                            {* Bouton Éditer (Métadonnées via AJAX) *}
+                            <button type="button"
+                                    class="btn btn-light border text-primary action-edit-meta"
+                                    data-id="{$img.id_img}"
+                                    data-controller="{$current_c|default:'Pages'|capitalize}"
+                                    title="Éditer les infos SEO">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            {* Bouton Zoom (GLightbox) *}
+                            {* On utilise le lien vers la grande image et on ajoute la classe glightbox *}
+                            <a href="{$img.img.adaptive.src|default:$img.img.basic.src|default:''}"
+                               class="btn btn-light border text-dark glightbox"
+                               data-gallery="gallery-item"
+                               title="Voir l'image">
                                 <i class="bi bi-zoom-in"></i>
                             </a>
 
-                            {* Bouton Supprimer (AJAX) *}
+                            {* Bouton Supprimer (Déjà fonctionnel) *}
                             <button type="button" class="btn btn-light border text-danger action-delete-img"
                                     data-id="{$img.id_img}"
-                                    data-page="{$id_pages}"
+                                    data-page="{$id_pages|default:$id_about|default:0}"
                                     title="Supprimer">
                                 <i class="bi bi-trash"></i>
                             </button>

@@ -5,7 +5,7 @@ $tabs-border-color: #adb5bd; // Bordure plus voyante (gris moyen)
 $tabs-active-color: var(--bs-primary);
 $tabs-active-bg: #ffffff;
 
-#pageTab {
+#pageTab, #aboutTab, #configTab, #settingTab, #domainTab, #newsTab {
   // On utilise :where pour les styles de base (spécificité 0)
   // Cela permet à n'importe quelle autre règle de prendre le dessus si besoin
   display: flex;

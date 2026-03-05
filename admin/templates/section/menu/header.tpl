@@ -18,27 +18,44 @@
                 <span class="d-none d-md-inline ms-2">Voir le site</span>
             </a>
 
-            <div class="vr mx-1 d-none d-md-flex"></div> <div class="dropdown">
+            <div class="vr mx-1 d-none d-md-flex"></div>
+
+            <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-body-secondary profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                        <i class="bi bi-person-fill"></i>
+                    {* Avatar dynamique avec les initiales de l'utilisateur *}
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-weight: bold; font-size: 0.9rem;">
+                        {if isset($current_user.firstname_admin)}
+                            {$current_user.firstname_admin|substr:0:1|upper}{$current_user.lastname_admin|substr:0:1|upper}
+                        {else}
+                            <i class="bi bi-person-fill"></i>
+                        {/if}
                     </div>
-                    <span class="d-none d-md-inline fw-medium text-body-emphasis">Admin</span>
+                    {* Prénom et Nom dans la barre *}
+                    <span class="d-none d-md-inline fw-medium text-body-emphasis">
+                        {$current_user.firstname_admin|default:'Admin'} {$current_user.lastname_admin|default:''}
+                    </span>
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2">
                     <li class="px-3 py-2">
-                        <span class="d-block fw-bold text-body-emphasis">Administrateur</span>
-                        <span class="d-block small text-muted">admin@magix-cms.com</span>
+                        {* Rôle dynamique *}
+                        <span class="d-block fw-bold text-body-emphasis text-capitalize">
+                            {$current_user.role_name|default:'Administrateur'}
+                        </span>
+                        {* E-mail dynamique *}
+                        <span class="d-block small text-muted">
+                            {$current_user.email_admin|default:'admin@magix-cms.com'}
+                        </span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
+                        {* Lien dynamique vers l'édition de son propre profil *}
+                        <a class="dropdown-item d-flex align-items-center py-2" href="index.php?controller=Employee&action=edit&edit={$current_user.id_admin|default:0}">
                             <i class="bi bi-person-badge me-2 text-primary fs-5"></i> Mon Profil
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
+                        <a class="dropdown-item d-flex align-items-center py-2" href="index.php?controller=Setting">
                             <i class="bi bi-gear me-2 text-secondary fs-5"></i> Configuration
                         </a>
                     </li>
