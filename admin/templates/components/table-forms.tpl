@@ -19,13 +19,22 @@
 
     {* CORRECTION 1 : Remplacement de strpos et substr par un filtre Regex propre *}
     {if $change_offset && !isset($smarty.get.search)}
-        {$request = $smarty.server.REQUEST_URI|regex_replace:"/&offset=[0-9]+/":""}
+        {* On nettoie l'offset ET la page actuelle pour repartir proprement de zéro *}
+        {$request = $smarty.server.REQUEST_URI|regex_replace:"/&offset=[0-9]+/":""|regex_replace:"/&page=[0-9]+/":""}
+
         <div class="d-flex justify-content-end align-items-center mb-3">
             <span class="text-muted me-2 small">{#display_step#} :</span>
             <div class="btn-group btn-group-sm" role="group">
                 <a href="{$request}&offset=25" class="btn btn-outline-secondary {if !isset($smarty.get.offset) || $smarty.get.offset == 25}active{/if}">25</a>
                 <a href="{$request}&offset=50" class="btn btn-outline-secondary {if isset($smarty.get.offset) && $smarty.get.offset == 50}active{/if}">50</a>
                 <a href="{$request}&offset=100" class="btn btn-outline-secondary {if isset($smarty.get.offset) && $smarty.get.offset == 100}active{/if}">100</a>
+
+                {* NOUVEAU : Bouton Reset qui s'affiche si un offset "non-standard" est dans l'URL *}
+                {if isset($smarty.get.offset) && $smarty.get.offset != 25}
+                    <a href="{$request}" class="btn btn-outline-danger" title="Réinitialiser l'affichage">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                {/if}
             </div>
         </div>
     {/if}
@@ -139,14 +148,11 @@
                 </table>
             </div>
 
-            {* FOOTER DU TABLEAU : Actions en masse *}
-            <div class="card-footer bg-white py-3">
+            {* FOOTER DU TABLEAU : Actions en masse ET Pagination *}
+            <div class="card-footer bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
 
-                {* CORRECTION 3 : Pré-calcul des droits d'accès sans imbrication interdite *}
-                {capture assign="can_delete"}{*{employee_access type="del" class_name=$cClass|default:''}*}{/capture}
-
-                {* Affichage sur écrans moyens et larges *}
-                <div class="d-none d-md-flex align-items-center gap-3">
+                {* --- GAUCHE : Actions en masse --- *}
+                <div class="d-none d-md-flex align-items-center gap-2 flex-wrap">
                     <i class="bi bi-arrow-return-right text-muted" style="transform: rotate(180deg) scaleY(-1);"></i>
 
                     {if $checkbox}
@@ -171,13 +177,50 @@
                     {if $dlt}
                         <div class="vr mx-1"></div>
                         <button type="button"
-                                class="btn btn-danger"
+                                class="btn btn-danger btn-sm"
                                 data-bs-toggle="modal"
                                 data-bs-target="#delete_modal">
                             <i class="bi bi-trash"></i> {#delete_selection#}
                         </button>
                     {/if}
                 </div>
+
+                {* --- DROITE : Pagination --- *}
+                {if isset($meta) && $meta.total_pages > 1}
+                    {* On nettoie l'URL actuelle du paramètre "page" pour le recréer proprement sans perdre les recherches *}
+                    {$base_url = $smarty.server.REQUEST_URI|regex_replace:"/&page=[0-9]+/":""}
+
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-sm mb-0 shadow-sm">
+
+                            {* Bouton Précédent *}
+                            <li class="page-item {if $meta.current_page == 1}disabled{/if}">
+                                <a class="page-link" href="{$base_url}&page={$meta.current_page - 1}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            {* Numéros de pages avec points de suspension *}
+                            {for $i=1 to $meta.total_pages}
+                                {if $i == 1 || $i == $meta.total_pages || ($i >= $meta.current_page - 2 && $i <= $meta.current_page + 2)}
+                                    <li class="page-item {if $i == $meta.current_page}active{/if}">
+                                        <a class="page-link" href="{$base_url}&page={$i}">{$i}</a>
+                                    </li>
+                                {elseif $i == $meta.current_page - 3 || $i == $meta.current_page + 3}
+                                    <li class="page-item disabled"><span class="page-link border-0 text-muted bg-transparent">...</span></li>
+                                {/if}
+                            {/for}
+
+                            {* Bouton Suivant *}
+                            <li class="page-item {if $meta.current_page == $meta.total_pages}disabled{/if}">
+                                <a class="page-link" href="{$base_url}&page={$meta.current_page + 1}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                {/if}
             </div>
         </form>
     </div>

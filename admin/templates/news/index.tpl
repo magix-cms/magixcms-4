@@ -16,7 +16,7 @@
         <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-bottom">
             <h6 class="m-0 fw-bold text-primary">Liste des actualités</h6>
 
-            <form action="index.php" method="get" class="d-flex mb-0">
+            {*<form action="index.php" method="get" class="d-flex mb-0">
                 <input type="hidden" name="controller" value="News">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control" name="search[name_news]" value="{$get_search.name_news|default:''}" placeholder="Rechercher un titre...">
@@ -24,7 +24,7 @@
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
-            </form>
+            </form>*}
         </div>
 
         <div class="card-body p-4">

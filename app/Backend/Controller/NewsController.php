@@ -58,8 +58,11 @@ class NewsController extends BaseController
 
         $result = $db->fetchAllNews($page, $limit, $search, $idLangue);
 
+        $meta = [];
+
         if ($result !== false) {
             $this->getItems('news_list', $result['data'], true, $result['meta']);
+            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
         }
 
         $token = $this->session->getToken();
@@ -72,7 +75,8 @@ class NewsController extends BaseController
             'sortable'   => false, // Tri par date côté News, pas de Drag&Drop
             'checkbox'   => true,
             'edit'       => true,
-            'dlt'        => true
+            'dlt'        => true,
+            'meta'       => $meta
         ]);
 
         $this->view->display('news/index.tpl');

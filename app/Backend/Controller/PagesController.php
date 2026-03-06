@@ -61,8 +61,11 @@ class PagesController extends BaseController
 
         $result = $db->fetchAllPages($page, $limit, $search, $idLangue);
 
+        $meta = [];
+
         if ($result !== false) {
             $this->getItems('pages', $result['data'], true, $result['meta']);
+            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
         }
 
         $token = $this->session->getToken();
@@ -75,7 +78,8 @@ class PagesController extends BaseController
             'sortable'   => false,
             'checkbox'   => true,
             'edit'       => true,
-            'dlt'        => true
+            'dlt'        => true,
+            'meta'       => $meta
         ]);
 
         $this->view->display('pages/index.tpl');

@@ -63,9 +63,11 @@ class AboutController extends BaseController
 
         $result = $db->fetchAllAbout($page, $limit, $search, $idLangue);
 
+        $meta = [];
+
         if ($result !== false) {
-            // "about_list" sera la variable disponible dans le TPL
             $this->getItems('about_list', $result['data'], true, $result['meta']);
+            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
         }
 
         $this->view->assign([
@@ -76,7 +78,8 @@ class AboutController extends BaseController
             'sortable'   => empty($search), // Le tri manuel n'est possible que si on ne cherche pas
             'checkbox'   => true,
             'edit'       => true,
-            'dlt'        => true
+            'dlt'        => true,
+            'meta'       => $meta
         ]);
 
         $this->view->display('about/index.tpl');
