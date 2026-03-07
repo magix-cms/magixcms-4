@@ -32,7 +32,7 @@
         {* --- BLOC CATALOGUE --- *}
         {if isset($mc_config.catalog) && $mc_config.catalog == 1}
         <li class="mb-1">
-            {assign var="is_boutique" value=($current_c == 'products' || $current_c == 'categories' || $current_c == 'catalog')}
+            {assign var="is_boutique" value=($current_c == 'product' || $current_c == 'category' || $current_c == 'catalog')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_boutique}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -45,32 +45,32 @@
             <div class="collapse {if $is_boutique}show{/if}" id="menu-boutique">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
                     <li>
-                        <a href="index.php?controller=catalog"
+                        <a href="index.php?controller=Catalog"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'catalog'}active-sub{/if}">
                             <i class="bi bi-layout-text-window me-2 opacity-75"></i> Page catalogue
                         </a>
                     </li>
                     <li>
-                        <a href="index.php?controller=categories&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'categories' && $current_a == 'add'}active-sub{/if}">
+                        <a href="index.php?controller=Category&action=add"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a == 'add'}active-sub{/if}">
                             <i class="bi bi-folder-plus me-2 opacity-75"></i> Ajouter catégorie
                         </a>
                     </li>
                     <li>
-                        <a href="index.php?controller=categories"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'categories' && $current_a != 'add'}active-sub{/if}">
+                        <a href="index.php?controller=Category"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a != 'add'}active-sub{/if}">
                             <i class="bi bi-folder2-open me-2 opacity-75"></i> Liste catégories
                         </a>
                     </li>
                     <li>
-                        <a href="index.php?controller=products&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'products' && $current_a == 'add'}active-sub{/if}">
+                        <a href="index.php?controller=Product&action=add"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a == 'add'}active-sub{/if}">
                             <i class="bi bi-box-seam me-2 opacity-75"></i> Ajouter produit
                         </a>
                     </li>
                     <li>
-                        <a href="index.php?controller=products"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'products' && $current_a != 'add'}active-sub{/if}">
+                        <a href="index.php?controller=Product"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a != 'add'}active-sub{/if}">
                             <i class="bi bi-boxes me-2 opacity-75"></i> Liste produits
                         </a>
                     </li>
@@ -82,7 +82,7 @@
         {* --- BLOC PAGES --- *}
         {if isset($mc_config.pages) && $mc_config.pages == 1}
         <li class="mb-1">
-            {assign var="is_pages" value=($current_c == 'Pages')}
+            {assign var="is_pages" value=($current_c == 'pages')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_pages}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -96,13 +96,13 @@
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
                     <li>
                         <a href="index.php?controller=Pages"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'Pages' && $current_a != 'add'}active-sub{/if}">
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a != 'add'}active-sub{/if}">
                             <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des pages
                         </a>
                     </li>
                     <li>
                         <a href="index.php?controller=Pages&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'Pages' && $current_a == 'add'}active-sub{/if}">
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a == 'add'}active-sub{/if}">
                             <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une page
                         </a>
                     </li>
@@ -278,6 +278,51 @@
                                 <i class="bi bi-shield-lock me-2 opacity-75"></i> Rôles & Permissions
                             </a>
                         </li>
+                    {/if}
+                </ul>
+            </div>
+        </li>
+        {* --- BLOC EXTENSIONS / PLUGINS --- *}
+        <li class="mb-1">
+            {* On vérifie si on est sur la page du gestionnaire ou sur une page de plugin *}
+            {assign var="is_plugin_active" value=($current_c == 'plugin')}
+            {if isset($installed_plugins)}
+                {foreach $installed_plugins as $plugin}
+                    {if $current_c == $plugin.name|lower}
+                        {assign var="is_plugin_active" value=true}
+                    {/if}
+                {/foreach}
+            {/if}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_plugin_active}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-plugins"
+                    aria-expanded="{if $is_plugin_active}true{else}false{/if}">
+                <i class="bi bi-puzzle fs-5 me-3"></i>
+                <span class="menu-text">Extensions</span>
+            </button>
+
+            <div class="collapse {if $is_plugin_active}show{/if}" id="menu-plugins">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    {* Le lien vers le gestionnaire (PluginController) *}
+                    <li>
+                        <a href="index.php?controller=Plugin"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'plugin'}active-sub{/if}">
+                            <i class="bi bi-boxes me-2 opacity-75"></i> Gestionnaire
+                        </a>
+                    </li>
+
+                    {* La boucle sur les plugins installés *}
+                    {if isset($installed_plugins) && $installed_plugins|count > 0}
+                        <li><hr class="dropdown-divider my-1 opacity-25"></li>
+                        {foreach $installed_plugins as $plugin}
+                            <li>
+                                <a href="index.php?controller={$plugin.name}"
+                                   class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == $plugin.name|lower}active-sub{/if}">
+                                    <i class="bi bi-box me-2 opacity-75"></i> {$plugin.name}
+                                </a>
+                            </li>
+                        {/foreach}
                     {/if}
                 </ul>
             </div>

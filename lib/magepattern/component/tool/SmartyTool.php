@@ -217,4 +217,35 @@ class SmartyTool
             }
         }
     }
+    /**
+     * Ajoute un répertoire de templates supplémentaire pour un contexte.
+     * Indispensable pour que les plugins puissent utiliser leurs propres vues tout en héritant du layout Core.
+     *
+     * @param string $context Nom du contexte (ex: 'admin')
+     * @param string $dir Chemin absolu vers le dossier des templates du plugin
+     */
+    public static function addTemplateDir(string $context, string $dir): void
+    {
+        // 1. Mise à jour du registre (si l'instance n'est pas encore créée)
+        if (isset(self::$registry[$context])) {
+            $currentDir = self::$registry[$context]['template_dir'] ?? [];
+            if (!is_array($currentDir)) {
+                $currentDir = [$currentDir];
+            }
+            // On met le dossier du plugin EN PREMIER (priorité sur le core)
+            array_unshift($currentDir, $dir);
+            self::$registry[$context]['template_dir'] = $currentDir;
+        }
+
+        // 2. Mise à jour de l'instance si elle existe déjà en mémoire
+        if (isset(self::$instances[$context])) {
+            $smarty = self::$instances[$context];
+            // On récupère les dossiers actuels
+            $dirs = (array) $smarty->getTemplateDir();
+            // On ajoute le dossier du plugin en première position
+            array_unshift($dirs, $dir);
+            // On réapplique la liste complète
+            $smarty->setTemplateDir($dirs);
+        }
+    }
 }

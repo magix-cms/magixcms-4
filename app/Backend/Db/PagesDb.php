@@ -444,6 +444,18 @@ class PagesDb extends BaseDb
         }
     }
     /**
+     * Compte le nombre total de pages dans la table mc_cms_page
+     */
+    public function countActivePages(): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select('COUNT(*) as total')->from('mc_cms_page');
+
+        $result = $this->executeRow($qb);
+
+        return $result ? (int)$result['total'] : 0;
+    }
+    /**
      * Utilitaire privé pour formater la date avant de l'envoyer dans la requête LIKE.
      * À remplacer si tu as un DateTool dans Magepattern.
      */

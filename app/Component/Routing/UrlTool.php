@@ -6,6 +6,7 @@ namespace App\Component\Routing;
 
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\HTTP\Url;
+use Magepattern\Component\Tool\DateTool;
 
 class UrlTool
 {
@@ -24,37 +25,40 @@ class UrlTool
     /**
      * Construit les URLs publiques selon le type de contenu
      */
-    public function getBuildUrl(array $data): string
+    public function buildUrl(array $data): string
     {
-        if (empty($data)) return '';
+        if (empty($data) || empty($data['type'])) {
+            return '';
+        }
 
         $iso = $data['iso'] ?? 'fr';
-        $type = $data['type'] ?? '';
+        $type = $data['type'];
         $ampPath = $this->amp ? '/amp' : '';
         $id = $data['id'] ?? '';
-        $slug = isset($data['url']) ? Url::clean($data['url']) : '';
 
-        // Formatage natif de la date pour les URLs (ex: 2026-03-02)
+        $slug = !empty($data['url']) ? Url::clean($data['url']) : '';
+
+        // Création d'une base commune pour éviter la répétition (ex: /fr/amp ou /fr)
+        $basePath = "/{$iso}{$ampPath}";
+
+        // Formatage de la date via Magepattern
         $formattedDate = '';
         if (!empty($data['date'])) {
-            try {
-                $dateObj = new \DateTime($data['date']);
-                $formattedDate = $dateObj->format('Y-m-d');
-            } catch (\Exception $e) {
-                // Si la date est invalide, on laisse vide pour ne pas faire planter l'URL
-                $formattedDate = '';
-            }
+            // DateTool::toSql convertit n'importe quel format en "Y-m-d H:i:s"
+            // Le substr permet de ne garder que la partie date "Y-m-d" pour l'URL
+            $sqlDate = DateTool::toSql((string)$data['date']);
+            $formattedDate = substr($sqlDate, 0, 10);
         }
 
         return match ($type) {
-            'pages', 'about' => '/' . $iso . $ampPath . '/' . $type . '/' . $id . '-' . $slug . '/',
-            'category'       => '/' . $iso . $ampPath . '/catalog/' . $id . '-' . $slug . '/',
-            'product'        => isset($data['id_parent'], $data['url_parent'])
-                ? '/' . $iso . $ampPath . '/catalog/' . $data['id_parent'] . '-' . $data['url_parent'] . '/' . $id . '-' . $slug . '/'
+            'pages', 'about' => "{$basePath}/{$type}/{$id}-{$slug}/",
+            'category'       => "{$basePath}/catalog/{$id}-{$slug}/",
+            'product'        => isset($data['id_category'], $data['url_category'])
+                ? "{$basePath}/catalog/{$data['id_category']}-{$data['url_category']}/{$id}-{$slug}/"
                 : '',
-            'news'           => '/' . $iso . $ampPath . '/news/' . $formattedDate . '/' . $id . '-' . $slug . '/',
-            'date'           => '/' . $iso . $ampPath . '/news/' . ($data['year'] ?? '') . '/' . (isset($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
-            'tag'            => '/' . $iso . $ampPath . '/news/tag/' . $id . '-' . $slug . '/',
+            'news'           => "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/",
+            'date'           => "{$basePath}/news/" . ($data['year'] ?? '') . '/' . (isset($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
+            'tag'            => "{$basePath}/news/tag/{$id}-{$slug}/",
             default          => ''
         };
     }

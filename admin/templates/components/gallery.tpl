@@ -1,5 +1,8 @@
 {* Fichier : components/gallery.tpl *}
 
+{* 1. L'ASTUCE MAGIQUE : On unifie tous les identifiants possibles dans une seule variable *}
+{$resolved_id = $item_id|default:$id_pages|default:$id_cat|default:$id_about|default:$id_product|default:0}
+
 <div class="row g-3" id="gallery-grid">
     {if isset($images) && !empty($images)}
         {foreach $images as $img}
@@ -40,9 +43,10 @@
                                     <i class="bi bi-check-circle-fill me-1"></i> Image principale
                                 </span>
                             {else}
+                                {* 2. ON UTILISE NOTRE VARIABLE UNIFIÉE ICI *}
                                 <button type="button" class="btn btn-sm btn-outline-secondary w-100 action-set-default"
                                         data-id="{$img.id_img}"
-                                        data-page="{$id_pages}"
+                                        data-page="{$resolved_id}"
                                         title="Définir comme image principale">
                                     <i class="bi bi-star me-1"></i> Par défaut
                                 </button>
@@ -62,7 +66,6 @@
                             </button>
 
                             {* Bouton Zoom (GLightbox) *}
-                            {* On utilise le lien vers la grande image et on ajoute la classe glightbox *}
                             <a href="{$img.img.adaptive.src|default:$img.img.basic.src|default:''}"
                                class="btn btn-light border text-dark glightbox"
                                data-gallery="gallery-item"
@@ -70,10 +73,11 @@
                                 <i class="bi bi-zoom-in"></i>
                             </a>
 
-                            {* Bouton Supprimer (Déjà fonctionnel) *}
+                            {* Bouton Supprimer *}
+                            {* 3. ET ON L'UTILISE ICI AUSSI *}
                             <button type="button" class="btn btn-light border text-danger action-delete-img"
                                     data-id="{$img.id_img}"
-                                    data-page="{$id_pages|default:$id_about|default:0}"
+                                    data-page="{$resolved_id}"
                                     title="Supprimer">
                                 <i class="bi bi-trash"></i>
                             </button>

@@ -62,3 +62,19 @@ $tabs-active-bg: #ffffff;
 #pageTab:has(.nav-link:hover:not(.active)) {
   // border-bottom-color: darken($tabs-border-color, 5%);
 }
+/*.nav-tabs {
+  // Empêche le passage à la ligne si trop d'onglets
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // Cache la scrollbar mais garde le défilement (optionnel)
+  &::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .nav-item {
+    white-space: nowrap; // Empêche le texte de l'onglet de se couper
+  }
+}*/

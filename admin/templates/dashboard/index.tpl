@@ -1,4 +1,4 @@
-{extends file="layout.tpl"}
+{*{extends file="layout.tpl"}
 
 {block name='article'}
     <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    {*<div class="row g-4">
+    <div class="row g-4">
 
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card shadow-sm border-0 border-start border-primary border-4 h-100">
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-    </div>*}
+    </div>
     <div class="row g-3 mb-4">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm bg-primary text-white">
@@ -195,7 +195,7 @@
         </div>
 
     </div>
-{/block}*}
+{/block}
 
 {*<h1>Tableau de bord - Magix CMS 4</h1>
 
@@ -217,4 +217,136 @@
     <h3>⚡ Test CacheTool</h3>
     <p>Langue active : <strong>{$default_lang.iso_lang|upper}</strong> (ID: {$default_lang.id_lang})</p>
 </div>*}
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+{extends file="layout.tpl"}
+{block name="stylesheets"}
+    <link rel="stylesheet" href="templates/css/dashboard.css">
+{/block}
+{block name='article'}
+    <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+        <div class="card-body p-4">
+            <h1 class="h3 mb-1">Tableau de bord</h1>
+            <p class="opacity-75 mb-0">Ravi de vous revoir ! Voici un aperçu de l'activité aujourd'hui.</p>
+        </div>
+    </div>
+
+    {* --- ZONE 1 : COMPTEURS TOP --- *}
+    <div class="row g-3 mb-4" id="dashboard-top-zone">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase small">Pages CMS Actives</h6>
+                    {* On remplace 42 par la variable dynamique *}
+                    <h2 class="display-6 fw-bold">{$total_pages}</h2>
+                </div>
+            </div>
+        </div>
+
+        {* ... le reste des compteurs ... *}
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase small">Langues Actives</h6>
+                    <h2 class="display-6 fw-bold">{$total_langs}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success text-dark h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase small">Produits</h6>
+                    <h2 class="display-6 fw-bold">{$total_products}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase small">Fichiers Upload</h6>
+                    <h2 class="display-6 fw-bold">{$total_media_size}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {* --- ZONE 2 : WIDGETS PRINCIPAUX --- *}
+    <div class="row g-4" id="dashboard-main-zone">
+
+        {assign var="displayed_widgets" value=[]}
+
+        {* 1. Widgets triés (AJOUT DE nofilter) *}
+        {if isset($saved_order) && !empty($saved_order)}
+            {foreach $saved_order as $pluginName => $position}
+                {if isset($widgets_main[$pluginName])}
+                    <div class="col-12 col-xl-6 widget-item" data-widget="{$pluginName}">
+                        {* ICI : On ajoute nofilter pour interpréter le HTML *}
+                        {$widgets_main[$pluginName] nofilter}
+                    </div>
+                    {$displayed_widgets[$pluginName] = true}
+                {/if}
+            {/foreach}
+        {/if}
+
+        {* 2. Nouveaux widgets (AJOUT DE nofilter) *}
+        {if isset($widgets_main) && !empty($widgets_main)}
+            {foreach $widgets_main as $pluginName => $html}
+                {if !isset($displayed_widgets[$pluginName])}
+                    <div class="col-12 col-xl-6 widget-item" data-widget="{$pluginName}">
+                        {* ICI : On ajoute nofilter pour interpréter le HTML *}
+                        {$html nofilter}
+                    </div>
+                {/if}
+            {/foreach}
+        {/if}
+        {*<div class="col-12 col-xl-6 widget-item" data-widget="TestWidget">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3" style="cursor: grab;">
+                    <h6 class="m-0 fw-bold text-muted">Widget de Test (Statique)</h6>
+                </div>
+                <div class="card-body">
+                    <p>Ce widget sert à tester le glisser-déposer.</p>
+                </div>
+            </div>
+        </div>*}
+    </div>
+{/block}
+
+{block name="javascripts" append}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainZone = document.getElementById('dashboard-main-zone');
+            if (mainZone) {
+                new Sortable(mainZone, {
+                    animation: 150,
+                    handle: '.card-header', // La poignée
+                    draggable: '.widget-item', // IMPORTANT : précise ce qui peut être déplacé
+                    ghostClass: 'sortable-ghost', // La classe appliquée au "fantôme" (emplacement vide)
+                    dragClass: 'sortable-drag', // La classe appliquée à l'élément qu'on tient
+                    forceFallback: true, // Améliore la compatibilité avec Bootstrap (force le drag custom)
+                    fallbackTolerance: 3, // Évite les déclenchements accidentels au clic
+                    onEnd: function () {
+                        // On récupère le nouvel ordre
+                        const items = mainZone.querySelectorAll('.widget-item');
+                        const order = Array.from(items).map((el, index) => {
+                            return { name: el.dataset.widget, pos: index };
+                        });
+
+                        // Envoi au contrôleur
+                        fetch('index.php?controller=Dashboard&action=saveOrder', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ order: order })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status && typeof MagixToast !== 'undefined') {
+                                    MagixToast.success(data.message);
+                                }
+                            })
+                            .catch(error => console.error('Erreur sauvegarde dashboard:', error));
+                    }
+                });
+            }
+        });
+    </script>
+{/block}

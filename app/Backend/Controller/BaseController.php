@@ -15,6 +15,7 @@ use Smarty\Smarty;
 use Magepattern\Component\Debug\Logger;
 use Magepattern\Component\HTTP\Session;
 use Magepattern\Component\HTTP\JSON;
+use App\Backend\Db\PluginDb;
 
 abstract class BaseController
 {
@@ -46,6 +47,12 @@ abstract class BaseController
         $this->view = SmartyTool::getInstance('admin');
         $this->logger = Logger::getInstance();
 
+        // --- NOUVEAU : Enregistrement dynamique de la balise {hook} ---
+        // On le fait côté App pour préserver l'agnosticisme de Magepattern
+        if (class_exists('\App\Component\Hook\HookManager')) {
+            $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'exec']);
+        }
+
         // --- Définition du contrôleur actif pour les menus Smarty ---
         $currentController = $_GET['controller'] ?? 'Dashboard';
         $cleanController = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $currentController)));
@@ -73,12 +80,17 @@ abstract class BaseController
             $this->checkPermissions($cleanController);
 
             $this->initCurrentUser();
+
+            // --- MODIFIÉ : On initialise les plugins ET la sidebar ---
+            $this->initPlugins();
         }
 
         // 5. Initialisation des traductions (i18n)
         $this->initTranslations($this->session);
 
         $this->json = new JSON();
+
+        $this->view->assign('installed_plugins', $this->getValidatedPluginsForMenu());
     }
 
     /**
@@ -205,15 +217,13 @@ abstract class BaseController
     private function stackPluginsTranslations(string $locale): void
     {
         $pluginsPath = ROOT_DIR . 'plugins' . DS;
-
-        if (!is_dir($pluginsPath)) {
-            return;
-        }
+        if (!is_dir($pluginsPath)) return;
 
         try {
             foreach (FileTool::getDirectories($pluginsPath) as $item) {
                 if ($item->isDir()) {
-                    $pluginConf = $item->getPathname() . DS . 'i18n' . DS . $locale . '.conf';
+                    // On cherche spécifiquement dans le sous-dossier admin pour le backend
+                    $pluginConf = $item->getPathname() . DS . 'i18n' . DS . 'admin' . DS . $locale . '.conf';
 
                     if (file_exists($pluginConf)) {
                         $this->view->configLoad($pluginConf);
@@ -252,6 +262,72 @@ abstract class BaseController
                 $this->view->assign('current_user', $user);
             }
         }
+    }
+    /**
+     * Initialise les plugins installés :
+     * 1. Les assigne à la vue pour la Sidebar.
+     * 2. Exécute leur fichier Boot.php pour enregistrer leurs Hooks.
+     */
+    private function initPlugins(): void
+    {
+        try {
+            $pluginDb = new PluginDb();
+            $installedPlugins = $pluginDb->fetchInstalledPlugins();
+
+            // 1. Pour la sidebar (layout.tpl)
+            $this->view->assign('installed_plugins', $installedPlugins);
+
+            // 2. Amorçage des plugins (Enregistrement des Hooks)
+            foreach ($installedPlugins as $plugin) {
+                // Le nom de la classe d'amorçage
+                $bootClass = "Plugins\\" . $plugin['name'] . "\\Boot";
+
+                if (class_exists($bootClass)) {
+                    $bootInstance = new $bootClass();
+
+                    // Si le plugin déclare une méthode register(), on l'appelle
+                    if (method_exists($bootInstance, 'register')) {
+                        $bootInstance->register();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->logger->log("Erreur lors de l'initialisation des plugins : " . $e->getMessage(), "warning");
+        }
+    }
+    /**
+     * Prépare les plugins pour la sidebar avec double vérification (DB + FileSystem)
+     */
+    protected function getValidatedPluginsForMenu(): array
+    {
+        $db = new PluginDb();
+        $rawPlugins = $db->fetchInstalledPlugins(); // Liste issue de mc_plugins
+        $validatedPlugins = [];
+
+        foreach ($rawPlugins as $plugin) {
+            $name = $plugin['name']; // ex: MagixGuestbook
+
+            // 1. Vérification du dossier physique
+            $pluginPath = ROOT_DIR . 'plugins' . DS . $name;
+            if (!is_dir($pluginPath)) {
+                // Le dossier a disparu ? On ignore pour le menu.
+                continue;
+            }
+
+            // 2. Vérification de l'existence du contrôleur et de la méthode run
+            // Le namespace doit correspondre à votre structure PSR-4
+            $controllerClass = "Plugins\\{$name}\\src\\BackendController";
+
+            if (class_exists($controllerClass)) {
+                // On utilise la réflexion pour vérifier la méthode 'run' sans instancier
+                $reflection = new \ReflectionClass($controllerClass);
+                if ($reflection->hasMethod('run')) {
+                    $validatedPlugins[] = $plugin;
+                }
+            }
+        }
+
+        return $validatedPlugins;
     }
     /**
      * Envoie une réponse JSON proprement formatée et arrête le script.

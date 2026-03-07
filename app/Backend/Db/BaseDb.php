@@ -196,4 +196,27 @@ abstract class BaseDb
         }
         return $langs;
     }
+    /**
+     * Exécute un script SQL brut (ex: fichiers d'installation .sql avec requêtes multiples)
+     */
+    public function executeRawSql(string $sql): bool
+    {
+        try {
+            $layer = Layer::getInstance();
+
+            // On utilise la méthode exec() native si elle est exposée par votre Layer
+            // (exec est idéal pour les CREATE TABLE, DROP, etc., car il gère les requêtes multiples)
+            if (method_exists($layer, 'exec')) {
+                $layer->exec($sql);
+            } else {
+                // Si votre Layer n'expose que query(), on l'utilise à la place
+                $layer->query($sql);
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Logger::getInstance()->log($e, "critical", "database_errors", Logger::LOG_YEAR, Logger::LOG_LEVEL_ERROR);
+            return false;
+        }
+    }
 }

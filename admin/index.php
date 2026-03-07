@@ -28,9 +28,10 @@ use Magepattern\Component\Tool\SmartyTool;
 $autoloader = new Autoloader();
 $autoloader->register();
 
-// Enregistrement des Namespaces (Avec les Majuscules et le DS final obligatoires)
+// Enregistrement des Namespaces
 $autoloader->addNamespace('App\\Backend\\', APP_PATH . 'Backend' . DS);
 $autoloader->addNamespace('App\\Component\\', APP_PATH . 'Component' . DS);
+$autoloader->addNamespace('Plugins\\', ROOT_DIR . 'plugins' . DS);
 
 // 4. Configuration de Smarty (Vue)
 SmartyTool::registerContext('admin', [
@@ -42,26 +43,50 @@ SmartyTool::registerContext('admin', [
 ]);
 
 // 5. Logique de Routage (Le "Front Controller")
-// Par défaut, on pointe vers le Dashboard
 $requestedController = $_GET['controller'] ?? 'Dashboard';
 $actionName = $_GET['action'] ?? 'run';
-// Formatage strict pour sécuriser l'URL (ex: "?controller=page" devient "Page")
 $cleanName = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $requestedController)));
 
-// 6. Construction du nom complet de la classe à appeler
-$fullClassName = "App\\Backend\\Controller\\" . $cleanName . "Controller";
+// 6. Construction des noms de classes possibles
+$coreClassName = "App\\Backend\\Controller\\" . $cleanName . "Controller";
+$pluginClassName = "Plugins\\" . $cleanName . "\\src\\BackendController";
 
 // 7. Exécution
 try {
-    if (class_exists($fullClassName)) {
-        // L'autoloader trouve le fichier, on instancie la classe
-        // Dès l'instanciation, le BaseController prend le relais pour vérifier la session et les droits !
-        $app = new $fullClassName();
-
-        // On lance la méthode d'entrée
+    if (class_exists($coreClassName)) {
+        // CAS 1 : C'est un module natif du Core
+        $app = new $coreClassName();
         $app->run();
+
+    } elseif (class_exists($pluginClassName)) {
+        // CAS 2 : C'est un Plugin Classique
+
+        // SÉCURITÉ 1 : On vérifie que le dossier racine du plugin existe bien physiquement
+        $pluginRootDir = ROOT_DIR . 'plugins' . DS . $cleanName;
+        if (!is_dir($pluginRootDir)) {
+            throw new \Exception("Le dossier du plugin '{$cleanName}' a été supprimé ou est introuvable.");
+        }
+
+        $app = new $pluginClassName();
+
+        // SÉCURITÉ 2 : On s'assure que le contrôleur possède bien son point d'entrée
+        if (!method_exists($app, 'run')) {
+            throw new \Exception("Le contrôleur du plugin '{$cleanName}' est invalide (méthode run manquante).");
+        }
+
+        // On définit le chemin des vues du plugin
+        $pluginViewDir = $pluginRootDir . DS . 'views' . DS . 'admin';
+
+        // Si le dossier des vues existe, on l'ajoute à Smarty
+        if (is_dir($pluginViewDir)) {
+            SmartyTool::addTemplateDir('admin', $pluginViewDir);
+        }
+
+        // Lancement du plugin
+        $app->run();
+
     } else {
-        throw new \Exception("Le module ou contrôleur '{$cleanName}' est introuvable.");
+        throw new \Exception("Le module ou plugin '{$cleanName}' est introuvable.");
     }
 } catch (\Exception $e) {
     // Gestion propre des erreurs

@@ -18717,6 +18717,22 @@ textarea.form-control-lg {
   transform: translateY(0);
 }
 
+/*.nav-tabs {
+  // Empêche le passage à la ligne si trop d'onglets
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // Cache la scrollbar mais garde le défilement (optionnel)
+  &::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .nav-item {
+    white-space: nowrap; // Empêche le texte de l'onglet de se couper
+  }
+}*/
 #aside {
   width: 280px;
   height: 100vh;

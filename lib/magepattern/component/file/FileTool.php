@@ -392,4 +392,25 @@ class FileTool
         }
         return new \FilesystemIterator($path, \FilesystemIterator::SKIP_DOTS);
     }
+
+    /**
+     * @param string $directory
+     * @return int
+     */
+    public static  function getDirectorySize(string $directory): int
+    {
+        $size = 0;
+        if (is_dir($directory)) {
+            // RecursiveDirectoryIterator gère parfaitement les sous-dossiers !
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $size += $file->getSize();
+                }
+            }
+        }
+        return $size;
+    }
 }
