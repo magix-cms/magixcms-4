@@ -104,7 +104,53 @@ class UploadTool
 
         return $results;
     }
+    /**
+     * Méthode pour l'upload d'un fichier image UNIQUE
+     */
+    public function singleImageUpload(string $module, string $attribute, string $root, array $directories = [], array $options = []): array
+    {
+        $postKey = $options['postKey'] ?? 'img_single';
+        $file = $_FILES[$postKey] ?? null;
 
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            return ['status' => false, 'msg' => 'Aucun fichier valide reçu.'];
+        }
+
+        // 1. Setup des dossiers (On gère le root vide proprement)
+        $pathParts = [];
+        if (!empty($root)) $pathParts[] = rtrim($root, '/');
+        if (!empty($directories)) $pathParts[] = implode('/', $directories);
+
+        $relativePath = implode('/', $pathParts);
+        $targetDir = $this->urlTool->dirUpload($relativePath, true);
+
+        // 2. Récupération des tailles
+        $resizeConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
+
+        $currentSuffix = (int)($options['suffix'] ?? 0);
+        $baseName = $options['name'] ?? 'image';
+
+        $filenameNoExt = $baseName . ($currentSuffix > 0 ? '_' . $currentSuffix : '');
+        $originalExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)) ?: 'jpg';
+
+        $finalFilename = $filenameNoExt . '.' . $originalExt;
+        $targetFilePath = $targetDir . $finalFilename;
+
+        try {
+            if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+                throw new \Exception("Erreur de déplacement physique du fichier.");
+            }
+
+            // 3. Génération WebP et tailles config_img (Utilise votre méthode existante)
+            $this->generateVariations($targetFilePath, $targetDir, $filenameNoExt, $originalExt, $resizeConfig);
+
+            return ['status' => true, 'file' => $finalFilename, 'msg' => 'Upload OK'];
+
+        } catch (\Throwable $e) {
+            $this->logger->log($e, 'php', 'error');
+            return ['status' => false, 'msg' => $e->getMessage()];
+        }
+    }
     /**
      * Génère le WebP Maître ET toutes les déclinaisons configurées
      */

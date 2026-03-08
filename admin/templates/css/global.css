@@ -19062,6 +19062,27 @@ textarea.form-control-lg {
   padding: 1rem;
 }
 
+#modalEditLogo .modal-header .modal-lang-wrapper .btn-lang {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #fff;
+}
+#modalEditLogo .tab-content .tab-pane {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* 1. On fige le body */
 body.tox-fullscreen {
   overflow: hidden !important;

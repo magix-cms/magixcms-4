@@ -1,5 +1,5 @@
 <aside id="aside" class="sidebar d-flex flex-column flex-shrink-0 p-3 text-bg-dark overflow-y-auto" data-bs-theme="dark">
-    <a href="/" class="sidebar-brand d-flex align-items-center text-decoration-none mb-3">
+    <a href="index.php?controller=Dashboard" class="sidebar-brand d-flex align-items-center text-decoration-none mb-3">
         <i class="bi bi-boxes fs-3 text-white"></i>
         <span class="fs-4 fw-bold menu-text ms-2 text-white">MagixCMS</span>
     </a>
@@ -28,57 +28,37 @@
                 <span class="menu-text">{#homepage_management#}</span>
             </a>
         </li>
+        {* --- BLOC ABOUT --- *}
+        {if isset($mc_config.about) && $mc_config.about == 1}
+            <li class="mb-1">
+                {assign var="is_about" value=($current_c == 'about')}
 
-        {* --- BLOC CATALOGUE --- *}
-        {if isset($mc_config.catalog) && $mc_config.catalog == 1}
-        <li class="mb-1">
-            {assign var="is_boutique" value=($current_c == 'product' || $current_c == 'category' || $current_c == 'catalog')}
+                <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_about}collapsed{/if}"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-about"
+                        aria-expanded="{if $is_about}true{else}false{/if}">
+                    <i class="bi bi-info-circle fs-5 me-3"></i>
+                    <span class="menu-text">Gestion About</span>
+                </button>
 
-            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_boutique}collapsed{/if}"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#menu-boutique"
-                    aria-expanded="{if $is_boutique}true{else}false{/if}">
-                <i class="bi bi-shop fs-5 me-3"></i>
-                <span class="menu-text">Catalogue</span>
-            </button>
-
-            <div class="collapse {if $is_boutique}show{/if}" id="menu-boutique">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    <li>
-                        <a href="index.php?controller=Catalog"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'catalog'}active-sub{/if}">
-                            <i class="bi bi-layout-text-window me-2 opacity-75"></i> Page catalogue
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=Category&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a == 'add'}active-sub{/if}">
-                            <i class="bi bi-folder-plus me-2 opacity-75"></i> Ajouter catégorie
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=Category"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a != 'add'}active-sub{/if}">
-                            <i class="bi bi-folder2-open me-2 opacity-75"></i> Liste catégories
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=Product&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a == 'add'}active-sub{/if}">
-                            <i class="bi bi-box-seam me-2 opacity-75"></i> Ajouter produit
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=Product"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a != 'add'}active-sub{/if}">
-                            <i class="bi bi-boxes me-2 opacity-75"></i> Liste produits
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                <div class="collapse {if $is_about}show{/if}" id="menu-about">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                        <li>
+                            <a href="index.php?controller=About"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a != 'add'}active-sub{/if}">
+                                <i class="bi bi-list-ul me-2 opacity-75"></i> Liste About
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=About&action=add"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a == 'add'}active-sub{/if}">
+                                <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         {/if}
-
         {* --- BLOC PAGES --- *}
         {if isset($mc_config.pages) && $mc_config.pages == 1}
         <li class="mb-1">
@@ -149,36 +129,54 @@
         </li>
         {/if}
 
-        {* --- BLOC ABOUT --- *}
-        {if isset($mc_config.about) && $mc_config.about == 1}
-        <li class="mb-1">
-            {assign var="is_about" value=($current_c == 'about')}
+        {* --- BLOC CATALOGUE --- *}
+        {if isset($mc_config.catalog) && $mc_config.catalog == 1}
+            <li class="mb-1">
+                {assign var="is_boutique" value=($current_c == 'product' || $current_c == 'category' || $current_c == 'catalog')}
 
-            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_about}collapsed{/if}"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#menu-about"
-                    aria-expanded="{if $is_about}true{else}false{/if}">
-                <i class="bi bi-info-circle fs-5 me-3"></i>
-                <span class="menu-text">Gestion About</span>
-            </button>
+                <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_boutique}collapsed{/if}"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-boutique"
+                        aria-expanded="{if $is_boutique}true{else}false{/if}">
+                    <i class="bi bi-shop fs-5 me-3"></i>
+                    <span class="menu-text">Catalogue</span>
+                </button>
 
-            <div class="collapse {if $is_about}show{/if}" id="menu-about">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    <li>
-                        <a href="index.php?controller=About"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a != 'add'}active-sub{/if}">
-                            <i class="bi bi-list-ul me-2 opacity-75"></i> Liste About
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=About&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'about' && $current_a == 'add'}active-sub{/if}">
-                            <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                <div class="collapse {if $is_boutique}show{/if}" id="menu-boutique">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                        <li>
+                            <a href="index.php?controller=Catalog"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'catalog'}active-sub{/if}">
+                                <i class="bi bi-layout-text-window me-2 opacity-75"></i> Page catalogue
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=Category&action=add"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a == 'add'}active-sub{/if}">
+                                <i class="bi bi-folder-plus me-2 opacity-75"></i> Ajouter catégorie
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=Category"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'category' && $current_a != 'add'}active-sub{/if}">
+                                <i class="bi bi-folder2-open me-2 opacity-75"></i> Liste catégories
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=Product&action=add"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a == 'add'}active-sub{/if}">
+                                <i class="bi bi-box-seam me-2 opacity-75"></i> Ajouter produit
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=Product"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'product' && $current_a != 'add'}active-sub{/if}">
+                                <i class="bi bi-boxes me-2 opacity-75"></i> Liste produits
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         {/if}
 
         {* --- BLOC CONFIGURATION --- *}
@@ -247,6 +245,7 @@
                 </ul>
             </div>
         </li>
+
         {* --- BLOC UTILISATEURS & RÔLES --- *}
         <li class="mb-1">
             {assign var="is_team" value=($current_c == 'employee' || $current_c == 'role')}
@@ -282,6 +281,37 @@
                 </ul>
             </div>
         </li>
+        {* --- BLOC APPARENCE (NOUVEAU) --- *}
+        <li class="mb-1">
+            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu')}
+
+            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_appearance}collapsed{/if}"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#menu-appearance"
+                    aria-expanded="{if $is_appearance}true{else}false{/if}">
+                <i class="bi bi-palette fs-5 me-3"></i>
+                <span class="menu-text">Apparence</span>
+            </button>
+
+            <div class="collapse {if $is_appearance}show{/if}" id="menu-appearance">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    <li>
+                        <a href="index.php?controller=Logo"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'logo'}active-sub{/if}">
+                            <i class="bi bi-image me-2 opacity-75"></i> Logo
+                        </a>
+                    </li>
+                    {* NOUVEAU LIEN : Gestion du Menu *}
+                    <li>
+                        <a href="index.php?controller=Menu"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'menu'}active-sub{/if}">
+                            <i class="bi bi-menu-button-wide me-2 opacity-75"></i> Menus
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
         {* --- BLOC EXTENSIONS / PLUGINS --- *}
         <li class="mb-1">
             {* On vérifie si on est sur la page du gestionnaire ou sur une page de plugin *}

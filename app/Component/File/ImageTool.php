@@ -44,18 +44,20 @@ class ImageTool
      * Formate le tableau d'images pour Smarty (Admin & Frontend)
      * Transforme les préfixes BDD ('s', 'l') en clés lisibles ('small', 'large')
      */
-    public function setModuleImages(string $module, string $attribute, array $images, int $id): array
+    public function setModuleImages(string $module, string $attribute, array $images, int $id = 0, string $customBaseDir = ''): array
     {
         if (empty($images)) {
             return [];
         }
 
-        // 1. Récupération de la config (ex: prefix 's' = 300px, prefix 'l' = 800px)
         $configs = $this->getConfigItems($module, $attribute);
 
-        // 2. Définition du chemin Web (relatif) pour l'affichage
-        // "/upload/pages/20/"
-        $baseDir = '/upload/' . $module . '/' . $id . '/';
+        // Si on a fourni un chemin custom, on l'utilise. Sinon, comportement par défaut.
+        if (!empty($customBaseDir)) {
+            $baseDir = $customBaseDir;
+        } else {
+            $baseDir = '/upload/' . $module . '/' . $id . '/';
+        }
 
         foreach ($images as $key => $image) {
             $filename = $image['name_img'];
