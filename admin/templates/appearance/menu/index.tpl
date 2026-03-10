@@ -1,5 +1,7 @@
 {extends file="layout.tpl"}
 
+{block name='head:title'}Gestion Menu{/block}
+
 {* --- MACRO POUR L'AFFICHAGE EN ARBRE --- *}
 {function name=renderTree items=[] inputName=''}
     {if $items && $items|count > 0}

@@ -16,6 +16,7 @@ use Magepattern\Component\Debug\Logger;
 use Magepattern\Component\HTTP\Session;
 use Magepattern\Component\HTTP\JSON;
 use App\Backend\Db\PluginDb;
+use App\Backend\Db\SettingDb;
 
 abstract class BaseController
 {
@@ -41,6 +42,10 @@ abstract class BaseController
      * @var JSON
      */
     protected JSON $json;
+    /**
+     * @var array
+     */
+    protected array $siteSettings = [];
 
     public function __construct()
     {
@@ -91,6 +96,44 @@ abstract class BaseController
         $this->json = new JSON();
 
         $this->view->assign('installed_plugins', $this->getValidatedPluginsForMenu());
+
+        // CHARGEMENT GLOBAL DES PARAMÈTRES (mc_setting)
+        $settingDb = new SettingDb();
+        $this->siteSettings = $settingDb->fetchAllSettings();
+
+        // On le rend disponible pour tous les templates Smarty
+        $this->view->assign('mc_settings', $this->siteSettings);
+
+        // ==========================================================
+        // URL DU SITE GLOBALE POUR SMARTY
+        // ==========================================================
+
+        // 1. Détermination du protocole
+        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
+        $protocol = ($isSsl === 1) ? 'https://' : 'http://';
+
+        // 2. Récupération du host (ex: magixcms4.test)
+        $host = $_SERVER['HTTP_HOST'];
+
+        // 3. Construction de l'URL de base
+        $siteUrl = $protocol . $host;
+
+        // --- LA PARTIE OPTIONNELLE EXPLIQUÉE ---
+        // Si votre projet est dans un sous-dossier (ex: localhost/mon-projet/)
+        // ou si vous voulez être sûr de retirer le dossier "admin" de l'URL de base
+        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        // On retire "admin" du chemin s'il est présent
+        $publicRoot = str_replace('/'.BASEADMIN, '', $scriptDir);
+        $publicRoot = rtrim($publicRoot, '/');
+
+        // URL Finale : racine du site + chemin vers le dossier public
+        $siteUrl = $siteUrl . $publicRoot;
+
+        // On assigne à Smarty
+
+        // 4. Assignation globale à Smarty
+        $this->view->assign('site_url', $siteUrl);
+        $this->view->assign('baseadmin', BASEADMIN);
     }
 
     /**

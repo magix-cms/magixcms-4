@@ -1,0 +1,30 @@
+// Fichier : _layout.scss
+
+.sortable-list {
+  // État de l'emplacement "fantôme" (là où le widget va tomber)
+  .sortable-ghost {
+    opacity: 0.5;
+    background-color: #f8f9fa !important; // Vous pouvez remplacer par $gray-100 si vous importez Bootstrap
+    border: 2px dashed #0d6efd !important; // Vous pouvez remplacer par $primary
+  }
+
+  // État de l'élément pendant qu'on le "tient"
+  .sortable-drag {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    cursor: grabbing !important;
+  }
+
+  // Le grip de déplacement
+  .drag-handle {
+    cursor: grab;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+      color: #0d6efd !important; // Pareil, $primary est idéal ici
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}

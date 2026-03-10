@@ -7,6 +7,7 @@ namespace App\Backend\Controller;
 use App\Backend\Db\PluginDb;
 use App\Backend\Db\DashboardDb;
 use Magepattern\Component\File\FileTool;
+use App\Backend\Db\LayoutDb;
 
 class PluginController extends BaseController
 {
@@ -79,17 +80,14 @@ class PluginController extends BaseController
         $manifest = json_decode(file_get_contents($manifestPath), true);
         $db = new PluginDb();
 
-        // 1. Exécution du SQL d'installation (Base de données du plugin)
+        // 1. Exécution du SQL d'installation
         if (file_exists($sqlPath)) {
             $sqlContent = file_get_contents($sqlPath);
-            // On utilise la méthode centralisée dans BaseDb
             if (!$db->executeRawSql($sqlContent)) {
                 $this->jsonResponse(false, 'Erreur lors de l\'exécution du script SQL d\'installation.');
             }
         }
 
-        // 2. Préparation des données pour la table globale mc_plugins
-        // Un plugin CLASSIQUE aura un tableau $targets vide.
         $targets = $manifest['core_targets'] ?? [];
         $data = [
             'name'    => $pluginName,
@@ -104,10 +102,10 @@ class PluginController extends BaseController
             'seo'     => $targets['seo'] ?? 0
         ];
 
-        // 3. Insertion dans mc_plugins (Le CMS sait que le plugin est installé)
+        // 3. Insertion dans mc_plugins
         if ($db->insertPlugin($data)) {
 
-            // 4. Liaison dans mc_plugins_module (Uniquement pour les plugins DÉDIÉS / HYBRIDES)
+            // 4. Liaison dans mc_plugins_module
             if (!empty($targets)) {
                 foreach ($targets as $moduleName => $isActive) {
                     if ($isActive == 1) {
@@ -116,9 +114,29 @@ class PluginController extends BaseController
                 }
             }
 
-            // 5. Enregistrement RBAC dans mc_module (Permet d'affecter des droits Admin)
-            // Indispensable pour les plugins Classiques et Hybrides qui ont une interface Backend
+            // 5. Enregistrement RBAC
             $db->registerModuleRBAC($pluginName);
+
+            // --- NOUVEAU : 6. GREFFE AUTOMATIQUE DANS LE LAYOUT FRONTEND ---
+            $defaultHooks = $manifest['default_hooks'] ?? [];
+            if (!empty($defaultHooks)) {
+                $layoutDb = new LayoutDb();
+                $allHooks = $layoutDb->getAllHooks() ?: [];
+
+                // On crée un tableau associatif [NomDuHook => ID] pour trouver l'ID facilement
+                $hookMap = [];
+                foreach ($allHooks as $h) {
+                    $hookMap[$h['name']] = (int)$h['id_hook'];
+                }
+
+                foreach ($defaultHooks as $hookName) {
+                    if (isset($hookMap[$hookName])) {
+                        // On greffe le plugin (la méthode addItem gère automatiquement la position !)
+                        $layoutDb->addItem($hookMap[$hookName], $pluginName);
+                    }
+                }
+            }
+            // --- FIN NOUVEAU ---
 
             $hasConfig = $manifest['has_config'] ?? false;
 
@@ -131,9 +149,12 @@ class PluginController extends BaseController
 
         $this->jsonResponse(false, 'Erreur lors de l\'enregistrement du plugin dans la base de données.');
     }
+
+    /**
+     * @return void
+     */
     public function uninstall(): void
     {
-        // 1. Sécurité : Vérification du plugin
         $pluginName = $_GET['name'] ?? ($_POST['name'] ?? '');
         if (empty($pluginName)) {
             $this->jsonResponse(false, 'Nom du plugin manquant.');
@@ -144,14 +165,11 @@ class PluginController extends BaseController
 
         $db = new PluginDb();
 
-        // 2. Exécution du SQL de désinstallation (S'il existe)
-        // Permet au plugin de faire un DROP TABLE mc_analytics_stats par exemple.
+        // 2. Exécution du SQL de désinstallation
         if (file_exists($sqlPath)) {
             $sqlContent = file_get_contents($sqlPath);
             if (!empty(trim($sqlContent))) {
                 if (!$db->executeRawSql($sqlContent)) {
-                    // On ne bloque pas forcément la suite si la table n'existe déjà plus,
-                    // mais on pourrait logger un avertissement.
                     $this->logger->log("Avertissement : Le script uninstall.sql de {$pluginName} a rencontré une erreur.", 'warning');
                 }
             }
@@ -159,21 +177,24 @@ class PluginController extends BaseController
 
         // 3. Nettoyage des tables du CMS
         $success = true;
-
         if (!$db->deletePlugin($pluginName)) {
             $success = false;
         }
 
-        // On nettoie les liaisons même si deletePlugin a échoué (par précaution)
         $db->unlinkPluginFromAllModules($pluginName);
         $db->unregisterModuleRBAC($pluginName);
 
         if ($success) {
-            $db = new DashboardDb();
-            $db->removeWidgetGlobally($pluginName);
+            // Nettoyage du Dashboard Backend
+            $dashDb = new DashboardDb();
+            $dashDb->removeWidgetGlobally($pluginName);
+
+            // --- NOUVEAU : NETTOYAGE DU LAYOUT FRONTEND ---
+            // On supprime toutes les occurrences de ce plugin dans toutes les zones du site
+            $db->executeRawSql("DELETE FROM mc_hook_item WHERE module_name = '" . addslashes($pluginName) . "'");
 
             $this->jsonResponse(true, 'Le plugin a été désinstallé avec succès.', ['type' => 'uninstall_success']);
-        }else {
+        } else {
             $this->jsonResponse(false, 'Erreur lors de la suppression des données du plugin.');
         }
     }

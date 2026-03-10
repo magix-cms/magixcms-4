@@ -85,7 +85,7 @@ class ImageTool
                 };
 
                 // Construction du nom de fichier : "s_mon-image.jpg"
-                $generatedName = $prefix . '_' . $filename;
+                /*$generatedName = $prefix . '_' . $filename;
 
                 // Assignation
                 $images[$key]['img'][$keyName] = [
@@ -94,6 +94,24 @@ class ImageTool
                     'height' => $conf['height'],
                     // Si tu utilises WebP, le chemin serait :
                     'webp'   => $baseDir . $prefix . '_' . $filenameNoExt . '.webp'
+                ];*/
+                // Construction du nom de fichier : "s_mon-image.jpg"
+                $generatedName = $prefix . '_' . $filename;
+
+                // Assignation avec ALIAS pour compatibilité Front/Back
+                $images[$key]['img'][$keyName] = [
+                    'src'      => $baseDir . $generatedName,
+
+                    // --- CLÉS POUR L'ADMINISTRATION ---
+                    'width'    => $conf['width'],
+                    'height'   => $conf['height'],
+                    'webp'     => $baseDir . $prefix . '_' . $filenameNoExt . '.webp',
+
+                    // --- CLÉS POUR LE FRONTEND (Template CMS 3) ---
+                    'w'        => $conf['width'],
+                    'h'        => $conf['height'],
+                    'src_webp' => $baseDir . $prefix . '_' . $filenameNoExt . '.webp',
+                    'ext'      => 'image/' . ($ext === 'jpg' ? 'jpeg' : $ext)
                 ];
             }
 
@@ -112,6 +130,11 @@ class ImageTool
             if (!isset($images[$key]['img']['small'])) {
                 $images[$key]['img']['small'] = $images[$key]['img']['original'];
             }
+            uasort($images[$key]['img'], function ($a, $b) {
+                $wA = $a['w'] ?? 0;
+                $wB = $b['w'] ?? 0;
+                return $wB <=> $wA; // Tri décroissant
+            });
         }
 
         return $images;

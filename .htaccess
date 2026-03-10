@@ -1,0 +1,253 @@
+# Begins CORS
+# RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+# ----------------------------------------------------------------------
+# | Cross-origin images |
+# ----------------------------------------------------------------------
+# Send the CORS header for images when browsers request it.
+<IfModule mod_setenvif.c>
+    <IfModule mod_headers.c>
+        <FilesMatch "\.(bmp|cur|gif|ico|jpe?g|png|svgz?|webp)$">
+            SetEnvIf Origin ":" IS_CORS
+            Header set Access-Control-Allow-Origin "*" env=IS_CORS
+        </FilesMatch>
+    </IfModule>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Cross-origin web fonts |
+# ----------------------------------------------------------------------
+# Allow cross-origin access to web fonts.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(eot|otf|tt[cf]|woff2?)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Document modes |
+# ----------------------------------------------------------------------
+# Force Internet Explorer 8/9/10 to render pages in the highest mode
+<IfModule mod_headers.c>
+  Header set X-UA-Compatible "IE=edge"
+  <FilesMatch "\.(appcache|atom|bbaw|bmp|crx|css|cur|eot|f4[abpv]|flv|geojson|gif|htc|ico|jpe?g|js|json(ld)?|m4[av]|manifest|map|mp4|oex|og[agv]|opus|otf|pdf|png|rdf|rss|safariextz|svgz?|swf|topojson|tt[cf]|txt|vcard|vcf|vtt|webapp|web[mp]|woff2?|xloc|xml|xpi)$">
+    Header unset X-UA-Compatible
+  </FilesMatch>
+
+  # ----------------------------------------------------------------------
+  # | File access |
+  # ----------------------------------------------------------------------
+  <IfModule mod_autoindex.c>
+    Options -Indexes
+  </IfModule>
+
+  <FilesMatch "(^#.*#|\.(bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op])|~)$">
+    <IfModule !mod_authz_core.c>
+      Order allow,deny
+      Deny from all
+      Satisfy All
+    </IfModule>
+    <IfModule mod_authz_core.c>
+      Require all denied
+    </IfModule>
+  </FilesMatch>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Expires headers                                                    |
+# ----------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresDefault                                      "access plus 1 month"
+  ExpiresByType text/css                              "access plus 1 year"
+  ExpiresByType application/atom+xml                  "access plus 1 hour"
+  ExpiresByType application/rdf+xml                   "access plus 1 hour"
+  ExpiresByType application/rss+xml                   "access plus 1 hour"
+  ExpiresByType application/json                      "access plus 0 seconds"
+  ExpiresByType application/ld+json                   "access plus 0 seconds"
+  ExpiresByType application/schema+json               "access plus 0 seconds"
+  ExpiresByType application/vnd.geo+json              "access plus 0 seconds"
+  ExpiresByType application/xml                       "access plus 0 seconds"
+  ExpiresByType text/xml                              "access plus 0 seconds"
+  ExpiresByType image/vnd.microsoft.icon              "access plus 1 week"
+  ExpiresByType image/x-icon                          "access plus 1 week"
+  ExpiresByType text/html                             "access plus 0 seconds"
+  ExpiresByType application/javascript                "access plus 1 year"
+  ExpiresByType application/x-javascript              "access plus 1 year"
+  ExpiresByType text/javascript                       "access plus 1 year"
+  ExpiresByType application/manifest+json             "access plus 1 year"
+  ExpiresByType application/x-web-app-manifest+json   "access plus 0 seconds"
+  ExpiresByType text/cache-manifest                   "access plus 0 seconds"
+  ExpiresByType audio/ogg                             "access plus 1 month"
+  ExpiresByType image/bmp                             "access plus 1 month"
+  ExpiresByType image/gif                             "access plus 1 month"
+  ExpiresByType image/jpeg                            "access plus 1 month"
+  ExpiresByType image/png                             "access plus 1 month"
+  ExpiresByType image/svg+xml                         "access plus 1 month"
+  ExpiresByType image/webp                            "access plus 1 month"
+  ExpiresByType video/mp4                             "access plus 1 month"
+  ExpiresByType video/ogg                             "access plus 1 month"
+  ExpiresByType video/webm                            "access plus 1 month"
+  ExpiresByType application/vnd.ms-fontobject         "access plus 1 year"
+  ExpiresByType font/eot                              "access plus 1 year"
+  ExpiresByType font/opentype                         "access plus 1 year"
+  ExpiresByType application/x-font-ttf                "access plus 1 year"
+  ExpiresByType font/ttf                              "access plus 1 year"
+  ExpiresByType application/font-woff                 "access plus 1 year"
+  ExpiresByType application/x-font-woff               "access plus 1 year"
+  ExpiresByType font/woff                             "access plus 1 year"
+  ExpiresByType application/font-woff2                "access plus 1 year"
+  ExpiresByType font/woff2                            "access plus 1 year"
+  ExpiresByType text/x-cross-domain-policy            "access plus 1 week"
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Cache-Control Headers                                              |
+# ----------------------------------------------------------------------
+<IfModule mod_headers.c>
+  <FilesMatch "\\.(ttf|woff|woff2|eot)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  <FilesMatch "\\.(ico|jpe?g|png|webp|gif|swf|gz)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  <FilesMatch "\\.(css)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  <FilesMatch "\\.(js)$">
+    Header set Cache-Control "max-age=31536000, private"
+  </FilesMatch>
+  <FilesMatch "\\.(x?html?|php)$">
+    Header set Cache-Control "max-age=600, private, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Turn ETags Off                                                     |
+# ----------------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header unset ETag
+</IfModule>
+FileETag None
+
+<IfModule mod_headers.c>
+    Header unset Last-Modified
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Compress text files (Deflate)                                      |
+# ----------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    <FilesMatch "\.(css|js|x?html?|php)$">
+      SetOutputFilter DEFLATE
+    </FilesMatch>
+    <IfModule mod_filter.c>
+      AddOutputFilterByType DEFLATE text/xml text/css text/javascript text/html text/plain application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript
+    </IfModule>
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|pdf|swf|ico|zip)$ no-gzip
+    <IfModule mod_headers.c>
+        Header append Vary User-Agent env=!dont-vary
+        Header append Cache-Control "private"
+        BrowserMatch "MSIE" force-no-vary
+    </IfModule>
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Character encodings                                                |
+# ----------------------------------------------------------------------
+AddDefaultCharset utf-8
+<IfModule mod_mime.c>
+    AddCharset utf-8 .atom .bbaw .css .geojson .js .json .jsonld .rdf .rss .topojson .vtt .webapp .xloc .xml
+</IfModule>
+
+# ----------------------------------------------------------------------
+# | Rewrite engine (Routage Magix CMS 4)                               |
+# ----------------------------------------------------------------------
+DirectoryIndex index.php
+
+ErrorDocument 401 /index.php?http_error=401
+ErrorDocument 403 /index.php?http_error=403
+ErrorDocument 404 /index.php?http_error=404
+ErrorDocument 500 /index.php?http_error=500
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. EXCLUSIONS IMPORTANTES (Admin, Skin, Uploads)
+    RewriteCond %{REQUEST_URI} ^/admin [OR]
+    RewriteCond %{REQUEST_URI} ^/skin [OR]
+    RewriteCond %{REQUEST_URI} ^/upload
+    RewriteRule ^ - [L]
+
+    # 2. FORCER LE HTTPS (SSL) - Désactivé en local
+    <IfModule mod_ssl.c>
+        RewriteCond %{HTTP_HOST} !^localhost$
+        RewriteCond %{HTTP_HOST} !\.test$
+        RewriteCond %{HTTPS} !=on [OR]
+        RewriteCond %{SERVER_PORT} 80
+        RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [R=301,QSA,L]
+    </IfModule>
+
+    # 3. FORCER LE WWW - Désactivé en local
+    RewriteCond %{HTTP_HOST} !^www\.
+    RewriteCond %{HTTP_HOST} !^localhost$
+    RewriteCond %{HTTP_HOST} !\.test$
+    RewriteRule .* http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 4. RÉÉCRITURE EN CASCADE (Logique URL Front-end)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # A. Extraction de la langue (/fr/...) -> Transformé en ?lang=fr
+    RewriteCond %{REQUEST_URI} !^/amp
+    RewriteCond %{QUERY_STRING} !(lang)+
+    RewriteRule ^([a-zA-Z]{2})/(.*) /$2?lang=$1 [QSA,L]
+
+    # B. AMP
+    RewriteCond %{REQUEST_URI} ^/amp
+    RewriteRule ^amp/(.*) /$1?amp=1 [QSA,L]
+
+    # C. Web Service
+    RewriteRule ^webservice/?$ /index.php?controller=webservice [QSA,L]
+    RewriteRule ^webservice/([a-zA-Z]+)/?$ /index.php?controller=webservice&collection=$1 [QSA,L]
+    RewriteRule ^webservice/([a-zA-Z]+)/([0-9]+)/?$ /index.php?controller=webservice&collection=$1&id=$2 [QSA,L]
+    RewriteRule ^webservice/([a-zA-Z]+)/([0-9]+)/([a-zA-Z0-9]+)/?$ /index.php?controller=webservice&collection=$1&id=$2&action=$3 [QSA,L]
+
+    # D. Pagination
+    RewriteCond %{QUERY_STRING} !(page)+
+    RewriteRule (.*)/page/(\d+)/?$ /$1?page=$2 [QSA,L]
+
+    # E. Tags (News)
+    RewriteCond %{QUERY_STRING} !(tag)+
+    RewriteRule (.*)/tag/([0-9]+)-([-_0-9a-zA-Z]+)/?$ /$1?tag=$2 [QSA,L]
+
+    # F. Extraction ID et URL (Articles, Catégories, Pages)
+    RewriteCond %{QUERY_STRING} !(id=)
+    RewriteRule (.*)/([0-9]+)-([-_0-9a-zA-Z]+)/?$ /$1?id=$2&url=$3 [QSA,L]
+
+    # G. Dates
+    RewriteRule (.*)/(\d{4}/\d{2}/\d{2})/?$ /$1?date=$2 [QSA,L]
+    RewriteCond %{QUERY_STRING} !(year)+
+    RewriteRule (.*)/(\d{4})/(\d{2})/?$ /$1?year=$2&month=$3 [QSA,L]
+    RewriteCond %{QUERY_STRING} !(year)+
+    RewriteRule (.*)/(\d{4})/?$ /$1?year=$2 [QSA,L]
+
+    # H. Action & Hash Custom
+    RewriteCond %{QUERY_STRING} !(action)+
+    RewriteRule (.*)/([0-9a-zA-Z]+)/?$ /$1?action=$2 [QSA,L]
+    RewriteCond %{QUERY_STRING} !(hash)+
+    RewriteRule (.*)/([0-9a-zA-Z]+)/?$ /$1?hash=$2 [QSA,L]
+
+    # 5. POINT DE CHUTE FINAL (CONTROLLER)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([0-9a-zA-Z]+)/?$ /index.php?controller=$1 [QSA,L]
+
+</IfModule>

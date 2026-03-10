@@ -332,7 +332,7 @@ class ProductController extends BaseController
         $lastImageId = $db->getLastImageId($idProduct);
 
         $results = $uploadTool->multipleImageUpload(
-            'product', 'product', 'upload/product', [(string)$idProduct],
+            'catalog', 'product', 'upload/product', [(string)$idProduct],
             [
                 'postKey'          => 'img_multiple',
                 'suffix'           => $lastImageId,

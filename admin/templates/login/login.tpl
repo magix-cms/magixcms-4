@@ -5,7 +5,7 @@
 
 {* 1. On injecte le CSS spécifique au login *}
 {block name="stylesheets"}
-    <link rel="stylesheet" href="templates/css/login.min.css">
+    <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/login.min.css">
 {/block}
 
 {* 2. On vide les blocs inutiles pour cette page *}
@@ -19,7 +19,7 @@
         <div class="login-panel">
 
             <div id="logo" class="text-center mb-4">
-                <img src="/admin/templates/img/logo/png/logo-magix_cms@229.png" alt="Magix CMS" width="229" class="img-fluid">
+                <img src="{$site_url}/{$baseadmin}/templates/img/logo/png/logo-magix_cms@229.png" alt="Magix CMS" width="229" class="img-fluid">
             </div>
 
             {if $error}
@@ -34,7 +34,7 @@
 
                     {* FRONT : CONNEXION *}
                     <div class="login-box front p-4">
-                        <form id="login_form" method="post" action="{$url}/admin/index.php?controller=login">
+                        <form id="login_form" method="post" action="{$site_url}/{$baseadmin}/index.php?controller=login">
                             <h4 class="mb-4 text-center fw-bold">{#connexion#}</h4>
 
                             <div class="mb-3">

@@ -324,7 +324,7 @@ class CategoryController extends BaseController
         $lastImageId = $db->getLastImageId($idCat);
 
         $results = $uploadTool->multipleImageUpload(
-            'category', 'category', 'upload/category', [(string)$idCat],
+            'catalog', 'category', 'upload/category', [(string)$idCat],
             [
                 'postKey'          => 'img_multiple',
                 'suffix'           => $lastImageId,

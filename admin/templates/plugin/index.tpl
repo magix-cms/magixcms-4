@@ -79,6 +79,6 @@
 {/block}
 
 {* --- SCRIPT JAVASCRIPT POUR GÉRER L'INSTALLATION/DÉSINTSALLATION EN JSON --- *}
-{block name='footer_js'}
-    <script src="templates/js/MagixPlugin.min.js?v={$smarty.now}"></script>
+{block name="javascripts" append}
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixPlugins.min.js?v={$smarty.now}"></script>
 {/block}

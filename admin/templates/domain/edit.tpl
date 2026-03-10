@@ -1,37 +1,38 @@
 {extends file="layout.tpl"}
 
 {block name='head:title'}{#edit_domain#|ucfirst}{/block}
+{block name='body:id'}domain{/block}
 
 {block name='article'}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
             <i class="bi bi-pencil-square me-2"></i> {#edit_domain#|ucfirst} : <span class="text-primary">{$domain.url_domain}</span>
         </h1>
-        <a href="index.php?controller=Domain" class="btn btn-outline-secondary btn-sm">
+        <a href="index.php?controller=Domain" class="btn btn-outline-secondary btn-sm shadow-sm">
             <i class="bi bi-arrow-left"></i> Retour à la liste
         </a>
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3 border-bottom-0">
-            <ul class="nav nav-tabs card-header-tabs m-0" role="tablist" id="domainEditTab">
+        <header class="card-header bg-white p-0 border-bottom-0">
+            <ul class="nav nav-tabs nav-fill" role="tablist" id="domainEditTab">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active fw-bold text-dark" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
+                    <button class="nav-link active py-3 fw-bold" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
                         <i class="bi bi-globe me-2"></i> {#domain#|ucfirst}
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold text-dark" id="sitemap-tab" data-bs-toggle="tab" data-bs-target="#sitemap" type="button" role="tab" aria-controls="sitemap" aria-selected="false">
+                    <button class="nav-link py-3 fw-bold" id="sitemap-tab" data-bs-toggle="tab" data-bs-target="#sitemap" type="button" role="tab" aria-controls="sitemap" aria-selected="false">
                         <i class="bi bi-diagram-3 me-2"></i> Sitemap
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold text-dark" id="langs-tab" data-bs-toggle="tab" data-bs-target="#langs" type="button" role="tab" aria-controls="langs" aria-selected="false">
+                    <button class="nav-link py-3 fw-bold" id="langs-tab" data-bs-toggle="tab" data-bs-target="#langs" type="button" role="tab" aria-controls="langs" aria-selected="false">
                         <i class="bi bi-translate me-2"></i> Langues
                     </button>
                 </li>
             </ul>
-        </div>
+        </header>
 
         <div class="card-body p-4">
             <div class="tab-content">
@@ -40,7 +41,6 @@
                    ONGLET 1 : GÉNÉRAL
                    ========================================================== *}
                 <div role="tabpanel" class="tab-pane fade show active" id="general" aria-labelledby="general-tab">
-
                     <form id="edit_domain_form" action="index.php?controller=Domain&action=edit" method="post" class="validate_form edit_form">
                         <input type="hidden" name="hashtoken" value="{$hashtoken}">
                         <input type="hidden" name="id_domain" value="{$domain.id_domain}">
@@ -69,7 +69,7 @@
                             </div>
                         </div>
 
-                        {* Section Tracking (Style Accordéon comme dans Pages) *}
+                        {* Section Tracking *}
                         <div class="accordion mb-3" id="advancedAccordion_domain">
                             <div class="accordion-item border-0 bg-light rounded mb-2">
                                 <h2 class="accordion-header">
@@ -81,7 +81,7 @@
                                     <div class="accordion-body bg-white border-top">
                                         <div class="mb-2">
                                             <label for="tracking_domain" class="form-label text-muted small">Insérez ici vos tags Google Analytics, Pixel Facebook, etc. pour ce domaine.</label>
-                                            <textarea id="tracking_domain" name="tracking_domain" class="form-control font-monospace text-muted" rows="6" placeholder="">{$domain.tracking_domain}</textarea>
+                                            <textarea id="tracking_domain" name="tracking_domain" class="form-control font-monospace text-muted" rows="6">{$domain.tracking_domain}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -90,12 +90,11 @@
 
                         <hr class="my-4">
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary px-5" type="submit" name="action" value="save">
+                            <button class="btn btn-primary px-5 shadow-sm" type="submit" name="action" value="save">
                                 <i class="bi bi-save me-2"></i> {#save#|ucfirst}
                             </button>
                         </div>
                     </form>
-
                 </div>
 
                 {* ==========================================================
@@ -103,38 +102,59 @@
                    ========================================================== *}
                 <div role="tabpanel" class="tab-pane fade" id="sitemap" aria-labelledby="sitemap-tab">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 fw-bold text-primary">Fichiers Sitemap XML</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h5 class="mb-1 fw-bold text-primary">Génération XML</h5>
+                            <p class="text-muted small mb-0">Les sitemaps aident les moteurs de recherche à explorer votre site.</p>
+                        </div>
+                        <button type="button" class="btn btn-warning shadow-sm fw-bold" id="btnGenerateSitemap" data-id="{$domain.id_domain}">
+                            <i class="bi bi-arrow-repeat me-2"></i> Générer / Mettre à jour
+                        </button>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-12">
-                            {if isset($xmlItems) && !empty($xmlItems)}
-                                <ul class="list-group list-group-flush border rounded shadow-sm">
-                                    {foreach $xmlItems as $xml}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <a href="{$xml.url}" target="_blank" class="text-decoration-none fw-medium text-dark">
-                                                <i class="bi bi-filetype-xml text-secondary me-2"></i> {$xml.url}
+                            <h6 class="fw-bold mb-3"><i class="bi bi-link-45deg me-1"></i> Liens attendus (Index & Langues)</h6>
+                            <ul class="list-group list-group-flush border rounded shadow-sm mb-4">
+                                {* Index Mère (Utilisation des variables PHP propres) *}
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-light">
+                                    <a href="{$base_url}/sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-bold text-dark">
+                                        <i class="bi bi-diagram-3-fill text-primary me-2"></i> {$base_url}/sitemap-{$clean_domain}.xml <span class="badge bg-primary ms-2">Index Mère</span>
+                                    </a>
+                                </li>
+
+                                {* Boucle sur les langues effectives du domaine (Sitemap Langs) *}
+                                {if isset($sitemap_langs) && !empty($sitemap_langs)}
+                                    {foreach $sitemap_langs as $dLang}
+                                        {$iso = $dLang.iso_lang|lower}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center p-3 ps-5">
+                                            <a href="{$base_url}/{$iso}-sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
+                                                <i class="bi bi-filetype-xml me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-{$clean_domain}.xml
                                             </a>
-                                            <a href="{$xml.url}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Ouvrir dans un nouvel onglet">
-                                                <i class="bi bi-box-arrow-up-right"></i>
+                                            <span class="badge bg-secondary">Pages & Produits</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center p-3 ps-5">
+                                            <a href="{$base_url}/{$iso}-sitemap-image-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
+                                                <i class="bi bi-image me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-image-{$clean_domain}.xml
                                             </a>
+                                            <span class="badge bg-info text-dark">Images</span>
                                         </li>
                                     {/foreach}
-                                </ul>
-                            {else}
-                                <div class="alert alert-light border border-dashed text-center py-4 text-muted">
-                                    <i class="bi bi-diagram-3 fs-2 d-block mb-2"></i>
-                                    Aucun fichier sitemap généré pour ce domaine.
-                                </div>
-                            {/if}
+                                {/if}
+                            </ul>
+
+                            <div class="alert alert-info border-0 shadow-sm small">
+                                <i class="bi bi-info-circle-fill fs-5 me-2 float-start"></i>
+                                <strong>Astuce SEO :</strong> C'est uniquement l'URL de <strong>l'Index Mère</strong> que vous devez soumettre dans votre <em>Google Search Console</em>. Google trouvera automatiquement les sous-sitemaps de langues et d'images.
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {* ONGLET 3 : LANGUES *}
+                {* ==========================================================
+                   ONGLET 3 : LANGUES
+                   ========================================================== *}
                 <div role="tabpanel" class="tab-pane fade" id="langs" aria-labelledby="langs-tab">
-
                     <form id="edit_domain_langs_form" action="index.php?controller=Domain&action=saveDomainLanguages" method="post" class="validate_form edit_form">
                         <input type="hidden" name="hashtoken" value="{$hashtoken}">
                         <input type="hidden" name="id_domain" value="{$domain.id_domain}">
@@ -144,7 +164,7 @@
                                 <p class="text-muted mb-3">Sélectionnez les langues disponibles pour ce domaine et choisissez la langue principale.</p>
 
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle bg-white border rounded shadow-sm">
+                                    <table class="table table-hover align-middle bg-white border rounded shadow-sm mb-0">
                                         <thead class="table-light">
                                         <tr>
                                             <th class="text-center" style="width: 80px;">Activer</th>
@@ -155,10 +175,8 @@
                                         <tbody>
                                         {if isset($all_langs) && !empty($all_langs)}
                                             {foreach $all_langs as $lang}
-                                                {* Vérification si la langue est actuellement liée *}
                                                 {$isActive = isset($domain_langs[$lang.id_lang])}
                                                 {$isDefault = $isActive && $domain_langs[$lang.id_lang].default_lang == 1}
-
                                                 <tr>
                                                     <td class="text-center">
                                                         <div class="form-check d-flex justify-content-center m-0">
@@ -173,7 +191,6 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <div class="form-check d-flex justify-content-center m-0">
-                                                            {* Ce radio button est désactivé si la case 'Activer' n'est pas cochée *}
                                                             <input class="form-check-input lang-default-radio fs-5" type="radio" name="default_lang" value="{$lang.id_lang}" {if $isDefault}checked{/if} {if !$isActive}disabled{/if}>
                                                         </div>
                                                     </td>
@@ -192,7 +209,7 @@
 
                         <hr class="my-4">
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary px-5" type="submit" name="action" value="save">
+                            <button class="btn btn-primary px-5 shadow-sm" type="submit" name="action" value="save">
                                 <i class="bi bi-save me-2"></i> {#save#}
                             </button>
                         </div>
@@ -205,34 +222,74 @@
 {/block}
 
 {block name="javascripts" append}
-<script>
-    // UI dynamique pour l'onglet Langues (Domaines)
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('lang-enable-cb')) {
-            const tr = e.target.closest('tr');
-            const radio = tr.querySelector('.lang-default-radio');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-            if (e.target.checked) {
-                // On active le radio
-                radio.disabled = false;
-                // S'il n'y a aucun radio coché, on coche celui-ci par défaut
-                if (document.querySelectorAll('.lang-default-radio:checked').length === 0) {
-                    radio.checked = true;
-                }
-            } else {
-                // On désactive le radio
-                radio.disabled = true;
-                // Si on vient de décocher la langue par défaut
-                if (radio.checked) {
-                    radio.checked = false;
-                    // On trouve la première autre langue cochée et on la met par défaut
-                    const firstCheckedCb = document.querySelector('.lang-enable-cb:checked');
-                    if (firstCheckedCb) {
-                        firstCheckedCb.closest('tr').querySelector('.lang-default-radio').checked = true;
+            // --- 1. UI Dynamique pour les langues ---
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('lang-enable-cb')) {
+                    const tr = e.target.closest('tr');
+                    const radio = tr.querySelector('.lang-default-radio');
+
+                    if (e.target.checked) {
+                        radio.disabled = false;
+                        if (document.querySelectorAll('.lang-default-radio:checked').length === 0) {
+                            radio.checked = true;
+                        }
+                    } else {
+                        radio.disabled = true;
+                        if (radio.checked) {
+                            radio.checked = false;
+                            const firstCheckedCb = document.querySelector('.lang-enable-cb:checked');
+                            if (firstCheckedCb) {
+                                firstCheckedCb.closest('tr').querySelector('.lang-default-radio').checked = true;
+                            }
+                        }
                     }
                 }
+            });
+
+            // --- 2. Requête AJAX Sitemap ---
+            const btnSitemap = document.getElementById('btnGenerateSitemap');
+            if (btnSitemap) {
+                btnSitemap.addEventListener('click', async () => {
+                    const idDomain = btnSitemap.dataset.id;
+                    const token = document.querySelector('input[name="hashtoken"]').value;
+
+                    const originalHtml = btnSitemap.innerHTML;
+                    btnSitemap.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Génération...';
+                    btnSitemap.disabled = true;
+
+                    const formData = new URLSearchParams();
+                    formData.append('id_domain', idDomain);
+                    formData.append('hashtoken', token);
+
+                    try {
+                        const response = await fetch('index.php?controller=Domain&action=generateDomainSitemap', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData.toString()
+                        });
+
+                        const data = await response.json();
+
+                        if (data.status) {
+                            if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
+                        } else {
+                            if (typeof MagixToast !== 'undefined') MagixToast.error(data.message);
+                        }
+                    } catch (error) {
+                        console.error("Erreur SITEMAP:", error);
+                        if (typeof MagixToast !== 'undefined') MagixToast.error("Erreur de connexion.");
+                    } finally {
+                        btnSitemap.innerHTML = originalHtml;
+                        btnSitemap.disabled = false;
+                    }
+                });
             }
-        }
-    });
-</script>
+        });
+    </script>
 {/block}

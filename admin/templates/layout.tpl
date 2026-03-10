@@ -3,10 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>{block name='head:title'}Tableau de bord{/block} | Magix CMS</title>
+    <meta name="robots" content="no-index">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{$site_url}/{$baseadmin}/templates/img/favicon.png" />
+    <!--[if IE]>
+    <link rel="shortcut icon" type="image/x-icon" href="{$site_url}/{$baseadmin}/templates/img/favicon.ico" />
+    <![endif]-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="templates/css/global.css">
-    <link rel="stylesheet" href="templates/css/glightbox.min.css">
+    <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/global.css">
+    <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/glightbox.min.css">
     {*<link rel="stylesheet" href="templates/css/elfinder-flat.css">*}
     {block name="stylesheets"}{/block}
 </head>
@@ -56,12 +62,12 @@
 {include file="components/modal-delete.tpl"}
 <div id="magix-toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
 <div id="modal-container"></div>
-<script src="templates/js/vendor/bootstrap.bundle.min.js"></script>
-<script src="templates/js/vendor/Sortable.min.js"></script>
-<script src="templates/js/vendor/glightbox.min.js"></script>
-<script src="templates/js/MagixUITools.min.js?v={$smarty.now}"></script>
 
 {block name="javascripts"}
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/Sortable.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/glightbox.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixUITools.min.js?v={$smarty.now}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -76,26 +82,28 @@
         });
     </script>
     {* @todo exemple pour les formulaires*}
-    <script src="templates/js/MagixForms.min.js"></script>
-    <script src="templates/js/MagixToast.min.js"></script>
-    <script src="templates/js/MagixTabManager.min.js"></script>
-    <script src="templates/js/MagixTableSorter.min.js"></script>
-    <script src="templates/js/MagixTableDeleter.min.js"></script>
-    <script src="templates/js/MagixTableSelection.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixForms.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixToast.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixTabManager.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableSorter.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableDeleter.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableSelection.min.js"></script>
     <script>
         // Variables globales pour MagixCMS 4
         const iso = 'fr'; // Ex: 'fr'
-        const baseadmin = "{$smarty.const.BASEADMIN}"; // Ton dossier admin (ex: 'admin')
-        const contentCSS = ''; // Chemin vers le CSS de ton thème frontend
+        const site_url = "{$site_url}/{$baseadmin}/"
+        const baseadmin = "{$baseadmin}"; // Ton dossier admin (ex: 'admin')
+        const contentCSS = ['templates/css/tinymce.css']; // Chemin vers le CSS de ton thème frontend
 
         // Si tu utilises l'IA Gemini
         window.MagixCMS = {
             ai_enabled: {if $ai_enabled}true{else}false{/if}
         };
     </script>
-
-    <script src="templates/js/vendor/tiny_mce.7.6.1/tinymce.min.js"></script>
-    <script src="templates/js/editor.min.js"></script>
+    {block name="editor"}
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/tiny_mce.7.6.1/tinymce.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/editor.min.js"></script>
+    {/block}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // On récupère le contrôleur actuel depuis Smarty ou l'URL

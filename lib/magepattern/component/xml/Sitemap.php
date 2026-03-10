@@ -166,7 +166,7 @@ class Sitemap extends XMLWriter
 
         // Fréquence
         if (in_array($changeFreq, self::VALID_FREQS)) {
-            $this->writeElement('changefreq', $changefreq);
+            $this->writeElement('changefreq', $changeFreq);
         }
 
         // Priorité (Clamp entre 0 et 1)

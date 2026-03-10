@@ -18733,26 +18733,6 @@ textarea.form-control-lg {
     white-space: nowrap; // Empêche le texte de l'onglet de se couper
   }
 }*/
-.sortable-list .sortable-ghost {
-  opacity: 0.5;
-  background-color: #f8f9fa !important;
-  border: 2px dashed #0d6efd !important;
-}
-.sortable-list .sortable-drag {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
-  cursor: grabbing !important;
-}
-.sortable-list .drag-handle {
-  cursor: grab;
-  transition: color 0.2s ease-in-out;
-}
-.sortable-list .drag-handle:hover {
-  color: #0d6efd !important;
-}
-.sortable-list .drag-handle:active {
-  cursor: grabbing;
-}
-
 #aside {
   width: 280px;
   height: 100vh;
@@ -19159,4 +19139,8 @@ body.tox-fullscreen .tox-tinymce-aux .tox-dialog {
   margin: auto !important;
 }
 
-/*# sourceMappingURL=global.css.map */
+body {
+  margin: 1rem;
+}
+
+/*# sourceMappingURL=tinymce.css.map */

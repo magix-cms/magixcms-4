@@ -45,7 +45,9 @@ SmartyTool::registerContext('admin', [
 // 5. Logique de Routage (Le "Front Controller")
 $requestedController = $_GET['controller'] ?? 'Dashboard';
 $actionName = $_GET['action'] ?? 'run';
-$cleanName = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $requestedController)));
+//$cleanName = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $requestedController)));
+// On nettoie les caractères spéciaux mais on garde la casse d'origine
+$cleanName = ucfirst(preg_replace('/[^a-zA-Z0-9]/', '', $requestedController));
 
 // 6. Construction des noms de classes possibles
 $coreClassName = "App\\Backend\\Controller\\" . $cleanName . "Controller";

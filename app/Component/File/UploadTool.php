@@ -60,7 +60,14 @@ class UploadTool
 
         // 3. Récupération dynamique des tailles pour CE module
         $resizeConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
-
+        /*
+        // --- DÉBUG À AJOUTER TEMPORAIREMENT ---
+        var_dump("Module demandé : " . $module);
+        var_dump("Attribut demandé : " . $attribute);
+        var_dump("Résultat de la BDD : ", $resizeConfig);
+        die(); // On bloque le script pour lire la réponse
+        // --------------------------------------
+        */
         $currentSuffix = (int)($options['suffix'] ?? 0);
         $baseName = $options['name'] ?? 'image';
 
@@ -177,9 +184,17 @@ class UploadTool
                 $width  = (int)$conf['width'];
                 $height = (int)$conf['height'];
 
-                if (isset($conf['type']) && $conf['type'] === 'crop') {
+                // On accepte 'adaptive' (ou 'crop' par sécurité) pour forcer la découpe stricte
+                // On récupère le type et le resize, on les passe en minuscules et on enlève les espaces
+                $typeVal = isset($conf['type']) ? strtolower(trim((string)$conf['type'])) : '';
+                $resizeVal = isset($conf['resize']) ? strtolower(trim((string)$conf['resize'])) : '';
+
+                // On vérifie si l'un ou l'autre contient le mot magique
+                if (in_array($typeVal, ['adaptive', 'crop']) || in_array($resizeVal, ['adaptive', 'crop'])) {
+                    // DÉCOUPE PARFAITE (Recadre au centre)
                     $variant->cover($width, $height);
                 } else {
+                    // REDIMENSIONNEMENT PROPORTIONNEL (Ne coupe rien)
                     $variant->scale(width: $width, height: $height);
                 }
 
