@@ -1,0 +1,146 @@
+#footbar {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  .small-text { font-size: 0.75rem; }
+
+  // S'assure que l'icône prend bien la couleur de son parent
+  i.bi {
+    display: block;
+    line-height: 1;
+    color: inherit;
+  }
+
+  // ----------------------------------------
+  // AFFICHAGE MOBILE (Barre du bas colorée)
+  // ----------------------------------------
+  @include media-breakpoint-down(lg) {
+    // Fond de la barre avec la couleur principale
+    background-color: var(--main-color, var(--bs-primary));
+    border-top: none;
+    padding: 0.5rem;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+
+    // Variable de secours : Si --main-color est clair, mettez --footbar-text: #212529; dans le :root
+    --footbar-text: #ffffff;
+
+    .btn, .floating-btn {
+      border-radius: 0;
+      padding: 0.375rem 0.75rem;
+      background-color: transparent !important;
+      color: var(--footbar-text) !important;
+
+      i.bi { color: var(--footbar-text) !important; }
+
+      &:hover {
+        color: var(--footbar-text) !important;
+        opacity: 0.7;
+        i.bi { color: var(--footbar-text) !important; }
+      }
+    }
+
+    // Menu déroulant (Blanc pour lisibilité)
+    .dropup .dropdown-menu {
+      margin-bottom: 1rem !important;
+      background-color: #fff;
+      border: none;
+      box-shadow: 0 -5px 15px rgba(0,0,0,0.15);
+
+      .dropdown-item {
+        color: #212529 !important;
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+
+        i.bi {
+          color: #212529 !important;
+          display: inline-block;
+          margin-bottom: 0 !important;
+          font-size: 1.1rem !important;
+          margin-right: 0.5rem;
+        }
+
+        &:hover, &.active {
+          background-color: rgba(0,0,0,0.05);
+          color: var(--main-color, var(--bs-primary)) !important;
+          i.bi { color: var(--main-color, var(--bs-primary)) !important; }
+        }
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // AFFICHAGE BUREAU (Boutons flottants - FAB)
+  // ----------------------------------------
+  @include media-breakpoint-up(lg) {
+    pointer-events: none; // Permet de cliquer à travers l'espace vide de la barre
+    bottom: 2rem;
+    padding: 0 3rem;
+
+    // Masqué tout en haut de la page (géré par JS)
+    &.at-top {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    // Rend les boutons cliquables
+    .action-share, .action-totop {
+      pointer-events: auto;
+    }
+    .action-share { margin-right: auto; } // Pousse le partage à gauche
+    .action-totop { margin-left: auto; }  // Pousse le top à droite
+
+    // Style des bulles
+    .floating-btn {
+      background-color: var(--main-color, var(--bs-primary)) !important;
+      color: #fff !important;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s, background-color 0.2s;
+
+      i.bi {
+        margin: 0 !important;
+        font-size: 1.25rem !important;
+        color: #fff !important;
+      }
+
+      &:hover {
+        transform: scale(1.1);
+        filter: brightness(0.85); // Assombrit au survol
+        color: #fff !important;
+        i.bi { color: #fff !important; }
+      }
+    }
+
+    // Menu déroulant de partage sur Bureau
+    .dropup .dropdown-menu {
+      margin-bottom: 1rem !important;
+      background-color: #fff;
+      border: none;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+
+      .dropdown-item {
+        color: #212529 !important;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+
+        i.bi {
+          color: inherit !important; // Garde la couleur de la marque (bleu Facebook, etc.)
+          display: inline-block;
+          margin-bottom: 0 !important;
+          font-size: 1.1rem !important;
+          margin-right: 0.5rem;
+        }
+
+        &:hover {
+          background-color: rgba(0,0,0,0.05);
+          color: var(--main-color, var(--bs-primary)) !important;
+        }
+      }
+    }
+  }
+}

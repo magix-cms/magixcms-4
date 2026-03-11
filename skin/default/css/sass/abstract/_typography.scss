@@ -1,0 +1,24 @@
+// base/_typography.scss
+
+body {
+  font-family: $font-family-base;
+  font-size: var(--fz-base); // Le texte grandira seul
+  line-height: $line-height-base;
+  @include media-breakpoint-down(lg) {
+    padding-bottom: 60px; // La hauteur approximative de votre footbar
+  }
+}
+
+h1, .h1 { font-size: var(--fz-h1); }
+h2, .h2 { font-size: var(--fz-h2); }
+h3, .h3 { font-size: var(--fz-h3); }
+h4, .h4 { font-size: var(--fz-h4); }
+h5, .h5 { font-size: var(--fz-h5); }
+h6, .h6 { font-size: var(--fz-h6); }
+
+// Les Display
+.display-1 { font-size: calc(map-get($display-font-sizes, 1) * var(--mc-font-scale)); }
+.display-2 { font-size: calc(map-get($display-font-sizes, 2) * var(--mc-font-scale)); }
+.display-3 { font-size: calc(map-get($display-font-sizes, 3) * var(--mc-font-scale)); }
+.display-4 { font-size: calc(map-get($display-font-sizes, 4) * var(--mc-font-scale)); }
+// etc...

@@ -1,0 +1,26 @@
+// base/_root.scss
+
+:root {
+  // 1. Le multiplicateur global (1 = normal, 1.1 = +10%, 1.2 = +20%)
+  // C'est cette variable que vous pourrez modifier depuis le CMS
+  --mc-font-scale: 1;
+
+  // 2. On calcule la taille dynamiquement : (Taille SASS) * Multiplicateur
+  --fz-base: calc(#{$font-size-base} * var(--mc-font-scale));
+
+  --fz-h1: calc(#{$h1-font-size} * var(--mc-font-scale));
+  --fz-h2: calc(#{$h2-font-size} * var(--mc-font-scale));
+  --fz-h3: calc(#{$h3-font-size} * var(--mc-font-scale));
+  --fz-h4: calc(#{$h4-font-size} * var(--mc-font-scale));
+  --fz-h5: calc(#{$h5-font-size} * var(--mc-font-scale));
+  --fz-h6: calc(#{$h6-font-size} * var(--mc-font-scale));
+  --spacer: #{$spacer};
+  --toolbar-h: 0px; // Valeur par défaut mobile
+  --header-h: 80px; // À ajuster selon votre design
+  --header-bg: #{$white}; 
+
+  @include media-breakpoint-up(md) {
+    --toolbar-h: 40px; // Hauteur sur desktop
+  }
+  --footbar-text: #212529;
+}

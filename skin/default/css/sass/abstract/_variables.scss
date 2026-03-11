@@ -1,0 +1,106 @@
+// abstract/_variables.scss
+
+// --------------------------------------------------
+// 1. CONFIGURATION BOOTSTRAP
+// --------------------------------------------------
+$color-mode-type: media-query;
+$enable-dark-mode: true;
+
+// --------------------------------------------------
+// 2. TABLEAU DE COULEURS
+// --------------------------------------------------
+$theme-color-map: (
+        "main":    #1B224B,
+        "sd":      #808285,
+        "dark":    #333333,
+        "green":   #5cb75c,
+        "white":   #ffffff
+);
+
+// Overrides Bootstrap
+$primary:   map-get($theme-color-map, "main");
+$secondary: map-get($theme-color-map, "sd");
+$dark:      map-get($theme-color-map, "dark");
+$success:   map-get($theme-color-map, "green");
+
+// --------------------------------------------------
+// 3. CHEMINS
+// --------------------------------------------------
+$skin-path: "/skin/default/";
+$img-path:  "#{$skin-path}img/";
+$pattern-path: "#{$img-path}patterns/";
+
+// --------------------------------------------------
+// 4. TYPOGRAPHIE DE BASE
+// --------------------------------------------------
+$font-family-sans-serif:  "Roboto", "Helvetica", "Arial", sans-serif;
+$font-family-base:        $font-family-sans-serif;
+
+// Taille racine (navigateur) et taille de base (1rem)
+$font-size-root:          max(1em, 10px);
+$font-size-base:          1rem;
+$font-size-lg:            1.25rem;
+$font-size-sm:            .875rem;
+
+$font-weight-normal:      400;
+$font-weight-bold:        700;
+$font-weight-base:        $font-weight-normal;
+
+// --------------------------------------------------
+// 5. INTERLIGNAGE
+// --------------------------------------------------
+$gold-n:                  1.618;
+$line-height-base:        $gold-n;
+
+// --------------------------------------------------
+// 6. TITRES (Valeurs SASS de référence)
+// --------------------------------------------------
+// --------------------------------------------------
+// 6. TITRES (Valeurs SASS de référence)
+// --------------------------------------------------
+$h1-font-size:            2.5rem !default;
+$h2-font-size:            2rem !default;
+$h3-font-size:            1.75rem !default;
+$h4-font-size:            1.5rem !default;
+$h5-font-size:            1.25rem !default;
+$h6-font-size:            1rem !default;
+
+$headings-font-family:    "Montserrat", sans-serif;
+$headings-font-weight:    700;
+$headings-font-style:     normal; // <--- AJOUTÉ : Pour éviter l'erreur dans _headings
+$headings-line-height:    1.2;
+$headings-margin-bottom:  1rem;   // <--- AJOUTÉ : Pour éviter l'erreur dans _headings
+
+// --------------------------------------------------
+// 7. DISPLAY HEADINGS
+// --------------------------------------------------
+$display-font-family:     $headings-font-family; // <--- AJOUTÉ
+$display-font-weight:     700;                   // <--- AJOUTÉ
+$display-font-style:      normal;                // <--- AJOUTÉ
+$display-line-height:     1.1;                   // <--- AJOUTÉ
+$display-margin-bottom:   1.5rem;                // <--- AJOUTÉ
+
+$display-font-sizes: (
+        1: 5rem,
+        2: 4.5rem,
+        3: 4rem,
+        4: 3.5rem,
+        5: 3rem,
+        6: 2.5rem
+);
+
+// --------------------------------------------------
+// 8. ESPACEMENTS
+// --------------------------------------------------
+$spacer: 1rem; // Votre unité de base (16px)
+
+$spacers: (
+        0: 0,
+        1: $spacer * .25, // 4px
+        2: $spacer * .5,  // 8px
+        3: $spacer,       // 16px (Taille standard)
+        4: $spacer * 1.5, // 24px
+        5: $spacer * 3,   // 48px
+        6: $spacer * 4.5, // 72px (Optionnel : pour de grands espaces)
+        7: $spacer * 6    // 96px (Optionnel)
+);

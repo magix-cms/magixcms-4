@@ -47,7 +47,9 @@ class UrlTool
             // DateTool::toSql convertit n'importe quel format en "Y-m-d H:i:s"
             // Le substr permet de ne garder que la partie date "Y-m-d" pour l'URL
             $sqlDate = DateTool::toSql((string)$data['date']);
-            $formattedDate = substr($sqlDate, 0, 10);
+            if ($sqlDate) {
+                $formattedDate = substr($sqlDate, 0, 10);
+            }
         }
 
         return match ($type) {

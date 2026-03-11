@@ -1,0 +1,8 @@
+.card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &.shadow-sm:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--bs-box-shadow) !important; // Ombre un peu plus forte
+  }
+}

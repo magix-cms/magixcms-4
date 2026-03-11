@@ -1,0 +1,19 @@
+// layout/_block.scss
+// ----- Align btn ------
+.btn-align{
+  margin-top: map-get($spacers, 4);
+  margin-bottom: map-get($spacers, 4);
+  display: flex;
+  gap: var(--spacer);
+  @include media-breakpoint-down(md) {
+    flex-direction: column;
+  }
+  /*@include media-breakpoint-up(md) {
+    flex-direction: row;
+  }*/
+  /**
+  @include media-breakpoint-only(md) {
+     background-color: yellow; // Uniquement sur tablettes
+  }
+   */
+}

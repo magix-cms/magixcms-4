@@ -1,0 +1,51 @@
+// layout/_header.scss
+
+// 1. GESTION DU TOOLBAR (Mobile / Desktop)
+#header #toolbar {
+  @include media-breakpoint-down(lg) {
+    display: none;
+  }
+}
+
+// 3. LE HEADER FIXE
+#header {
+  z-index: 1030; // Standard Bootstrap pour les fixed-top
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--header-bg);
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .1), 0 5px 20px 0 rgba(0, 0, 0, .05);
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; // Souvent mieux que center pour Logo | Menu
+    height: var(--header-h);
+  }
+
+  // ASTUCE : On pousse le contenu qui suit le header fixe
+  // pour éviter qu'il ne passe dessous
+  & + div,
+  & + section,
+  & + main {
+    margin-top: calc(var(--header-h) + var(--toolbar-h));
+  }
+}
+
+// 4. NOM DU SITE / LOGO
+.site-name {
+  text-align: center;
+
+  @include media-breakpoint-down(lg) {
+    flex: 1;
+  }
+
+  a {
+    display: block;
+    text-decoration: none;
+    color: var(--mc-primary);
+    font-weight: $font-weight-bold;
+    font-family: $headings-font-family;
+  }
+}

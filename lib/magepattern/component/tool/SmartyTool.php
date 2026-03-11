@@ -108,7 +108,27 @@ class SmartyTool
         // --- LA SOLUTION SMARTY 5 POUR LES FONCTIONS PHP ---
         // On déclare explicitement les fonctions natives de PHP comme étant des "modifiers" utilisables dans la vue.
         // Liste des fonctions PHP que tu souhaites autoriser comme modificateurs
-        $allowedFunctions = ['print_r', 'var_dump', 'count', 'json_encode', 'trim', 'ucfirst'];
+        $allowedFunctions = [
+            'print_r',
+            'var_dump',
+            'count',
+            'json_encode',
+            'trim',
+            'ucfirst',
+
+            // --- NOUVEAU : Fonctions de chaînes autorisées ---
+            'str_starts_with',
+            'str_ends_with',
+            'str_contains',
+            'strpos',
+            'str_replace',
+            'strtolower',
+            'strtoupper',
+            // --- INDISPENSABLES POUR VOS TABLEAUX ---
+            'array_merge',  // Pour fusionner Global + Page
+            'array_unique', // Pour éviter les doublons de CSS/JS
+            'array_filter'  // Pour nettoyer les tableaux vides
+        ];
 
         foreach ($allowedFunctions as $function) {
             if (function_exists($function)) {

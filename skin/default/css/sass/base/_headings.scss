@@ -1,0 +1,43 @@
+// base/_headings.scss
+
+// 1. Propriétés partagées
+:where(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6) {
+  margin-top: 0;
+  margin-bottom: #{$headings-margin-bottom};
+  font-family: #{$headings-font-family};
+  font-style: #{$headings-font-style};
+  font-weight: #{$headings-font-weight};
+  line-height: #{$headings-line-height};
+  color: var(--heading-color, #{$dark});
+
+  :where(small, .small) {
+    font-size: .8em;
+    font-weight: #{$font-weight-normal};
+    line-height: 1;
+    color: #{$secondary};
+  }
+}
+
+// 2. Tailles standards
+h1, .h1 { font-size: var(--fz-h1); }
+h2, .h2 { font-size: var(--fz-h2); }
+h3, .h3 { font-size: var(--fz-h3); }
+h4, .h4 { font-size: var(--fz-h4); }
+h5, .h5 { font-size: var(--fz-h5); }
+h6, .h6 { font-size: var(--fz-h6); }
+
+// 3. Display Headings
+:where(.display-1, .display-2, .display-3, .display-4, .display-5, .display-6) {
+  font-family: #{$display-font-family};
+  font-weight: #{$display-font-weight};
+  font-style: #{$display-font-style};
+  line-height: #{$display-line-height};
+  margin-bottom: #{$display-margin-bottom};
+}
+
+@each $level, $size in $display-font-sizes {
+  .display-#{$level} {
+    // CORRECTION : On entoure la variable SASS par #{} pour le calc()
+    font-size: calc(#{$size} * var(--mc-font-scale, 1));
+  }
+}

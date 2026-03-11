@@ -11,69 +11,137 @@ use App\Frontend\Db\SettingDb;
 use App\Frontend\Db\LangDb;
 use App\Frontend\Db\CompanyDb;
 use App\Frontend\Db\ConfigDb;
-use Smarty\Smarty; // <--- À AJOUTER ICI
+use App\Frontend\Db\LogoDb;
+use App\Frontend\Db\MenuDb;
+use App\Frontend\Db\ShareDb;
+use App\Component\File\ImageTool;
+use Smarty\Smarty;
 
 abstract class BaseController
 {
     protected Smarty $view;
     protected Session $session;
     protected Logger $logger;
-
     protected array $siteSettings = [];
     protected array $currentLang = [];
 
+    /**
+     * @throws \Smarty\Exception
+     */
     public function __construct()
     {
         $this->view = SmartyTool::getInstance('front');
         $this->logger = Logger::getInstance();
         $this->session = new Session(false);
 
-        /*if (class_exists('\App\Component\Hook\HookManager')) {
-            $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'exec']);
-        }*/
         if (class_exists('\App\Component\Hook\HookManager')) {
-            // CORRECTION ICI : On utilise smartyHook pour lire la Base de Données
             $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
         }
 
-        // --- NOUVEAU : On réveille les plugins pour qu'ils s'accrochent aux Hooks ---
         $this->bootPlugins();
 
         $this->initSettings();
         $this->initSiteUrl();
         $this->initSkin();
         $this->initLanguage();
+
+        // On n'appelle plus qu'une seule méthode pour toutes les données globales
         $this->initGlobalData();
+        $this->initMenu();
     }
 
     /**
-     * NOUVEAU : Parcourt le dossier plugins et lance les fichiers Boot.php
+     * @return void
+     */
+    /**
+     * @return void
+     */
+    /**
+     * @return void
+     */
+    /**
+     * @return void
+     */
+    private function initMenu(): void
+    {
+        $menuDb = new MenuDb();
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $isoLang = $this->currentLang['iso_lang'] ?? 'fr';
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        $menuTree = $menuDb->getFrontendTree($idLang, $isoLang);
+
+        foreach ($menuTree as &$item) {
+            if (isset($item['mode_link']) && in_array($item['mode_link'], ['dropdown', 'mega'])) {
+                $type = $item['type_link'] ?? '';
+                $idPageTarget = (int)($item['id_page'] ?? 0);
+
+                // --- MODULE PAGES ---
+                if ($type === 'pages' && $idPageTarget > 0) {
+                    $subData = $menuDb->getSubPages($idPageTarget, $idLang);
+                    foreach ($subData as &$sub) {
+                        $sub['url_link'] = $urlTool->buildUrl([
+                            'type' => 'pages',
+                            'id' => $sub['id_pages'],
+                            'url' => $sub['url_pages'] ?? $sub['url_link'],
+                            'iso' => $isoLang]
+                        );
+                    }
+                    $item['subdata'] = $subData;
+                }
+
+                // --- MODULE ABOUT ---
+                elseif ($type === 'about_page' && $idPageTarget > 0) {
+                    $subData = $menuDb->getSubAbout($idPageTarget, $idLang);
+                    foreach ($subData as &$sub) {
+                        $sub['url_link'] = $urlTool->buildUrl([
+                            'type' => 'about',
+                            'id' => $sub['id_about'],
+                            'url' => $sub['url_about'],
+                            'iso' => $isoLang]
+                        );
+                    }
+                    $item['subdata'] = $subData;
+                }
+
+                // --- MODULE CATALOGUE (CATEGORIES) ---
+                elseif ($type === 'category' && $idPageTarget > 0) {
+                    $subData = $menuDb->getSubCategories($idPageTarget, $idLang);
+                    foreach ($subData as &$sub) {
+                        // L'UrlTool utilisera le cas 'category' de son switch match()
+                        $sub['url_link'] = $urlTool->buildUrl([
+                            'type' => 'category',
+                            'id'   => $sub['id_cat'],
+                            'url'  => $sub['url_cat'],
+                            'iso'  => $isoLang
+                        ]);
+                    }
+                    $item['subdata'] = $subData;
+                }
+            }
+        }
+        unset($item);
+
+        $this->view->assign('menuData', $menuTree);
+        $this->view->assign('active_link', ['controller' => '', 'ids' => []]);
+    }
+
+    /**
+     * @return void
      */
     private function bootPlugins(): void
     {
         $pluginsDir = ROOT_DIR . 'plugins';
+        if (!is_dir($pluginsDir)) return;
 
-        if (!is_dir($pluginsDir)) {
-            return;
-        }
-
-        // On scanne tous les dossiers de plugins
         foreach (scandir($pluginsDir) as $pluginFolder) {
-            if ($pluginFolder === '.' || $pluginFolder === '..') {
-                continue;
-            }
+            if ($pluginFolder === '.' || $pluginFolder === '..') continue;
 
-            // Si le plugin possède un fichier Boot.php
             $bootFile = $pluginsDir . DS . $pluginFolder . DS . 'Boot.php';
             if (file_exists($bootFile)) {
-
-                // On construit le nom de la classe (ex: \Plugins\MagixFeatured\Boot)
                 $bootClass = "\\Plugins\\" . $pluginFolder . "\\Boot";
-
                 if (class_exists($bootClass)) {
                     $bootInstance = new $bootClass();
-
-                    // On exécute la méthode register() qui va remplir le HookManager
                     if (method_exists($bootInstance, 'register')) {
                         $bootInstance->register();
                     }
@@ -82,6 +150,9 @@ abstract class BaseController
         }
     }
 
+    /**
+     * @return void
+     */
     private function initSettings(): void
     {
         $settingDb = new SettingDb();
@@ -89,6 +160,9 @@ abstract class BaseController
         $this->view->assign('mc_settings', $this->siteSettings);
     }
 
+    /**
+     * @return void
+     */
     private function initSiteUrl(): void
     {
         $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
@@ -103,23 +177,17 @@ abstract class BaseController
     }
 
     /**
-     * NOUVEAU : Configure Smarty dynamiquement vers le dossier du skin actif
+     * @return void
      */
     private function initSkin(): void
     {
-        // On récupère le nom du dossier dans la DB (adaptez la clé 'theme' par 'skin' si nécessaire)
         $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
-
         $skinPath = ROOT_DIR . 'skin' . DS . $skinFolder;
 
         if (is_dir($skinPath)) {
-            // On redéfinit le dossier principal des templates Smarty
             $this->view->setTemplateDir($skinPath);
-
-            // Si vous utilisez des traductions spécifiques au skin (.conf)
             $this->view->setConfigDir($skinPath . DS . 'i18n');
 
-            // On assigne une variable magique {$skin_url} pour charger facilement CSS, JS et Images dans le TPL
             $siteUrl = $this->view->getTemplateVars('site_url');
             $this->view->assign('skin_url', $siteUrl . '/skin/' . $skinFolder);
         } else {
@@ -127,28 +195,107 @@ abstract class BaseController
         }
     }
 
+    /**
+     * @return void
+     */
     private function initLanguage(): void
     {
         $langDb = new LangDb();
-        $defaultLang = $langDb->getDefaultLanguage();
-        $this->currentLang = $defaultLang ?: ['id_lang' => 1, 'iso_lang' => 'fr'];
+        $allLangs = $langDb->getFrontendLanguages(); // Toutes les langues
+        $defaultLang = $langDb->getDefaultLanguage() ?: ['id_lang' => 1, 'iso_lang' => 'fr'];
 
+        $requestedIso = '';
+
+        // 1. Vérifier si l'URL contient une langue (ex: ?lang=en)
+        if (!empty($_GET['lang'])) {
+            $requestedIso = strtolower(trim($_GET['lang']));
+        }
+        // 2. Sinon, vérifier la session
+        elseif ($this->session->get('user_lang')) {
+            $requestedIso = $this->session->get('user_lang');
+        }
+
+        // 3. Chercher la langue dans la liste via une variable temporaire (pour respecter le type array)
+        $foundLang = [];
+        if ($requestedIso) {
+            foreach ($allLangs as $lang) {
+                if ($lang['iso_lang'] === $requestedIso) {
+                    $foundLang = $lang;
+                    break;
+                }
+            }
+        }
+
+        // 4. On assigne la langue trouvée, sinon on prend celle par défaut
+        $this->currentLang = !empty($foundLang) ? $foundLang : $defaultLang;
+
+        // 5. Sauvegarder en session pour éviter de la perdre en naviguant
+        if ($this->session->get('user_lang') !== $this->currentLang['iso_lang']) {
+            $this->session->set('user_lang', $this->currentLang['iso_lang']);
+        }
+
+        // 6. Assigner à Smarty
         $this->view->assign('current_lang', $this->currentLang);
-        $this->view->assign('langs', $langDb->getFrontendLanguages());
+        $this->view->assign('langs', $allLangs);
+        $this->view->assign('default_lang', $defaultLang);
     }
 
+    /**
+     * Centralise le chargement de TOUTES les données transversales
+     */
     private function initGlobalData(): void
     {
         try {
+            // 1. ENTREPRISE ET CONFIG
             $companyDb = new CompanyDb();
-            $this->view->assign('company', $companyDb->getCompanyInfo());
+            $companyInfo = $companyDb->getCompanyInfo();
+            // J'assigne les deux noms pour ne pas casser vos anciens templates
+            $this->view->assign('company', $companyInfo);
+            $this->view->assign('companyData', $companyInfo);
 
             $configDb = new ConfigDb();
             $this->view->assign('mc_config', $configDb->getGlobalConfig());
+
+            // 2. LOGO
+            $logoDb = new LogoDb();
+            $imageTool = new ImageTool();
+
+            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+            $rawLogo = $logoDb->getActiveLogo($idLang);
+            $activeLogo = null;
+
+            if ($rawLogo) {
+                $formattedLogos = $imageTool->setModuleImages('logo', 'logo', [$rawLogo], 0, '/img/logo/');
+                $activeLogo = $formattedLogos[0] ?? null;
+            }
+            $this->view->assign('logo', $activeLogo);
+
+            // 3. VARIABLES D'URL POUR LE FRONTEND (Multilingue)
+            // On récupère le site_url généré juste avant
+            // On récupère le site_url généré juste avant
+            $baseUrl = $this->view->getTemplateVars('site_url') . '/';
+            $langIso = $this->currentLang['iso_lang'] ?? '';
+
+            // On vérifie le multilingue en comptant le tableau envoyé par initLanguage
+            $langs = $this->view->getTemplateVars('langs');
+            $isMultilang = (is_array($langs) && count($langs) > 1);
+
+            $this->view->assign([
+                'base_url'     => $baseUrl,
+                'lang_iso'     => $langIso, // <--- CORRECTION ICI : On utilise lang_iso
+                'is_multilang' => $isMultilang
+            ]);
+            // 4 Share
+            $shareDb = new ShareDb();
+            $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
+
         } catch (\Throwable $e) {
             $this->logger->log("Erreur chargement globales front : " . $e->getMessage(), "warning");
         }
     }
 
+    /**
+     * @return void
+     */
     abstract public function run(): void;
 }

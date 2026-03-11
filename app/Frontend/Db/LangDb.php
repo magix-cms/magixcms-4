@@ -16,7 +16,7 @@ class LangDb extends BaseDb
         $qb = new QueryBuilder();
         $qb->select('*')
             ->from('mc_lang')
-            ->where('default_lang = 1');
+            ->where('default_lang = 1'); // <--- Ceci était correct
 
         return $this->executeRow($qb);
     }
@@ -29,8 +29,8 @@ class LangDb extends BaseDb
         $qb = new QueryBuilder();
         $qb->select('*')
             ->from('mc_lang')
-            ->where('status_lang = 1')
-            ->orderBy('order_lang', 'ASC');
+            ->where('active_lang = 1') // <--- CORRECTION 1 : Le bon nom de colonne
+            ->orderBy('id_lang', 'ASC'); // <--- CORRECTION 2 : order_lang n'existe pas
 
         $rows = $this->executeAll($qb);
         $langs = [];

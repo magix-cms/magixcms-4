@@ -1,0 +1,102 @@
+// components/_buttons.scss
+
+// On définit une variable pour l'effet -invert (équivalent de votre @invert-base)
+$invert-base-color: #333333; // Modifiable selon vos besoins
+
+@each $name, $color in $theme-color-map {
+
+  .btn-#{$name} {
+    // 1. LE BOUTON STANDARD (Plein)
+    background-color: $color;
+    border-color: $color;
+    color: get-contrast-txt($color);
+
+    &:hover, &:focus {
+      background-color: darken($color, 8%);
+      border-color: darken($color, 10%);
+      color: get-contrast-txt($color);
+    }
+
+    // 2. GRADIENT (Dégradé dynamique)
+    // 2. GRADIENT (Dégradé animé dynamique)
+    // 2. GRADIENT (Dégradé animé dynamique)
+    &-gradient {
+      background-image: linear-gradient(
+                      90deg,
+                      $color 0%,
+                      lighten($color, 20%) 50%,
+                      $color 100%
+      ) !important;
+
+      background-size: 200% auto !important;
+      background-position: 0% center;
+
+      // LA CORRECTION EST ICI : On garde la bordure mais invisible
+      border: 1px solid transparent;
+
+      color: get-contrast-txt($color) !important;
+      transition: background-position 0.4s ease-in-out; // J'ai retiré le box-shadow ici comme demandé
+
+      &:hover, &:focus {
+        background-position: 100% center !important;
+        color: get-contrast-txt($color) !important;
+      }
+
+      @include color-mode(dark) {
+        $dark-color: if(lightness($color) < 25, lighten($color, 20%), $color);
+        background-image: linear-gradient(
+                        90deg,
+                        $dark-color 0%,
+                        lighten($dark-color, 25%) 50%,
+                        $dark-color 100%
+        ) !important;
+        border-color: transparent; // Sécurité pour le dark mode
+        color: get-contrast-txt($dark-color) !important;
+
+        &:hover, &:focus {
+          color: get-contrast-txt($dark-color) !important;
+        }
+      }
+    }
+
+    // --- LES 3 EFFETS GHOST (Animations CSS) --- //
+
+    // 3. GHOST SLIDE
+    &-ghost-slide { @include button-ghost-slide($color); }
+
+    // 4. GHOST CURTAIN
+    &-ghost-curtain { @include button-ghost-curtain($color); }
+
+    // 5. GHOST REVEAL
+    &-ghost-reveal { @include button-ghost-reveal($color); }
+
+
+    // --- LES 4 EFFETS INVERT (Remplissage via :before) --- //
+
+    // 6. OUTLINE (Garde sa propre couleur au survol)
+    &-outline {
+      @include button-invert-fill($color, $color);
+    }
+
+    // 7. INVERT (Prend la couleur de base inversée au survol)
+    &-invert {
+      @include button-invert-fill($color, $invert-base-color);
+    }
+
+    // 8. WHITE (Prend un fond blanc au survol)
+    &-white {
+      @include button-invert-fill($color, #ffffff);
+    }
+
+    // 9. INVERT TRANSPARENT (Opacité 0.7 au survol)
+    &-invert-transparent {
+      @include button-invert-fill($color, $color, 0.7);
+    }
+
+
+    // --- L'EFFET GLASS --- //
+
+    // 10. GLASS (Glassmorphism)
+    &-glass { @include button-glass($color); }
+  }
+}

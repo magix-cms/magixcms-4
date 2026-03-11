@@ -1,0 +1,137 @@
+// ==========================================
+// MENU PRINCIPAL (Magix CMS 4 / Bootstrap 5)
+// ==========================================
+
+.navbar-nav {
+  // ----------------------------------------
+  // 1. COMPORTEMENT SUR BUREAU (Desktop)
+  // ----------------------------------------
+  @include media-breakpoint-up(lg) {
+
+    // a. Ouverture au survol (Hover)
+    .nav-item.dropdown:hover > .dropdown-menu {
+      display: block;
+      margin-top: 0; // Colle le menu sous le lien
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    // b. Sous-sous-menus (Niveau 3) qui s'ouvrent sur le côté
+    .dropend:hover > .dropdown-menu {
+      display: block;
+      top: 0;
+      left: 100%;
+      margin-left: .125rem; // Petit espace
+    }
+
+    // c. Mega Menu
+    .mega-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      // Ajoutez ici la logique de colonnes pour votre méga menu (ex: CSS Grid)
+    }
+
+    // d. Esthétique des liens principaux
+    .nav-link {
+      font-weight: 500;
+      padding: 1rem 1.5rem;
+      color: var(--bs-nav-link-color);
+      transition: color 0.2s;
+
+      &:hover, &.active {
+        color: var(--main-color); // Utilise la couleur principale de Bootstrap
+      }
+    }
+    .nav-link.dropdown-toggle::after {
+      display: none !important;
+    }
+  }
+
+  // ----------------------------------------
+  // 2. COMPORTEMENT SUR MOBILE (Tiroir)
+  // ----------------------------------------
+  @include media-breakpoint-down(lg) {
+
+    // Les liens dans le tiroir mobile
+    .nav-link {
+      padding: 0.75rem 1rem;
+      font-size: 1.1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    // On transforme la petite flèche native en "plus" / "moins" (Optionnel)
+    .dropdown-toggle::after {
+      content: '\e145'; // Code Material Icons pour "add" (+)
+      font-family: 'Material Icons';
+      border: none;
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    // Quand l'accordéon est ouvert, on met un moins (-)
+    .dropdown-toggle[aria-expanded="true"]::after {
+      content: '\e15b'; // Code Material Icons pour "remove" (-)
+    }
+
+    // Esthétique des sous-menus mobiles
+    .dropdown-menu {
+      border: none;
+      background-color: #f8f9fa; // Légèrement grisé pour différencier
+      padding-left: 1.5rem; // Indentation
+      margin-top: 0;
+
+      .dropdown-item {
+        padding: 0.5rem 1rem;
+        font-size: 0.95rem;
+      }
+    }
+  }
+  @include media-breakpoint-down(lg) {
+    .dropdown-toggle::after {
+      display: inline-block;
+      font-family: "bootstrap-icons"; // On change la police
+      content: "\F4FE"; // Code pour bi-plus-lg
+      border: none;
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+      vertical-align: middle;
+    }
+
+    .dropdown-toggle[aria-expanded="true"]::after {
+      content: "\F2EA"; // Code pour bi-dash-lg
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// ----------------------------------------
+// 3. ANIMATION LÉGÈRE (Fade In pour le Desktop)
+// ----------------------------------------
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+// CSS pour le menu au survol
+@media (min-width: 992px) {
+  .dropdown-hover:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    // Petit bonus d'animation fluide
+    animation: fadeInMenu 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeInMenu {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

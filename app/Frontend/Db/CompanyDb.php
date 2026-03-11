@@ -9,14 +9,25 @@ use Magepattern\Component\Database\QueryBuilder;
 class CompanyDb extends BaseDb
 {
     /**
-     * Récupère les informations globales de l'entreprise
+     * Récupère toutes les infos de l'entreprise sous forme de tableau associatif.
+     * Ex: $config['name'] = 'Mon Super Site'
      */
     public function getCompanyInfo(): array
     {
         $qb = new QueryBuilder();
-        $qb->select('*')->from('mc_company_info')->limit(1);
+        $qb->select(['name_info', 'value_info'])
+            ->from('mc_company_info');
 
-        $result = $this->executeRow($qb);
-        return $result ?: [];
+        $results = $this->executeAll($qb);
+        $config = [];
+
+        if ($results) {
+            foreach ($results as $row) {
+                // Transforme les lignes en tableau clé => valeur
+                $config[$row['name_info']] = $row['value_info'];
+            }
+        }
+
+        return $config;
     }
 }

@@ -1,0 +1,61 @@
+.c-gallery {
+  // Ratios par défaut
+  --gallery-ratio: 4/3;
+  --gallery-thumb-ratio: 1/1;
+
+  // Variantes par page
+  &--about { --gallery-ratio: 16/9; }
+  &--product { --gallery-ratio: 4/3; }
+
+  &__main {
+    position: relative;
+    display: grid; // Active le mode "empilement"
+    grid-template-areas: "stack"; // Crée une zone de pile unique
+    aspect-ratio: var(--gallery-ratio);
+    overflow: hidden;
+    background: #eee;
+
+    .gallery-main-item {
+      grid-area: stack; // Toutes les images vont dans la même pile
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease-in-out;
+      z-index: 1;
+
+      &.is-active {
+        opacity: 1;
+        visibility: visible;
+        z-index: 2;
+      }
+
+      img, picture {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; // Empêche la déformation
+      }
+    }
+  }
+
+  &__thumbs {
+    margin-top: 1rem;
+
+    .splide__slide {
+      aspect-ratio: var(--gallery-thumb-ratio);
+      opacity: 0.5;
+      transition: 0.3s;
+      cursor: pointer;
+
+      &.is-active {
+        opacity: 1;
+        border: 2px solid var(--bs-primary);
+      }
+    }
+  }
+}
+.c-gallery__thumbs {
+  .splide__arrows {
+    // Positionne les flèches sur les côtés extérieurs du slider
+    .splide__arrow--prev { left: -1.5rem; }
+    .splide__arrow--next { right: -1.5rem; }
+  }
+}

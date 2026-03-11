@@ -197,8 +197,37 @@ class AboutController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
         $aboutSelect = $db->fetchAllAboutForSelect($idLangue);
 
-        // Récupération des enfants pour l'onglet sous-pages
+        // ------------------------------------------------------------------
+        // 🟢 NOUVEAU : On génère le schéma pour le tableau des sous-pages
+        // ------------------------------------------------------------------
+        $targetColumns = ['id_about', 'name_about', 'published_about', 'date_register'];
+
+        $rawScheme = array_merge(
+            $db->getTableScheme('mc_about'),
+            $db->getTableScheme('mc_about_content')
+        );
+
+        $associations = [
+            'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'name_about' => ['title' => 'Titre', 'type' => 'text', 'class' => 'w-50 fw-bold'],
+            'published_about' => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
+            'date_register' => ['title' => 'Date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
+        ];
+
+        $this->getScheme($rawScheme, $targetColumns, $associations);
+
+        // ------------------------------------------------------------------
+        // 🟢 NOUVEAU : Récupération et formatage des données
+        // ------------------------------------------------------------------
         $children = $db->fetchAboutByParent($id, $idLangue);
+
+        // On formate les données (pour que les switchs on/off et les dates s'affichent bien)
+        if (!empty($children)) {
+            // Cela crée automatiquement la variable Smarty $subpages
+            $this->getItems('subpages', $children, true);
+        } else {
+            $this->view->assign('subpages', []);
+        }
 
         // URL Preview
         $controller = StringTool::strtolower($_GET['controller'] ?? 'about');
@@ -208,12 +237,14 @@ class AboutController extends BaseController
         }
 
         $this->view->assign([
+            'idcolumn'    => 'id_about', // <-- REQUIS pour les boutons "Supprimer" et "Editer" du tableau
             'page_data'   => $aboutData,
             'aboutSelect' => $aboutSelect,
-            'subpages'    => $children, // Pour l'onglet sous-pages
+            // 'subpages' => déjà assigné par getItems() juste au-dessus
             'langs'       => $activeLangs,
             'hashtoken'   => $this->session->getToken()
         ]);
+
         $this->view->display('about/edit.tpl');
     }
 
