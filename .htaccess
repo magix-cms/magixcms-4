@@ -228,6 +228,10 @@ ErrorDocument 500 /index.php?http_error=500
     RewriteCond %{QUERY_STRING} !(tag)+
     RewriteRule (.*)/tag/([0-9]+)-([-_0-9a-zA-Z]+)/?$ /$1?tag=$2 [QSA,L]
 
+    # F0. Extraction Double ID et URL (Catégorie + Produit)
+    RewriteCond %{QUERY_STRING} !(id=)
+    RewriteRule (.*)/([0-9]+)-([-_0-9a-zA-Z]+)/([0-9]+)-([-_0-9a-zA-Z]+)/?$ /$1?id_parent=$2&url_parent=$3&id=$4&url=$5 [QSA,L]
+
     # F. Extraction ID et URL (Articles, Catégories, Pages)
     RewriteCond %{QUERY_STRING} !(id=)
     RewriteRule (.*)/([0-9]+)-([-_0-9a-zA-Z]+)/?$ /$1?id=$2&url=$3 [QSA,L]

@@ -36,31 +36,39 @@ class UrlTool
         $ampPath = $this->amp ? '/amp' : '';
         $id = $data['id'] ?? '';
 
-        $slug = !empty($data['url']) ? Url::clean($data['url']) : '';
+        $slug = !empty($data['url']) ? Url::clean((string)$data['url']) : '';
 
-        // Création d'une base commune pour éviter la répétition (ex: /fr/amp ou /fr)
+        // Création d'une base commune (ex: /fr/amp ou /fr)
         $basePath = "/{$iso}{$ampPath}";
 
-        // Formatage de la date via Magepattern
+        // Formatage de la date (News / Archives)
         $formattedDate = '';
         if (!empty($data['date'])) {
-            // DateTool::toSql convertit n'importe quel format en "Y-m-d H:i:s"
-            // Le substr permet de ne garder que la partie date "Y-m-d" pour l'URL
             $sqlDate = DateTool::toSql((string)$data['date']);
             if ($sqlDate) {
-                $formattedDate = substr($sqlDate, 0, 10);
+                // 🟢 CORRECTIF : On remplace les tirets par des slashs (2026-03-12 -> 2026/03/12)
+                // Indispensable pour matcher la règle (\d{4}/\d{2}/\d{2}) du .htaccess !
+                $formattedDate = str_replace('-', '/', substr($sqlDate, 0, 10));
             }
         }
 
         return match ($type) {
             'pages', 'about' => "{$basePath}/{$type}/{$id}-{$slug}/",
+
             'category'       => "{$basePath}/catalog/{$id}-{$slug}/",
+
             'product'        => isset($data['id_category'], $data['url_category'])
                 ? "{$basePath}/catalog/{$data['id_category']}-{$data['url_category']}/{$id}-{$slug}/"
-                : '',
-            'news'           => "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/",
-            'date'           => "{$basePath}/news/" . ($data['year'] ?? '') . '/' . (isset($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
+                : "{$basePath}/catalog/{$id}-{$slug}/", // Fallback au cas où le parent manque
+
+            'news'           => !empty($formattedDate)
+                ? "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/"
+                : "{$basePath}/news/{$id}-{$slug}/",
+
+            'date'           => "{$basePath}/news/" . ($data['year'] ?? '') . '/' . (!empty($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
+
             'tag'            => "{$basePath}/news/tag/{$id}-{$slug}/",
+
             default          => ''
         };
     }

@@ -6,7 +6,6 @@ namespace App\Backend\Controller;
 
 use App\Backend\Db\PluginDb;
 use App\Backend\Db\DashboardDb;
-use Magepattern\Component\File\FileTool;
 use App\Backend\Db\LayoutDb;
 
 class PluginController extends BaseController
@@ -27,7 +26,7 @@ class PluginController extends BaseController
         $installed = $db->fetchInstalledPlugins();
 
         // --- SCAN DU DOSSIER PLUGINS ---
-        $pluginDir = ROOT_DIR . '/plugins'; // À adapter selon votre constante de chemin
+        $pluginDir = ROOT_DIR . 'plugins';
         $folders = array_filter(glob($pluginDir . '/*'), 'is_dir');
 
         $availablePlugins = [];
@@ -48,7 +47,6 @@ class PluginController extends BaseController
                     'name'         => $pluginName,
                     'version'      => $manifest['version'] ?? '1.0.0',
                     'is_installed' => false,
-                    // Par défaut, un plugin non installé n'a pas encore de cibles Core définies
                     'home' => 0, 'about' => 0, 'pages' => 0, 'news' => 0, 'catalog' => 0, 'category' => 0, 'product' => 0, 'seo' => 0
                 ];
             }
@@ -62,6 +60,7 @@ class PluginController extends BaseController
 
         $this->view->display('plugin/index.tpl');
     }
+
     public function install(): void
     {
         $pluginName = $_GET['name'] ?? '';
@@ -77,7 +76,7 @@ class PluginController extends BaseController
             $this->jsonResponse(false, 'Plugin invalide ou manifest.json manquant.');
         }
 
-        $manifest = json_decode(file_get_contents($manifestPath), true);
+        $manifest = json_decode(file_get_contents($manifestPath), true) ?: [];
         $db = new PluginDb();
 
         // 1. Exécution du SQL d'installation
@@ -117,13 +116,12 @@ class PluginController extends BaseController
             // 5. Enregistrement RBAC
             $db->registerModuleRBAC($pluginName);
 
-            // --- NOUVEAU : 6. GREFFE AUTOMATIQUE DANS LE LAYOUT FRONTEND ---
+            // 6. GREFFE AUTOMATIQUE DANS LE LAYOUT FRONTEND
             $defaultHooks = $manifest['default_hooks'] ?? [];
             if (!empty($defaultHooks)) {
                 $layoutDb = new LayoutDb();
                 $allHooks = $layoutDb->getAllHooks() ?: [];
 
-                // On crée un tableau associatif [NomDuHook => ID] pour trouver l'ID facilement
                 $hookMap = [];
                 foreach ($allHooks as $h) {
                     $hookMap[$h['name']] = (int)$h['id_hook'];
@@ -131,12 +129,10 @@ class PluginController extends BaseController
 
                 foreach ($defaultHooks as $hookName) {
                     if (isset($hookMap[$hookName])) {
-                        // On greffe le plugin (la méthode addItem gère automatiquement la position !)
                         $layoutDb->addItem($hookMap[$hookName], $pluginName);
                     }
                 }
             }
-            // --- FIN NOUVEAU ---
 
             $hasConfig = $manifest['has_config'] ?? false;
 
@@ -150,9 +146,6 @@ class PluginController extends BaseController
         $this->jsonResponse(false, 'Erreur lors de l\'enregistrement du plugin dans la base de données.');
     }
 
-    /**
-     * @return void
-     */
     public function uninstall(): void
     {
         $pluginName = $_GET['name'] ?? ($_POST['name'] ?? '');
@@ -176,10 +169,7 @@ class PluginController extends BaseController
         }
 
         // 3. Nettoyage des tables du CMS
-        $success = true;
-        if (!$db->deletePlugin($pluginName)) {
-            $success = false;
-        }
+        $success = $db->deletePlugin($pluginName);
 
         $db->unlinkPluginFromAllModules($pluginName);
         $db->unregisterModuleRBAC($pluginName);
@@ -189,9 +179,8 @@ class PluginController extends BaseController
             $dashDb = new DashboardDb();
             $dashDb->removeWidgetGlobally($pluginName);
 
-            // --- NOUVEAU : NETTOYAGE DU LAYOUT FRONTEND ---
-            // On supprime toutes les occurrences de ce plugin dans toutes les zones du site
-            $db->executeRawSql("DELETE FROM mc_hook_item WHERE module_name = '" . addslashes($pluginName) . "'");
+            // 🟢 APPEL PROPRE AU MODÈLE
+            $db->removePluginFromFrontendLayout($pluginName);
 
             $this->jsonResponse(true, 'Le plugin a été désinstallé avec succès.', ['type' => 'uninstall_success']);
         } else {

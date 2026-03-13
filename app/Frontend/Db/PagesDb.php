@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Frontend\Db;
 
 use Magepattern\Component\Database\QueryBuilder;
+use Magepattern\Component\Database\QueryHelper;
+use App\Component\Hook\HookManager; // 🟢 Import indispensable pour l'override
 
 class PagesDb extends BaseDb
 {
     /**
-     * Récupère la page principale publiée
+     * Récupère la page principale avec Override
      */
     public function getPagesPage(int $idPages, int $idLang): array|false
     {
@@ -22,12 +24,21 @@ class PagesDb extends BaseDb
             'ic.title_img'
         ])
             ->from('mc_cms_page', 'p')
-            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages')
+            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . (int)$idLang)
             ->leftJoin('mc_cms_page_img', 'i', 'p.id_pages = i.id_pages AND i.default_img = 1')
-            ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = c.id_lang')
+            ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
             ->where('p.id_pages = :id', ['id' => $idPages])
-            ->where('c.id_lang = :lang', ['lang' => $idLang])
             ->where('c.published_pages = 1');
+
+        // 🟢 OVERRIDE : Un plugin peut ajouter des champs à la page (ex: p.is_restricted)
+        $overrides = HookManager::triggerFilter('extendPagesData', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
 
         return $this->executeRow($qb);
     }
@@ -45,7 +56,6 @@ class PagesDb extends BaseDb
             'ic.caption_img'
         ])
             ->from('mc_cms_page_img', 'i')
-            // 🟢 CORRECTIF : On concatène l'entier directement pour éviter le bug de binding
             ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
             ->where('i.id_pages = :id', ['id' => $idPages])
             ->orderBy('i.order_img', 'ASC');
@@ -54,7 +64,7 @@ class PagesDb extends BaseDb
     }
 
     /**
-     * Récupère les pages enfants publiées
+     * Récupère les pages enfants avec Override
      */
     public function getPagesChildren(int $parentId, int $idLang): array
     {
@@ -70,13 +80,22 @@ class PagesDb extends BaseDb
             'ic.title_img'
         ])
             ->from('mc_cms_page', 'p')
-            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages')
+            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . (int)$idLang)
             ->leftJoin('mc_cms_page_img', 'i', 'p.id_pages = i.id_pages AND i.default_img = 1')
-            ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = c.id_lang')
+            ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
             ->where('p.id_parent = :parent', ['parent' => $parentId])
-            ->where('c.id_lang = :lang', ['lang' => $idLang])
             ->where('c.published_pages = 1')
             ->orderBy('p.order_pages', 'ASC');
+
+        // 🟢 OVERRIDE : Pour les listes de pages (widgets, menus enfants...)
+        $overrides = HookManager::triggerFilter('extendPagesList', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
 
         return $this->executeAll($qb) ?: [];
     }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Frontend\Controller;
 
 use App\Frontend\Db\PagesDb;
+use App\Frontend\Db\CompanyDb; // 🟢 Import de la base de données Company
 use App\Frontend\Model\PagesPresenter;
-use App\Component\Routing\UrlTool; // On importe l'UrlTool
 use Magepattern\Component\HTTP\Request;
 
 class PagesController extends BaseController
@@ -21,24 +21,25 @@ class PagesController extends BaseController
         $rawPage = $db->getPagesPage($id, $idLang);
 
         if (!$rawPage) {
-            $this->render404(); // On utilise une petite méthode privée pour plus de clarté
+            $this->render404();
             return;
         }
 
-        // Initialisation de l'UrlTool pour le passer au Presenter ou l'utiliser ici
-        $urlTool = new UrlTool();
+        // 🟢 Récupération des infos de l'entreprise
+        $companyDb = new CompanyDb();
+        $companyInfo = $companyDb->getCompanyInfo();
 
-        // 1. Formatage de la page principale
-        $pages = PagesPresenter::format($rawPage, $this->currentLang, $siteUrl);
+        // 1. Formatage avec injection des infos de l'entreprise
+        $pages = PagesPresenter::format($rawPage, $this->currentLang, $siteUrl, $companyInfo);
 
-        // 2. Galerie : On boucle et on formate
         $pages['gallery'] = [];
         $images = $db->getPagesImages($id, $idLang);
         foreach ($images as $imgRow) {
-            $pages['gallery'][] = PagesPresenter::format(array_merge($rawPage, $imgRow), $this->currentLang, $siteUrl)['img'];
+            // 🟢 On passe $companyInfo au 4ème argument pour être rigoureux
+            $pages['gallery'][] = PagesPresenter::format(array_merge($rawPage, $imgRow), $this->currentLang, $siteUrl, $companyInfo)['img'];
         }
 
-        // 3. Sous-pages : Gestion subdata / root
+        // 3. Sous-pages
         $pages['subdata'] = [];
         $pages['root'] = [];
 
@@ -46,12 +47,8 @@ class PagesController extends BaseController
 
         if (!empty($rawChildren)) {
             foreach ($rawChildren as $childRow) {
-                // On prépare les données pour l'UrlTool si besoin
-                $formattedChild = PagesPresenter::format($childRow, $this->currentLang, $siteUrl);
+                $formattedChild = PagesPresenter::format($childRow, $this->currentLang, $siteUrl, $companyInfo);
 
-                // Règle de rattachement :
-                // Si l'id_parent est celui de la page actuelle -> subdata
-                // Sinon (orphelin ou parent hors dataset) -> root
                 if ((int)$formattedChild['id_parent'] === $id) {
                     $pages['subdata'][] = $formattedChild;
                 } else {
@@ -69,9 +66,6 @@ class PagesController extends BaseController
         $this->view->display('pages/index.tpl');
     }
 
-    /**
-     * Centralisation de la gestion 404 pour éviter la duplication de code
-     */
     private function render404(): void
     {
         header("HTTP/1.0 404 Not Found");

@@ -53,12 +53,13 @@ class PluginDb extends BaseDb
         ]);
         return $this->executeInsert($qb);
     }
+
     /**
      * Enregistre le plugin dans le système de rôles (en minuscule)
      */
     public function registerModuleRBAC(string $pluginName): void
     {
-        $moduleNameDb = strtolower($pluginName); // <-- CORRECTION ICI
+        $moduleNameDb = strtolower($pluginName);
 
         $qbCheck = new QueryBuilder();
         $qbCheck->select('*')->from('mc_module')->where('name = :name', ['name' => $moduleNameDb]);
@@ -77,7 +78,7 @@ class PluginDb extends BaseDb
      */
     public function unregisterModuleRBAC(string $pluginName): bool
     {
-        $moduleNameDb = strtolower($pluginName); // <-- CORRECTION ICI
+        $moduleNameDb = strtolower($pluginName);
 
         $qbGet = new QueryBuilder();
         $qbGet->select('id_module')->from('mc_module')->where('name = :name', ['name' => $moduleNameDb]);
@@ -114,6 +115,16 @@ class PluginDb extends BaseDb
     {
         $qb = new QueryBuilder();
         $qb->delete('mc_plugins_module')->where('plugin_name = :name', ['name' => $pluginName]);
+        return $this->executeDelete($qb);
+    }
+
+    /**
+     * 🟢 NOUVEAU : Supprime le plugin des zones d'affichage (Frontend Layout)
+     */
+    public function removePluginFromFrontendLayout(string $pluginName): bool
+    {
+        $qb = new QueryBuilder();
+        $qb->delete('mc_hook_item')->where('module_name = :module_name', ['module_name' => $pluginName]);
         return $this->executeDelete($qb);
     }
 }

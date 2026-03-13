@@ -33,6 +33,7 @@
 
     {* --- SECTION 4 : HOOK BAS (FULL WIDTH BACKGROUND VIA LE WIDGET) --- *}
     {hook name="displayHomeBottom"}
+    {hook name="displayFooter"}
 {/block}
 
 {block name="javascript" nocache}

@@ -9,6 +9,9 @@ use Magepattern\Component\Debug\Logger;
 
 class HookManager
 {
+    /** @var array<string, callable[]> Liste des filtres de données */
+    private static array $filters = [];
+
     /** @var array<string, array<string, callable>> Liste indexée par [NomHook][NomPlugin] */
     private static array $hooks = [];
 
@@ -145,5 +148,36 @@ class HookManager
 
         // 3. On envoie tout à notre exécuteur de Frontend
         return self::execFront($hookName, $finalParams);
+    }
+    /**
+     * NOUVEAU : 5. ENREGISTRER UN FILTRE
+     * Un plugin appelle cette méthode pour modifier des données existantes (ex: Override SQL)
+     */
+    public static function addFilter(string $filterName, callable $callback): void
+    {
+        self::$filters[$filterName][] = $callback;
+    }
+
+    /**
+     * NOUVEAU : 6. DÉCLENCHER UN FILTRE
+     * Fait passer une valeur (ex: un tableau vide) à travers tous les plugins accrochés.
+     * Chaque plugin modifie la valeur et la retourne pour le plugin suivant.
+     * * @param string $filterName Le nom du hook/filtre (ex: 'extendProductList')
+     * @param mixed $value La valeur initiale à modifier
+     * @param array $params Variables contextuelles éventuelles
+     * @return mixed La valeur modifiée par tous les plugins
+     */
+    public static function triggerFilter(string $filterName, mixed $value, array $params = []): mixed
+    {
+        if (empty($filterName) || !isset(self::$filters[$filterName])) {
+            return $value; // Si aucun plugin n'est accroché, on renvoie la valeur intacte
+        }
+
+        // On fait passer la donnée "à la chaîne" dans chaque plugin
+        foreach (self::$filters[$filterName] as $callback) {
+            $value = call_user_func($callback, $value, $params);
+        }
+
+        return $value;
     }
 }

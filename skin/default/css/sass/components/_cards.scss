@@ -5,4 +5,31 @@
     transform: translateY(-3px);
     box-shadow: var(--bs-box-shadow) !important; // Ombre un peu plus forte
   }
+  // On cible l'image placée en haut de la carte
+  .card-img-top {
+    // 1. On force la proportion (ici le ratio de vos news 680/420, soit environ 1.6)
+    // Vous pouvez aussi utiliser 16/9, 4/3, etc.
+    //aspect-ratio: 680 / 420;
+
+    // 2. On s'assure qu'elle prend bien toute la largeur
+    width: 100%;
+
+    // 3. LA MAGIE EST ICI : On agit comme un "background-size: cover"
+    // L'image va remplir le rectangle parfait sans JAMAIS se déformer.
+    // Ce qui dépasse en haut/bas ou gauche/droite sera automatiquement masqué (croppé).
+    object-fit: cover;
+
+    // Optionnel : on centre le point de focus de l'image (au cas où on coupe des têtes)
+    object-position: center;
+  }
+}
+
+// 🟢 Si vous avez des listes personnalisées (sans la classe .card)
+// Vous pouvez créer une classe utilitaire réutilisable partout :
+.img-thumbnail-crop {
+  //aspect-ratio: 16 / 9; // ou 680/420
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: var(--bs-border-radius); // Si vous voulez les coins arrondis
 }

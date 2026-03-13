@@ -1,43 +1,85 @@
 /**
  * Gestionnaire des Plugins pour MagixCMS 4
- * Utilise l'API Fetch et MagixToast pour le retour visuel
+ * Utilise l'API Fetch, Bootstrap Modal et MagixToast
  */
 class MagixPlugins {
     constructor() {
+        // Initialisation de la modale Bootstrap
+        const modalEl = document.getElementById('pluginConfirmModal');
+        if (modalEl) {
+            this.modal = new bootstrap.Modal(modalEl);
+            this.modalTitle = document.getElementById('pluginModalTitle');
+            this.modalBody = document.getElementById('pluginModalBody');
+            this.confirmBtn = document.getElementById('pluginModalConfirmBtn');
+        }
+
+        // Variables pour stocker l'action en cours d'attente
+        this.currentAction = null;
+        this.currentPlugin = null;
+        this.currentTriggerBtn = null;
+
         this.initEventListeners();
     }
 
     initEventListeners() {
-        // Installation
+        // Clic sur le bouton "Installer" de la table
         document.querySelectorAll('.btn-install-plugin').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const pluginName = btn.dataset.plugin;
-                this.install(pluginName, btn);
+                this.openModal('install', btn.dataset.plugin, btn);
             });
         });
 
-        // Désinstallation
+        // Clic sur le bouton "Désinstaller" de la table
         document.querySelectorAll('.btn-uninstall-plugin').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const pluginName = btn.dataset.plugin;
-                this.uninstall(pluginName, btn);
+                this.openModal('uninstall', btn.dataset.plugin, btn);
             });
         });
+
+        // Clic sur le bouton "Confirmer" DANS LA MODALE
+        if (this.confirmBtn) {
+            this.confirmBtn.addEventListener('click', () => {
+                this.modal.hide(); // On ferme la modale
+
+                // On exécute l'action demandée
+                if (this.currentAction === 'install') {
+                    this.executeInstall(this.currentPlugin, this.currentTriggerBtn);
+                } else if (this.currentAction === 'uninstall') {
+                    this.executeUninstall(this.currentPlugin, this.currentTriggerBtn);
+                }
+            });
+        }
     }
 
     /**
-     * Gère l'installation d'un plugin via AJAX
+     * Prépare et affiche la modale selon l'action
      */
-    /**
-     * Gère l'installation d'un plugin via AJAX
-     */
-    async install(pluginName, btnElement) {
-        if (!confirm(`Voulez-vous vraiment installer le plugin "${pluginName}" ?`)) {
-            return;
+    openModal(action, pluginName, btnElement) {
+        this.currentAction = action;
+        this.currentPlugin = pluginName;
+        this.currentTriggerBtn = btnElement;
+
+        if (action === 'install') {
+            this.modalTitle.innerHTML = '<i class="bi bi-box-seam me-2"></i>Installation du plugin';
+            this.modalBody.innerHTML = `Voulez-vous vraiment installer l'extension <strong>${pluginName}</strong> ?`;
+            this.confirmBtn.className = 'btn btn-primary px-4';
+            this.confirmBtn.innerHTML = '<i class="bi bi-download me-2"></i>Installer';
+        } else {
+            this.modalTitle.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Désinstallation';
+            this.modalBody.innerHTML = `<p class="mb-0">ATTENTION : Désinstaller <strong>${pluginName}</strong> supprimera définitivement ses données de configuration.</p><p class="mt-2 mb-0 fw-bold">Voulez-vous continuer ?</p>`;
+            this.confirmBtn.className = 'btn btn-danger px-4';
+            this.confirmBtn.innerHTML = '<i class="bi bi-trash me-2"></i>Désinstaller';
         }
 
+        this.modal.show();
+    }
+
+    /**
+     * Exécute la requête d'installation
+     */
+    async executeInstall(pluginName, btnElement) {
         this.setLoadingState(btnElement, true, 'Installation...');
 
         try {
@@ -49,18 +91,14 @@ class MagixPlugins {
             const data = await response.json();
 
             if (data.status) {
-                // Succès de l'installation
                 if (data.has_config) {
                     if (typeof MagixToast !== 'undefined') MagixToast.success(data.message + " Redirection vers la configuration...");
-                    setTimeout(() => {
-                        window.location.href = `index.php?controller=${data.plugin_name}`;
-                    }, 1500);
+                    setTimeout(() => window.location.href = `index.php?controller=${data.plugin_name}`, 1500);
                 } else {
                     if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
                     setTimeout(() => window.location.reload(), 1500);
                 }
             } else {
-                // CORRECTION ICI : Gestion de l'erreur métier (ex: problème SQL)
                 if (typeof MagixToast !== 'undefined') MagixToast.error(data.message || "Erreur lors de l'installation.");
                 this.setLoadingState(btnElement, false);
             }
@@ -72,17 +110,12 @@ class MagixPlugins {
     }
 
     /**
-     * Gère la désinstallation d'un plugin via AJAX
+     * Exécute la requête de désinstallation
      */
-    async uninstall(pluginName, btnElement) {
-        if (!confirm(`ATTENTION : Désinstaller "${pluginName}" supprimera définitivement ses données de configuration. Continuer ?`)) {
-            return;
-        }
-
+    async executeUninstall(pluginName, btnElement) {
         this.setLoadingState(btnElement, true);
 
         try {
-            // On peut passer les données en POST pour une suppression, c'est plus propre sémantiquement
             const formData = new FormData();
             formData.append('name', pluginName);
 
@@ -109,7 +142,7 @@ class MagixPlugins {
     }
 
     /**
-     * Utilitaire visuel : ajoute ou retire un spinner sur le bouton
+     * Ajoute ou retire le spinner sur le bouton de la ligne du tableau
      */
     setLoadingState(btn, isLoading, loadingText = '') {
         if (!btn) return;
@@ -125,7 +158,7 @@ class MagixPlugins {
     }
 }
 
-// Initialisation automatique au chargement du DOM (si on est sur la page des plugins)
+// Initialisation
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('.btn-install-plugin') || document.querySelector('.btn-uninstall-plugin')) {
         new MagixPlugins();

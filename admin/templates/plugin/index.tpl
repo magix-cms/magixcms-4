@@ -76,6 +76,22 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="pluginConfirmModal" tabindex="-1" aria-labelledby="pluginModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-bottom-0">
+                    <h5 class="modal-title fw-bold" id="pluginModalTitle">Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body fs-5" id="pluginModalBody">
+                </div>
+                <div class="modal-footer border-top-0 bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary px-4" id="pluginModalConfirmBtn">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {/block}
 
 {* --- SCRIPT JAVASCRIPT POUR GÉRER L'INSTALLATION/DÉSINTSALLATION EN JSON --- *}

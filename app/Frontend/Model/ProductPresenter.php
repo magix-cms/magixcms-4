@@ -1,15 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
+use App\Component\Routing\UrlTool; // 🟢 Import de l'UrlTool
 
 class ProductPresenter
 {
-    public static function format(array $row, array $langContext, string $siteUrl): ?array
+    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = []): ?array
     {
-        if (empty($row['id_cat']) || empty($row['url_cat'])) {
+        $idParent = $row['default_id_cat'] ?? $row['id_cat'] ?? 0;
+        $urlCat   = $row['default_url_cat'] ?? $row['url_cat'] ?? '';
+
+        if (empty($idParent) || empty($urlCat)) {
             return null;
         }
 
@@ -19,45 +24,61 @@ class ProductPresenter
             'id'          => $row['id_product'] ?? null,
             'name'        => $row['name_p'] ?? '',
             'reference'   => $row['reference_p'] ?? '',
-            'price'       => isset($row['price_p']) ? number_format((float)$row['price_p'], 2, ',', ' ') : '0,00',
+            'price'       => (float)($row['price_p'] ?? 0),
             'resume'      => $row['resume_p'] ?? '',
             'content'     => $row['content_p'] ?? '',
-            'id_parent'   => $row['id_cat'],
+            'id_parent'   => $idParent,
             'cat_name'    => $row['name_cat'] ?? '',
         ];
 
-        // URLs SEO
-        $idProd   = $row['id_product'];
-        $urlProd  = $row['url_p'] ?? '';
-        $idParent = $row['id_cat'];
-        $urlCat   = $row['url_cat'];
+        $urlTool = new UrlTool();
 
-        $data['url_cat'] = "{$siteUrl}/{$iso}/catalog/{$idParent}-{$urlCat}/";
-        $data['url']     = "{$siteUrl}/{$iso}/catalog/{$idParent}-{$urlCat}/{$idProd}-{$urlProd}/";
+        $data['url_cat'] = $urlTool->buildUrl([
+            'type' => 'category',
+            'id'   => $idParent,
+            'url'  => $urlCat,
+            'iso'  => $iso
+        ]);
 
-        // --- NOUVEAU : UTILISATION DE VOTRE IMAGETOOL ---
+        $data['url'] = $urlTool->buildUrl([
+            'type'         => 'product',
+            'id'           => $row['id_product'],
+            'url'          => $row['url_p'] ?? '',
+            'iso'          => $iso,
+            'id_category'  => $idParent,
+            'url_category' => $urlCat
+        ]);
+
         $data['img'] = self::processImage($row, $siteUrl);
 
-        // Champs SEO
         $seoTitle = $row['seo_title_p'] ?? '';
         $data['seo_title'] = !empty($seoTitle) ? $seoTitle : $data['name'] . ' - ' . $data['cat_name'];
+
+        // 🟢 2. On passe bien $companyInfo à generateJsonLd
+        $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
+
+        $knownKeys = array_flip([
+            'id_product', 'name_p', 'reference_p', 'price_p', 'resume_p', 'content_p',
+            'default_id_cat', 'id_cat', 'default_url_cat', 'url_cat', 'name_cat',
+            'url_p', 'seo_title_p', 'seo_desc_p', 'name_img', 'alt_img', 'title_img',
+            'id_lang', 'published_p', 'last_update', 'id_img'
+        ]);
+
+        $extraData = array_diff_key($row, $knownKeys);
+
+        if (!empty($extraData)) {
+            $data = array_merge($data, $extraData);
+        }
 
         return $data;
     }
 
-    /**
-     * Fait le pont avec App\Component\File\ImageTool
-     */
-    /**
-     * Fait le pont avec App\Component\File\ImageTool
-     */
     private static function processImage(array $row, string $siteUrl): array
     {
         $altText = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_p'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_p'] ?? '');
 
         if (empty($row['name_img'])) {
-            // Fallback parfait pour votre composant Smarty
             return [
                 'alt'     => $altText,
                 'title'   => $titleText,
@@ -71,39 +92,55 @@ class ProductPresenter
         }
 
         $imageTool = new ImageTool();
-
-        $rawImages = [
-            [
-                'name_img' => $row['name_img'],
-                'alt_img'  => $altText,
-                'title_img'=> $titleText
-            ]
-        ];
-
-        // CORRECTION ICI : Ajout de l'ID du produit dans le chemin !
+        $rawImages = [['name_img' => $row['name_img'], 'alt_img' => $altText, 'title_img' => $titleText]];
         $idProd = (int)$row['id_product'];
         $baseDir = "{$siteUrl}/upload/product/{$idProd}/";
 
-        $processed = $imageTool->setModuleImages(
-            'catalog',
-            'product',
-            $rawImages,
-            $idProd,
-            $baseDir
-        );
-
-        // On récupère le tableau des tailles généré par ImageTool
+        $processed = $imageTool->setModuleImages('catalog', 'product', $rawImages, $idProd, $baseDir);
         $imgData = $processed[0]['img'] ?? [];
 
-        // ON PRÉPARE LE TERRAIN POUR VOTRE SNIPPET SMARTY
         $imgData['alt'] = $altText;
         $imgData['title'] = $titleText;
 
-        // Votre snippet cherche souvent $img.default s'il ne trouve pas de taille spécifique
         if (isset($imgData['original']) && !isset($imgData['default'])) {
             $imgData['default'] = $imgData['original'];
         }
 
         return $imgData;
+    }
+
+    /**
+     * 🟢 3. Ajout de $companyInfo dans la signature ici aussi
+     */
+    /**
+     * Génère le script JSON-LD Produit
+     */
+    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
+    {
+        $schema = [
+            '@context'    => 'https://schema.org/',
+            '@type'       => 'Product',
+            'name'        => $data['name'],
+            'image'       => $imgData['default']['src'] ?? '',
+            'description' => trim(strip_tags($data['resume'] ?: $data['content'])),
+            'sku'         => $data['reference'] ?? '',
+            'offers'      => [
+                '@type'         => 'Offer',
+                'url'           => $siteUrl . $data['url'],
+                'priceCurrency' => 'EUR',
+                'price'         => number_format((float)$data['price'], 2, '.', ''),
+                'availability'  => 'https://schema.org/InStock'
+            ]
+        ];
+
+        // 🟢 CORRECTION : Utilisation du type "Brand" au lieu de "Organization"
+        if (!empty($companyInfo['name'])) {
+            $schema['brand'] = [
+                '@type' => 'Brand',
+                'name'  => $companyInfo['name']
+            ];
+        }
+
+        return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
     }
 }

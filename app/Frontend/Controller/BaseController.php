@@ -34,20 +34,31 @@ abstract class BaseController
         $this->logger = Logger::getInstance();
         $this->session = new Session(false);
 
-        if (class_exists('\App\Component\Hook\HookManager')) {
-            $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
+        // 🟢 CORRECTIF : On utilise une variable statique pour s'assurer
+        // que cette portion de code ne s'exécute qu'une seule fois par requête HTTP
+        static $pluginsLoaded = false;
+
+        if (!$pluginsLoaded) {
+            if (class_exists('\App\Component\Hook\HookManager')) {
+                // On enregistre le hook Smarty
+                $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
+            }
+
+            // On démarre les plugins Magix
+            $this->bootPlugins();
+
+            $pluginsLoaded = true;
         }
 
-        $this->bootPlugins();
-
+        // Le reste des initialisations continue normalement
         $this->initSettings();
         $this->initSiteUrl();
         $this->initSkin();
         $this->initLanguage();
 
-        // On n'appelle plus qu'une seule méthode pour toutes les données globales
         $this->initGlobalData();
         $this->initMenu();
+        $this->initTranslations();
     }
 
     /**
@@ -293,7 +304,61 @@ abstract class BaseController
             $this->logger->log("Erreur chargement globales front : " . $e->getMessage(), "warning");
         }
     }
+    /**
+     * Charge les fichiers de traduction (.conf) pour le thème et les plugins
+     */
+    /**
+     * Charge les fichiers de traduction (.conf) pour le thème et les plugins
+     */
+    protected function initTranslations(): void
+    {
+        $locale = $this->currentLang['iso_lang'] ?? 'fr';
 
+        // 1. PLUGINS D'ABORD (Priorité basse)
+        // On charge les traductions de tous les plugins actifs.
+        $this->stackPluginsTranslations($locale);
+
+        // 2. SKIN EN DERNIER (Priorité haute : écrase les clés identiques des plugins)
+        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
+        $skinConfFile = ROOT_DIR . 'skin' . DS . $skinFolder . DS . 'i18n' . DS . $locale . '.conf';
+
+        try {
+            if (file_exists($skinConfFile)) {
+                $this->view->configLoad($skinConfFile);
+            } else {
+                // Fallback sur le français si la langue demandée n'existe pas dans le skin
+                $fallbackConfFile = ROOT_DIR . 'skin' . DS . $skinFolder . DS . 'i18n' . DS . 'fr.conf';
+                if (file_exists($fallbackConfFile)) {
+                    $this->view->configLoad($fallbackConfFile);
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->log("Erreur chargement i18n front (Skin) : " . $e->getMessage(), "warning");
+        }
+    }
+
+    /**
+     * Empile les traductions frontend des plugins
+     */
+    private function stackPluginsTranslations(string $locale): void
+    {
+        $pluginsPath = ROOT_DIR . 'plugins' . DS;
+        if (!is_dir($pluginsPath)) return;
+
+        try {
+            foreach (scandir($pluginsPath) as $pluginFolder) {
+                if ($pluginFolder === '.' || $pluginFolder === '..') continue;
+
+                $pluginConf = $pluginsPath . $pluginFolder . DS . 'i18n' . DS . 'front' . DS . $locale . '.conf';
+
+                if (file_exists($pluginConf)) {
+                    $this->view->configLoad($pluginConf);
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->logger->log("Erreur chargement i18n front (Plugins) : " . $e->getMessage(), "warning");
+        }
+    }
     /**
      * @return void
      */

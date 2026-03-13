@@ -1,13 +1,7 @@
 {extends file="layout.tpl"}
 
-{* --- SEO --- *}
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
-
-{* 🟢 BLOC JSON-LD *}
-{block name="head:structured_data"}
-    {$pages.json_ld|default:'' nofilter}
-{/block}
 
 {* --- CSS --- *}
 {block name="styleSheet" append nocache}
@@ -19,41 +13,68 @@
 
         {* --- FIL D'ARIANE --- *}
         {$breadcrumbs = [
-        ['label' => $pages.name]
+        ['url' => "{$base_url}{$current_lang.iso_lang}/news/", 'label' => 'Actualités'],
+        ['label' => $news.name]
         ]}
         {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
-        {* --- EN-TÊTE --- *}
+        {* --- EN-TÊTE : DATES ET TITRE --- *}
         <div class="row mb-5">
             <div class="col-12 text-center text-lg-start">
-                <h1 class="display-4 fw-bold text-primary mb-3">{$pages.name}</h1>
-                {if $pages.resume}
-                    <p class="lead text-muted">{$pages.resume}</p>
+
+                {* Bloc Infos Évènement ou Date *}
+                <div class="mb-3">
+                    {if !empty($news.date_start)}
+                        <span class="badge bg-warning text-dark shadow-sm mb-2">
+                            <i class="bi bi-calendar-event"></i> Évènement
+                        </span>
+                        <p class="text-muted fw-bold mb-0">
+                            Du {$news.date_start|date_format:"%d/%m/%Y à %H:%M"}
+                            {if !empty($news.date_end)} au {$news.date_end|date_format:"%d/%m/%Y à %H:%M"}{/if}
+                        </p>
+                    {else}
+                        <span class="text-muted"><i class="bi bi-clock"></i> Publié le {$news.date_publish|date_format:"%d %B %Y"}</span>
+                    {/if}
+                </div>
+
+                <h1 class="display-4 fw-bold text-primary mb-3">{$news.name}</h1>
+                {if $news.resume}
+                    <p class="lead text-muted">{$news.resume}</p>
                 {/if}
             </div>
         </div>
 
         <div class="row">
             {* --- CONTENU TEXTE --- *}
-            <div class="col-lg-{$pages.gallery|count > 0 ? '6' : '12'} mb-4">
+            <div class="col-lg-{$news.gallery|count > 0 ? '6' : '12'} mb-4">
                 <div class="content-formatted">
-                    {* 🟢 Ajout du nofilter obligatoire pour le HTML généré par TinyMCE *}
-                    {$pages.content|default:'' nofilter}
+                    {$news.content|default:'' nofilter}
                 </div>
+
+                {* --- TAGS --- *}
+                {if !empty($news.tags)}
+                    <div class="mt-5 pt-4 border-top">
+                        <h5 class="mb-3 h6 fw-bold">Mots-clés :</h5>
+                        {foreach $news.tags as $tag}
+                            <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-light text-secondary text-decoration-none me-2 mb-2 p-2 border">
+                                #{$tag.name_tag}
+                            </a>
+                        {/foreach}
+                    </div>
+                {/if}
             </div>
 
             {* --- GALERIE D'IMAGES AVEC SPLIDE --- *}
-            {if $pages.gallery && $pages.gallery|count > 0}
+            {if isset($news.gallery) && $news.gallery|count > 0}
                 <div class="col-lg-6">
-                    {* Wrapper global *}
                     <div class="c-gallery c-gallery--page">
 
                         {* 1. Grande Image (Stacking context) *}
                         <div class="c-gallery__main shadow-sm rounded mb-3">
-                            {foreach $pages.gallery as $index => $image}
+                            {foreach $news.gallery as $index => $image}
                                 <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
                                     {$zoom_url = $image.original.src|default:$image.default.src}
-                                    <a href="{$zoom_url}" class="glightbox" data-gallery="pages" data-title="{$image.title}">
+                                    <a href="{$zoom_url}" class="glightbox" data-gallery="news-gallery" data-title="{$image.title}">
                                         {include file="components/img.tpl" img=$image class="img-fluid w-100"}
                                     </a>
                                 </div>
@@ -61,11 +82,11 @@
                         </div>
 
                         {* 2. Carousel de vignettes *}
-                        {if $pages.gallery|count > 1}
+                        {if $news.gallery|count > 1}
                             <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
                                 <div class="splide__track">
                                     <ul class="splide__list">
-                                        {foreach $pages.gallery as $index => $image}
+                                        {foreach $news.gallery as $index => $image}
                                             <li class="splide__slide">
                                                 <div class="thumb-wrapper p-1">
                                                     {include file="components/img.tpl" img=$image class="img-fluid rounded" size="small"}
@@ -81,34 +102,6 @@
                 </div>
             {/if}
         </div>
-
-        {* --- SECTION SOUS-PAGES (Enfants directs) --- *}
-        {if isset($pages.subdata) && $pages.subdata|count > 0}
-            <div class="row mt-5">
-                <div class="col-12 mb-4">
-                    <h3 class="fw-bold text-primary">En savoir plus</h3>
-                </div>
-                {foreach $pages.subdata as $child}
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0 transition-hover">
-                            <a href="{$child.url}" class="text-decoration-none text-dark">
-                                <div class="card-img-top overflow-hidden">
-                                    {include file="components/img.tpl" img=$child.img class="img-fluid w-100"}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold text-primary">{$child.name}</h5>
-                                    {$description = $child.resume|default:$child.content|strip_tags|truncate:120:"..."}
-                                    {if $description}<p class="card-text small text-muted">{$description}</p>{/if}
-                                </div>
-                                <div class="card-footer bg-transparent border-0 pt-0 pb-3 text-end">
-                                    <span class="text-primary small fw-bold">{#read_more#|default:'Lire la suite'} <i class="bi bi-arrow-right"></i></span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                {/foreach}
-            </div>
-        {/if}
     </div>
 {/block}
 
