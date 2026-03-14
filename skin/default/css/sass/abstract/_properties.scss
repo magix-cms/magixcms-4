@@ -15,6 +15,7 @@
   --fz-h5: calc(#{$h5-font-size} * var(--mc-font-scale));
   --fz-h6: calc(#{$h6-font-size} * var(--mc-font-scale));
   --spacer: #{$spacer};
+  --grid-gutter: var(--spacer);
   --toolbar-h: 0px; // Valeur par défaut mobile
   --header-h: 80px; // À ajuster selon votre design
   --header-bg: #{$white}; 

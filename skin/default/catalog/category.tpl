@@ -11,6 +11,14 @@
     {/if}
 {/block}
 
+{block name="head:structured_data"}
+    {* 1. L'identité de la catégorie (générée par CategoryPresenter) *}
+    {$category.json_ld|default:'' nofilter}
+
+    {* 2. La liste des produits qu'elle contient (générée par le SeoHelper du Controller) *}
+    {$json_ld|default:'' nofilter}
+{/block}
+
 {block name="article"}
     <div class="container py-5">
 
@@ -74,8 +82,8 @@
                 <div class="col-12 mb-4">
                     <h3 class="fw-bold text-secondary border-bottom pb-2">Affiner votre recherche</h3>
                 </div>
-                {foreach $category.subdata as $child}
-                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                {*{foreach $category.subdata as $child}
+                    <div class="col-6 col-md-4 col-lg-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 transition-hover text-center bg-white">
                             <a href="{$child.url}" class="text-decoration-none text-dark p-3 d-block">
                                 <div class="card-img-top overflow-hidden mb-3">
@@ -85,7 +93,8 @@
                             </a>
                         </div>
                     </div>
-                {/foreach}
+                {/foreach}*}
+                {include file="catalog/loop/category-grid.tpl" data=$category.subdata}
             </div>
         {/if}
 
@@ -95,17 +104,15 @@
                 <div class="col-12 mb-4">
                     <h2 class="fw-bold text-dark mb-4">Produits disponibles</h2>
                 </div>
-
-                {foreach $category.products as $product}
+                {include file="catalog/loop/product-grid.tpl" data=$category.products}
+                {*{foreach $category.products as $product}
                     <div class="col-md-4 mb-4">
                         <div class="card shadow-sm h-100 border-0 bg-light transition-hover">
 
-                            {* LE LIEN ET L'IMAGE AVEC VOTRE COMPOSANT *}
                             <a href="{$product.url}" title="{$product.name}">
                                 {include file="components/img.tpl" img=$product.img size="medium" responsiveC=true lazy=true}
                             </a>
 
-                            {* d-flex flex-column pour aligner les boutons en bas *}
                             <div class="card-body text-center d-flex flex-column">
                                 <h5 class="card-title text-dark">
                                     <a href="{$product.url}" class="text-decoration-none text-dark">{$product.name}</a>
@@ -114,14 +121,14 @@
                                     <small class="text-muted d-block mb-2">{$product.cat_name}</small>
                                 {/if}
 
-                                {* mt-auto repousse le prix et le bouton vers le bas de la carte *}
                                 <p class="card-text fw-bold text-primary fs-4 mt-auto">{$product.price} €</p>
                                 <a href="{$product.url}" class="btn btn-outline-dark">Voir le produit</a>
                             </div>
 
                         </div>
                     </div>
-                {/foreach}
+                {/foreach}*}
+
             </div>
 
         {elseif (!isset($category.subdata) || $category.subdata|count == 0)}
@@ -135,30 +142,20 @@
     </div>
 {/block}
 
-{* --- SCRIPTS (Chargés uniquement si une galerie existe) --- *}
+{* 1. L'enfant déclare ses fichiers JS requis *}
+{block name="javascript_data"}
+    {$page_js = [
+    'defer' => ['vendor/splide', 'GalleryManager']
+    ] scope="parent"}
+{/block}
+
+{* 2. L'enfant écrit son code d'initialisation *}
 {block name="javascript" append}
-    {if isset($category.gallery) && $category.gallery|count > 0}
-        {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof GLightbox !== 'undefined') {
-                    GLightbox({ selector: '.glightbox' });
-                }
-                const thumbSlider = document.querySelector('#thumbnail-slider');
-                if (thumbSlider && typeof Splide !== 'undefined') {
-                    const splide = new Splide('#thumbnail-slider', {
-                        fixedWidth: 100, fixedHeight: 65, gap: 10, rewind: true,
-                        pagination: false, isNavigation: true, arrows: true,
-                        breakpoints: { 600: { fixedWidth: 60, fixedHeight: 44 } }
-                    }).mount();
-                    const mainItems = document.querySelectorAll('.gallery-main-item');
-                    splide.on('active', function(slide) {
-                        mainItems.forEach(item => item.classList.remove('is-active'));
-                        const target = document.getElementById('main-image-' + slide.index);
-                        if (target) target.classList.add('is-active');
-                    });
-                }
-            });
-        </script>
-    {/if}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof GalleryManager !== 'undefined') {
+                new GalleryManager();
+            }
+        });
+    </script>
 {/block}

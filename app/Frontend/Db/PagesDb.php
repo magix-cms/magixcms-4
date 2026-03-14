@@ -74,6 +74,7 @@ class PagesDb extends BaseDb
             'p.id_parent',
             'c.name_pages',
             'c.resume_pages',
+            'c.content_pages',
             'c.url_pages',
             'i.name_img',
             'ic.alt_img',

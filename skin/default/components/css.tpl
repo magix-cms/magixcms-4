@@ -1,3 +1,4 @@
+{strip}
 {* 3. ON FUSIONNE LES DEUX TABLEAUX *}
 {$final_css = $global_css}
 {if isset($page_css) && is_array($page_css)}
@@ -17,3 +18,4 @@
     <link rel="preload" href="{$css_path}" as="style" />
     <link rel="stylesheet" href="{$css_path}" />
 {/foreach}
+{/strip}

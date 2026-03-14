@@ -10,9 +10,9 @@ use App\Component\Routing\UrlTool;
 class PagesPresenter
 {
     /**
-     * Formate une ligne de résultat Pages pour le frontend
+     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $skinFolder
      */
-    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = []): array
+    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
         $iso = $langContext['iso_lang'] ?? 'fr';
         $idPages = (int)($row['id_pages'] ?? 0);
@@ -31,7 +31,6 @@ class PagesPresenter
             ]
         ];
 
-        // Construction de l'URL
         $urlTool = new UrlTool();
         $data['url'] = $urlTool->buildUrl([
             'type' => 'pages',
@@ -41,21 +40,16 @@ class PagesPresenter
             'date' => $data['date']
         ]);
 
-        // --- GESTION DES IMAGES ---
-        $data['img'] = self::processImages($row, $idPages, $siteUrl);
+        // 🟢 Transmission de $skinFolder
+        $data['img'] = self::processImages($row, $idPages, $siteUrl, $skinFolder);
 
-        // --- SEO ---
         $data['seo'] = [
             'title'       => !empty($row['seo_title_pages']) ? $row['seo_title_pages'] : $data['name'],
             'description' => !empty($row['seo_desc_pages']) ? $row['seo_desc_pages'] : strip_tags($data['resume'])
         ];
 
-        // 🟢 GÉNÉRATION DU JSON-LD AVEC INFOS ENTREPRISE
         $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
 
-        // =====================================================================
-        // 🟢 OVERRIDE (Capture des champs des plugins)
-        // =====================================================================
         $knownKeys = array_flip([
             'id_pages', 'id_parent', 'name_pages', 'longname_pages', 'resume_pages', 'content_pages',
             'last_update', 'date_register', 'link_label_pages', 'link_title_pages', 'url_pages',
@@ -72,19 +66,41 @@ class PagesPresenter
         return $data;
     }
 
-    /**
-     * Traitement des images
-     */
-    private static function processImages(array $row, int $idPages, string $siteUrl): array
+    private static function processImages(array $row, int $idPages, string $siteUrl, string $skinFolder): array
     {
         $imageTool = new ImageTool();
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_pages'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_pages'] ?? '');
 
+        // 🟢 AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
+            static $fallbackData = [];
+
+            if (!isset($fallbackData[$skinFolder])) {
+                $holderFilename = 'pages_medium.jpg';
+
+                $generatedPath = ROOT_DIR . 'img/default/' . $holderFilename;
+                $skinPath      = ROOT_DIR . 'skin/' . $skinFolder . '/img/default/' . $holderFilename;
+
+                if (file_exists($generatedPath)) {
+                    $src = "{$siteUrl}/img/default/{$holderFilename}";
+                    $size = getimagesize($generatedPath);
+                } else {
+                    $src = "{$siteUrl}/skin/{$skinFolder}/img/default/{$holderFilename}";
+                    $size = @getimagesize($skinPath);
+                }
+
+                $fallbackData[$skinFolder] = [
+                    'src' => $src,
+                    'w'   => $size ? $size[0] : 800,
+                    'h'   => $size ? $size[1] : 600
+                ];
+            }
+
             return [
-                'alt' => $altText, 'title' => $titleText,
-                'default' => ['src' => "{$siteUrl}/skin/default/images/no-image.jpg", 'w' => 800, 'h' => 800]
+                'alt'   => $altText,
+                'title' => $titleText,
+                'default' => $fallbackData[$skinFolder]
             ];
         }
 
@@ -104,23 +120,15 @@ class PagesPresenter
         return $imgData;
     }
 
-    /**
-     * 🟢 GÉNÉRATION DU JSON-LD
-     */
-    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string    {
-        // 1. Détermination du type d'entité Schema.org
+    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
+    {
+        // ... (votre code JSON-LD reste inchangé) ...
         $typesMap = [
-            'org'    => 'Organization',
-            'locb'   => 'LocalBusiness',
-            'corp'   => 'Corporation',
-            'store'  => 'Store',
-            'food'   => 'FoodEstablishment',
-            'place'  => 'Place',
-            'person' => 'Person'
+            'org'    => 'Organization', 'locb' => 'LocalBusiness', 'corp' => 'Corporation',
+            'store'  => 'Store', 'food' => 'FoodEstablishment', 'place' => 'Place', 'person' => 'Person'
         ];
         $companyType = $typesMap[$companyInfo['type'] ?? 'org'] ?? 'Organization';
 
-        // 2. Liste des réseaux sociaux pour le tableau "sameAs"
         $socials = [];
         $socialKeys = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'github'];
         foreach ($socialKeys as $key) {
@@ -129,19 +137,13 @@ class PagesPresenter
             }
         }
 
-        // 3. Construction de l'objet Éditeur / Entreprise
         $publisher = [
             '@type' => $companyType,
             'name'  => $companyInfo['name'] ?? '',
         ];
 
-        // Ajout des infos de contact si elles existent
-        if (!empty($companyInfo['phone'])) {
-            $publisher['telephone'] = $companyInfo['phone'];
-        }
-        if (!empty($companyInfo['tva'])) {
-            $publisher['vatID'] = $companyInfo['tva'];
-        }
+        if (!empty($companyInfo['phone'])) $publisher['telephone'] = $companyInfo['phone'];
+        if (!empty($companyInfo['tva'])) $publisher['vatID'] = $companyInfo['tva'];
         if (!empty($companyInfo['street']) && !empty($companyInfo['city'])) {
             $publisher['address'] = [
                 '@type'           => 'PostalAddress',
@@ -151,11 +153,8 @@ class PagesPresenter
                 'addressCountry'  => 'BE'
             ];
         }
-        if (!empty($socials)) {
-            $publisher['sameAs'] = $socials;
-        }
+        if (!empty($socials)) $publisher['sameAs'] = $socials;
 
-        // 4. Construction de la Page Web globale
         $schema = [
             '@context'    => 'https://schema.org',
             '@type'       => 'WebPage',

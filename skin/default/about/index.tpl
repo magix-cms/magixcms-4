@@ -4,13 +4,25 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
-{block name="styleSheet" append nocache}
+{* 🟢 BLOC JSON-LD *}
+{block name="head:structured_data"}
+    {$about.json_ld|default:'' nofilter}
+    {$json_ld|default:'' nofilter}
+{/block}
 
+{block name="styleSheet" append nocache}
     {$page_css = ["splide.min","gallery"] scope="parent"}
 {/block}
 
 {block name="article"}
     <div class="container py-5">
+
+        {* 🟢 --- FIL D'ARIANE --- *}
+        {$breadcrumbs = [
+        ['label' => $about.name]
+        ]}
+        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
         <div class="row mb-5">
             <div class="col-12 text-center text-lg-start">
                 <h1 class="display-4 fw-bold text-primary mb-3">{$about.name}</h1>
@@ -32,7 +44,7 @@
             {if $about.gallery && $about.gallery|count > 0}
                 <div class="col-lg-6">
 
-                    {* 🟢 AJOUT DU WRAPPER GLOBAL ICI *}
+                    {* WRAPPER GLOBAL *}
                     <div class="c-gallery c-gallery--about">
 
                         {* 1. Grande Image (Stacking context) *}
@@ -40,7 +52,7 @@
                             {foreach $about.gallery as $index => $image}
                                 <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
                                     {$zoom_url = $image.original.src|default:$image.default.src}
-                                    <a href="{$zoom_url}" class="glightbox" data-gallery="about">
+                                    <a href="{$zoom_url}" class="glightbox" data-gallery="about" data-title="{$image.title}">
                                         {include file="components/img.tpl" img=$image class="img-fluid w-100"}
                                     </a>
                                 </div>
@@ -73,7 +85,8 @@
                 <div class="col-12 mb-4">
                     <h3 class="fw-bold text-primary">En savoir plus</h3>
                 </div>
-                {foreach $about.subdata as $child}
+                {include file="about/loop/about-grid.tpl" data=$about.subdata}
+                {*{foreach $about.subdata as $child}
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 shadow-sm border-0 transition-hover">
                             <a href="{$child.url}" class="text-decoration-none text-dark">
@@ -91,55 +104,25 @@
                             </a>
                         </div>
                     </div>
-                {/foreach}
+                {/foreach}*}
             </div>
         {/if}
     </div>
 {/block}
 
-{* --- SCRIPTS --- *}
-{block name="javascript" append}
-
+{* 1. L'enfant déclare ses fichiers JS requis *}
+{block name="javascript_data"}
     {$page_js = [
-    'defer' => ['vendor/splide']
+    'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
+{/block}
 
+{* 2. L'enfant écrit son code d'initialisation *}
+{block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Initialisation GLightbox
-            const lightbox = GLightbox({ selector: '.glightbox' });
-
-            // 2. Initialisation Splide
-            const thumbSlider = document.querySelector('#thumbnail-slider');
-            if (thumbSlider) {
-                const splide = new Splide('#thumbnail-slider', {
-                    fixedWidth: 100,
-                    fixedHeight: 65,
-                    gap: 10,
-                    rewind: true,
-                    pagination: false,
-                    isNavigation: true, // Indique que ce slider sert à naviguer
-                    arrows: true,       // On active les flèches
-                    breakpoints: {
-                        600: { fixedWidth: 60, fixedHeight: 44 }
-                    }
-                }).mount();
-
-                // 🟢 SYNCHRONISATION AMÉLIORÉE
-                const mainItems = document.querySelectorAll('.gallery-main-item');
-
-                // On écoute 'active' au lieu de 'click'
-                // Cela couvre : clic, flèches, et swipe !
-                splide.on('active', function(slide) {
-                    // 1. On retire la classe active de toutes les grandes images
-                    mainItems.forEach(item => item.classList.remove('is-active'));
-
-                    // 2. On active la grande image correspondant à l'index de la vignette
-                    const target = document.getElementById('main-image-' + slide.index);
-                    if (target) {
-                        target.classList.add('is-active');
-                    }
-                });
+            if (typeof GalleryManager !== 'undefined') {
+                new GalleryManager();
             }
         });
     </script>

@@ -8,44 +8,69 @@
 }
 
 // 3. LE HEADER FIXE
+// layout/_header.scss
+
 #header {
-  z-index: 1030; // Standard Bootstrap pour les fixed-top
+  z-index: 1030;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  // 🟢 On force la hauteur stricte du header ici
+  height: var(--header-h);
   background: var(--header-bg);
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, .1), 0 5px 20px 0 rgba(0, 0, 0, .05);
 
   .container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; // Souvent mieux que center pour Logo | Menu
-    height: var(--header-h);
+    height: 100%; // Le container épouse la hauteur stricte
   }
 
-  // ASTUCE : On pousse le contenu qui suit le header fixe
-  // pour éviter qu'il ne passe dessous
+  // Pousse le contenu en dessous
   & + div,
   & + section,
   & + main {
-    margin-top: calc(var(--header-h) + var(--toolbar-h));
+    margin-top: calc(var(--header-h) + var(--toolbar-h, 0px));
   }
 }
 
-// 4. NOM DU SITE / LOGO
 .site-name {
   text-align: center;
+  align-self: flex-start;
+  z-index: 1040;
 
   @include media-breakpoint-down(lg) {
     flex: 1;
+    align-self: center;
   }
 
   a {
-    display: block;
+    display: inline-block; // Mieux que block pour épouser la taille du logo
     text-decoration: none;
     color: var(--mc-primary);
     font-weight: $font-weight-bold;
     font-family: $headings-font-family;
+    // On décolle le logo du haut du navigateur (espace de respiration)
+    padding-top: 10px;
+  }
+
+  img {
+    // 🟢 CORRECTION : On contraint la taille de l'image
+    width: auto;
+    max-width: 250px; // Sécurité : empêche le logo de manger tout le menu
+
+    // 🟢 LA MAGIE : La hauteur s'adapte à celle du header (moins le padding-top)
+    // Si --header-h = 80px, le logo fera environ 60px et rentrera parfaitement.
+    // Si un jour vous passez --header-h à 60px, le logo débordera naturellement.
+    height: calc(var(--header-h) - 15px);
+
+    max-height: none !important; // Désactive la limite Bootstrap
+    object-fit: contain; // Garde les proportions sans déformer
+    object-position: left top; // Aligne proprement à gauche
+
+    @include media-breakpoint-down(lg) {
+      max-width: 180px;
+      height: calc(var(--header-h) - 20px); // Un peu plus petit sur mobile
+      object-position: center top; // Centré sur mobile
+    }
   }
 }

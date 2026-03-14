@@ -98,7 +98,38 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <fieldset class="mt-4">
+                                <legend class="h5 text-primary border-bottom pb-2">{#placeholder_setting#|default:'Images de substitution (Holder)'}</legend>
+                                <div class="row g-3">
 
+                                    {* 1. Couleur de fond (Hexadécimal) *}
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="holder_bgcolor">{#holder_bgcolor#|default:'Couleur de fond'}</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {* 🟢 Le sélecteur visuel.
+                                               Note: On lui retire toute validation stricte pour ne pas gêner MagixForms *}
+                                            <input type="color" id="holder_bgcolor_picker" class="form-control form-control-color border-1 p-0" style="width: 38px; height: 38px;" value="{$settings.holder_bgcolor.value|default:'#ffffff'}" title="Choisir une couleur" onchange="document.getElementById('holder_bgcolor').value = this.value">
+
+                                            {* 🟢 Champ texte (Hex).
+                                               Retrait de l'attribut "pattern" qui bloquait MagixForms s'il était vide ou mal formaté au chargement *}
+                                            <input type="text" id="holder_bgcolor" name="settings[holder_bgcolor]" class="form-control text-uppercase" placeholder="#FFFFFF" value="{$settings.holder_bgcolor.value|default:'#ffffff'}" oninput="document.getElementById('holder_bgcolor_picker').value = this.value">
+                                        </div>
+                                        <div class="form-text">Code couleur hexadécimal (ex: #FFFFFF)</div>
+                                    </div>
+
+                                    {* 2. Pourcentage du logo *}
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="logo_percent">{#logo_percent#|default:'Taille du logo intégré'}</label>
+                                        <div class="input-group">
+                                            {* 🟢 On s'assure qu'une valeur par défaut valide (50) est présente même si la DB est vide *}
+                                            <input type="number" min="1" max="100" id="logo_percent" name="settings[logo_percent]" class="form-control" value="{$settings.logo_percent.value|default:'50'}" />
+                                            <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                                        </div>
+                                        <div class="form-text">Espace occupé par le logo sur l'image (1 à 100%)</div>
+                                    </div>
+
+                                </div>
+                            </fieldset>
                         </div>
 
                         {* ==========================================================

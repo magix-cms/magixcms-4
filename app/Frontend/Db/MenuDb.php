@@ -95,6 +95,16 @@ class MenuDb extends BaseDb
                 $dataUrl['url']  = $el['category_url'];
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
 
+                // 🟢 AVEZ-VOUS BIEN AJOUTÉ CECI ?
+            } elseif ($type === 'catalog') {
+                $dataUrl['type'] = 'catalog';
+                $el['url_link']  = $urlTool->buildUrl($dataUrl);
+
+                // 🟢 AJOUT : (Optionnel) Faites pareil si vous avez une page racine pour les News !
+            } elseif ($type === 'news') {
+                $dataUrl['type'] = 'news';
+                $el['url_link']  = $urlTool->buildUrl($dataUrl);
+
             } else {
                 $el['url_link'] = '#';
             }

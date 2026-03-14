@@ -105,37 +105,19 @@
     </div>
 {/block}
 
-{* --- SCRIPTS --- *}
-{block name="javascript" append}
-    {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
+{* 1. L'enfant déclare ses fichiers JS requis *}
+{block name="javascript_data"}
+    {$page_js = [
+    'defer' => ['vendor/splide', 'GalleryManager']
+    ] scope="parent"}
+{/block}
 
+{* 2. L'enfant écrit son code d'initialisation *}
+{block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof GLightbox !== 'undefined') {
-                const lightbox = GLightbox({ selector: '.glightbox' });
-            }
-
-            const thumbSlider = document.querySelector('#thumbnail-slider');
-            if (thumbSlider && typeof Splide !== 'undefined') {
-                const splide = new Splide('#thumbnail-slider', {
-                    fixedWidth: 100,
-                    fixedHeight: 65,
-                    gap: 10,
-                    rewind: true,
-                    pagination: false,
-                    isNavigation: true,
-                    arrows: true,
-                    breakpoints: {
-                        600: { fixedWidth: 60, fixedHeight: 44 }
-                    }
-                }).mount();
-
-                const mainItems = document.querySelectorAll('.gallery-main-item');
-                splide.on('active', function(slide) {
-                    mainItems.forEach(item => item.classList.remove('is-active'));
-                    const target = document.getElementById('main-image-' + slide.index);
-                    if (target) target.classList.add('is-active');
-                });
+            if (typeof GalleryManager !== 'undefined') {
+                new GalleryManager();
             }
         });
     </script>

@@ -1,3 +1,4 @@
+{strip}
 {* components/js.tpl *}
 
 {* On initialise final_js avec les globaux s'ils existent *}
@@ -34,3 +35,4 @@
         <script src="{$js_path}" {if $loading_method != 'normal'}{$loading_method}{/if}></script>
     {/foreach}
 {/foreach}
+{/strip}

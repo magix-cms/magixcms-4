@@ -34,18 +34,62 @@
         <div class="row mb-5">
             <div class="col-12 text-center text-lg-start">
 
-                {* Badges : Référence, Marque, etc. *}
-                <div class="mb-3">
-                    {if !empty($product.ref)}
-                        <span class="badge bg-secondary mb-2 fs-6 fw-normal">Réf. {$product.ref}</span>
+                {* Badges : Prix, Référence (SKU) et EAN *}
+                <div class="mb-3 d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-2">
+
+                    {* 1. Le Prix (En évidence avec gestion de la promo) *}
+                    {if !empty($product.price_final) && $product.price_final > 0}
+                        {if $product.has_promo}
+                            {* Prix en promo (Rouge) *}
+                            <span class="badge bg-danger fs-5 py-2 px-3 shadow-sm">
+                                {$product.price_formatted} € {$product.price_suffix}
+                            </span>
+                            {* Ancien prix barré (Gris clair) *}
+                            <span class="badge bg-light text-muted text-decoration-line-through fs-5 py-2 px-3 border">
+                                {$product.price_original_formatted} €
+                            </span>
+                            {* Badge de pourcentage (Jaune) *}
+                            <span class="badge bg-warning text-dark fs-6 py-2 px-2 ms-1">
+                                -{$product.promo_percent}%
+                            </span>
+                        {else}
+                            {* Prix normal (Bleu) *}
+                            <span class="badge bg-primary fs-5 py-2 px-3 shadow-sm">
+                                {$product.price_formatted} € {$product.price_suffix}
+                            </span>
+                        {/if}
                     {/if}
-                    {if !empty($product.price) && $product.price > 0}
-                        {* 🟢 Ajout de |floatval pour satisfaire PHP 8 *}
-                        <span class="badge bg-primary mb-2 fs-6 ms-2">{$product.price|number_format:2:',':' '} €</span>
+
+                    {* 2. La Référence (SKU) *}
+                    {if !empty($product.reference)}
+                        <span class="badge bg-secondary fs-6 fw-normal text-uppercase" title="Référence / SKU">
+                            <i class="bi bi-hash me-1"></i> Réf: {$product.reference}
+                        </span>
                     {/if}
+
+                    {* 3. Le Code EAN (Si disponible) *}
+                    {if !empty($product.ean_p)}
+                        <span class="badge bg-light text-dark border fs-6 fw-normal" title="Code-barres EAN">
+                            <i class="bi bi-upc-scan me-1"></i> EAN: {$product.ean_p}
+                        </span>
+                    {/if}
+
+                    {* 4. Disponibilité (Optionnel mais très apprécié UX/SEO) *}
+                    {if !empty($product.availability_p)}
+                        {if $product.availability_p === 'InStock'}
+                            <span class="badge bg-success bg-opacity-10 text-success fs-6 fw-normal border border-success">
+                                <i class="bi bi-check-circle me-1"></i> En stock
+                            </span>
+                        {elseif $product.availability_p === 'OutOfStock'}
+                            <span class="badge bg-danger bg-opacity-10 text-danger fs-6 fw-normal border border-danger">
+                                <i class="bi bi-x-circle me-1"></i> Rupture
+                            </span>
+                        {/if}
+                    {/if}
+
                 </div>
 
-                <h1 class="display-4 fw-bold text-primary mb-3">{$product.name}</h1>
+                <h1 class="display-4 fw-bold text-dark mb-3">{$product.name}</h1>
 
                 {if !empty($product.resume)}
                     <p class="lead text-muted">{$product.resume}</p>
@@ -119,37 +163,19 @@
     </div>
 {/block}
 
-{* --- SCRIPTS --- *}
-{block name="javascript" append}
-    {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
+{* 1. L'enfant déclare ses fichiers JS requis *}
+{block name="javascript_data"}
+    {$page_js = [
+    'defer' => ['vendor/splide', 'GalleryManager']
+    ] scope="parent"}
+{/block}
 
+{* 2. L'enfant écrit son code d'initialisation *}
+{block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof GLightbox !== 'undefined') {
-                const lightbox = GLightbox({ selector: '.glightbox' });
-            }
-
-            const thumbSlider = document.querySelector('#thumbnail-slider');
-            if (thumbSlider && typeof Splide !== 'undefined') {
-                const splide = new Splide('#thumbnail-slider', {
-                    fixedWidth: 100,
-                    fixedHeight: 65,
-                    gap: 10,
-                    rewind: true,
-                    pagination: false,
-                    isNavigation: true,
-                    arrows: true,
-                    breakpoints: {
-                        600: { fixedWidth: 60, fixedHeight: 44 }
-                    }
-                }).mount();
-
-                const mainItems = document.querySelectorAll('.gallery-main-item');
-                splide.on('active', function(slide) {
-                    mainItems.forEach(item => item.classList.remove('is-active'));
-                    const target = document.getElementById('main-image-' + slide.index);
-                    if (target) target.classList.add('is-active');
-                });
+            if (typeof GalleryManager !== 'undefined') {
+                new GalleryManager();
             }
         });
     </script>

@@ -25,6 +25,9 @@ class UrlTool
     /**
      * Construit les URLs publiques selon le type de contenu
      */
+    /**
+     * Construit les URLs publiques selon le type de contenu
+     */
     public function buildUrl(array $data): string
     {
         if (empty($data) || empty($data['type'])) {
@@ -46,13 +49,15 @@ class UrlTool
         if (!empty($data['date'])) {
             $sqlDate = DateTool::toSql((string)$data['date']);
             if ($sqlDate) {
-                // 🟢 CORRECTIF : On remplace les tirets par des slashs (2026-03-12 -> 2026/03/12)
-                // Indispensable pour matcher la règle (\d{4}/\d{2}/\d{2}) du .htaccess !
+                // CORRECTIF : On remplace les tirets par des slashs (2026-03-12 -> 2026/03/12)
                 $formattedDate = str_replace('-', '/', substr($sqlDate, 0, 10));
             }
         }
 
         return match ($type) {
+            // 🟢 AJOUT : La racine du catalogue
+            'catalog'        => "{$basePath}/catalog/",
+
             'pages', 'about' => "{$basePath}/{$type}/{$id}-{$slug}/",
 
             'category'       => "{$basePath}/catalog/{$id}-{$slug}/",
@@ -61,9 +66,12 @@ class UrlTool
                 ? "{$basePath}/catalog/{$data['id_category']}-{$data['url_category']}/{$id}-{$slug}/"
                 : "{$basePath}/catalog/{$id}-{$slug}/", // Fallback au cas où le parent manque
 
-            'news'           => !empty($formattedDate)
-                ? "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/"
-                : "{$basePath}/news/{$id}-{$slug}/",
+            // 🟢 CORRECTION : Sécurisation si c'est la racine des news (pas d'ID)
+            'news'           => empty($id)
+                ? "{$basePath}/news/"
+                : (!empty($formattedDate)
+                    ? "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/"
+                    : "{$basePath}/news/{$id}-{$slug}/"),
 
             'date'           => "{$basePath}/news/" . ($data['year'] ?? '') . '/' . (!empty($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
 

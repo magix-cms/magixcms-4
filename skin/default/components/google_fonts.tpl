@@ -1,3 +1,4 @@
+{strip}
 {if isset($fonts) && is_array($fonts) && $fonts|count > 0}
 
     {$families_query = []}
@@ -48,3 +49,4 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{$final_url}">
 {/if}
+{/strip}

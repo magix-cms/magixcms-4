@@ -25,26 +25,23 @@ class ProductController extends BaseController
             return;
         }
 
-        // 1. Formatage des données principales du produit
         $companyDb = new CompanyDb();
         $companyInfo = $companyDb->getCompanyInfo();
+        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default'; // 🟢 Ajout du skin
 
-        $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo);
-
-        // 2. Gestion de la galerie d'images
+        // 1. Formatage du produit
+        $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
+        // 2. Galerie
         $product['gallery'] = [];
         $images = $db->getProductImages($id, $idLang);
 
         foreach ($images as $imgRow) {
             $tempRow = array_merge($rawProduct, $imgRow);
-            // 🟢 On passe aussi $companyInfo ici pour éviter des warnings si la méthode format l'attend
-            $formattedTemp = ProductPresenter::format($tempRow, $this->currentLang, $siteUrl, $companyInfo);
-
+            $formattedTemp = ProductPresenter::format($tempRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
             $formattedTemp['img']['is_default'] = (int)$imgRow['default_img'] === 1;
             $product['gallery'][] = $formattedTemp['img'];
         }
 
-        // Assignation à Smarty
         $this->view->assign([
             'product'   => $product,
             'seo_title' => $product['seo_title'] ?? $product['name'],

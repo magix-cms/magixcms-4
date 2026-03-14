@@ -61,72 +61,72 @@
         {/if}
         {* --- BLOC PAGES --- *}
         {if isset($mc_config.pages) && $mc_config.pages == 1}
-        <li class="mb-1">
-            {assign var="is_pages" value=($current_c == 'pages')}
+            <li class="mb-1">
+                {assign var="is_pages" value=($current_c == 'pages')}
 
-            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_pages}collapsed{/if}"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#menu-pages"
-                    aria-expanded="{if $is_pages}true{else}false{/if}">
-                <i class="bi bi-files fs-5 me-3"></i>
-                <span class="menu-text">Gestion des pages</span>
-            </button>
+                <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_pages}collapsed{/if}"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-pages"
+                        aria-expanded="{if $is_pages}true{else}false{/if}">
+                    <i class="bi bi-files fs-5 me-3"></i>
+                    <span class="menu-text">Gestion des pages</span>
+                </button>
 
-            <div class="collapse {if $is_pages}show{/if}" id="menu-pages">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    <li>
-                        <a href="index.php?controller=Pages"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a != 'add'}active-sub{/if}">
-                            <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des pages
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=Pages&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a == 'add'}active-sub{/if}">
-                            <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une page
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                <div class="collapse {if $is_pages}show{/if}" id="menu-pages">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                        <li>
+                            <a href="index.php?controller=Pages"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a != 'add'}active-sub{/if}">
+                                <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des pages
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=Pages&action=add"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'pages' && $current_a == 'add'}active-sub{/if}">
+                                <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une page
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         {/if}
 
         {* --- BLOC ACTUALITÉS (NOUVEAU) --- *}
         {if isset($mc_config.news) && $mc_config.news == 1}
-        <li class="mb-1">
-            {assign var="is_news" value=($current_c == 'news' || $current_c == 'newstag')}
+            <li class="mb-1">
+                {assign var="is_news" value=($current_c == 'news' || $current_c == 'newstag')}
 
-            <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_news}collapsed{/if}"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#menu-news"
-                    aria-expanded="{if $is_news}true{else}false{/if}">
-                <i class="bi bi-newspaper fs-5 me-3"></i>
-                <span class="menu-text">Actualités</span>
-            </button>
+                <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_news}collapsed{/if}"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-news"
+                        aria-expanded="{if $is_news}true{else}false{/if}">
+                    <i class="bi bi-newspaper fs-5 me-3"></i>
+                    <span class="menu-text">Actualités</span>
+                </button>
 
-            <div class="collapse {if $is_news}show{/if}" id="menu-news">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    <li>
-                        <a href="index.php?controller=News"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a != 'add'}active-sub{/if}">
-                            <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des actualités
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=News&action=add"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a == 'add'}active-sub{/if}">
-                            <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une actualité
-                        </a>
-                    </li>
-                    <li>
-                        <a href="index.php?controller=NewsTag"
-                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'newstag'}active-sub{/if}">
-                            <i class="bi bi-tags me-2 opacity-75"></i> Mots-clés (Tags)
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                <div class="collapse {if $is_news}show{/if}" id="menu-news">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                        <li>
+                            <a href="index.php?controller=News"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a != 'add'}active-sub{/if}">
+                                <i class="bi bi-list-ul me-2 opacity-75"></i> Liste des actualités
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=News&action=add"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a == 'add'}active-sub{/if}">
+                                <i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une actualité
+                            </a>
+                        </li>
+                        <li>
+                            <a href="index.php?controller=NewsTag"
+                               class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'newstag'}active-sub{/if}">
+                                <i class="bi bi-tags me-2 opacity-75"></i> Mots-clés (Tags)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         {/if}
 
         {* --- BLOC CATALOGUE --- *}
@@ -281,9 +281,10 @@
                 </ul>
             </div>
         </li>
-        {* --- BLOC APPARENCE (NOUVEAU) --- *}
+        {* --- BLOC APPARENCE --- *}
         <li class="mb-1">
-            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu')}
+            {* 🟢 CORRECTION : Ajout de layout et imageconfig dans la condition d'ouverture *}
+            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_appearance}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -295,17 +296,30 @@
 
             <div class="collapse {if $is_appearance}show{/if}" id="menu-appearance">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    {* NOUVEAU LIEN : Layout *}
+                    <li>
+                        <a href="index.php?controller=Layout"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'layout'}active-sub{/if}">
+                            <i class="bi bi-layout-sidebar me-2 opacity-75"></i> Layout
+                        </a>
+                    </li>
                     <li>
                         <a href="index.php?controller=Logo"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'logo'}active-sub{/if}">
                             <i class="bi bi-image me-2 opacity-75"></i> Logo
                         </a>
                     </li>
-                    {* NOUVEAU LIEN : Gestion du Menu *}
                     <li>
                         <a href="index.php?controller=Menu"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'menu'}active-sub{/if}">
                             <i class="bi bi-menu-button-wide me-2 opacity-75"></i> Menus
+                        </a>
+                    </li>
+                    {* NOUVEAU LIEN : Tailles d'images *}
+                    <li>
+                        <a href="index.php?controller=ImageConfig"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'imageconfig'}active-sub{/if}">
+                            <i class="bi bi-aspect-ratio me-2 opacity-75"></i> Tailles d'images
                         </a>
                     </li>
                 </ul>

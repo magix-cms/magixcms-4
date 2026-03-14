@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Frontend\Db;
 
 use Magepattern\Component\Database\QueryBuilder;
+use Magepattern\Component\Database\QueryHelper; // 🟢 Import pour appliquer les paramètres
+use App\Component\Hook\HookManager;             // 🟢 Import pour déclencher les hooks
 
 class AboutDb extends BaseDb
 {
@@ -20,6 +22,16 @@ class AboutDb extends BaseDb
             ->leftJoin('mc_about_img', 'img', 'a.id_about = img.id_about AND img.default_img = 1')
             ->leftJoin('mc_about_img_content', 'imgc', 'img.id_img = imgc.id_img AND imgc.id_lang = '.$idLang)
             ->where('a.id_about = '.$id.' AND ac.published_about = 1');
+
+        // 🟢 OVERRIDE : Un plugin peut ajouter des champs
+        $overrides = HookManager::triggerFilter('extendAboutData', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
 
         return $this->executeRow($qb) ?: null;
     }
@@ -48,11 +60,20 @@ class AboutDb extends BaseDb
         $qb->select('a.*, ac.*, img.name_img, imgc.alt_img, imgc.title_img')
             ->from('mc_about', 'a')
             ->leftJoin('mc_about_content', 'ac', 'a.id_about = ac.id_about AND ac.id_lang = '.$idLang)
-            // On récupère l'image par défaut de chaque enfant pour la vignette
             ->leftJoin('mc_about_img', 'img', 'a.id_about = img.id_about AND img.default_img = 1')
             ->leftJoin('mc_about_img_content', 'imgc', 'img.id_img = imgc.id_img AND imgc.id_lang = '.$idLang)
             ->where('a.id_parent = '.$idParent.' AND ac.published_about = 1')
             ->orderBy('a.order_about', 'ASC');
+
+        // 🟢 OVERRIDE : Pour les listes de pages (enfants)
+        $overrides = HookManager::triggerFilter('extendAboutList', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
 
         return $this->executeAll($qb) ?: [];
     }

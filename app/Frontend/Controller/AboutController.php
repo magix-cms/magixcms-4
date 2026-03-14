@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Frontend\Controller;
 
 use App\Frontend\Db\AboutDb;
+use App\Frontend\Db\CompanyDb; // 🟢 Import de CompanyDb
 use App\Frontend\Model\AboutPresenter;
 use App\Component\Routing\UrlTool;
 use Magepattern\Component\HTTP\Request;
+use App\Frontend\Model\SeoHelper;
 
 class AboutController extends BaseController
 {
@@ -25,14 +27,20 @@ class AboutController extends BaseController
             return;
         }
 
-        // 1. Formatage de la page principale
-        $about = AboutPresenter::format($rawPage, $this->currentLang, $siteUrl);
+        // 🟢 Récupération des infos de l'entreprise
+        $companyDb = new CompanyDb();
+        $companyInfo = $companyDb->getCompanyInfo();
+
+        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
+
+        // 1. Formatage de la page principale avec $companyInfo
+        $about = AboutPresenter::format($rawPage, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
         // 2. Galerie d'images
         $about['gallery'] = [];
         $images = $db->getAboutImages($id, $idLang);
         foreach ($images as $imgRow) {
-            $about['gallery'][] = AboutPresenter::format(array_merge($rawPage, $imgRow), $this->currentLang, $siteUrl)['img'];
+            $about['gallery'][] = AboutPresenter::format(array_merge($rawPage, $imgRow), $this->currentLang, $siteUrl, $companyInfo, $skinFolder)['img'];
         }
 
         // 3. Gestion de l'arborescence (Subdata & Root)
@@ -43,10 +51,8 @@ class AboutController extends BaseController
 
         if (!empty($rawChildren)) {
             foreach ($rawChildren as $childRow) {
-                $formattedChild = AboutPresenter::format($childRow, $this->currentLang, $siteUrl);
+                $formattedChild = AboutPresenter::format($childRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
-                // Règle : Si le parent est bien la page actuelle -> subdata
-                // Sinon (parent manquant ou orphelin) -> re-attachement à root
                 if ((int)$formattedChild['id_parent'] === $id) {
                     $about['subdata'][] = $formattedChild;
                 } else {
@@ -55,9 +61,12 @@ class AboutController extends BaseController
             }
         }
 
+        $jsonLdList = SeoHelper::generateItemListJsonLd($about['subdata']);
+
         // 4. Assignation Smarty
         $this->view->assign([
             'about'     => $about,
+            'json_ld'   => $jsonLdList,
             'seo_title' => $about['seo']['title'],
             'seo_desc'  => $about['seo']['description']
         ]);
@@ -65,9 +74,6 @@ class AboutController extends BaseController
         $this->view->display('about/index.tpl');
     }
 
-    /**
-     * Centralisation de la gestion 404
-     */
     private function render404(): void
     {
         header("HTTP/1.0 404 Not Found");

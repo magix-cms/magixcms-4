@@ -1,19 +1,401 @@
 // layout/_block.scss
-// ----- Align btn ------
-.btn-align{
-  margin-top: map-get($spacers, 4);
-  margin-bottom: map-get($spacers, 4);
+
+// --------------------------------------------------------
+// 1. MIXIN : GRILLE AUTO-FLUIDE
+// --------------------------------------------------------
+@mixin auto-grid($col-count: 4, $min-width: 300px, $gap: var(--grid-gutter, 1.5rem)) {
+  display: grid;
+  gap: $gap;
+
+  --grid-column-count: #{$col-count};
+  --grid-gap: #{$gap};
+  --grid-item--min-width: #{$min-width};
+
+  --gap-count: calc(var(--grid-column-count) - 1);
+  --total-gap-width: calc(var(--gap-count) * var(--grid-gap));
+  --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
+
+  grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
+}
+
+// --------------------------------------------------------
+// 2. STYLES GLOBAUX & LISTES
+// --------------------------------------------------------
+.grid {
+  display: grid;
+  gap: var(--grid-gutter, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.list-grid {
+  list-style: none;
+  padding-left: 0;
+  @extend .grid;
+}
+
+.featured-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gutter, 1.5rem);
+  list-style: none;
+  padding-left: 0;
+}
+
+.section-block {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+
+  + main, + .section-block {
+    padding-top: 0;
+  }
+}
+
+.btn-align {
+  margin-top: var(--grid-gutter, 1.5rem);
+  margin-bottom: var(--grid-gutter, 1.5rem);
   display: flex;
-  gap: var(--spacer);
-  @include media-breakpoint-down(md) {
+  gap: var(--spacer, 1rem);
+
+  @include media-breakpoint-down(sm) {
     flex-direction: column;
   }
-  /*@include media-breakpoint-up(md) {
-    flex-direction: row;
-  }*/
-  /**
-  @include media-breakpoint-only(md) {
-     background-color: yellow; // Uniquement sur tablettes
+}
+
+// --------------------------------------------------------
+// 3. APPLICATION DES GRILLES MULTICOLONNES
+// --------------------------------------------------------
+// 🟢 AJOUT : .about-list est maintenant bien présent
+.pages-list,
+.category-list,
+.product-list,
+.news-grid-list,
+.about-list {
+  @include auto-grid(3, 300px);
+}
+
+
+// ========================================================
+// 🛠️ 4. LES "SUPER MIXINS" UNIVERSELS
+// ========================================================
+
+@mixin card-figure-base() {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--body-bg, #fff);
+  box-shadow: rgba(17, 17, 26, 0.05) 0 1px 0, rgba(17, 17, 26, 0.1) 0 0 8px;
+  border-radius: .375rem;
+  overflow: hidden;
+
+  .time-figure {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-bottom: 2px solid var(--main-color, #0d6efd);
+
+    > * {
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
   }
-   */
+
+  .desc {
+    padding: 1rem;
+    flex-grow: 1;
+
+    // Le titre est maintenant ciblé via le lien à l'intérieur du h3 pour garantir que la couleur s'applique bien
+    h3 {
+      margin: 0;
+      min-height: 3em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+
+      a {
+        color: var(--text-color, #333);
+        transition: color .25s ease-in-out;
+      }
+    }
+
+    p {
+      color: var(--light-grey, #6c757d);
+    }
+  }
+
+  // Comportement Hover Global
+  &:hover, &:focus {
+    .time-figure img { transform: scale(1.05); }
+    // On s'assure que le survol de la carte change la couleur du lien dans le titre
+    .desc h3 a { color: var(--main-color, #0d6efd); }
+  }
+}
+
+@mixin card-figure-large() {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--body-bg, #fff);
+  box-shadow: rgba(17, 17, 26, 0.05) 0 1px 0, rgba(17, 17, 26, 0.1) 0 0 8px;
+  border-radius: .375rem;
+  overflow: hidden;
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .time-figure {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+
+    @include media-breakpoint-up(md) {
+      width: 40%;
+      border-right: 2px solid var(--main-color, #0d6efd);
+      flex-shrink: 0;
+    }
+
+    @include media-breakpoint-down(md) {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-bottom: 2px solid var(--main-color, #0d6efd);
+    }
+
+    > * {
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  .desc {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+
+    @include media-breakpoint-up(md) {
+      width: 60%;
+    }
+
+    h3 {
+      margin: 0 0 1rem 0;
+      a {
+        color: var(--text-color, #333);
+        transition: color .25s ease-in-out;
+      }
+    }
+  }
+
+  &:hover, &:focus {
+    .time-figure img { transform: scale(1.05); }
+    .desc h3 a { color: var(--main-color, #0d6efd); }
+  }
+}
+
+
+// ========================================================
+// 🎨 5. CRÉATION DES CLASSES FINALES
+// ========================================================
+
+// --- A. PAGES, CATEGORIES & ABOUT ---
+// 🟢 AJOUT : about-card et about-card-large
+// Déclaration groupée pour la base, mais séparable si besoin
+.page-card, .category-card, .about-card {
+  .figure {
+    @include card-figure-base();
+
+    // Exemple : Si vous voulez que la catégorie ait un hover vert plus tard, vous pourrez l'ajouter ici
+    // &:hover .desc h3 a { color: green; }
+  }
+}
+
+.page-card-large, .category-card-large, .about-card-large {
+  .figure {
+    @include card-figure-large();
+  }
+  @include media-breakpoint-up(md) {
+    &:nth-child(even) .figure {
+      flex-direction: row-reverse;
+      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+    }
+  }
+}
+
+// --- B. PRODUITS ---
+.product-card {
+  .figure {
+    @include card-figure-base();
+
+    .cat-label {
+      place-self: start end;
+      margin: 1rem;
+      z-index: 2;
+      background: var(--main-color, #0d6efd);
+      color: var(--white, #fff);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--body-bg, #fff);
+      width: fit-content;
+      height: fit-content;
+      pointer-events: none;
+    }
+
+    .product-price {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacer, 1rem);
+      padding: 0 1rem 1rem 1rem;
+      margin-top: auto;
+      .btn-outline-dark {
+        transition: all 0.25s ease-in-out;
+      }
+      .crossed-price { color: var(--sd-color, #999); text-decoration: line-through; }
+      .price { font-size: var(--fz-h3, 1.5rem); transition: color .25s ease-in-out; }
+    }
+
+    // Hover spécifique au produit
+    &:hover {
+      // .price { color: var(--main-color, #0d6efd); } // Désactivé si on utilise les couleurs text-primary / text-danger de Bootstrap
+      .btn-outline-dark {
+        background-color: var(--dark-color, #212529);
+        color: var(--white, #fff);
+        border-color: var(--dark-color, #212529);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+.product-card-large {
+  .figure {
+    @include card-figure-large();
+    .product-price {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      .crossed-price { color: var(--sd-color, #999); text-decoration: line-through; }
+      .price { font-size: var(--fz-h3, 1.5rem); font-weight: bold; }
+    }
+    // &:hover .price { color: var(--main-color, #0d6efd); }
+  }
+  @include media-breakpoint-up(md) {
+    &:nth-child(even) .figure {
+      flex-direction: row-reverse;
+      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+    }
+  }
+}
+
+// --- C. NEWS ---
+.news-card {
+  .figure {
+    @include card-figure-base();
+
+    .date {
+      place-self: start end;
+      margin: 1rem;
+      z-index: 2;
+      background: var(--dark-color, #212529);
+      color: var(--white, #fff);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--body-bg, #fff);
+      transition: background-color .25s ease-in-out;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .tag-list {
+      padding: 0 1rem 1rem 1rem;
+      margin-top: auto;
+      &:empty { min-height: 2rem; }
+    }
+
+    &:hover .date { background: var(--main-color, #0d6efd); }
+  }
+}
+
+.news-card-large {
+  .figure {
+    @include card-figure-large();
+
+    .date {
+      place-self: start start;
+      margin: 1rem;
+      z-index: 2;
+      background: var(--dark-color, #212529);
+      color: var(--white, #fff);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px var(--body-bg, #fff);
+      transition: background-color .25s ease-in-out;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    .tag-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    &:hover .date { background: var(--main-color, #0d6efd); }
+  }
+
+  @include media-breakpoint-up(md) {
+    &:nth-child(even) .figure {
+      flex-direction: row-reverse;
+      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+      .date { place-self: start end; }
+    }
+  }
+}
+
+// --------------------------------------------------------
+// 6. GALLERY HOLDER (Masonry basique)
+// --------------------------------------------------------
+#gallery-holder {
+  margin-top: var(--spacer, 1rem);
+  margin-bottom: calc(var(--grid-gutter, 1.5rem) * 2);
+  break-inside: avoid;
+
+  @include media-breakpoint-up(sm) {
+    column-gap: .2rem;
+    column-count: 3;
+  }
+
+  .img-holder {
+    margin-bottom: .5rem;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      object-fit: cover;
+      transition-duration: 300ms;
+      &:hover { transform: scale(1.1); }
+    }
+  }
 }

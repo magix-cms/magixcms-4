@@ -1,3 +1,4 @@
+{strip}
 {* 0. INITIALISATION ULTRA-SÉCURISÉE DES VARIABLES *}
 {$base_url = ''}
 {if isset($site_url)}{$base_url = $site_url}{/if}
@@ -53,3 +54,4 @@
         {/if}
     {/foreach}
 {/if}
+{/strip}

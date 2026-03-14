@@ -59,7 +59,6 @@ class SettingController extends BaseController
         $db = new SettingDb();
         $success = true;
 
-        // RETRAIT de 'css_inliner' de cette liste
         $booleanKeys = [
             'concat', 'ssl',
             'http2', 'service_worker', 'amp', 'maintenance', 'geminiai'

@@ -22,3 +22,6 @@ $theme-colors: map-merge($theme-colors, $theme-color-map);
 
 // 7. Utilitaires Bootstrap (Optionnel, mais souvent utile pour les maps d'utilitaires)
 @import "../bootstrap5/utilities";
+
+// Dans votre fichier variables.scss
+//$enable-cssgrid: false;

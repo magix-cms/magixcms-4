@@ -9,6 +9,7 @@
   --fz-h5: calc(1.25rem * var(--mc-font-scale));
   --fz-h6: calc(1rem * var(--mc-font-scale));
   --spacer: 1rem;
+  --grid-gutter: var(--spacer);
   --toolbar-h: 0px;
   --header-h: 80px;
   --header-bg: #fff;

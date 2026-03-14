@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
-use App\Component\Routing\UrlTool; // 🟢 Import de l'UrlTool
+use App\Component\Routing\UrlTool;
 
 class ProductPresenter
 {
-    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = []): ?array
+    /**
+     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $siteSettings
+     */
+    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default', array $siteSettings = []): ?array
     {
         $idParent = $row['default_id_cat'] ?? $row['id_cat'] ?? 0;
         $urlCat   = $row['default_url_cat'] ?? $row['url_cat'] ?? '';
@@ -20,15 +23,50 @@ class ProductPresenter
 
         $iso = $langContext['iso_lang'] ?? 'fr';
 
+        // 🟢 CALCUL DU PRIX ET DES PROMOTIONS (HT ou TTC)
+        $rawPrice = (float)($row['price_p'] ?? 0);
+        $rawPromo = (float)($row['price_promo_p'] ?? 0);
+
+        $displayMode = $siteSettings['price_display']['value'] ?? 'texc'; // texc par défaut
+        $vatRate = (float)($siteSettings['vat_rate']['value'] ?? 0);
+
+        // Définition du multiplicateur de taxe
+        $taxMultiplier = ($displayMode === 'tinc') ? (1 + ($vatRate / 100)) : 1;
+        $priceSuffix = ($displayMode === 'tinc') ? 'TTC' : 'HT';
+
+        // Est-ce qu'il y a une promotion valide ? (Promo > 0 et inférieure au prix de base)
+        $hasPromo = ($rawPromo > 0 && $rawPromo < $rawPrice);
+
+        // Calcul du prix de base (avec ou sans taxe)
+        $originalPriceFinal = $rawPrice * $taxMultiplier;
+
+        if ($hasPromo) {
+            $effectivePriceFinal = $rawPromo * $taxMultiplier; // Le prix à payer
+            $promoPercentage = (int)round((($rawPrice - $rawPromo) / $rawPrice) * 100);
+        } else {
+            $effectivePriceFinal = $originalPriceFinal; // Pas de promo
+            $promoPercentage = 0;
+        }
+
         $data = [
-            'id'          => $row['id_product'] ?? null,
-            'name'        => $row['name_p'] ?? '',
-            'reference'   => $row['reference_p'] ?? '',
-            'price'       => (float)($row['price_p'] ?? 0),
-            'resume'      => $row['resume_p'] ?? '',
-            'content'     => $row['content_p'] ?? '',
-            'id_parent'   => $idParent,
-            'cat_name'    => $row['name_cat'] ?? '',
+            'id'                       => $row['id_product'] ?? null,
+            'name'                     => $row['name_p'] ?? '',
+            'reference'                => $row['reference_p'] ?? '',
+            'ean_p'                    => $row['ean_p'] ?? '', // 🟢 Ajout de l'EAN
+            'availability_p'           => $row['availability_p'] ?? 'InStock', // 🟢 Ajout du stock
+            // --- Variables de prix ---
+            'price_final'              => round($effectivePriceFinal, 2), // Le vrai prix final (promo ou non)
+            'price_formatted'          => number_format($effectivePriceFinal, 2, ',', ' '),
+            'has_promo'                => $hasPromo,
+            'promo_percent'            => $promoPercentage,
+            'price_original'           => round($originalPriceFinal, 2), // L'ancien prix
+            'price_original_formatted' => number_format($originalPriceFinal, 2, ',', ' '),
+            'price_suffix'             => $priceSuffix,
+            // -------------------------
+            'resume'                   => $row['resume_p'] ?? '',
+            'content'                  => $row['content_p'] ?? '',
+            'id_parent'                => $idParent,
+            'cat_name'                 => $row['name_cat'] ?? '',
         ];
 
         $urlTool = new UrlTool();
@@ -49,12 +87,12 @@ class ProductPresenter
             'url_category' => $urlCat
         ]);
 
-        $data['img'] = self::processImage($row, $siteUrl);
+        $data['img'] = self::processImage($row, $siteUrl, $skinFolder);
 
         $seoTitle = $row['seo_title_p'] ?? '';
         $data['seo_title'] = !empty($seoTitle) ? $seoTitle : $data['name'] . ' - ' . $data['cat_name'];
 
-        // 🟢 2. On passe bien $companyInfo à generateJsonLd
+        // On passe $data (qui contient price_final) au JSON-LD
         $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
 
         $knownKeys = array_flip([
@@ -73,22 +111,31 @@ class ProductPresenter
         return $data;
     }
 
-    private static function processImage(array $row, string $siteUrl): array
+    private static function processImage(array $row, string $siteUrl, string $skinFolder): array
     {
+        // ... (votre code existant reste strictement identique) ...
         $altText = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_p'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_p'] ?? '');
 
         if (empty($row['name_img'])) {
-            return [
-                'alt'     => $altText,
-                'title'   => $titleText,
-                'default' => [
-                    'src' => "{$siteUrl}/skin/default/images/no-image.jpg",
-                    'w'   => 800,
-                    'h'   => 800,
-                    'ext' => 'image/jpeg'
-                ]
-            ];
+            static $fallbackData = [];
+            if (!isset($fallbackData[$skinFolder])) {
+                $holderFilename = 'product_medium.jpg';
+                $generatedPath = ROOT_DIR . 'img/default/' . $holderFilename;
+                $skinPath      = ROOT_DIR . 'skin/' . $skinFolder . '/img/default/' . $holderFilename;
+
+                if (file_exists($generatedPath)) {
+                    $src = "{$siteUrl}/img/default/{$holderFilename}";
+                    $size = getimagesize($generatedPath);
+                } else {
+                    $src = "{$siteUrl}/skin/{$skinFolder}/img/default/{$holderFilename}";
+                    $size = @getimagesize($skinPath);
+                }
+                $fallbackData[$skinFolder] = [
+                    'src' => $src, 'w' => $size ? $size[0] : 800, 'h' => $size ? $size[1] : 600, 'ext' => 'image/jpeg'
+                ];
+            }
+            return ['alt' => $altText, 'title' => $titleText, 'default' => $fallbackData[$skinFolder]];
         }
 
         $imageTool = new ImageTool();
@@ -98,7 +145,6 @@ class ProductPresenter
 
         $processed = $imageTool->setModuleImages('catalog', 'product', $rawImages, $idProd, $baseDir);
         $imgData = $processed[0]['img'] ?? [];
-
         $imgData['alt'] = $altText;
         $imgData['title'] = $titleText;
 
@@ -109,12 +155,6 @@ class ProductPresenter
         return $imgData;
     }
 
-    /**
-     * 🟢 3. Ajout de $companyInfo dans la signature ici aussi
-     */
-    /**
-     * Génère le script JSON-LD Produit
-     */
     private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
     {
         $schema = [
@@ -128,17 +168,14 @@ class ProductPresenter
                 '@type'         => 'Offer',
                 'url'           => $siteUrl . $data['url'],
                 'priceCurrency' => 'EUR',
-                'price'         => number_format((float)$data['price'], 2, '.', ''),
+                // 🟢 On envoie à Google le prix FINAL (TTC ou HT selon le site)
+                'price'         => number_format((float)$data['price_final'], 2, '.', ''),
                 'availability'  => 'https://schema.org/InStock'
             ]
         ];
 
-        // 🟢 CORRECTION : Utilisation du type "Brand" au lieu de "Organization"
         if (!empty($companyInfo['name'])) {
-            $schema['brand'] = [
-                '@type' => 'Brand',
-                'name'  => $companyInfo['name']
-            ];
+            $schema['brand'] = ['@type' => 'Brand', 'name' => $companyInfo['name']];
         }
 
         return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';

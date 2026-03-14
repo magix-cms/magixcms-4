@@ -10,9 +10,9 @@ use App\Component\Routing\UrlTool;
 class CategoryPresenter
 {
     /**
-     * Formate une ligne de résultat Catégorie pour le frontend
+     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $skinFolder
      */
-    public static function format(array $row, array $langContext, string $siteUrl): array
+    public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
         $iso = $langContext['iso_lang'] ?? 'fr';
         $idCat = (int)($row['id_cat'] ?? 0);
@@ -31,7 +31,6 @@ class CategoryPresenter
             ]
         ];
 
-        // 🟢 Utilisation de l'UrlTool pour le lien de la catégorie
         $urlTool = new UrlTool();
         $data['url'] = $urlTool->buildUrl([
             'type' => 'category',
@@ -41,19 +40,16 @@ class CategoryPresenter
             'date' => $data['date']
         ]);
 
-        // --- GESTION DES IMAGES ---
-        $data['img'] = self::processImages($row, $idCat, $siteUrl);
+        // 🟢 Transmission de $skinFolder
+        $data['img'] = self::processImages($row, $idCat, $siteUrl, $skinFolder);
 
-        // --- SEO ---
         $data['seo'] = [
             'title'       => !empty($row['seo_title_cat']) ? $row['seo_title_cat'] : $data['name'],
             'description' => !empty($row['seo_desc_cat']) ? $row['seo_desc_cat'] : strip_tags($data['resume'])
         ];
 
+        $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
 
-        // =====================================================================
-        // 🟢 NOUVEAU : LA MAGIE DE L'OVERRIDE (Capture des champs des plugins)
-        // =====================================================================
         $knownKeys = array_flip([
             'id_cat', 'id_parent', 'name_cat', 'longname_cat', 'resume_cat', 'content_cat',
             'last_update', 'date_register', 'link_label_cat', 'link_title_cat', 'url_cat',
@@ -66,28 +62,49 @@ class CategoryPresenter
         if (!empty($extraData)) {
             $data = array_merge($data, $extraData);
         }
-        // =====================================================================
-
 
         return $data;
     }
 
-    private static function processImages(array $row, int $idCat, string $siteUrl): array
+    private static function processImages(array $row, int $idCat, string $siteUrl, string $skinFolder): array
     {
         $imageTool = new ImageTool();
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_cat'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_cat'] ?? '');
 
+        // 🟢 AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
+            static $fallbackData = [];
+
+            if (!isset($fallbackData[$skinFolder])) {
+                $holderFilename = 'category_medium.jpg';
+
+                $generatedPath = ROOT_DIR . 'img/default/' . $holderFilename;
+                $skinPath      = ROOT_DIR . 'skin/' . $skinFolder . '/img/default/' . $holderFilename;
+
+                if (file_exists($generatedPath)) {
+                    $src = "{$siteUrl}/img/default/{$holderFilename}";
+                    $size = getimagesize($generatedPath);
+                } else {
+                    $src = "{$siteUrl}/skin/{$skinFolder}/img/default/{$holderFilename}";
+                    $size = @getimagesize($skinPath);
+                }
+
+                $fallbackData[$skinFolder] = [
+                    'src' => $src,
+                    'w'   => $size ? $size[0] : 800,
+                    'h'   => $size ? $size[1] : 600
+                ];
+            }
+
             return [
-                'alt' => $altText, 'title' => $titleText,
-                'default' => ['src' => "{$siteUrl}/skin/default/images/no-image.jpg", 'w' => 800, 'h' => 800]
+                'alt'   => $altText,
+                'title' => $titleText,
+                'default' => $fallbackData[$skinFolder]
             ];
         }
 
         $rawImages = [['name_img' => $row['name_img'], 'alt_img' => $altText, 'title_img' => $titleText]];
-
-        // On définit le dossier d'upload pour les catégories
         $baseDir = "{$siteUrl}/upload/category/{$idCat}/";
 
         $processed = $imageTool->setModuleImages('catalog', 'category', $rawImages, $idCat, $baseDir);
@@ -101,5 +118,34 @@ class CategoryPresenter
         }
 
         return $imgData;
+    }
+
+    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
+    {
+        $typesMap = [
+            'org'    => 'Organization', 'locb' => 'LocalBusiness', 'corp' => 'Corporation',
+            'store'  => 'Store', 'food' => 'FoodEstablishment', 'place' => 'Place', 'person' => 'Person'
+        ];
+        $companyType = $typesMap[$companyInfo['type'] ?? 'org'] ?? 'Organization';
+
+        $publisher = [
+            '@type' => $companyType,
+            'name'  => $companyInfo['name'] ?? '',
+        ];
+
+        $schema = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'CollectionPage',
+            'name'        => $data['name'],
+            'description' => trim(strip_tags($data['resume'] ?: $data['content'])),
+            'url'         => $siteUrl . $data['url'],
+            'publisher'   => $publisher
+        ];
+
+        if (!empty($imgData['default']['src'])) {
+            $schema['image'] = $imgData['default']['src'];
+        }
+
+        return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
     }
 }
