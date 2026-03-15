@@ -283,8 +283,8 @@
         </li>
         {* --- BLOC APPARENCE --- *}
         <li class="mb-1">
-            {* 🟢 CORRECTION : Ajout de layout et imageconfig dans la condition d'ouverture *}
-            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig')}
+            {* 🟢 CORRECTION : Ajout de holder dans la condition d'ouverture *}
+            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig' || $current_c == 'holder')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_appearance}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -296,30 +296,39 @@
 
             <div class="collapse {if $is_appearance}show{/if}" id="menu-appearance">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    {* NOUVEAU LIEN : Layout *}
+                    {* LIEN : Layout *}
                     <li>
                         <a href="index.php?controller=Layout"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'layout'}active-sub{/if}">
                             <i class="bi bi-layout-sidebar me-2 opacity-75"></i> Layout
                         </a>
                     </li>
+                    {* LIEN : Logo *}
                     <li>
                         <a href="index.php?controller=Logo"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'logo'}active-sub{/if}">
                             <i class="bi bi-image me-2 opacity-75"></i> Logo
                         </a>
                     </li>
+                    {* LIEN : Menus *}
                     <li>
                         <a href="index.php?controller=Menu"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'menu'}active-sub{/if}">
                             <i class="bi bi-menu-button-wide me-2 opacity-75"></i> Menus
                         </a>
                     </li>
-                    {* NOUVEAU LIEN : Tailles d'images *}
+                    {* LIEN : Tailles d'images *}
                     <li>
                         <a href="index.php?controller=ImageConfig"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'imageconfig'}active-sub{/if}">
                             <i class="bi bi-aspect-ratio me-2 opacity-75"></i> Tailles d'images
+                        </a>
+                    </li>
+                    {* 🟢 NOUVEAU LIEN : Holder (Images de substitution) *}
+                    <li>
+                        <a href="index.php?controller=Holder"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'holder'}active-sub{/if}">
+                            <i class="bi bi-images me-2 opacity-75"></i> Images de subst.
                         </a>
                     </li>
                 </ul>

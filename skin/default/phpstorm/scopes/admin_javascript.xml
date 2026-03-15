@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="admin javascript" pattern="file:admin/templates/js/src/*.js" />
+</component>

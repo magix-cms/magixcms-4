@@ -1,0 +1,55 @@
+<mj-wrapper background-color="#EEEEEE" full-width="full-width" padding-top="20px">
+
+    {* --- RÉSEAUX SOCIAUX DE L'ENTREPRISE --- *}
+    {*<mj-section padding="0">
+        <mj-column width="100%">
+            <mj-raw>
+                {if !empty($companyData.socials)}
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                    <tbody>
+                        <tr>
+                            <td align="center" style="padding-bottom: 20px;">
+                                {foreach $companyData.socials as $networkName => $networkData}
+                                {if !empty($networkData.url)}
+                                <a href="{$networkData.url}" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 5px;">
+                                    {* On utilise $networkName (facebook, linkedin...) pour trouver la bonne icône *}
+                                    <img src="{$base_url}img/socials/{$networkName}.png" width="30" height="30" alt="{$networkName|capitalize}" style="border-radius:3px;" />
+                                </a>
+                                {/if}
+                                {/foreach}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {/if}
+            </mj-raw>
+        </mj-column>
+    </mj-section>*}
+
+    {* --- COORDONNÉES --- *}
+    <mj-section padding="0">
+        <mj-column width="50%">
+            <mj-text mj-class="lightext" font-size="12px" align="center">
+                <strong>Nous contacter</strong><br/>
+                {if !empty($companyData.phone)}Tél : {$companyData.phone}<br/>{/if}
+                {if !empty($companyData.email)}<a href="mailto:{$companyData.email}" style="color:{$main_color|default:'#0d6efd'};">{$companyData.email}</a>{/if}
+            </mj-text>
+        </mj-column>
+        <mj-column width="50%">
+            <mj-text mj-class="lightext" font-size="12px" align="center">
+                <strong>Notre adresse</strong><br/>
+                {if !empty($companyData.street)}{$companyData.street},<br/>{/if}
+                {if !empty($companyData.postcode)}{$companyData.postcode} {$companyData.city}{/if}
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
+    {* --- COPYRIGHT --- *}
+    <mj-section padding-top="10px">
+        <mj-column width="100%">
+            <mj-text color="#888888" font-size="11px" align="center">
+                &copy; {$smarty.now|date_format:"%Y"} {$companyData.name|default:'Notre Entreprise'}. Tous droits réservés.
+            </mj-text>
+        </mj-column>
+    </mj-section>
+</mj-wrapper>

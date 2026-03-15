@@ -86,6 +86,17 @@
                                             {/foreach}
                                         </select>
                                     </div>
+
+                                    {* 🟢 NOUVELLE OPTION : Afficher tous les produits à la racine *}
+                                    <div class="col-12 mt-4">
+                                        <div class="form-check form-switch fs-5">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="product_catalog" name="settings[product_catalog]" value="1" {if ($settings.product_catalog.value|default:'0') eq '1'} checked{/if} />
+                                            <label class="form-check-label fs-6 text-dark" for="product_catalog">
+                                                {#product_catalog_setting#|default:'Afficher tous les produits à la racine du catalogue'}
+                                                <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#product_catalog_warning#|default:'Au lieu d\'afficher uniquement les catégories mères, l\'accueil du catalogue affichera la liste de tous les produits.'}"></i>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </fieldset>
 

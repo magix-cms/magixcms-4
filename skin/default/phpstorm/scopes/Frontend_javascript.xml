@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Frontend javascript" pattern="file:skin/*/js/src/*.js" />
+</component>

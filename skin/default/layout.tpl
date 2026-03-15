@@ -71,5 +71,6 @@
         }
     });
 </script>
+<div id="magix-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 </body>
 </html>

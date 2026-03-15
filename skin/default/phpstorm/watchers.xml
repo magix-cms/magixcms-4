@@ -1,0 +1,148 @@
+<TaskOptions>
+    <TaskOptions>
+        <option name="arguments" value="$FilePath$:$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.css --source-map --style=expanded" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="scss" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="Admin map" />
+        <option name="output" value="$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.css:$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.css.map" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="sass" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="Sass Roots" />
+        <option name="trackOnlyRoot" value="true" />
+        <option name="workingDir" value="$ProjectFileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FilePath$:$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.min.css --no-source-map --style=compressed" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="scss" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="SCSS Admin min" />
+        <option name="output" value="$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.min.css" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="sass" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="Sass Roots" />
+        <option name="trackOnlyRoot" value="true" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FileName$ -c -m -o ../$FileNameWithoutExtension$.min.js" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="js" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="Admin javascript" />
+        <option name="output" value="../$FileNameWithoutExtension$.min.js" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="terser" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="admin javascript" />
+        <option name="trackOnlyRoot" value="true" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FileDir$/$FileName$ --comments -o $FileNameWithoutExtension$.min.js" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="js" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="TinyMce plugins" />
+        <option name="output" value="$FileNameWithoutExtension$.min.js" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="terser" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="Tinymce Plugins" />
+        <option name="trackOnlyRoot" value="false" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FileName$:$FileParentDir$/$FileNameWithoutExtension$.css --style=expanded --source-map" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="scss" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="SCSS to CSS" />
+        <option name="output" value="$FileParentDir$/$FileNameWithoutExtension$.css:$FileParentDir$/$FileNameWithoutExtension$.css.map" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="sass" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="SCSS to CSS" />
+        <option name="trackOnlyRoot" value="true" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FileName$ -c -m -o ../$FileNameWithoutExtension$.min.js" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="js" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="skin javascript" />
+        <option name="output" value="../$FileNameWithoutExtension$.min.js" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="terser" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="Frontend javascript" />
+        <option name="trackOnlyRoot" value="true" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+
+    <TaskOptions>
+        <option name="arguments" value="$FileName$ -o ../$FileNameWithoutExtension$.tpl" />
+        <option name="checkSyntaxErrors" value="true" />
+        <option name="description" />
+        <option name="exitCodeBehavior" value="ERROR" />
+        <option name="fileExtension" value="mjml" />
+        <option name="immediateSync" value="true" />
+        <option name="name" value="MJML to Smarty" />
+        <option name="output" value="../$FileNameWithoutExtension$.tpl" />
+        <option name="outputFilters">
+            <array />
+        </option>
+        <option name="outputFromStdout" value="false" />
+        <option name="program" value="mjml" />
+        <option name="runOnExternalChanges" value="true" />
+        <option name="scopeName" value="MJML Frontend" />
+        <option name="trackOnlyRoot" value="false" />
+        <option name="workingDir" value="$FileDir$" />
+        <envs />
+    </TaskOptions>
+</TaskOptions>

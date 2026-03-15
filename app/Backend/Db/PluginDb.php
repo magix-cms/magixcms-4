@@ -56,20 +56,51 @@ class PluginDb extends BaseDb
 
     /**
      * Enregistre le plugin dans le système de rôles (en minuscule)
+     * ET attribue automatiquement les pleins droits au rôle SuperAdmin (ID 1)
      */
     public function registerModuleRBAC(string $pluginName): void
     {
         $moduleNameDb = strtolower($pluginName);
 
         $qbCheck = new QueryBuilder();
-        $qbCheck->select('*')->from('mc_module')->where('name = :name', ['name' => $moduleNameDb]);
+        $qbCheck->select('id_module')->from('mc_module')->where('name = :name', ['name' => $moduleNameDb]);
+        $existingModule = $this->executeRow($qbCheck);
 
-        if (!$this->executeRow($qbCheck)) {
+        // Si le module n'existe pas, on le crée
+        if (!$existingModule) {
             $qbInsert = new QueryBuilder();
             $qbInsert->insert('mc_module', [
                 'name' => $moduleNameDb
             ]);
             $this->executeInsert($qbInsert);
+
+            // On récupère le nouvel ID généré
+            $idModule = $this->getLastInsertId();
+        } else {
+            $idModule = (int)$existingModule['id_module'];
+        }
+
+        // 🟢 AJOUT : Attribution des droits par défaut à l'Admin principal (ID Role = 1)
+        if ($idModule > 0) {
+            $qbCheckPerms = new QueryBuilder();
+            $qbCheckPerms->select('id_access')
+                ->from('mc_admin_access')
+                ->where('id_role = 1 AND id_module = :id', ['id' => $idModule]);
+
+            // S'il n'a pas encore de permissions pour ce module, on les crée !
+            if (!$this->executeRow($qbCheckPerms)) {
+                $qbInsertPerms = new QueryBuilder();
+                $qbInsertPerms->insert('mc_admin_access', [
+                    'id_role'   => 1,
+                    'id_module' => $idModule,
+                    'view'      => 1,
+                    'append'    => 1, // 🟢 CORRIGÉ : C'est 'append' et non 'add' !
+                    'edit'      => 1,
+                    'del'       => 1,
+                    'action'    => 1  // 🟢 AJOUT : La colonne action
+                ]);
+                $this->executeInsert($qbInsertPerms);
+            }
         }
     }
 

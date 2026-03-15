@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="MJML Frontend" pattern="file:skin/*/emails/mjml/*" />
+</component>

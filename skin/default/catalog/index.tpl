@@ -7,6 +7,13 @@
 {block name="article"}
     <div class="container py-5">
 
+        {* --- 🟢 FIL D'ARIANE --- *}
+        {$breadcrumbs = [
+        ['label' => 'Catalogue']
+        ]}
+        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+
         {* --- 1. EN-TÊTE DE LA PAGE D'ACCUEIL DU CATALOGUE --- *}
         <div class="row mb-5">
             <div class="col-12 text-center text-lg-start">
@@ -20,45 +27,85 @@
             </div>
         </div>
 
-        {* --- 2. GRILLE DES CATÉGORIES PRINCIPALES (Les Rayons) --- *}
-        {if isset($catalog_home.subdata) && $catalog_home.subdata|count > 0}
-            <div class="row mb-5">
-                <div class="col-12 mb-4">
-                    <h2 class="fw-bold text-secondary border-bottom pb-2">Explorez nos rayons</h2>
-                </div>
-
-                {foreach $catalog_home.subdata as $category}
-                    <div class="col-md-4 col-lg-4 mb-4">
-                        {* 🟢 MISE À JOUR : Structure de carte identique à Pages/About *}
-                        <div class="card h-100 shadow-sm border-0 transition-hover">
-                            <a href="{$category.url}" class="text-decoration-none text-dark">
-                                <div class="card-img-top overflow-hidden">
-                                    {include file="components/img.tpl" img=$category.img class="img-fluid w-100"}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold text-primary">{$category.name}</h5>
-
-                                    {* On récupère le résumé ou on coupe le contenu principal *}
-                                    {$description = $category.resume|default:$category.content|strip_tags|truncate:120:"..."}
-                                    {if $description}
-                                        <p class="card-text small text-muted mt-2">{$description}</p>
-                                    {/if}
-                                </div>
-                                <div class="card-footer bg-transparent border-0 pt-0 pb-3 text-end">
-                                    <span class="text-primary small fw-bold">Découvrir <i class="bi bi-arrow-right"></i></span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                {/foreach}
+        {* --- 2. LES RAYONS (AFFICHER TOUT LE TEMPS) --- *}
+        <div class="row mb-5">
+            <div class="col-12 mb-4">
+                <h2 class="fw-bold text-secondary border-bottom pb-2">Explorez nos rayons</h2>
             </div>
-        {else}
-            <div class="row">
-                <div class="col-12">
+
+            <div class="col-12">
+                {if isset($catalog_home.subdata) && $catalog_home.subdata|count > 0}
+                    <ul class="category-list list-grid mb-0">
+                        {foreach $catalog_home.subdata as $category}
+                            <li class="category-card">
+                                <div class="figure transition-hover">
+                                    <a href="{$category.url}" class="time-figure rounded-top">
+                                        {include file="components/img.tpl" img=$category.img responsiveC=true lazy=true}
+                                    </a>
+                                    <div class="desc">
+                                        <h3>
+                                            <a href="{$category.url}" class="text-decoration-none stretched-link">{$category.name}</a>
+                                        </h3>
+                                        <p class="mb-0 mt-2">
+                                            {$clean_resume = $category.resume|strip_tags|replace:'&nbsp;':''|trim}
+                                            {if !empty($clean_resume)}
+                                                {$clean_resume|truncate:120:"..."}
+                                            {else}
+                                                {$category.content|strip_tags|replace:'&nbsp;':''|truncate:120:"..."}
+                                            {/if}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        {/foreach}
+                    </ul>
+                {else}
                     <div class="alert alert-info text-center mt-3 p-4 shadow-sm border-0">
                         <i class="bi bi-shop fs-3 d-block mb-3"></i>
-                        Notre catalogue est en cours de préparation. De nouveaux produits arrivent très vite !
+                        Nos rayons sont en cours d'aménagement !
                     </div>
+                {/if}
+            </div>
+        </div>
+
+        {* --- 3. LA BOUTIQUE (MODE GLOBAL ACTIVÉ) --- *}
+        {if $show_products}
+            <div class="row mb-5">
+                <div class="col-12 mb-4">
+                    <h2 class="fw-bold text-secondary border-bottom pb-2">Tous nos produits</h2>
+                </div>
+
+                <div class="col-12">
+                    {if isset($catalog_home.products) && $catalog_home.products|count > 0}
+                        {include file="catalog/loop/product-grid.tpl" data=$catalog_home.products}
+
+                        {* --- PAGINATION --- *}
+                        {if isset($pagination) && $pagination.total_pages > 1}
+                            <nav class="mt-5" aria-label="Navigation des produits">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item {if $pagination.current_page <= 1}disabled{/if}">
+                                        <a class="page-link" href="{if $pagination.current_page > 1}{$page_url_base}{$pagination.current_page - 1}{else}#{/if}" tabindex="-1">Précédent</a>
+                                    </li>
+
+                                    {for $i=1 to $pagination.total_pages}
+                                        <li class="page-item {if $i == $pagination.current_page}active{/if}">
+                                            <a class="page-link" href="{$page_url_base}{$i}">{$i}</a>
+                                        </li>
+                                    {/for}
+
+                                    <li class="page-item {if $pagination.current_page >= $pagination.total_pages}disabled{/if}">
+                                        <a class="page-link" href="{if $pagination.current_page < $pagination.total_pages}{$page_url_base}{$pagination.current_page + 1}{else}#{/if}">Suivant</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {/if}
+
+                    {else}
+                        <div class="alert alert-info text-center mt-3 p-4 shadow-sm border-0">
+                            <i class="bi bi-box-seam fs-3 d-block mb-3"></i>
+                            Notre boutique est en cours de remplissage. De nouveaux produits arrivent très vite !
+                        </div>
+                    {/if}
                 </div>
             </div>
         {/if}

@@ -22,6 +22,13 @@
 {block name="article"}
     <div class="container py-5">
 
+        {* --- 🟢 FIL D'ARIANE --- *}
+        {$breadcrumbs = [
+        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+        ['label' => $category.name]
+        ]}
+        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
         {* --- 1. EN-TÊTE DE LA CATÉGORIE --- *}
         <div class="row mb-5">
             <div class="col-12 text-center text-lg-start">

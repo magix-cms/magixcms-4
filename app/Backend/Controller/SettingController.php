@@ -27,9 +27,6 @@ class SettingController extends BaseController
         $this->index();
     }
 
-    /**
-     * Affiche le formulaire avec tous les onglets de configuration
-     */
     private function index(): void
     {
         $db = new SettingDb();
@@ -43,12 +40,6 @@ class SettingController extends BaseController
         $this->view->display('setting/index.tpl');
     }
 
-    /**
-     * Traite l'enregistrement global des paramètres
-     */
-    /**
-     * Traite l'enregistrement global des paramètres
-     */
     private function processSave(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -59,22 +50,20 @@ class SettingController extends BaseController
         $db = new SettingDb();
         $success = true;
 
+        // 🟢 AJOUT ICI : 'product_catalog'
         $booleanKeys = [
             'concat', 'ssl',
-            'http2', 'service_worker', 'amp', 'maintenance', 'geminiai'
+            'http2', 'service_worker', 'amp', 'maintenance', 'geminiai', 'product_catalog'
         ];
 
-        // 1. Récupération de la globale $_POST['settings']
         $postedSettings = $_POST['settings'] ?? [];
 
-        // 2. Traitement des checkboxes manquantes (décochées)
         foreach ($booleanKeys as $key) {
             if (!isset($postedSettings[$key])) {
                 $postedSettings[$key] = '0';
             }
         }
 
-        // 3. Boucle de sauvegarde
         foreach ($postedSettings as $name => $value) {
             $cleanValue = FormTool::simpleClean((string)$value);
 

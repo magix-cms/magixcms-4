@@ -37,8 +37,8 @@
                         <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
                             <div class="row mb-3">
                                 <div class="col-md-9">
-                                    <label for="title_{$id}" class="form-label fw-medium">{#title#} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$page.content.$id.title_page|default:''}" required />
+                                    <label for="title_{$id}" class="form-label fw-medium">{#title#}</label>
+                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$page.content.$id.title_page|default:''}" />
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">Statut</label>

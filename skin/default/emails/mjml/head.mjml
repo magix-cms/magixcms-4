@@ -1,0 +1,13 @@
+<mj-head>
+    <mj-title>{if isset($title_mail)}{$title_mail}{/if}</mj-title>
+    <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"></mj-font>
+    <mj-attributes>
+        <mj-all font-family="Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif"></mj-all>
+        <mj-text font-weight="400" font-size="14px" color="#333333" line-height="23px"></mj-text>
+        <mj-class name="lightext" color="#666666" />
+    </mj-attributes>
+    <mj-style inline="inline">
+        body { background-color: #F8F9FA; }
+        .body-section { box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05); border-radius: 8px; overflow: hidden; }
+    </mj-style>
+</mj-head>

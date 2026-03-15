@@ -7,6 +7,7 @@ namespace App\Frontend\Db;
 use Magepattern\Component\Database\QueryBuilder;
 use Magepattern\Component\Database\QueryHelper;
 use App\Component\Hook\HookManager;
+use Magepattern\Component\Tool\PaginationTool;
 
 class ProductDb extends BaseDb
 {
@@ -112,6 +113,64 @@ class ProductDb extends BaseDb
         }
 
         return $this->executeAll($qb) ?: [];
+    }
+
+    /**
+     * @param int $idLang
+     * @param array $filters
+     * @return array
+     */
+    public function getPaginatedProductList(int $idLang, array $filters = []): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.*', 'pc.*',
+            'def_cat.id_cat AS default_id_cat', 'def_cat_c.url_cat AS default_url_cat', 'def_cat_c.name_cat',
+            'i.name_img', 'ic.alt_img', 'ic.title_img'
+        ])
+            ->from('mc_catalog_product', 'p')
+            ->join('mc_catalog_product_content', 'pc', 'p.id_product = pc.id_product AND pc.id_lang = ' . (int)$idLang)
+            ->leftJoin('mc_catalog', 'def_link', 'p.id_product = def_link.id_product AND def_link.default_c = 1')
+            ->leftJoin('mc_catalog_cat', 'def_cat', 'def_link.id_cat = def_cat.id_cat')
+            ->leftJoin('mc_catalog_cat_content', 'def_cat_c', 'def_cat.id_cat = def_cat_c.id_cat AND def_cat_c.id_lang = ' . (int)$idLang)
+            ->leftJoin('mc_catalog_product_img', 'i', 'p.id_product = i.id_product AND i.default_img = 1')
+            ->leftJoin('mc_catalog_product_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
+            ->where('pc.published_p = 1');
+
+        if (!empty($filters['id_cat'])) {
+            $qb->join('mc_catalog', 'cat_rel', 'p.id_product = cat_rel.id_product');
+            $qb->where('cat_rel.id_cat = :id_cat', ['id_cat' => $filters['id_cat']]);
+        }
+
+        $overrides = HookManager::triggerFilter('extendProductList', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
+
+        // 1. On applique le tri AVANT la pagination
+        $qb->orderBy($filters['order_by'] ?? 'p.id_product', $filters['order_dir'] ?? 'DESC');
+
+        // 🟢 2. ON UTILISE VOTRE PAGINATIONTOOL
+        $page  = max(1, (int)($filters['page'] ?? 1));
+        $limit = max(1, (int)($filters['limit'] ?? 20));
+
+        $paginationTool = new PaginationTool($limit, $page);
+
+        // La méthode paginate() modifie directement $qb en lui ajoutant LIMIT et OFFSET
+        // et retourne les métadonnées prêtes à l'emploi !
+        $paginationData = $paginationTool->paginate($qb);
+
+        // 3. On exécute la requête qui est maintenant limitée
+        $items = $this->executeAll($qb) ?: [];
+
+        return [
+            'items'      => $items,
+            'pagination' => $paginationData
+        ];
     }
 
     /**

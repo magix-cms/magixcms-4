@@ -12,10 +12,12 @@ class MagixToast {
 
     // Méthode principale
     static show(message, type = 'info') {
-        const container = document.getElementById('magix-toast-container');
+        let container = document.getElementById('magix-toast-container');
         if (!container) {
-            console.warn("MagixToast: Le conteneur #magix-toast-container est introuvable.");
-            return;
+            container = document.createElement('div');
+            container.id = 'magix-toast-container';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(container);
         }
 
         // Configuration du design selon le type

@@ -2,7 +2,7 @@
 {block name='head:title'}Page introuvable - 404{/block}
 
 {block name="article"}
-    <div class="container py-5 text-center">
+    <div class="container text-center">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h1 class="display-1 fw-bold text-primary">404</h1>

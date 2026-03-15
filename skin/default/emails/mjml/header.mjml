@@ -1,0 +1,30 @@
+<mj-section background-color="#ffffff">
+    <mj-column>
+        <mj-raw>
+            {* 1. PRÉPARATION SÉCURISÉE DE L'URL (sans rtrim) *}
+            {if !empty($logo.img.small.src)}
+            {* On concatène et on utilise un replace standard de Smarty pour éviter le double // *}
+            {$clean_logo_url = ($base_url|cat:$logo.img.small.src)|replace:'//img':'/img'}
+            {else}
+            {$clean_logo_url = "`$skin_url`/img/logo.png"}
+            {/if}
+
+            {* 2. PRÉPARATION SÉCURISÉE DU TEXTE ALTERNATIF *}
+            {if !empty($logo.alt_logo)}
+            {$clean_logo_alt = $logo.alt_logo}
+            {elseif !empty($companyData.name)}
+            {$clean_logo_alt = $companyData.name}
+            {else}
+            {$clean_logo_alt = 'Notre Entreprise'}
+            {/if}
+        </mj-raw>
+
+        <mj-image
+                href="{$base_url}"
+                src="{$clean_logo_url}"
+                alt="{$clean_logo_alt}"
+                width="200px"
+                align="center">
+        </mj-image>
+    </mj-column>
+</mj-section>

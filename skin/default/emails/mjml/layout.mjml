@@ -1,0 +1,14 @@
+<mjml>
+    <mj-include path="head.mjml" />
+    <mj-body background-color="#F8F9FA">
+        <mj-include path="header.mjml" />
+
+        <mj-wrapper padding-top="20px" padding-bottom="20px">
+            <mj-raw>
+                {block name="email_content"}{/block}
+            </mj-raw>
+        </mj-wrapper>
+
+        <mj-include path="footer.mjml" />
+    </mj-body>
+</mjml>

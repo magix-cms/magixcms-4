@@ -27,10 +27,11 @@ class ProductController extends BaseController
 
         $companyDb = new CompanyDb();
         $companyInfo = $companyDb->getCompanyInfo();
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default'; // 🟢 Ajout du skin
+        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
         // 1. Formatage du produit
         $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
+
         // 2. Galerie
         $product['gallery'] = [];
         $images = $db->getProductImages($id, $idLang);

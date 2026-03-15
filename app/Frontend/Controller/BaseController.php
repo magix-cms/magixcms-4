@@ -16,6 +16,7 @@ use App\Frontend\Db\MenuDb;
 use App\Frontend\Db\ShareDb;
 use App\Component\File\ImageTool;
 use Smarty\Smarty;
+use Magepattern\Component\HTTP\JSON;
 
 abstract class BaseController
 {
@@ -24,7 +25,10 @@ abstract class BaseController
     protected Logger $logger;
     protected array $siteSettings = [];
     protected array $currentLang = [];
-
+    /**
+     * @var JSON
+     */
+    protected JSON $json;
     /**
      * @throws \Smarty\Exception
      */
@@ -33,7 +37,7 @@ abstract class BaseController
         $this->view = SmartyTool::getInstance('front');
         $this->logger = Logger::getInstance();
         $this->session = new Session(false);
-
+        $this->json = new JSON();
         // 🟢 CORRECTIF : On utilise une variable statique pour s'assurer
         // que cette portion de code ne s'exécute qu'une seule fois par requête HTTP
         static $pluginsLoaded = false;
@@ -358,6 +362,22 @@ abstract class BaseController
         } catch (\Throwable $e) {
             $this->logger->log("Erreur chargement i18n front (Plugins) : " . $e->getMessage(), "warning");
         }
+    }
+    /**
+     * Envoie une réponse JSON proprement formatée et arrête le script.
+     */
+    protected function jsonResponse(bool $status, string $message, array $data = []): void
+    {
+        $payload = array_merge([
+            'status'  => $status,
+            'success' => $status,
+            'message' => $message,
+            'time'    => time()
+        ], $data);
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo $this->json->encode($payload);
+        exit;
     }
     /**
      * @return void

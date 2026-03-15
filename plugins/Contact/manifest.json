@@ -1,0 +1,7 @@
+{
+  "name": "Contact",
+  "version": "1.0.0",
+  "description": "Page de contact simple générée par un plugin.",
+  "author": "Votre Nom",
+  "type": "frontend_page"
+}
