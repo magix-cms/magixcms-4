@@ -28,11 +28,18 @@ class LogoManager {
                 this.openEditModal(btnEdit.dataset.id);
             }
 
-            // 2. Activer un logo
+            // 2. Activer un logo (Header)
             const btnAct = e.target.closest('.btn-activate-logo');
             if (btnAct) {
                 e.preventDefault();
                 this.activateLogo(btnAct.dataset.id);
+            }
+
+            // 🟢 AJOUT : Activer un logo (Footer)
+            const btnActFooter = e.target.closest('.btn-activate-footer');
+            if (btnActFooter) {
+                e.preventDefault();
+                this.activateFooterLogo(btnActFooter.dataset.id);
             }
 
             // 3. Bouton corbeille (Ouvre la modal de confirmation)
@@ -125,6 +132,30 @@ class LogoManager {
             }
         } catch (error) {
             console.error('Erreur activation:', error);
+        }
+    }
+
+    async activateFooterLogo(id) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('id', id);
+
+            const response = await fetch(`${this.controllerUrl}&action=activateFooter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData.toString()
+            });
+            const data = await response.json();
+
+            if (data.status) {
+                if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
+                this.refreshGallery();
+            } else {
+                if (typeof MagixToast !== 'undefined') MagixToast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Erreur activation footer:', error);
+            if (typeof MagixToast !== 'undefined') MagixToast.error('Erreur réseau.');
         }
     }
 

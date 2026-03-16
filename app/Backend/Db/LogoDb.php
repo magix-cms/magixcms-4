@@ -14,9 +14,8 @@ class LogoDb extends BaseDb
     public function fetchAllLogos(int $idLang = 1): array
     {
         $qb = new QueryBuilder();
-        $qb->select('l.id_logo, l.img_logo AS name_img, l.active_logo, c.alt_logo, c.title_logo')
-            ->from('mc_logo', 'l')
-            // CORRECTION : On concatène directement l'entier (Sécurisé car typé int)
+        $qb->select('l.id_logo, l.img_logo AS name_img, l.active_logo, l.active_footer, c.alt_logo, c.title_logo') // 🟢 AJOUT ICI
+        ->from('mc_logo', 'l')
             ->leftJoin('mc_logo_content', 'c', 'l.id_logo = c.id_logo AND c.id_lang = ' . $idLang)
             ->orderBy('l.id_logo', 'DESC');
 
@@ -33,8 +32,9 @@ class LogoDb extends BaseDb
     {
         $qb = new QueryBuilder();
         $qb->insert('mc_logo', [
-            'img_logo'    => $filename,
-            'active_logo' => 0
+            'img_logo'      => $filename,
+            'active_logo'   => 0,
+            'active_footer' => 0 // 🟢 AJOUT ICI
         ]);
 
         if ($this->executeInsert($qb)) {
@@ -142,5 +142,22 @@ class LogoDb extends BaseDb
             ->where('id_logo = :id', ['id' => $idLogo]);
 
         return $this->executeUpdate($qb);
+    }
+    /**
+     * Définit un logo comme actif pour le FOOTER et désactive tous les autres
+     */
+    public function activateFooterLogo(int $idLogo): bool
+    {
+        // 1. On passe tout à 0 pour le footer
+        $qbReset = new QueryBuilder();
+        $qbReset->update('mc_logo', ['active_footer' => 0]);
+        $this->executeUpdate($qbReset);
+
+        // 2. On active l'élu
+        $qbSet = new QueryBuilder();
+        $qbSet->update('mc_logo', ['active_footer' => 1])
+            ->where('id_logo = :id', ['id' => $idLogo]);
+
+        return $this->executeUpdate($qbSet);
     }
 }

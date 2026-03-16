@@ -1,0 +1,62 @@
+#footer {
+  // --- 1. BASE DES LIENS DU FOOTER ---
+  :where(a:not(.social-icon-link)) {
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: var(--white-color, #ffffff);
+    }
+  }
+
+  // --- 2. ANIMATION DU MENU ---
+  #footermenu {
+    a {
+      transform: translateX(0);
+      &:hover {
+        transform: translateX(5px);
+        color: var(--white-color, #ffffff);
+      }
+    }
+    i.bi-chevron-right {
+      transition: transform 0.3s ease;
+    }
+    a:hover i.bi-chevron-right {
+      transform: translateX(3px);
+    }
+  }
+
+  // --- 3. COLOPHON ---
+  #colophon {
+    background-color: #111111;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  // --- 4. RÉSEAUX SOCIAUX ---
+  .social-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:hover {
+      color: #fff;
+      transform: translateY(-5px);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.facebook:hover  { color: #1877F2; border-color: #1877F2; }
+    &.twitter:hover   { color: #000000; background-color: #fff; }
+    &.instagram:hover { color: #E4405F; }
+    &.linkedin:hover  { color: #0A66C2; }
+    &.youtube:hover   { color: #FF0000; }
+    &.github:hover    { color: #fafafa; }
+  }
+}

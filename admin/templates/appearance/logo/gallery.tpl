@@ -12,8 +12,15 @@
 
                             {if $logo.active_logo == 1}
                                 <div class="position-absolute top-0 start-0 m-3">
-                                    <span class="badge bg-success shadow-sm fs-6 px-3 py-2 rounded-pill">
-                                        <i class="bi bi-check-circle me-1"></i> Logo Actif
+                                    <span class="badge bg-success shadow-sm fs-6 px-3 py-2 rounded-pill mb-2 d-block">
+                                        <i class="bi bi-check-circle me-1"></i> Logo Principal
+                                    </span>
+                                </div>
+                            {/if}
+                            {if $logo.active_footer == 1}
+                                <div class="position-absolute bottom-0 start-0 m-3">
+                                    <span class="badge bg-dark text-light shadow-sm fs-6 px-3 py-2 rounded-pill">
+                                        <i class="bi bi-layout-text-window-reverse me-1"></i> Logo Footer
                                     </span>
                                 </div>
                             {/if}
@@ -84,12 +91,22 @@
                             {* --- ACTIONS DU BAS --- *}
                             <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
                                 <div>
+                                    {* Bouton Header *}
                                     {if $logo.active_logo == 0}
-                                        <button class="btn btn-outline-success btn-activate-logo" data-id="{$logo.id_logo}">
-                                            <i class="bi bi-check2-circle me-1"></i> Activer ce logo
+                                        <button class="btn btn-sm btn-outline-success btn-activate-logo mb-2 d-block" data-id="{$logo.id_logo}">
+                                            <i class="bi bi-check2-circle me-1"></i> Activer (Header)
                                         </button>
                                     {else}
-                                        <span class="text-success fw-bold small"><i class="bi bi-info-circle me-1"></i> C'est le logo principal du site</span>
+                                        <span class="text-success fw-bold small d-block mb-2"><i class="bi bi-check-lg me-1"></i> Header actuel</span>
+                                    {/if}
+
+                                    {* Bouton Footer *}
+                                    {if $logo.active_footer == 0}
+                                        <button class="btn btn-sm btn-outline-dark btn-activate-footer" data-id="{$logo.id_logo}">
+                                            <i class="bi bi-box-arrow-down me-1"></i> Activer (Footer)
+                                        </button>
+                                    {else}
+                                        <span class="text-dark fw-bold small d-block"><i class="bi bi-check-lg me-1"></i> Footer actuel</span>
                                     {/if}
                                 </div>
                                 <div class="d-flex gap-2">

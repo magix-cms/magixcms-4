@@ -39,11 +39,12 @@
     {block name="article"}{/block}
 {/block}
 {block name="main:after"}{/block}
+{include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
 
 {* 1. On définit les JS globaux du parent *}
 {$global_js = [
-'defer' => ['vendor/bootstrap.bundle','vendor/glightbox'],
+'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd'],
 'async' => [],
 'normal' => []
 ]}
@@ -59,6 +60,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+
+        // --- 1. Gestion de la Footbar ---
         const footbar = document.getElementById('footbar');
         if (footbar) {
             window.addEventListener('scroll', function() {
@@ -69,6 +72,21 @@
                 }
             });
         }
+
+        // --- 2. Initialisation de Masonry (Footer) ---
+        const footerGrid = document.querySelector('#footer-masonry');
+        if (footerGrid) {
+            // On attend que le logo (et autres images) soient chargés
+            imagesLoaded(footerGrid, function() {
+                new Masonry(footerGrid, {
+                    // Cible bien vos classes de widget (col-lg-4, ou col-12, etc.)
+                    // L'astuce c'est de cibler un préfixe commun ou juste de prendre les enfants directs
+                    itemSelector: '#footer-masonry > div',
+                    percentPosition: true
+                });
+            });
+        }
+
     });
 </script>
 <div id="magix-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>

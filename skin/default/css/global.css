@@ -20525,6 +20525,69 @@ h6, .h6 {
   }
 }
 
+#footer :where(a:not(.social-icon-link)) {
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+#footer :where(a:not(.social-icon-link)):hover {
+  color: var(--white-color, #ffffff);
+}
+#footer #footermenu a {
+  transform: translateX(0);
+}
+#footer #footermenu a:hover {
+  transform: translateX(5px);
+  color: var(--white-color, #ffffff);
+}
+#footer #footermenu i.bi-chevron-right {
+  transition: transform 0.3s ease;
+}
+#footer #footermenu a:hover i.bi-chevron-right {
+  transform: translateX(3px);
+}
+#footer #colophon {
+  background-color: #111111;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+#footer .social-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.4rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#footer .social-icon-link:hover {
+  color: #fff;
+  transform: translateY(-5px);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+#footer .social-icon-link.facebook:hover {
+  color: #1877F2;
+  border-color: #1877F2;
+}
+#footer .social-icon-link.twitter:hover {
+  color: #000000;
+  background-color: #fff;
+}
+#footer .social-icon-link.instagram:hover {
+  color: #E4405F;
+}
+#footer .social-icon-link.linkedin:hover {
+  color: #0A66C2;
+}
+#footer .social-icon-link.youtube:hover {
+  color: #FF0000;
+}
+#footer .social-icon-link.github:hover {
+  color: #fafafa;
+}
+
 #footbar {
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }

@@ -154,6 +154,9 @@ abstract class BaseController
 
             $bootFile = $pluginsDir . DS . $pluginFolder . DS . 'Boot.php';
             if (file_exists($bootFile)) {
+
+                require_once $bootFile; // 🟢 CORRECTION INDISPENSABLE !
+
                 $bootClass = "\\Plugins\\" . $pluginFolder . "\\Boot";
                 if (class_exists($bootClass)) {
                     $bootInstance = new $bootClass();
@@ -274,16 +277,25 @@ abstract class BaseController
             // 2. LOGO
             $logoDb = new LogoDb();
             $imageTool = new ImageTool();
-
             $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+
+            // --- Logo Principal (Header) ---
             $rawLogo = $logoDb->getActiveLogo($idLang);
             $activeLogo = null;
-
             if ($rawLogo) {
                 $formattedLogos = $imageTool->setModuleImages('logo', 'logo', [$rawLogo], 0, '/img/logo/');
                 $activeLogo = $formattedLogos[0] ?? null;
             }
             $this->view->assign('logo', $activeLogo);
+
+            // --- Logo Secondaire (Footer) ---
+            $rawFooterLogo = $logoDb->getActiveFooterLogo($idLang);
+            $activeFooterLogo = null;
+            if ($rawFooterLogo) {
+                $formattedFooterLogos = $imageTool->setModuleImages('logo', 'logo', [$rawFooterLogo], 0, '/img/logo/');
+                $activeFooterLogo = $formattedFooterLogos[0] ?? null;
+            }
+            $this->view->assign('logoFooter', $activeFooterLogo);
 
             // 3. VARIABLES D'URL POUR LE FRONTEND (Multilingue)
             // On récupère le site_url généré juste avant

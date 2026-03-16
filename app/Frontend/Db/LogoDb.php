@@ -19,4 +19,18 @@ class LogoDb extends BaseDb
 
         return $this->executeRow($qb) ?: null;
     }
+    /**
+     * Récupère le logo assigné au footer (active_footer = 1)
+     */
+    public function getActiveFooterLogo(int $idLang): ?array
+    {
+        $qb = new QueryBuilder();
+        $qb->select('l.id_logo, l.img_logo AS name_img, c.alt_logo, c.title_logo')
+            ->from('mc_logo', 'l')
+            ->leftJoin('mc_logo_content', 'c', 'l.id_logo = c.id_logo AND c.id_lang = ' . $idLang)
+            ->where('l.active_footer = 1');
+
+        $result = $this->executeRow($qb);
+        return $result ?: null;
+    }
 }

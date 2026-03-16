@@ -95,30 +95,23 @@ class HookManager
                 return '';
             }
 
-            /*foreach ($plugins as $plugin) {
-                $moduleName = $plugin['module_name'];
-                $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
-
-                if (class_exists($className) && method_exists($className, 'renderWidget')) {
-                    // On passe précieusement les $params au plugin !
-                    $output .= $className::renderWidget($params);
-                }
-            }*/
             foreach ($plugins as $plugin) {
                 $moduleName = $plugin['module_name'];
-                $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
 
-                if (class_exists($className)) {
-                    if (method_exists($className, 'renderWidget')) {
-                        // C'est bon, on exécute !
-                        $output .= $className::renderWidget($params);
-                    } else {
-                        // La classe existe, mais pas la méthode
-                        $output .= "\n\n";
+                // 🟢 CORRECTION : On vérifie D'ABORD si le plugin s'est enregistré officiellement
+                if (isset(self::$hooks[$hookName][$moduleName])) {
+                    $callback = self::$hooks[$hookName][$moduleName];
+
+                    if (is_callable($callback)) {
+                        $output .= call_user_func($callback, $params);
                     }
-                } else {
-                    // La classe n'existe pas (Faute de frappe ou mauvais namespace)
-                    $output .= "\n\n";
+                }
+                // 🟠 FALLBACK : Au cas où des vieux plugins utilisent encore l'ancienne méthode codée en dur
+                else {
+                    $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
+                    if (class_exists($className) && method_exists($className, 'renderWidget')) {
+                        $output .= $className::renderWidget($params);
+                    }
                 }
             }
         } catch (\Throwable $e) {

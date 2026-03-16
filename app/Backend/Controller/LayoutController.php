@@ -42,12 +42,64 @@ class LayoutController extends BaseController
             ];
         }
 
+        // 🟢 NOUVEAU : On récupère la liste des plugins disponibles
+        $availablePlugins = $this->getAvailablePlugins();
+
         $view->assign([
-            'layout'    => $fullLayout,
-            'hashtoken' => $this->session->getToken()
+            'layout'           => $fullLayout,
+            'availablePlugins' => $availablePlugins, // 🟢 Assignation à Smarty
+            'hashtoken'        => $this->session->getToken()
         ]);
 
         $view->display('layout/index.tpl');
+    }
+
+    /**
+     * Scanne le dossier 'plugins', lit les manifest.json
+     * et retourne uniquement les plugins capables d'être greffés.
+     */
+    private function getAvailablePlugins(): array
+    {
+        $pluginsDir = ROOT_DIR . 'plugins';
+        $plugins = [];
+
+        if (is_dir($pluginsDir)) {
+            $items = scandir($pluginsDir);
+
+            foreach ($items as $folder) {
+                if ($folder === '.' || $folder === '..') continue;
+
+                $pluginPath = $pluginsDir . DS . $folder;
+                $manifestFile = $pluginPath . DS . 'manifest.json';
+
+                if (is_dir($pluginPath) && file_exists($manifestFile)) {
+                    $jsonContent = file_get_contents($manifestFile);
+                    $manifest = json_decode($jsonContent, true);
+
+                    if (is_array($manifest)) {
+                        // RÈGLE : Le plugin est greffable s'il possède des hooks par défaut
+                        // OU s'il déclare explicitement être "hookable" (optionnel pour le futur)
+                        $hasDefaultHooks = !empty($manifest['default_hooks']) && is_array($manifest['default_hooks']);
+                        $isExplicitlyHookable = isset($manifest['hookable']) && $manifest['hookable'] === true;
+
+                        if ($hasDefaultHooks || $isExplicitlyHookable) {
+                            $plugins[] = [
+                                'technical_name' => $folder, // Le vrai nom du dossier (Ex: Contact)
+                                'display_name'   => $manifest['name'] ?? $folder,
+                                'description'    => $manifest['description'] ?? ''
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        // On trie le tableau par ordre alphabétique sur le nom d'affichage
+        usort($plugins, function ($a, $b) {
+            return strcmp($a['display_name'], $b['display_name']);
+        });
+
+        return $plugins;
     }
 
     public function add(): void

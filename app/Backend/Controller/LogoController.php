@@ -215,4 +215,13 @@ class LogoController extends BaseController
 
         $this->jsonResponse(true, 'OK', ['result' => $html]);
     }
+    public function activateFooter(): void
+    {
+        $id = (int)($_POST['id'] ?? 0);
+        $db = new LogoDb();
+        if ($id > 0 && $db->activateFooterLogo($id)) {
+            $this->jsonResponse(true, "Logo pour le footer activé avec succès.");
+        }
+        $this->jsonResponse(false, "Erreur lors de l'activation du logo footer.");
+    }
 }

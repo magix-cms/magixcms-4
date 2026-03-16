@@ -29,8 +29,20 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="module_name" class="form-label fw-bold small">Nom technique du plugin</label>
-                            <input type="text" name="module_name" id="module_name" class="form-control" placeholder="ex: MagixFeatured" required>
+                            <label for="module_name" class="form-label fw-bold small">Widget / Plugin à greffer</label>
+                            <select name="module_name" id="module_name" class="form-select" required>
+                                <option value="">-- Choisir un widget --</option>
+                                {if isset($availablePlugins) && !empty($availablePlugins)}
+                                    {foreach $availablePlugins as $plugin}
+                                        <option value="{$plugin.technical_name}">
+                                            {$plugin.display_name}
+                                            {if !empty($plugin.description)} - {$plugin.description|truncate:60}{/if}
+                                        </option>
+                                    {/foreach}
+                                {else}
+                                    <option value="" disabled>Aucun plugin greffable détecté</option>
+                                {/if}
+                            </select>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 shadow-sm">
