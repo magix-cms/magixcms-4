@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Affiche les liens de navigation principale sous forme de colonne verticale.",
   "author": "Magix CMS",
+  "type": "widget",
   "default_hooks": [
     "displayFooter"
   ]

@@ -63,4 +63,55 @@ class DashboardDb extends BaseDb
         $qb->delete('mc_admin_dashboard')->where('widget_name = :name', ['name' => $widgetName]);
         return $this->executeDelete($qb);
     }
+    /**
+     * Compte le nombre d'employés (administrateurs) actifs
+     */
+    public function countEmployees(): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select('COUNT(id_admin) AS total')
+            ->from('mc_admin_employee')
+            ->where('active_admin = 1');
+
+        $res = $this->executeRow($qb);
+        return (int)($res['total'] ?? 0);
+    }
+
+    /**
+     * Compte le nombre de plugins installés
+     */
+    public function countPlugins(): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select('COUNT(name) AS total')->from('mc_plugins');
+        $res = $this->executeRow($qb);
+        return (int)($res['total'] ?? 0);
+    }
+
+    /**
+     * Compte le nombre de catégories dans le catalogue
+     */
+    public function countCategories(): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select('COUNT(id_cat) AS total')->from('mc_catalog_cat');
+        $res = $this->executeRow($qb);
+        return (int)($res['total'] ?? 0);
+    }
+    /**
+     * Compte le nombre d'actualités ayant au moins une traduction publiée
+     */
+    public function countNews(): int
+    {
+        $qb = new QueryBuilder();
+
+        // On utilise DISTINCT pour ne pas compter en double les articles traduits
+        $qb->select('COUNT(DISTINCT n.id_news) AS total')
+            ->from('mc_news', 'n')
+            ->join('mc_news_content', 'c', 'n.id_news = c.id_news')
+            ->where('c.published_news = 1');
+
+        $res = $this->executeRow($qb);
+        return (int)($res['total'] ?? 0);
+    }
 }

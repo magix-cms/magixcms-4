@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Formulaire de contact et widget des coordonnées de l'entreprise.",
   "author": "Magix CMS",
-  "type": "frontend_page",
+  "type": "hybrid",
   "default_hooks": [
     "displayFooter"
   ]

@@ -34,7 +34,6 @@ class MenuDb extends BaseDb
         $qb = new QueryBuilder();
         $urlTool = new \App\Component\Routing\UrlTool();
 
-        // 1. Définition des colonnes (Correction de cat_c.url_cat)
         $selectCols = [
             'm.id_link',
             'm.id_parent',
@@ -46,61 +45,65 @@ class MenuDb extends BaseDb
             'mc.url_link as manual_url',
             'cms_c.url_pages as cms_url',
             'ab_c.url_about as about_url',
-            'cat_c.url_cat as category_url' // <-- CORRECTION ICI
+            'cat_c.url_cat as category_url'
         ];
 
-        // 2. Construction de la requête avec les bons noms de tables et clés primaires
         $qb->select(implode(', ', $selectCols))
             ->from('mc_menu', 'm')
             ->leftJoin('mc_menu_content', 'mc', 'm.id_link = mc.id_link AND mc.id_lang = ' . $idLang)
             ->leftJoin('mc_cms_page_content', 'cms_c', "m.type_link = 'pages' AND m.id_page = cms_c.id_pages AND cms_c.id_lang = " . $idLang)
             ->leftJoin('mc_about_content', 'ab_c', "m.type_link = 'about_page' AND m.id_page = ab_c.id_about AND ab_c.id_lang = " . $idLang)
-
-            // <-- CORRECTION DE LA JOINTURE ICI (table mc_catalog_cat_content et id_cat)
             ->leftJoin('mc_catalog_cat_content', 'cat_c', "m.type_link = 'category' AND m.id_page = cat_c.id_cat AND cat_c.id_lang = " . $idLang)
-
             ->orderBy('m.id_parent, m.order_link');
 
-        //$this->debugQuery($qb);
         $elements = $this->executeAll($qb) ?: [];
+        $filteredElements = []; // 🟢 Nouveau tableau pour stocker les liens valides
 
-        // 3. Traitement dynamique des URLs
-        foreach ($elements as &$el) {
-
-            if (!empty($el['manual_url'])) {
-                $el['url_link'] = $el['manual_url'];
-                continue;
-            }
-
+        // 3. Traitement dynamique des URLs ET Filtrage
+        foreach ($elements as $el) {
             $type = $el['type_link'] ?? '';
             $idPage = (int)($el['id_page'] ?? 0);
+
+            // 🟢 LE FILTRE EST ICI : Si la cible est une page mais qu'elle n'a pas d'URL (non traduite), on ignore ce lien !
+            if ($type === 'pages' && empty($el['cms_url'])) continue;
+            if ($type === 'about_page' && empty($el['about_url'])) continue;
+            if ($type === 'category' && empty($el['category_url'])) continue;
+
+            // On ignore aussi si le nom du lien est complètement vide
+            if (empty($el['name_link'])) continue;
+
+            // Si URL manuelle prioritaire
+            if (!empty($el['manual_url'])) {
+                $el['url_link'] = $el['manual_url'];
+                $filteredElements[] = $el;
+                continue;
+            }
 
             $dataUrl = [
                 'iso' => $isoLang,
                 'id'  => $idPage
             ];
 
-            if ($type === 'pages' && !empty($el['cms_url'])) {
+            // Construction de l'URL dynamique
+            if ($type === 'pages') {
                 $dataUrl['type'] = 'pages';
                 $dataUrl['url']  = $el['cms_url'];
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
 
-            } elseif ($type === 'about_page' && !empty($el['about_url'])) {
+            } elseif ($type === 'about_page') {
                 $dataUrl['type'] = 'about';
                 $dataUrl['url']  = $el['about_url'];
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
 
-            } elseif ($type === 'category' && !empty($el['category_url'])) {
+            } elseif ($type === 'category') {
                 $dataUrl['type'] = 'category';
                 $dataUrl['url']  = $el['category_url'];
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
 
-                // 🟢 AVEZ-VOUS BIEN AJOUTÉ CECI ?
             } elseif ($type === 'catalog') {
                 $dataUrl['type'] = 'catalog';
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
 
-                // 🟢 AJOUT : (Optionnel) Faites pareil si vous avez une page racine pour les News !
             } elseif ($type === 'news') {
                 $dataUrl['type'] = 'news';
                 $el['url_link']  = $urlTool->buildUrl($dataUrl);
@@ -108,64 +111,57 @@ class MenuDb extends BaseDb
             } else {
                 $el['url_link'] = '#';
             }
+
+            // On ajoute l'élément validé et formaté au nouveau tableau
+            $filteredElements[] = $el;
         }
 
-        return $this->buildGenericTree($elements, 'id_link');
+        // On construit l'arbre uniquement avec les liens qui ont survécu au filtre
+        return $this->buildGenericTree($filteredElements, 'id_link');
     }
 
-    /**
-     * Récupère les pages enfants d'une page spécifique pour créer le sous-menu
-     */
     public function getSubPages(int $idParentPage, int $idLang): array
     {
         $qb = new QueryBuilder();
 
-        // On renomme les colonnes pour que Smarty les lise comme des liens normaux
         $qb->select('p.id_pages, p.id_parent, c.name_pages AS name_link, c.name_pages AS title_link, c.url_pages AS url_link')
             ->from('mc_cms_page', 'p')
-            ->leftJoin('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . $idLang)
+            // 🟢 INNER JOIN : Filtre les enfants non traduits
+            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . $idLang)
             ->where('p.id_parent = ' . $idParentPage)
-            ->orderBy('p.id_parent, p.id_pages'); // Adaptez avec p.order_pages si vous avez un tri
+            ->orderBy('p.id_parent, p.id_pages');
 
         $elements = $this->executeAll($qb) ?: [];
-
-        // On utilise l'ID de la page comme clé primaire
         return $this->buildGenericTree($elements, 'id_pages');
     }
-    /**
-     * Récupère les pages enfants d'une page About spécifique pour créer le sous-menu
-     */
+
     public function getSubAbout(int $idParentAbout, int $idLang): array
     {
         $qb = new QueryBuilder();
 
-        // On sélectionne url_about explicitement pour que le BaseController puisse construire le lien
         $qb->select('a.id_about, a.id_parent, c.name_about AS name_link, c.name_about AS title_link, c.url_about')
             ->from('mc_about', 'a')
-            ->leftJoin('mc_about_content', 'c', 'a.id_about = c.id_about AND c.id_lang = ' . (int)$idLang)
+            // 🟢 INNER JOIN : Filtre les enfants non traduits
+            ->join('mc_about_content', 'c', 'a.id_about = c.id_about AND c.id_lang = ' . (int)$idLang)
             ->where('a.id_parent = ' . (int)$idParentAbout)
-            ->orderBy('a.id_parent, a.order_about'); // Adapté selon votre tri (order_about ou id_about)
+            ->orderBy('a.id_parent, a.order_about');
 
         $elements = $this->executeAll($qb) ?: [];
-
-        // On utilise l'ID de la page about comme clé
         return $this->buildGenericTree($elements, 'id_about');
     }
-    /**
-     * Récupère les sous-catégories d'une catégorie spécifique pour le menu
-     */
+
     public function getSubCategories(int $idParentCat, int $idLang): array
     {
         $qb = new QueryBuilder();
 
         $qb->select('c.id_cat, c.id_parent, cc.name_cat AS name_link, cc.name_cat AS title_link, cc.url_cat')
             ->from('mc_catalog_cat', 'c')
-            ->leftJoin('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
+            // 🟢 INNER JOIN : Filtre les enfants non traduits
+            ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
             ->where('c.id_parent = ' . (int)$idParentCat)
             ->orderBy('c.id_parent, c.order_cat');
 
         $elements = $this->executeAll($qb) ?: [];
-
         return $this->buildGenericTree($elements, 'id_cat');
     }
     /**

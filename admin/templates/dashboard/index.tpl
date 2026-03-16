@@ -231,41 +231,91 @@
 
     {* --- ZONE 1 : COMPTEURS TOP --- *}
     <div class="row g-3 mb-4" id="dashboard-top-zone">
-        <div class="col-md-3">
+
+        {* EMPLOYES (Toujours actif) *}
+        <div class="col-6 col-md-4 col-xl-3">
             <div class="card border-0 shadow-sm bg-primary text-white h-100">
                 <div class="card-body">
-                    <h6 class="text-uppercase small">Pages CMS Actives</h6>
-                    {* On remplace 42 par la variable dynamique *}
-                    <h2 class="display-6 fw-bold">{$total_pages}</h2>
+                    <h6 class="text-uppercase small"><i class="bi bi-people me-2 opacity-50"></i>Employés</h6>
+                    <h2 class="display-6 fw-bold">{$total_employees}</h2>
                 </div>
             </div>
         </div>
 
-        {* ... le reste des compteurs ... *}
-        <div class="col-md-3">
+        {* PLUGINS (Toujours actif) *}
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="card border-0 shadow-sm bg-secondary text-white h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase small"><i class="bi bi-puzzle me-2 opacity-50"></i>Plugins</h6>
+                    <h2 class="display-6 fw-bold">{$total_plugins}</h2>
+                </div>
+            </div>
+        </div>
+
+        {* PAGES CMS (Conditionnel) *}
+        {if isset($mc_config.pages) && $mc_config.pages == 1}
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="card border-0 shadow-sm bg-info text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="text-uppercase small"><i class="bi bi-files me-2 opacity-50"></i>Pages CMS</h6>
+                        <h2 class="display-6 fw-bold">{$total_pages}</h2>
+                    </div>
+                </div>
+            </div>
+        {/if}
+
+        {* CATALOGUE (Conditionnel : Catégories & Produits) *}
+        {if isset($mc_config.catalog) && $mc_config.catalog == 1}
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="card border-0 shadow-sm bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="text-uppercase small"><i class="bi bi-folder2-open me-2 opacity-50"></i>Catégories</h6>
+                        <h2 class="display-6 fw-bold">{$total_categories}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="card border-0 shadow-sm bg-success text-white h-100" style="background-color: #198754 !important; filter: brightness(0.95);">
+                    <div class="card-body">
+                        <h6 class="text-uppercase small"><i class="bi bi-box-seam me-2 opacity-50"></i>Produits</h6>
+                        <h2 class="display-6 fw-bold">{$total_products}</h2>
+                    </div>
+                </div>
+            </div>
+        {/if}
+
+        {* LANGUES (Toujours actif) *}
+        <div class="col-6 col-md-4 col-xl-3">
             <div class="card border-0 shadow-sm bg-warning text-dark h-100">
                 <div class="card-body">
-                    <h6 class="text-uppercase small">Langues Actives</h6>
+                    <h6 class="text-uppercase small"><i class="bi bi-translate me-2 opacity-50"></i>Langues Actives</h6>
                     <h2 class="display-6 fw-bold">{$total_langs}</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-success text-dark h-100">
+
+        {* UPLOADS (Toujours actif) *}
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="card border-0 shadow-sm bg-dark text-white h-100">
                 <div class="card-body">
-                    <h6 class="text-uppercase small">Produits</h6>
-                    <h2 class="display-6 fw-bold">{$total_products}</h2>
+                    <h6 class="text-uppercase small"><i class="bi bi-cloud-arrow-up me-2 opacity-50"></i>Fichiers Upload</h6>
+                    <h2 class="display-6 fw-bold fs-3 mt-2">{$total_media_size}</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-info text-white h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase small">Fichiers Upload</h6>
-                    <h2 class="display-6 fw-bold">{$total_media_size}</h2>
+
+        {* ACTUALITÉS (Conditionnel) *}
+        {if isset($mc_config.news) && $mc_config.news == 1}
+            <div class="col-6 col-md-4 col-xl-3">
+                <div class="card border-0 shadow-sm bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="text-uppercase small"><i class="bi bi-newspaper me-2 opacity-50"></i>Actualités</h6>
+                        <h2 class="display-6 fw-bold">{$total_news}</h2>
+                    </div>
                 </div>
             </div>
-        </div>
+        {/if}
+
     </div>
 
     {* --- ZONE 2 : WIDGETS PRINCIPAUX --- *}

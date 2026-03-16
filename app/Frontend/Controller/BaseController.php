@@ -17,6 +17,7 @@ use App\Frontend\Db\ShareDb;
 use App\Component\File\ImageTool;
 use Smarty\Smarty;
 use Magepattern\Component\HTTP\JSON;
+use App\Component\Routing\UrlTool;
 
 abstract class BaseController
 {
@@ -82,7 +83,7 @@ abstract class BaseController
         $menuDb = new MenuDb();
         $idLang = (int)($this->currentLang['id_lang'] ?? 1);
         $isoLang = $this->currentLang['iso_lang'] ?? 'fr';
-        $urlTool = new \App\Component\Routing\UrlTool();
+        $urlTool = new UrlTool();
 
         $menuTree = $menuDb->getFrontendTree($idLang, $isoLang);
 

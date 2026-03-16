@@ -75,6 +75,10 @@ class DashboardController extends BaseController
             'total_langs'        => $langDb->countActiveLanguages(),
             'total_pages'        => $pageDb->countActivePages(),
             'total_products'     => $productDb->countProducts(),
+            'total_categories'   => $db->countCategories(),
+            'total_employees'    => $db->countEmployees(),
+            'total_plugins'      => $db->countPlugins(),
+            'total_news'         => $db->countNews(), // 🟢 NOUVEL AJOUT
             'total_media_size'   => $mediaSizeFormatted
         ]);
 

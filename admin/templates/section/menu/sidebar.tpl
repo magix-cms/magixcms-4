@@ -181,7 +181,7 @@
 
         {* --- BLOC CONFIGURATION --- *}
         <li class="mb-1">
-            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal')}
+            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal' || $current_c == 'translation')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_config}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -242,6 +242,13 @@
                         </a>
                     </li>
 
+                    {* 8. Traductions *}
+                    <li>
+                        <a href="index.php?controller=Translation"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'translation'}active-sub{/if}">
+                            <i class="bi bi-translate me-2 opacity-75"></i> Traductions
+                        </a>
+                    </li>
                 </ul>
             </div>
         </li>
@@ -283,8 +290,8 @@
         </li>
         {* --- BLOC APPARENCE --- *}
         <li class="mb-1">
-            {* 🟢 CORRECTION : Ajout de holder dans la condition d'ouverture *}
-            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig' || $current_c == 'holder')}
+            {* 🟢 AJOUT : On inclut 'theme' dans la condition d'ouverture *}
+            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig' || $current_c == 'holder' || $current_c == 'theme')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_appearance}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -296,6 +303,13 @@
 
             <div class="collapse {if $is_appearance}show{/if}" id="menu-appearance">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                    {* 🟢 NOUVEAU LIEN : Thèmes (Skins) *}
+                    <li>
+                        <a href="index.php?controller=Theme"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'theme'}active-sub{/if}">
+                            <i class="bi bi-brush me-2 opacity-75"></i> Thèmes (Skins)
+                        </a>
+                    </li>
                     {* LIEN : Layout *}
                     <li>
                         <a href="index.php?controller=Layout"
@@ -324,7 +338,7 @@
                             <i class="bi bi-aspect-ratio me-2 opacity-75"></i> Tailles d'images
                         </a>
                     </li>
-                    {* 🟢 NOUVEAU LIEN : Holder (Images de substitution) *}
+                    {* LIEN : Holder (Images de substitution) *}
                     <li>
                         <a href="index.php?controller=Holder"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'holder'}active-sub{/if}">

@@ -87,6 +87,20 @@
                             {call name=renderTree items=$cat_tree inputName="target_category"}
                         </div>
 
+                        {* 🟢 AJOUT DU BLOC PLUGIN ICI 🟢 *}
+                        <div id="box_plugin" class="mb-4 d-none p-2 bg-light border rounded" style="max-height: 250px; overflow-y: auto;">
+                            <label for="target_plugin" class="form-label small fw-bold text-muted mb-2 border-bottom pb-1 d-block">Sélectionnez le plugin :</label>
+                            <select name="target_plugin" id="target_plugin" class="form-select form-select-sm border-primary-subtle">
+                                <option value="">-- Choisir un plugin --</option>
+                                {if isset($plugins_list)}
+                                    {foreach $plugins_list as $plugin}
+                                        <option value="{$plugin.folder|escape}">{$plugin.name|escape}</option>
+                                    {/foreach}
+                                {/if}
+                            </select>
+                        </div>
+                        {* 🟢 FIN DE L'AJOUT 🟢 *}
+
                         <div id="box_external" class="mb-4 d-none border-start border-primary border-4 ps-3">
                             <div class="alert alert-info py-2 small mb-0">Indiquez l'URL complète après l'ajout en éditant le lien.</div>
                         </div>

@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace App\Backend\Controller;
 
 use App\Backend\Db\MenuDb;
+use App\Backend\Db\PluginDb; // 🟢 AJOUT : On importe la DB des plugins
 use Magepattern\Component\Tool\FormTool;
 
 class MenuController extends BaseController {
@@ -27,6 +28,7 @@ class MenuController extends BaseController {
             'pages_tree'  => $db->getPagesTree($idLang),
             'about_tree'  => $db->getAboutTree($idLang),
             'cat_tree'    => $db->getCategoryTree($idLang),
+            'plugins_list'=> $this->getFrontendPlugins(), // 🟢 AJOUT : On envoie la liste des plugins
             'langs'       => $db->fetchLanguages(),
             'token'       => $this->session->getToken()
         ]);
@@ -50,9 +52,12 @@ class MenuController extends BaseController {
 
         // L'ID cible dépend du type sélectionné par l'utilisateur
         $idPage = 0;
+        $pluginFolder = ''; // 🟢 AJOUT : Variable pour le dossier du plugin
+
         if ($type === 'pages') $idPage = (int)($_POST['target_pages'] ?? 0);
         elseif ($type === 'about_page') $idPage = (int)($_POST['target_about'] ?? 0);
         elseif ($type === 'category') $idPage = (int)($_POST['target_category'] ?? 0);
+        elseif ($type === 'plugin') $pluginFolder = trim($_POST['target_plugin'] ?? ''); // 🟢 AJOUT : Récupération du plugin
 
         $idLink = $db->insertMenu([
             'type_link' => $type,
@@ -64,19 +69,29 @@ class MenuController extends BaseController {
         if ($idLink) {
             $langs = $db->fetchLanguages();
             foreach ($langs as $idLang => $iso) {
-                // CORRECTION : On demande à la BDD le vrai nom du contenu choisi !
-                $realName = $db->getTargetName($type, $idPage, (int)$idLang);
+
+                $urlLink = ''; // Par défaut vide pour les pages internes
+
+                // 🟢 AJOUT : Logique spécifique pour les plugins
+                if ($type === 'plugin' && !empty($pluginFolder)) {
+                    $cleanName = ucfirst(str_replace('Magix', '', $pluginFolder));
+                    $realName  = $cleanName;
+                    $urlLink   = strtolower($cleanName); // ex: 'contact'
+                } else {
+                    $realName = $db->getTargetName($type, $idPage, (int)$idLang);
+                }
 
                 $db->insertMenuContent($idLink, (int)$idLang, [
                     'name_link'  => $realName,
-                    'title_link' => $realName, // Pratique pour le SEO par défaut
-                    'url_link'   => ''
+                    'title_link' => $realName,
+                    'url_link'   => $urlLink // 🟢 MODIFIÉ : On insère l'URL pré-générée
                 ]);
             }
             $this->jsonResponse(true, "Lien ajouté au menu", ['success' => true, 'type' => 'add']);
         }
         $this->jsonResponse(false, "Erreur lors de l'ajout", ['success' => false]);
     }
+
     public function getContent(): void
     {
         if (ob_get_length()) ob_clean();
@@ -139,9 +154,7 @@ class MenuController extends BaseController {
             $this->jsonResponse(true, "Ordre du menu enregistré");
         }
     }
-    /**
-     * Rafraîchit la liste du menu en AJAX
-     */
+
     public function getList(): void
     {
         if (ob_get_length()) ob_clean();
@@ -155,5 +168,40 @@ class MenuController extends BaseController {
         $html = $this->view->fetch('appearance/menu/list.tpl');
 
         $this->jsonResponse(true, 'OK', ['result' => $html]);
+    }
+
+    /**
+     * 🟢 NOUVELLE MÉTHODE : Scanne les plugins INSTALLÉS et filtre ceux qui ont le type "frontend_page"
+     */
+    /**
+     * Scanne les plugins INSTALLÉS et filtre ceux qui peuvent avoir une URL dans le menu
+     */
+    private function getFrontendPlugins(): array
+    {
+        $pluginDb = new PluginDb();
+        $installedPlugins = $pluginDb->fetchInstalledPlugins();
+
+        $frontendPlugins = [];
+        $dir = ROOT_DIR . 'plugins/';
+
+        foreach ($installedPlugins as $folderName => $dbData) {
+            $manifestPath = $dir . $folderName . '/manifest.json';
+
+            if (file_exists($manifestPath)) {
+                $manifest = json_decode(file_get_contents($manifestPath), true);
+
+                $type = $manifest['type'] ?? 'backend';
+
+                // Seuls les types 'frontend' et 'hybrid' possèdent une route (URL) propre
+                if (in_array($type, ['frontend', 'hybrid'])) {
+                    $frontendPlugins[] = [
+                        'folder' => $folderName,
+                        'name'   => $manifest['name'] ?? $folderName
+                    ];
+                }
+            }
+        }
+
+        return $frontendPlugins;
     }
 }

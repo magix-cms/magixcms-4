@@ -16,6 +16,7 @@
                     <thead class="bg-light text-muted small text-uppercase">
                     <tr>
                         <th class="ps-4">Plugin / Version</th>
+                        <th class="text-center">Type</th> {* 🟢 NOUVELLE COLONNE *}
                         <th class="text-center">Cibles Core</th>
                         <th class="text-center">Statut</th>
                         <th class="text-end pe-4">Actions</th>
@@ -28,6 +29,34 @@
                                 <div class="fw-bold text-dark">{$plugin.name}</div>
                                 <small class="text-muted">v{$plugin.version}</small>
                             </td>
+
+                            {* 🟢 NOUVELLE CELLULE : GESTION DES TYPES DE PLUGINS *}
+                            <td class="text-center">
+                                {assign var="p_type" value=$plugin.type|default:'backend'}
+
+                                {if $p_type == 'backend'}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle px-2 py-1" title="Outil d'administration (Invisible côté public)">
+                                        <i class="bi bi-gear-fill me-1"></i> Backend
+                                    </span>
+                                {elseif $p_type == 'widget'}
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2 py-1" title="Composant d'interface (S'accroche via les Hooks)">
+                                        <i class="bi bi-puzzle-fill me-1"></i> Widget
+                                    </span>
+                                {elseif $p_type == 'frontend'}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1" title="Application publique (Possède sa propre URL)">
+                                        <i class="bi bi-window-sidebar me-1"></i> Frontend
+                                    </span>
+                                {elseif $p_type == 'hybrid'}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2 py-1" title="Plugin complet (Page publique + Widgets)">
+                                        <i class="bi bi-layers-fill me-1"></i> Hybride
+                                    </span>
+                                {else}
+                                    <span class="badge bg-light text-dark border">
+                                        {$p_type|escape}
+                                    </span>
+                                {/if}
+                            </td>
+
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <i class="bi bi-house-door {if isset($plugin.home) && $plugin.home}text-primary{else}text-light{/if}" title="Home"></i>
@@ -57,13 +86,11 @@
                                         <a href="index.php?controller={$plugin.name}" class="btn btn-outline-secondary" title="Configurer">
                                             <i class="bi bi-gear"></i>
                                         </a>
-                                        {* Nouveau bouton de désinstallation compatible MagixPlugins *}
                                         <button type="button" class="btn btn-outline-danger btn-uninstall-plugin" data-plugin="{$plugin.name}" title="Désinstaller">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
                                 {else}
-                                    {* Nouveau bouton d'installation compatible MagixPlugins *}
                                     <button type="button" class="btn btn-sm btn-primary px-3 btn-install-plugin" data-plugin="{$plugin.name}">
                                         <i class="bi bi-plus-lg me-1"></i> Installer
                                     </button>
@@ -76,6 +103,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="pluginConfirmModal" tabindex="-1" aria-labelledby="pluginModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -94,7 +122,6 @@
     </div>
 {/block}
 
-{* --- SCRIPT JAVASCRIPT POUR GÉRER L'INSTALLATION/DÉSINTSALLATION EN JSON --- *}
 {block name="javascripts" append}
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixPlugins.min.js?v={$smarty.now}"></script>
 {/block}
