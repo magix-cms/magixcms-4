@@ -19,5 +19,8 @@
 skin/*
 !skin/default
 plugins/*
-!plugins/contact
-!plugins/clearcache
+!plugins/Contact
+!plugins/MagixFooterLogo
+!plugins/MagixFooterMenu
+!plugins/MagixLastNews
+!plugins/MagixSocial

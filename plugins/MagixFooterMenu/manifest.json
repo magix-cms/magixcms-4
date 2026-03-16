@@ -1,0 +1,9 @@
+{
+  "name": "MagixFooterMenu",
+  "version": "1.0.0",
+  "description": "Affiche les liens de navigation principale sous forme de colonne verticale.",
+  "author": "Magix CMS",
+  "default_hooks": [
+    "displayFooter"
+  ]
+}

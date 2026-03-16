@@ -1,0 +1,7 @@
+{
+  "name": "MagixFooterLogo",
+  "version": "1.0.0",
+  "description": "Affiche le logo spécifique du pied de page et une petite description.",
+  "author": "Magix CMS",
+  "default_hooks": ["displayFooter"]
+}

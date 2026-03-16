@@ -1,0 +1,15 @@
+{
+  "name": "MagixLastNews",
+  "version": "1.0.0",
+  "description": "Affiche les dernières actualités publiées sous forme de widget.",
+  "author": "Magix CMS",
+  "type": "widget",
+  "has_config": false,
+  "core_targets": {
+    "home": 1,
+    "news": 1
+  },
+  "default_hooks": [
+    "displayHome"
+  ]
+}

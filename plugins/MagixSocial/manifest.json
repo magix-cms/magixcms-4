@@ -1,0 +1,9 @@
+{
+  "name": "MagixSocial",
+  "version": "1.0.0",
+  "description": "Widget affichant les liens vers les réseaux sociaux de l'entreprise.",
+  "author": "Magix CMS",
+  "default_hooks": [
+    "displayFooter"
+  ]
+}
