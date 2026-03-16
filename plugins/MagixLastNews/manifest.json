@@ -10,6 +10,7 @@
     "news": 1
   },
   "default_hooks": [
-    "displayHome"
+    "displayHome",
+    "displayFooter"
   ]
 }

@@ -20587,6 +20587,34 @@ h6, .h6 {
 #footer .social-icon-link.github:hover {
   color: #fafafa;
 }
+#footer #legal .list-inline-item {
+  position: relative;
+}
+#footer #legal .list-inline-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -0.6rem;
+  top: 25%;
+  bottom: 25%;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+#footer #legal .list-inline-item a {
+  padding: 0.2rem 0;
+}
+#footer .news-footer-link .news-title {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+#footer .news-footer-link p {
+  transition: color 0.3s ease;
+}
+#footer .news-footer-link:hover .news-title {
+  color: var(--white-color);
+}
+#footer .news-footer-link:hover p {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
 
 #footbar {
   transition: opacity 0.3s ease, visibility 0.3s ease;

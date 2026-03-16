@@ -37,11 +37,11 @@
             </li>
         {/if}
 
-        {if !empty($companyData.tva)}
+        {*{if !empty($companyData.tva)}
             <li class="mb-3 text-light">
                 <i class="bi bi-receipt text-light opacity-75 me-2"></i>
                 TVA : {$companyData.tva}
             </li>
-        {/if}
+        {/if}*}
     </ul>
 </div>

@@ -54,4 +54,43 @@ class FrontendController
 
         return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget.tpl');
     }
+    public static function renderFooterWidget(array $params = []): string
+    {
+        $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
+        $idLang = (int)$currentLang['id_lang'];
+        $siteUrl = $params['site_url'] ?? 'http://localhost';
+
+        $newsDb = new NewsDb();
+
+        // On limite strictement à 3 pour le footer
+        $dbResult = $newsDb->getNewsList($idLang, [
+            'limit' => 3
+        ]);
+
+        $rawNews = $dbResult['items'] ?? [];
+
+        if (empty($rawNews)) {
+            return ''; // Pas de news = on n'affiche pas la colonne
+        }
+
+        $footerNews = [];
+        $companyDb = new CompanyDb();
+        $companyInfo = $companyDb->getCompanyInfo();
+
+        foreach ($rawNews as $row) {
+            // Utilisation de votre Presenter pour un formatage parfait et sécurisé
+            $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
+
+            // Note : On peut ignorer la requête des tags ici pour gagner en performance,
+            // vu qu'on ne les affichera probablement pas dans le petit espace du footer.
+
+            $footerNews[] = $formatted;
+        }
+
+        $view = SmartyTool::getInstance('front');
+        // On assigne sous un nom de variable différent pour éviter tout conflit
+        $view->assign('footer_news', $footerNews);
+
+        return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget_footer.tpl');
+    }
 }

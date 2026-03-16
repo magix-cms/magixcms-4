@@ -18,9 +18,15 @@
             </div>
             <div id="legal" class="col-12 text-center mt-3">
                 <ul class="list-inline mb-0">
-                    <li class="list-inline-item me-3"><a href="#" class="text-decoration-none text-light">À propos</a></li>
-                    <li class="list-inline-item me-3"><a href="#" class="text-decoration-none text-light">Mentions légales</a></li>
-                    <li class="list-inline-item"><a href="#" class="text-decoration-none text-light">Contact</a></li>
+                    <li class="list-inline-item me-3">
+                        <a href="#" class="text-decoration-none">À propos</a>
+                    </li>
+                    <li class="list-inline-item me-3">
+                        <a href="#" class="text-decoration-none">Mentions légales</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a href="#" class="text-decoration-none">Contact</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -40,7 +46,7 @@
                 {* TVA *}
                 {if !empty($companyData.tva)}
                     <div class="col-12 col-md-4 mb-3 mb-md-0 text-white-50 small text-md-center">
-                        {#footer_tva#|default:'TVA :'} {$companyData.tva}
+                        <i class="bi bi-receipt text-light opacity-75 me-2"></i> {#footer_tva#|default:'TVA :'} {$companyData.tva}
                     </div>
                 {/if}
 

@@ -59,4 +59,58 @@
     &.youtube:hover   { color: #FF0000; }
     &.github:hover    { color: #fafafa; }
   }
+  #legal {
+    // On cible les éléments de la liste plutôt que les liens
+    .list-inline-item {
+      position: relative; // Indispensable pour positionner la barre
+
+      // On applique la règle à tous les <li> SAUF le dernier
+      &:not(:last-child) {
+        &::after {
+          content: "";
+          position: absolute;
+          // On la place au milieu de l'espace créé par votre classe "me-3" (qui fait environ 1rem)
+          right: -0.6rem;
+
+          // C'est ici qu'est la magie de l'élégance : on réduit la hauteur de la barre
+          top: 25%;
+          bottom: 25%;
+
+          width: 1px; // Épaisseur de la séparation
+          background-color: rgba(255, 255, 255, 0.2); // Un blanc très discret (20% d'opacité)
+        }
+      }
+
+      // On s'assure que le lien lui-même garde juste son comportement de base
+      a {
+        padding: 0.2rem 0; // Juste un petit espace pour le clic, sans bordure
+      }
+    }
+  }
+  // --- WIDGET ACTUALITÉS ---
+  .news-footer-link {
+    // 1. État de base du titre
+    .news-title {
+      color: rgba(255, 255, 255, 0.6); // On remet le blanc par défaut ici
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    // (Optionnel) Transition douce pour le paragraphe aussi
+    p {
+      transition: color 0.3s ease;
+    }
+
+    // 2. État au survol du bloc complet
+    &:hover {
+      .news-title {
+        color: var(--white-color); // Remplacez par --white-color ou une autre variable si besoin
+        // transform: translateX(3px); /* Décommentez pour un petit effet de glissement vers la droite */
+      }
+
+      // (Optionnel) On éclaire légèrement le texte de l'extrait pour montrer que la zone est active
+      p {
+        color: rgba(255, 255, 255, 0.7) !important; // On force l'éclaircissement face au text-white-50 de Bootstrap
+      }
+    }
+  }
 }
