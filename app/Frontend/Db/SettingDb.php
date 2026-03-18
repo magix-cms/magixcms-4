@@ -25,4 +25,19 @@ class SettingDb extends BaseDb
         }
         return $settings;
     }
+    /**
+     * Récupère l'URL du domaine marqué comme canonique
+     */
+    public function getCanonicalDomain(): ?string
+    {
+        $qb = new QueryBuilder();
+        $qb->select(['url_domain'])
+            ->from('mc_domain')
+            ->where('canonical_domain = 1')
+            ->limit(1);
+
+        $result = $this->executeRow($qb);
+
+        return $result ? $result['url_domain'] : null;
+    }
 }

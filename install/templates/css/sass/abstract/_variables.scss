@@ -1,0 +1,18 @@
+// abstract/_variables.scss
+
+// 1. LA MAGIE EST ICI : Demande à Bootstrap de s'adapter automatiquement à l'OS
+$color-mode-type: media-query; // Utilise @media (prefers-color-scheme)
+
+// Force Bootstrap à générer les utilitaires de couleurs sombres
+$enable-dark-mode: true;
+
+// 2. Votre tableau de couleurs
+$theme-color-map: (
+        "main":    #1B224B,
+        "sd":      #808285,
+        "dark":    #333333,
+        "green":   #5cb75c,
+        "default": #ffffff
+);
+
+$primary: map-get($theme-color-map, "main");

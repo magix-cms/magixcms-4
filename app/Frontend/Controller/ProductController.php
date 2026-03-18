@@ -43,8 +43,38 @@ class ProductController extends BaseController
             $product['gallery'][] = $formattedTemp['img'];
         }
 
+        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Product)
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // Requête spécifique aux Produits
+                $translatedProduct = $db->getProductPage($id, $lId);
+
+                if ($translatedProduct && !empty($translatedProduct['url_product'])) {
+                    // Attention au type pour ProductTool, ça peut être 'catalog' ou 'product' selon votre config
+                    $hreflangUrls[$lId] = $urlTool->buildUrl([
+                        'type' => 'product',
+                        'id'   => $id,
+                        'url'  => $translatedProduct['url_product'],
+                        'iso'  => $lIso
+                    ]);
+
+                    if (isset($l['is_default']) && $l['is_default'] == 1) {
+                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    }
+                }
+            }
+        }
+
         $this->view->assign([
             'product'   => $product,
+            'hreflang' => $hreflangUrls,
             'seo_title' => $product['seo_title'] ?? $product['name'],
             'seo_desc'  => $product['resume'] ?? ''
         ]);

@@ -8,6 +8,7 @@ use App\Frontend\Db\PagesDb;
 use App\Frontend\Db\CompanyDb;
 use App\Frontend\Model\PagesPresenter;
 use Magepattern\Component\HTTP\Request;
+use App\Component\Routing\UrlTool;
 use App\Frontend\Model\SeoHelper;
 
 class PagesController extends BaseController
@@ -59,11 +60,43 @@ class PagesController extends BaseController
 
         $jsonLdList = SeoHelper::generateItemListJsonLd($pages['subdata']);
 
+        // 🟢 NOUVEAU : GÉNÉRATION DU TABLEAU HREFLANG
+        $allLangs = $this->view->getTemplateVars('langs'); // Récupéré depuis le BaseController
+        $hreflangUrls = [];
+        $urlTool = new UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // On récupère les données de la page pour la langue de la boucle
+                $translatedPage = $db->getPagesPage($id, $lId);
+
+                // Si la page existe et a une URL dans cette langue
+                if ($translatedPage && !empty($translatedPage['url_pages'])) {
+                    $hreflangUrls[$lId] = $urlTool->buildUrl([
+                        'type' => 'pages',
+                        'id'   => $id,
+                        'url'  => $translatedPage['url_pages'],
+                        'iso'  => $lIso
+                    ]);
+
+                    // On définit l'URL x-default (la langue par défaut du site)
+                    if (isset($l['is_default']) && $l['is_default'] == 1) {
+                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    }
+                }
+            }
+        }
+
+        // 1. Assignation Smarty modifiée
         $this->view->assign([
             'pages'     => $pages,
             'json_ld'   => $jsonLdList,
             'seo_title' => $pages['seo']['title'],
-            'seo_desc'  => $pages['seo']['description']
+            'seo_desc'  => $pages['seo']['description'],
+            'hreflang'  => $hreflangUrls // 🟢 On passe le tableau au template !
         ]);
 
         $this->view->display('pages/index.tpl');

@@ -1,0 +1,80 @@
+// Variables
+$tabs-bg-main: #f8f9fa;
+$tabs-bg-inactive: #e2e6ea; // Un peu plus sombre pour le contraste
+$tabs-border-color: #adb5bd; // Bordure plus voyante (gris moyen)
+$tabs-active-color: var(--bs-primary);
+$tabs-active-bg: #ffffff;
+
+#pageTab, #aboutTab, #configTab, #settingTab, #domainTab, #newsTab {
+  // On utilise :where pour les styles de base (spécificité 0)
+  // Cela permet à n'importe quelle autre règle de prendre le dessus si besoin
+  display: flex;
+  border-bottom: 2px solid $tabs-border-color;
+  background-color: $tabs-bg-main;
+  padding: 0;
+  list-style: none;
+
+  .nav-item {
+    flex: 1;
+  }
+
+  // Sélecteur combiné pour éviter !important
+  // #pageTab .nav-link a déjà une spécificité plus haute que .nav-tabs .nav-link
+  .nav-link {
+    display: block;
+    width: 100%;
+    padding: 1rem 0.5rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+
+    // Style "Inactif" par défaut
+    color: #495057;
+    background-color: $tabs-bg-inactive;
+    border: 1px solid $tabs-border-color;
+    border-bottom: none;
+    margin-right: 2px;
+
+    &:hover:not(.active) {
+      background-color: darken($tabs-bg-inactive, 8%);
+      border-color: darken($tabs-border-color, 15%);
+      color: #000;
+    }
+
+    // Utilisation de :is() pour cibler l'état actif proprement
+    // La spécificité ici est naturellement supérieure à celle de Bootstrap
+    &:is(.active) {
+      color: $tabs-active-color;
+      background-color: $tabs-active-bg;
+      border-top: 4px solid $tabs-active-color; // Bordure haute plus épaisse
+      border-left: 1px solid $tabs-border-color;
+      border-right: 1px solid $tabs-border-color;
+      border-bottom: 2px solid $tabs-active-bg; // On "fond" l'onglet dans la carte
+      margin-bottom: -2px;
+      transform: translateY(0); // Stable
+    }
+  }
+}
+
+// Optionnel : Utilisation de :has() si tu veux changer le style du header
+// quand un onglet spécifique est survolé
+#pageTab:has(.nav-link:hover:not(.active)) {
+  // border-bottom-color: darken($tabs-border-color, 5%);
+}
+/*.nav-tabs {
+  // Empêche le passage à la ligne si trop d'onglets
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // Cache la scrollbar mais garde le défilement (optionnel)
+  &::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .nav-item {
+    white-space: nowrap; // Empêche le texte de l'onglet de se couper
+  }
+}*/

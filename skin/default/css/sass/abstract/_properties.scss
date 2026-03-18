@@ -1,11 +1,19 @@
 // base/_root.scss
 
 :root {
-  // 1. Le multiplicateur global (1 = normal, 1.1 = +10%, 1.2 = +20%)
-  // C'est cette variable que vous pourrez modifier depuis le CMS
-  --mc-font-scale: 1;
+  // --- 1. COULEURS (La passerelle Bootstrap 5) ---
+  // On boucle sur votre map de couleurs MagixCMS pour tout synchroniser
+  @each $key, $value in $theme-color-map {
+    // Variables Magix (votre usage perso)
+    --#{$key}-color: #{$value};
 
-  // 2. On calcule la taille dynamiquement : (Taille SASS) * Multiplicateur
+    // Variables Bootstrap (pour que .text-primary, .bg-primary fonctionnent)
+    --bs-#{$key}: #{$value};
+    --bs-#{$key}-rgb: #{red($value)}, #{green($value)}, #{blue($value)};
+  }
+
+  // --- 2. TYPOGRAPHIE (Votre logique actuelle) ---
+  --mc-font-scale: 1;
   --fz-base: calc(#{$font-size-base} * var(--mc-font-scale));
 
   --fz-h1: calc(#{$h1-font-size} * var(--mc-font-scale));
@@ -14,14 +22,16 @@
   --fz-h4: calc(#{$h4-font-size} * var(--mc-font-scale));
   --fz-h5: calc(#{$h5-font-size} * var(--mc-font-scale));
   --fz-h6: calc(#{$h6-font-size} * var(--mc-font-scale));
+
+  // --- 3. LAYOUT & SPACERS ---
   --spacer: #{$spacer};
   --grid-gutter: var(--spacer);
-  --toolbar-h: 0px; // Valeur par défaut mobile
-  --header-h: 80px; // À ajuster selon votre design
-  --header-bg: #{$white}; 
+  --toolbar-h: 0px;
+  --header-h: 80px;
+  --header-bg: #{$white};
 
   @include media-breakpoint-up(md) {
-    --toolbar-h: 40px; // Hauteur sur desktop
+    --toolbar-h: 40px;
   }
   --footbar-text: #212529;
 }

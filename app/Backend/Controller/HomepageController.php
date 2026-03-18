@@ -14,18 +14,17 @@ class HomepageController extends BaseController
     {
         $homeDb = new HomepageDb();
 
-        // 1. Plus besoin de $session = new Session(false) ici !
         if (Request::isMethod('POST') && Request::isGet('action') && $_GET['action'] === 'edit') {
-            $this->processSave($homeDb); // On ne passe même plus la session en paramètre
+            $this->processSave($homeDb);
         }
 
         // 2. Chargement des données
         $pageData = $homeDb->getHomeData();
 
-        // 3. Assignation à la vue en utilisant la session parente
+        // 3. Assignation à la vue
         $this->view->assign([
             'page'      => $pageData,
-            'hashtoken' => $this->session->getToken() // Accès direct
+            'hashtoken' => $this->session->getToken()
         ]);
 
         $this->view->display('homepage/index.tpl');
@@ -41,15 +40,28 @@ class HomepageController extends BaseController
 
         if (isset($_POST['content']) && is_array($_POST['content'])) {
             $idPage = $db->getOrInsertHomeId();
+
+            // Sécurité : Si l'ID est 0, c'est que la création a échoué
+            if ($idPage === 0) {
+                $this->jsonResponse(false, 'Erreur critique : Impossible de créer la page d\'accueil racine.');
+            }
+
             $success = true;
 
             foreach ($_POST['content'] as $idLang => $values) {
+                // 🟢 CORRECTION : Utilisation de ?? '' pour éviter les erreurs "Undefined array key" en PHP 8
+                $title     = $values['title_page'] ?? '';
+                $content   = $values['content_page'] ?? '';
+                $seoTitle  = $values['seo_title_page'] ?? '';
+                $seoDesc   = $values['seo_desc_page'] ?? '';
+                $published = isset($values['published']) ? 1 : 0;
+
                 $data = [
-                    'title_page'     => FormTool::simpleClean($values['title_page']),
-                    'content_page'   => $values['content_page'],
-                    'seo_title_page' => FormTool::simpleClean($values['seo_title_page']),
-                    'seo_desc_page'  => FormTool::simpleClean($values['seo_desc_page']),
-                    'published'      => isset($values['published']) ? 1 : 0
+                    'title_page'     => FormTool::simpleClean($title),
+                    'content_page'   => $content,
+                    'seo_title_page' => FormTool::simpleClean($seoTitle),
+                    'seo_desc_page'  => FormTool::simpleClean($seoDesc),
+                    'published'      => $published
                 ];
 
                 if (!$db->saveContent($idPage, (int)$idLang, $data)) {
@@ -58,14 +70,15 @@ class HomepageController extends BaseController
             }
 
             if ($success) {
-                // On renvoie un succès JSON avec l'ID pour ton script JS
                 $this->jsonResponse(true, 'Mise à jour réussie.', [
                     'type' => 'update',
                     'id'   => $idPage
                 ]);
             } else {
-                $this->jsonResponse(false, 'Erreur lors de la sauvegarde en base de données.');
+                $this->jsonResponse(false, 'Erreur lors de la sauvegarde du contenu multilingue.');
             }
+        } else {
+            $this->jsonResponse(false, 'Aucune donnée reçue.');
         }
     }
 }

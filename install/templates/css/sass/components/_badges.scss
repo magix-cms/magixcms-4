@@ -1,0 +1,44 @@
+// components/_badges.scss
+
+.badge-magix {
+  // 1. Structure Flexbox moderne
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem; // Crée automatiquement l'espace parfait entre l'icône et le texte !
+
+  // 2. Apparence globale
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.85em;
+  line-height: 1.2;
+  white-space: nowrap; // Empêche le badge de passer sur deux lignes
+
+  // 3. Ajustement spécifique de l'icône
+  .ico {
+    font-size: 1.1em;
+    // Plus besoin de margin ici, la propriété "gap" du parent s'en charge.
+  }
+
+  // 4. Les variantes de couleurs (liées à vos variables globales)
+  &.status-success {
+    background-color: var(--success-color-lighter);
+    color: var(--success-color-darker);
+  }
+
+  &.status-warning {
+    background-color: var(--warning-color-lighter);
+    color: var(--warning-color-darker);
+  }
+
+  &.status-danger {
+    background-color: var(--danger-color-lighter);
+    color: var(--danger-color-darker);
+  }
+
+  &.status-info {
+    background-color: var(--info-color-lighter);
+    color: var(--info-color-darker);
+  }
+}

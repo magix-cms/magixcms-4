@@ -19,16 +19,21 @@ class HomepageDb extends BaseDb
 
         $res = $this->executeRow($qb);
 
-        if ($res) {
+        // 1. Si elle existe, on retourne l'ID direct
+        if ($res && !empty($res['id_page'])) {
             return (int)$res['id_page'];
         }
 
-        // Création de la ligne root si elle n'existe pas
+        // 2. Création de la ligne root si elle n'existe pas
         $qbInsert = new QueryBuilder();
         $qbInsert->insert('mc_home_page', ['date_register' => date('Y-m-d H:i:s')]);
         $this->executeInsert($qbInsert);
 
-        return (int) Layer::getInstance()->lastInsertId();
+        // 🟢 CORRECTION : Au lieu de lastInsertId(), on relance le SELECT.
+        // C'est 100% infaillible et ça garantit d'avoir un vrai ID et non '0'
+        $res = $this->executeRow($qb);
+
+        return $res && !empty($res['id_page']) ? (int)$res['id_page'] : 0;
     }
 
     /**
@@ -37,6 +42,11 @@ class HomepageDb extends BaseDb
     public function getHomeData(): array
     {
         $id_page = $this->getOrInsertHomeId();
+
+        // Si l'ID est 0, c'est qu'il y a un souci grave en BDD
+        if ($id_page === 0) {
+            return ['id_page' => 0, 'content' => []];
+        }
 
         $qb = new QueryBuilder();
         $qb->select(['*'])
@@ -59,7 +69,7 @@ class HomepageDb extends BaseDb
      */
     public function saveContent(int $idPage, int $idLang, array $data): bool
     {
-        // 1. On vérifie si le contenu existe déjà pour ce duo Page/Langue
+        // 1. On vérifie si le contenu existe déjà
         $qbCheck = new QueryBuilder();
         $qbCheck->select(['id_content'])
             ->from('mc_home_page_content')
@@ -68,7 +78,7 @@ class HomepageDb extends BaseDb
         $exists = $this->executeRow($qbCheck);
 
         $qb = new QueryBuilder();
-        if ($exists) {
+        if ($exists && !empty($exists['id_content'])) {
             // UPDATE
             $qb->update('mc_home_page_content', $data)
                 ->where('id_content = :id', ['id' => $exists['id_content']]);

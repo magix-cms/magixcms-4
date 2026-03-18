@@ -68,9 +68,38 @@ class CategoryController extends BaseController
 
         $jsonLdList = SeoHelper::generateItemListJsonLd($category['products']);
 
+        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Category)
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // Requête spécifique aux Catégories
+                $translatedCat = $db->getCategoryPage($id, $lId);
+
+                if ($translatedCat && !empty($translatedCat['url_cat'])) {
+                    $hreflangUrls[$lId] = $urlTool->buildUrl([
+                        'type' => 'category',
+                        'id'   => $id,
+                        'url'  => $translatedCat['url_cat'],
+                        'iso'  => $lIso
+                    ]);
+
+                    if (isset($l['is_default']) && $l['is_default'] == 1) {
+                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    }
+                }
+            }
+        }
+
         $this->view->assign([
             'category'  => $category,
             'json_ld'   => $jsonLdList,
+            'hreflang'  => $hreflangUrls,
             'seo_title' => $category['seo']['title'],
             'seo_desc'  => $category['seo']['description']
         ]);

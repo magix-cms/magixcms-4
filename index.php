@@ -9,6 +9,13 @@ define('APP_PATH', ROOT_DIR . 'app' . DS);
 define('MP_LOG_DIR', ROOT_DIR . 'var' . DS); // Exemple de dossier de log global
 define('SQLCACHEDIR', ROOT_DIR . 'var' . DS);
 
+$config = APP_PATH.'init'.DS.'config.php';
+if (file_exists($config)) {
+    require $config;
+}else {
+    header('Location: /install/');
+}
+
 // 2. Inclusion de l'Autoloader
 require_once APP_PATH . 'Autoloader.php';
 

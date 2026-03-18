@@ -3,40 +3,50 @@
 
 {* On injecte les variables CSS dans le bloc prévu en haut *}
 {block name="styleSheet" nocache}
-    {$css_files = [
-    "style"
-    ]}
+    {$css_files = ["style"] scope="parent"}
 {/block}
 
-{* On injecte le contenu de la page dans le <body> *}
-{* On injecte le contenu de la page dans le <body> *}
-{block name="article"}
-    {* --- SECTION 1 : TITRE (CONTAINED) --- *}
-    <div class="container py-5">
-        <h1 class="display-4 fw-bold text-primary mb-3">
-            {$home_data.title_page|default:$seo_title}
-        </h1>
-    </div>
+{* 🟢 On utilise "main" pour écraser le conteneur restrictif du layout parent *}
+{block name="main"}
+    <main class="flex-grow-1">
 
-    {* --- SECTION 2 : HOOK HAUT (FULL WIDTH BACKGROUND VIA LE WIDGET) --- *}
-    {* On le sort du container précédent *}
-    {hook name="displayHomeTop"}
-
-    {* --- SECTION 3 : CONTENU TEXTUEL (CONTAINED) --- *}
-    {if isset($home_data.content_page) && $home_data.content_page != ''}
-        <div class="container py-5">
-            <div class="text-start">
-                {$home_data.content_page nofilter}
+        {* --- SECTION 1 : TITRE (CONTAINED) --- *}
+        <header class="home-header bg-white">
+            <div class="container py-5">
+                <h1 class="display-4 fw-bold text-primary mb-0">
+                    {$home_data.title_page|default:$seo_title}
+                </h1>
             </div>
-        </div>
-    {/if}
+        </header>
 
-    {* --- SECTION 4 : HOOK BAS (FULL WIDTH BACKGROUND VIA LE WIDGET) --- *}
-    {hook name="displayHomeBottom"}
+        {* --- SECTION 2 : HOOK HAUT (FULL WIDTH) --- *}
+        {* Le widget gérera lui-même son propre container s'il en a besoin *}
+        <section class="home-hook-top">
+            {hook name="displayHomeTop"}
+        </section>
+
+        {* --- SECTION 3 : CONTENU TEXTUEL (CONTAINED) --- *}
+        {if isset($home_data.content_page) && $home_data.content_page != ''}
+            <section class="home-body bg-white">
+                <div class="container py-5">
+                    <div class="content-formatted text-start">
+                        {$home_data.content_page nofilter}
+                    </div>
+                </div>
+            </section>
+        {/if}
+
+        {* --- SECTION 4 : HOOK BAS (FULL WIDTH) --- *}
+        <section class="home-hook-bottom">
+            {hook name="displayHomeBottom"}
+        </section>
+
+    </main>
 {/block}
 
-{block name="javascript" nocache}
+{* 🟢 On déclare les JS dans le bon bloc (javascript_data) pour que js.tpl les génère *}
+{block name="javascript_data" nocache}
     {$page_js = [
     'defer' => ['home-specific']
-    ]}
+    ] scope="parent"}
 {/block}

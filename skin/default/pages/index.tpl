@@ -8,6 +8,7 @@
 {block name="head:structured_data"}
     {$pages.json_ld|default:'' nofilter}
     {$json_ld|default:'' nofilter}
+    {$website_json_ld|default:'' nofilter}
 {/block}
 
 {* --- CSS --- *}
@@ -15,104 +16,91 @@
     {$page_css = ["splide.min", "gallery"] scope="parent"}
 {/block}
 
-{block name="article"}
-    <div class="container py-5">
+{block name="article:content"}
+    {* 🟢 AJOUT DU CONTAINER AVEC "py-5" POUR RÉTABLIR L'ESPACEMENT *}
+    <article>
 
         {* --- FIL D'ARIANE --- *}
-        {$breadcrumbs = [
-        ['label' => $pages.name]
-        ]}
+        {$breadcrumbs = [['label' => $pages.name]]}
         {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
         {* --- EN-TÊTE --- *}
-        <div class="row mb-5">
-            <div class="col-12 text-center text-lg-start">
-                <h1 class="display-4 fw-bold text-primary mb-3">{$pages.name}</h1>
-                {if $pages.resume}
-                    <p class="lead text-muted">{$pages.resume}</p>
+        <header class="page-header mb-5">
+            <div class="row">
+                <div class="col-12 text-center text-lg-start">
+                    <h1 class="display-4 fw-bold text-primary mb-3">{$pages.name}</h1>
+                    {if $pages.resume}
+                        <p class="lead text-muted">{$pages.resume}</p>
+                    {/if}
+                </div>
+            </div>
+        </header>
+
+        {* --- SECTION 1 : CONTENU PRINCIPAL --- *}
+        <section class="page-body mb-5">
+            <div class="row">
+                {* --- CONTENU TEXTE --- *}
+                <div class="col-lg-{$pages.gallery|count > 0 ? '6' : '12'} mb-4">
+                    <div class="content-formatted">
+                        {* Ajout du nofilter obligatoire pour le HTML généré par TinyMCE *}
+                        {$pages.content|default:'' nofilter}
+                    </div>
+                </div>
+
+                {* --- GALERIE D'IMAGES AVEC SPLIDE --- *}
+                {if $pages.gallery && $pages.gallery|count > 0}
+                    <div class="col-lg-6">
+                        {* Wrapper global *}
+                        <div class="c-gallery c-gallery--page">
+
+                            {* 1. Grande Image (Stacking context) *}
+                            <div class="c-gallery__main shadow-sm rounded mb-3">
+                                {foreach $pages.gallery as $index => $image}
+                                    <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
+                                        {$zoom_url = $image.original.src|default:$image.default.src}
+                                        <a href="{$zoom_url}" class="glightbox" data-gallery="pages" data-title="{$image.title}">
+                                            {include file="components/img.tpl" img=$image class="img-fluid w-100"}
+                                        </a>
+                                    </div>
+                                {/foreach}
+                            </div>
+
+                            {* 2. Carousel de vignettes *}
+                            {if $pages.gallery|count > 1}
+                                <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
+                                    <div class="splide__track">
+                                        <ul class="splide__list">
+                                            {foreach $pages.gallery as $index => $image}
+                                                <li class="splide__slide">
+                                                    <div class="thumb-wrapper p-1">
+                                                        {include file="components/img.tpl" img=$image class="img-fluid rounded" size="small"}
+                                                    </div>
+                                                </li>
+                                            {/foreach}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+                    </div>
                 {/if}
             </div>
-        </div>
+        </section>
 
-        <div class="row">
-            {* --- CONTENU TEXTE --- *}
-            <div class="col-lg-{$pages.gallery|count > 0 ? '6' : '12'} mb-4">
-                <div class="content-formatted">
-                    {* 🟢 Ajout du nofilter obligatoire pour le HTML généré par TinyMCE *}
-                    {$pages.content|default:'' nofilter}
-                </div>
-            </div>
-
-            {* --- GALERIE D'IMAGES AVEC SPLIDE --- *}
-            {if $pages.gallery && $pages.gallery|count > 0}
-                <div class="col-lg-6">
-                    {* Wrapper global *}
-                    <div class="c-gallery c-gallery--page">
-
-                        {* 1. Grande Image (Stacking context) *}
-                        <div class="c-gallery__main shadow-sm rounded mb-3">
-                            {foreach $pages.gallery as $index => $image}
-                                <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
-                                    {$zoom_url = $image.original.src|default:$image.default.src}
-                                    <a href="{$zoom_url}" class="glightbox" data-gallery="pages" data-title="{$image.title}">
-                                        {include file="components/img.tpl" img=$image class="img-fluid w-100"}
-                                    </a>
-                                </div>
-                            {/foreach}
-                        </div>
-
-                        {* 2. Carousel de vignettes *}
-                        {if $pages.gallery|count > 1}
-                            <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
-                                <div class="splide__track">
-                                    <ul class="splide__list">
-                                        {foreach $pages.gallery as $index => $image}
-                                            <li class="splide__slide">
-                                                <div class="thumb-wrapper p-1">
-                                                    {include file="components/img.tpl" img=$image class="img-fluid rounded" size="small"}
-                                                </div>
-                                            </li>
-                                        {/foreach}
-                                    </ul>
-                                </div>
-                            </div>
-                        {/if}
-
-                    </div>
-                </div>
-            {/if}
-        </div>
-
-        {* --- SECTION SOUS-PAGES (Enfants directs) --- *}
+        {* --- SECTION 2 : SOUS-PAGES (Enfants directs) --- *}
         {if isset($pages.subdata) && $pages.subdata|count > 0}
-            <div class="row mt-5">
-                <div class="col-12 mb-4">
-                    <h3 class="fw-bold text-primary">En savoir plus</h3>
-                </div>
-                {include file="pages/loop/pages-grid.tpl" data=$pages.subdata}
-                {*{foreach $pages.subdata as $child}
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm border-0 transition-hover">
-                            <a href="{$child.url}" class="text-decoration-none text-dark">
-                                <div class="card-img-top overflow-hidden">
-                                    {include file="components/img.tpl" img=$child.img class="img-fluid w-100"}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold text-primary">{$child.name}</h5>
-                                    {$description = $child.resume|default:$child.content|strip_tags|truncate:120:"..."}
-                                    {if $description}<p class="card-text small text-muted">{$description}</p>{/if}
-                                </div>
-                                <div class="card-footer bg-transparent border-0 pt-0 pb-3 text-end">
-                                    <span class="text-primary small fw-bold">{#read_more#|default:'Lire la suite'} <i class="bi bi-arrow-right"></i></span>
-                                </div>
-                            </a>
-                        </div>
+            <section class="page-children mt-5 pt-4 border-top">
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <h3 class="fw-bold text-primary">En savoir plus</h3>
                     </div>
-                {/foreach}*}
-
-            </div>
+                    {include file="pages/loop/pages-grid.tpl" data=$pages.subdata}
+                </div>
+            </section>
         {/if}
-    </div>
+
+    </article>
+
 {/block}
 
 {* 1. L'enfant déclare ses fichiers JS requis *}

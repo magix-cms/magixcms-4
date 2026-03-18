@@ -2,28 +2,32 @@
 
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
+
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}
     {$json_ld|default:'' nofilter}
 {/block}
 
+{* 🟢 Utilisation de "article" pour écraser la balise <article> *}
 {block name="article"}
-    <div class="container py-5">
-        {* --- FIL D'ARIANE DYNAMIQUE --- *}
-        {if $seo_title != 'Actualités'}
-            {$breadcrumbs = [
-            ['url' => $reset_url, 'label' => 'Actualités'],
-            ['label' => $seo_title|replace:'Actualités - ':'' ]
-            ]}
-        {else}
-            {$breadcrumbs = [
-            ['label' => 'Actualités']
-            ]}
-        {/if}
 
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+    {* --- FIL D'ARIANE DYNAMIQUE --- *}
+    {if $seo_title != 'Actualités'}
+        {$breadcrumbs = [
+        ['url' => $reset_url, 'label' => 'Actualités'],
+        ['label' => $seo_title|replace:'Actualités - ':'' ]
+        ]}
+    {else}
+        {$breadcrumbs = [
+        ['label' => 'Actualités']
+        ]}
+    {/if}
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+    {* --- EN-TÊTE AVEC FILTRES --- *}
+    <header class="news-header mb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
             <h1 class="display-5 fw-bold mb-3 mb-md-0">{$seo_title}</h1>
 
             {* --- BARRE DE FILTRES --- *}
@@ -45,7 +49,7 @@
                     <select class="form-select bg-white shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
                         <option value="{$reset_url}">Toutes les dates</option>
                         {foreach $archives as $a}
-                            {* 🟢 Utilisation de la date factice formatée par Smarty *}
+                            {* Utilisation de la date factice formatée par Smarty *}
                             <option value="{$a.url}" {if $current_year == $a.year && $current_month == $a.month}selected{/if}>
                                 {$a.dummy_date|date_format:"%B %Y"|capitalize} ({$a.count_news})
                             </option>
@@ -54,8 +58,12 @@
                 {/if}
             </div>
         </div>
+    </header>
 
+    {* --- LISTE DES ACTUALITÉS --- *}
+    <section class="news-list">
         {include file="news/loop/news-grid.tpl" data=$news_list}
-    </div>
-    {include file="components/pagination.tpl" pg=$pagination url=$page_url_base}
+        {include file="components/pagination.tpl" pg=$pagination url=$page_url_base}
+    </section>
+
 {/block}

@@ -11,6 +11,7 @@ use App\Frontend\Model\CatalogHomePresenter;
 use App\Frontend\Model\CategoryPresenter;
 use App\Frontend\Model\ProductPresenter;
 use Magepattern\Component\HTTP\Request;
+use App\Component\Routing\UrlTool; // 🟢 AJOUT : Import de UrlTool
 
 class CatalogController extends BaseController
 {
@@ -110,6 +111,28 @@ class CatalogController extends BaseController
             $pageUrlBase = $currentUrl . $sep . 'p=';
         }
 
+        // 🟢 NOUVEAU : GÉNÉRATION DU TABLEAU HREFLANG (Racine Catalogue)
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+        $urlTool = new UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // Pas besoin d'ID ni d'URL spécifique pour la racine du module
+                $hreflangUrls[$lId] = $urlTool->buildUrl([
+                    'type' => 'catalog',
+                    'iso'  => $lIso
+                ]);
+
+                if (isset($l['is_default']) && $l['is_default'] == 1) {
+                    $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                }
+            }
+        }
+
         // --- ASSIGNATION SMARTY ---
         $this->view->assign([
             'catalog_home'  => $catalogHome,
@@ -117,7 +140,8 @@ class CatalogController extends BaseController
             'pagination'    => $paginationData,
             'page_url_base' => $pageUrlBase,
             'seo_title'     => $catalogHome['seo']['title'],
-            'seo_desc'      => $catalogHome['seo']['description']
+            'seo_desc'      => $catalogHome['seo']['description'],
+            'hreflang'      => $hreflangUrls // 🟢 On passe le tableau au template !
         ]);
 
         $this->view->display('catalog/index.tpl');

@@ -3,23 +3,29 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{block name="head:structured_data"}
+    {$news.json_ld|default:'' nofilter}
+    {$website_json_ld|default:'' nofilter}
+{/block}
+
 {* --- CSS --- *}
 {block name="styleSheet" append nocache}
     {$page_css = ["splide.min", "gallery"] scope="parent"}
 {/block}
 
-{block name="article"}
-    <div class="container py-5">
+{* 🟢 Utilisation de "article:content" pour garder la balise <article> *}
+{block name="article:content"}
 
-        {* --- FIL D'ARIANE --- *}
-        {$breadcrumbs = [
-        ['url' => "{$base_url}{$current_lang.iso_lang}/news/", 'label' => 'Actualités'],
-        ['label' => $news.name]
-        ]}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+    {* --- FIL D'ARIANE --- *}
+    {$breadcrumbs = [
+    ['url' => "{$base_url}{$current_lang.iso_lang}/news/", 'label' => 'Actualités'],
+    ['label' => $news.name]
+    ]}
+    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
-        {* --- EN-TÊTE : DATES ET TITRE --- *}
-        <div class="row mb-5">
+    {* --- EN-TÊTE : DATES ET TITRE --- *}
+    <header class="page-header mb-5">
+        <div class="row">
             <div class="col-12 text-center text-lg-start">
 
                 {* Bloc Infos Évènement ou Date *}
@@ -43,7 +49,10 @@
                 {/if}
             </div>
         </div>
+    </header>
 
+    {* --- CONTENU TEXTE ET GALERIE --- *}
+    <section class="page-body mb-5">
         <div class="row">
             {* --- CONTENU TEXTE --- *}
             <div class="col-lg-{$news.gallery|count > 0 ? '6' : '12'} mb-4">
@@ -102,7 +111,8 @@
                 </div>
             {/if}
         </div>
-    </div>
+    </section>
+
 {/block}
 
 {* 1. L'enfant déclare ses fichiers JS requis *}

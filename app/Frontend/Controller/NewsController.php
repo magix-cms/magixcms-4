@@ -9,6 +9,7 @@ use App\Frontend\Db\CompanyDb;
 use App\Frontend\Model\NewsPresenter;
 use Magepattern\Component\HTTP\Request;
 use App\Frontend\Model\SeoHelper;
+use App\Component\Routing\UrlTool;
 
 class NewsController extends BaseController
 {
@@ -53,10 +54,40 @@ class NewsController extends BaseController
 
         $news['tags'] = $this->db->getNewsTags($id, $idLang);
 
+        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Single News)
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+        $urlTool = new UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // Requête spécifique aux News
+                $translatedNews = $this->db->getNewsPage($id, $lId);
+
+                if ($translatedNews && !empty($translatedNews['url_news'])) {
+                    $hreflangUrls[$lId] = $urlTool->buildUrl([
+                        'type' => 'news',
+                        'id'   => $id,
+                        'url'  => $translatedNews['url_news'],
+                        'iso'  => $lIso,
+                        'date' => $translatedNews['date_publish'] ?? null // Important pour le slug News
+                    ]);
+
+                    if (isset($l['is_default']) && $l['is_default'] == 1) {
+                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    }
+                }
+            }
+        }
+
         $this->view->assign([
             'news'      => $news,
             'seo_title' => $news['seo']['title'],
-            'seo_desc'  => $news['seo']['description']
+            'seo_desc'  => $news['seo']['description'],
+            'hreflang' => $hreflangUrls
         ]);
 
         $this->view->display('news/single.tpl');
@@ -66,7 +97,7 @@ class NewsController extends BaseController
     {
         $idLang = (int)($this->currentLang['id_lang'] ?? 1);
         $siteUrl = $this->view->getTemplateVars('site_url');
-        $urlTool = new \App\Component\Routing\UrlTool();
+        $urlTool = new UrlTool();
 
         $filters = [];
         $idTag = Request::isGet('tag') ? (int)$_GET['tag'] : 0;
@@ -131,6 +162,25 @@ class NewsController extends BaseController
         $currentUrl = rtrim($currentUrl, '?&');
         $sep = str_contains($currentUrl, '?') ? '&' : '?';
         $pageUrlBase = $currentUrl . $sep . 'p=';
+
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                $hreflangUrls[$lId] = $urlTool->buildUrl([
+                    'type' => 'news', // Pas d'ID ni d'URL spécifique nécessaires ici
+                    'iso'  => $lIso
+                ]);
+
+                if (isset($l['is_default']) && $l['is_default'] == 1) {
+                    $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                }
+            }
+        }
 
         $this->view->assign([
             'news_list'     => $newsList,

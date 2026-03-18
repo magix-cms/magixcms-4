@@ -4,18 +4,18 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{* 🟢 Utilisation de "article" pour ÉCRASER la balise <article> du layout *}
 {block name="article"}
-    <div class="container py-5">
 
-        {* --- 🟢 FIL D'ARIANE --- *}
-        {$breadcrumbs = [
-        ['label' => 'Catalogue']
-        ]}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+    {* --- FIL D'ARIANE --- *}
+    {$breadcrumbs = [
+    ['label' => 'Catalogue']
+    ]}
+    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
-
-        {* --- 1. EN-TÊTE DE LA PAGE D'ACCUEIL DU CATALOGUE --- *}
-        <div class="row mb-5">
+    {* --- 1. EN-TÊTE DE LA PAGE D'ACCUEIL DU CATALOGUE --- *}
+    <header class="catalog-header mb-5">
+        <div class="row">
             <div class="col-12 text-center text-lg-start">
                 <h1 class="display-4 fw-bold text-primary mb-4">{$catalog_home.title}</h1>
 
@@ -26,9 +26,11 @@
                 {/if}
             </div>
         </div>
+    </header>
 
-        {* --- 2. LES RAYONS (AFFICHER TOUT LE TEMPS) --- *}
-        <div class="row mb-5">
+    {* --- 2. LES RAYONS (AFFICHER TOUT LE TEMPS) --- *}
+    <section class="catalog-categories mb-5">
+        <div class="row">
             <div class="col-12 mb-4">
                 <h2 class="fw-bold text-secondary border-bottom pb-2">Explorez nos rayons</h2>
             </div>
@@ -67,10 +69,12 @@
                 {/if}
             </div>
         </div>
+    </section>
 
-        {* --- 3. LA BOUTIQUE (MODE GLOBAL ACTIVÉ) --- *}
-        {if $show_products}
-            <div class="row mb-5">
+    {* --- 3. LA BOUTIQUE (MODE GLOBAL ACTIVÉ) --- *}
+    {if $show_products}
+        <section class="catalog-products mb-5">
+            <div class="row">
                 <div class="col-12 mb-4">
                     <h2 class="fw-bold text-secondary border-bottom pb-2">Tous nos produits</h2>
                 </div>
@@ -108,7 +112,7 @@
                     {/if}
                 </div>
             </div>
-        {/if}
+        </section>
+    {/if}
 
-    </div>
 {/block}

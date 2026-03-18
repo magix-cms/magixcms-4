@@ -1,8 +1,8 @@
 <?php
-$config = dirname(__FILE__).DIRECTORY_SEPARATOR.'config.php';
+/*$config = dirname(__FILE__).DIRECTORY_SEPARATOR.'config.php';
 if (file_exists($config)) {
     require $config;
-}
+}*/
 /**
  * Ini name data Mysql
  */

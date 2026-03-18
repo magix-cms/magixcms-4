@@ -8,6 +8,9 @@
     {block name="head:structured_data"}{/block}
     {include file="components/lang_head.tpl"}
     {include file="components/opengraph.tpl"}
+    {if isset($canonical_url) && $canonical_url}
+        <link rel="canonical" href="{$canonical_url}" />
+    {/if}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
@@ -24,19 +27,19 @@
     {include file="components/css.tpl"}
 </head>
 <body class="bg-light">
-{*<header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand" href="/">Magix CMS</a>
-            {include file="components/language_switcher.tpl"}
-        </div>
-    </nav>
-</header>*}
 {include file="layout/header.tpl"}
 {* 3. LE CORPS : C'est ici que le contenu de la page enfant va s'insérer *}
 {block name="main:before"}{/block}
 {block name="main"}
-    {block name="article"}{/block}
+    <main class="flex-grow-1">
+        <div class="container py-5">
+        {block name='article'}
+            <article>
+                {block name='article:content'}{/block}
+            </article>
+        {/block}
+        </div>
+    </main>
 {/block}
 {block name="main:after"}{/block}
 {include file="layout/footer.tpl"}

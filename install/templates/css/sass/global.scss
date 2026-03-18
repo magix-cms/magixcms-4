@@ -1,0 +1,38 @@
+// global.scss
+
+// ==========================================
+// 1. OUTILS ET CONFIGURATION (Muet)
+// ==========================================
+@import "abstract/init"; // Charge _core.scss (variables, mixins, maps)
+
+// ==========================================
+// 2. VARIABLES CSS PERSONNALISÉES (Bavard)
+// ==========================================
+:root {
+  @each $key, $value in $theme-color-map {
+    $palette: generate-palette($value);
+    --#{$key}-color-darker:  #{map-get($palette, "darker")};
+    --#{$key}-color-dark:    #{map-get($palette, "dark")};
+    --#{$key}-color:         #{$value};
+    --#{$key}-color-light:   #{map-get($palette, "light")};
+    --#{$key}-color-lighter: #{map-get($palette, "lighter")};
+  }
+}
+
+// ==========================================
+// 3. RENDU BOOTSTRAP 5.3.8 COMPLET
+// ==========================================
+
+// On importe le pack complet d'un coup
+@import "bootstrap-bundles/bootstrap-full";
+// ==========================================
+// 4. VOS COMPOSANTS MAGIXCMS
+// ==========================================
+@import "components/buttons";
+@import "components/cards";
+@import "components/badges";
+@import "components/table";
+@import "components/pageTab";
+@import "components/layout";
+// @import "layout/footer";
+// @import "components/cards";

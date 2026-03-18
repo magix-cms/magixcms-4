@@ -11,27 +11,27 @@
     {$page_css = ["splide.min", "gallery"] scope="parent"}
 {/block}
 
-{block name="article"}
-    <div class="container py-5">
+{* 🟢 Utilisation de article:content pour bénéficier de la balise <article> du layout parent *}
+{block name="article:content"}
 
-        {* --- FIL D'ARIANE DYNAMIQUE --- *}
-        {* On vérifie si la variable cat_name existe et n'est pas vide *}
-        {if !empty($product.cat_name)}
-            {$breadcrumbs = [
-            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-            ['url' => $product.url_cat, 'label' => $product.cat_name],
-            ['label' => $product.name]
-            ]}
-        {else}
-            {$breadcrumbs = [
-            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-            ['label' => $product.name]
-            ]}
-        {/if}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+    {* --- FIL D'ARIANE DYNAMIQUE --- *}
+    {if !empty($product.cat_name)}
+        {$breadcrumbs = [
+        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+        ['url' => $product.url_cat, 'label' => $product.cat_name],
+        ['label' => $product.name]
+        ]}
+    {else}
+        {$breadcrumbs = [
+        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+        ['label' => $product.name]
+        ]}
+    {/if}
+    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
-        {* --- EN-TÊTE --- *}
-        <div class="row mb-5">
+    {* --- EN-TÊTE --- *}
+    <header class="product-header mb-5">
+        <div class="row">
             <div class="col-12 text-center text-lg-start">
 
                 {* Badges : Prix, Référence (SKU) et EAN *}
@@ -96,9 +96,11 @@
                 {/if}
             </div>
         </div>
+    </header>
 
+    {* --- CONTENU TEXTE ET GALERIE --- *}
+    <section class="product-body mb-5">
         <div class="row">
-            {* --- CONTENU TEXTE --- *}
             <div class="col-lg-{$product.gallery|count > 0 ? '6' : '12'} mb-4">
                 <div class="content-formatted">
                     {* 🟢 Ajout du nofilter obligatoire pour le HTML généré par TinyMCE *}
@@ -160,7 +162,7 @@
                 </div>
             {/if}
         </div>
-    </div>
+    </section>
 {/block}
 
 {* 1. L'enfant déclare ses fichiers JS requis *}

@@ -1,0 +1,17 @@
+// bootstrap-bundles/_bootstrap-minimal.scss
+
+@import "../bootstrap5/root";
+@import "../bootstrap5/reboot";
+@import "../bootstrap5/type";
+@import "../bootstrap5/images";
+@import "../bootstrap5/containers";
+@import "../bootstrap5/grid";
+
+// --- Éléments de formulaire & Tableaux ---
+@import "../bootstrap5/tables";
+@import "../bootstrap5/forms";
+@import "../bootstrap5/buttons";
+
+// --- Helpers & Utilitaires ---
+@import "../bootstrap5/helpers";
+@import "../bootstrap5/utilities/api"; // Génère toutes les classes utilitaires (mt-5, text-center, etc.)

@@ -4,20 +4,19 @@
 {block name='head:title'}{if !empty($seo_title)}{$seo_title}{else}Contactez-nous{/if}{/block}
 {block name='head:description'}{$seo_desc|default:''}{/block}
 
-{block name="article"}
-    <div class="container py-5">
+{* 🟢 Utilisation de "article:content" pour garder la balise <article> et le container du layout *}
+{block name="article:content"}
 
-        {* --- FIL D'ARIANE --- *}
-        {* --- FIL D'ARIANE --- *}
-        {$breadcrumbs = [
-        ['label' => (!empty($page.name_page)) ? $page.name_page : 'Contact']
-        ]}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+    {* --- FIL D'ARIANE --- *}
+    {$breadcrumbs = [
+    ['label' => (!empty($page.name_page)) ? $page.name_page : 'Contact']
+    ]}
+    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
-        {* --- EN-TÊTE --- *}
-        <div class="row mb-5 mt-3">
+    {* --- EN-TÊTE --- *}
+    <header class="page-header mb-5 mt-3">
+        <div class="row">
             <div class="col-12 text-center text-lg-start">
-
                 {* Titre H1 : Dynamique OU Statique *}
                 <h1 class="display-4 fw-bold text-primary mb-3">
                     {if !empty($page.name_page)}
@@ -33,13 +32,15 @@
                 {else}
                     <p class="lead text-muted">Nous sommes à votre écoute. N'hésitez pas à nous contacter pour toute demande d'information, notre équipe vous répondra dans les plus brefs délais.</p>
                 {/if}
-
             </div>
         </div>
+    </header>
 
+    {* --- CONTENU : FORMULAIRE & COORDONNÉES --- *}
+    <section class="page-body mb-5">
         <div class="row g-5">
             {* --- COLONNE GAUCHE : LE FORMULAIRE --- *}
-            <section class="col-12 col-lg-7">
+            <div class="col-12 col-lg-7">
                 <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
                     <h2 class="h4 mb-4 fw-bold border-bottom pb-2">Envoyez-nous un message</h2>
 
@@ -55,9 +56,9 @@
                     {* Inclusion du formulaire *}
                     {include file="./forms.tpl"}
                 </div>
-            </section>
+            </div>
 
-            {* --- COLONNE DROITE : LES INFOS DE L'ENTREPRISE --- *}
+            {* --- COLONNE DROITE : LES INFOS DE L'ENTREPRISE (<aside>) --- *}
             <aside class="col-12 col-lg-5">
                 <div class="bg-light p-4 p-md-5 rounded border h-100">
                     <h2 class="h4 mb-4 fw-bold border-bottom pb-2">Nos coordonnées</h2>
@@ -110,8 +111,8 @@
                 </div>
             </aside>
         </div>
+    </section>
 
-    </div>
 {/block}
 
 {block name="javascript_data"}

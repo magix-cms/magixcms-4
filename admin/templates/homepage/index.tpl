@@ -31,14 +31,15 @@
             <div class="tab-content">
                 {if isset($langs)}
                     {foreach $langs as $id => $iso}
-                        {* ATTENTION : L'id "lang-{$id}" est crucial !
-                           Il fait le lien avec le data-bs-target du dropdown-lang.tpl
-                        *}
+                        {* 🟢 AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe, sinon on crée un tableau vide *}
+                        {$langContent = $page.content.$id|default:[]}
+
                         <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
                             <div class="row mb-3">
                                 <div class="col-md-9">
                                     <label for="title_{$id}" class="form-label fw-medium">{#title#}</label>
-                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$page.content.$id.title_page|default:''}" />
+                                    {* On utilise $langContent.title_page au lieu de $page.content.$id.title_page *}
+                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" maxlength="150" value="{$langContent.title_page|default:''}" required />
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">Statut</label>
@@ -49,7 +50,7 @@
                                                id="switch_test_{$id}"
                                                name="content[{$id}][published]"
                                                value="1"
-                                                {if $page.content.$id.published|default:0 == 1} checked{/if} />
+                                                {if $langContent.published|default:0 == 1} checked{/if} />
                                         <label class="form-check-label fs-6 text-muted" for="switch_test_{$id}">Publiée</label>
                                     </div>
                                 </div>
@@ -57,7 +58,7 @@
 
                             <div class="mb-4">
                                 <label for="content_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                <textarea name="content[{$id}][content_page]" id="content_{$id}" class="form-control mceEditor" rows="10">{$page.content.$id.content_page|default:''}</textarea>
+                                <textarea name="content[{$id}][content_page]" id="content_{$id}" class="form-control mceEditor" rows="10">{$langContent.content_page|default:''}</textarea>
                             </div>
 
                             {* 4. ACCORDÉON SEO *}
@@ -70,10 +71,6 @@
                                     </h2>
                                     <div id="seo_{$id}" class="accordion-collapse collapse" data-bs-parent="#seoAccordion_{$id}">
                                         <div class="accordion-body bg-white border-top">
-                                            {*<div class="mb-3">
-                                                <label for="seo_title_{$id}" class="form-label text-muted small">{#title#} SEO :</label>
-                                                <textarea class="form-control" id="seo_title_{$id}" name="content[{$id}][seo_title_page]" rows="2">{$page.content.$id.seo_title_page|default:''}</textarea>
-                                            </div>*}
                                             <div class="mb-2">
                                                 <label for="seo_title_{$id}" class="form-label d-flex justify-content-between">
                                                     Titre SEO
@@ -82,10 +79,11 @@
                                                 <input type="text"
                                                        id="seo_title_{$id}"
                                                        name="content[{$id}][seo_title_page]"
-                                                       class="form-control seo-counter{* count-words*}"
+                                                       class="form-control seo-counter"
                                                        data-target="#count-title-{$id}"
-                                                       {*data-max="70"*}
-                                                       value="{$page.content.$id.seo_title_page}" />
+                                                       data-max="70"
+                                                       maxlength="180"
+                                                       value="{$langContent.seo_title_page|default:''}" />
                                             </div>
                                             <div class="mb-2">
                                                 <label for="seo_desc_{$id}" class="form-label d-flex justify-content-between">
@@ -94,10 +92,10 @@
                                                 </label>
                                                 <textarea id="seo_desc_{$id}"
                                                           name="content[{$id}][seo_desc_page]"
-                                                          class="form-control seo-counter{* count-words*}"
+                                                          class="form-control seo-counter"
                                                           data-target="#count-desc-{$id}"
                                                           data-max="180"
-                                                          rows="3">{$page.content.$id.seo_desc_page}</textarea>
+                                                          rows="3">{$langContent.seo_desc_page|default:''}</textarea>
                                             </div>
                                         </div>
                                     </div>

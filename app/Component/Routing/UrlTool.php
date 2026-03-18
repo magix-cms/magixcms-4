@@ -22,9 +22,7 @@ class UrlTool
         $this->amp = Request::isGet('amp');
     }
 
-    /**
-     * Construit les URLs publiques selon le type de contenu
-     */
+
     /**
      * Construit les URLs publiques selon le type de contenu
      */
@@ -49,35 +47,46 @@ class UrlTool
         if (!empty($data['date'])) {
             $sqlDate = DateTool::toSql((string)$data['date']);
             if ($sqlDate) {
-                // CORRECTIF : On remplace les tirets par des slashs (2026-03-12 -> 2026/03/12)
                 $formattedDate = str_replace('-', '/', substr($sqlDate, 0, 10));
             }
         }
 
+        // 🟢 AJOUT : Le Fallback "Anti-Doublon" pour les liens inconnus
+        $urlFallback = '';
+        if (!empty($data['url'])) {
+            $urlStr = (string)$data['url'];
+            if (str_starts_with($urlStr, 'http')) {
+                $urlFallback = $urlStr;
+            } else {
+                $urlStr = '/' . ltrim($urlStr, '/');
+                // Si l'URL commence DÉJÀ par /fr/, on ne rajoute pas la base !
+                if (str_starts_with($urlStr, "/{$iso}/") || $urlStr === "/{$iso}") {
+                    $urlFallback = $urlStr;
+                } else {
+                    $urlFallback = "{$basePath}{$urlStr}";
+                }
+            }
+        } else {
+            $urlFallback = "{$basePath}/";
+        }
+
         return match ($type) {
-            // 🟢 AJOUT : La racine du catalogue
             'catalog'        => "{$basePath}/catalog/",
-
             'pages', 'about' => "{$basePath}/{$type}/{$id}-{$slug}/",
-
             'category'       => "{$basePath}/catalog/{$id}-{$slug}/",
-
             'product'        => isset($data['id_category'], $data['url_category'])
                 ? "{$basePath}/catalog/{$data['id_category']}-{$data['url_category']}/{$id}-{$slug}/"
-                : "{$basePath}/catalog/{$id}-{$slug}/", // Fallback au cas où le parent manque
-
-            // 🟢 CORRECTION : Sécurisation si c'est la racine des news (pas d'ID)
+                : "{$basePath}/catalog/{$id}-{$slug}/",
             'news'           => empty($id)
                 ? "{$basePath}/news/"
                 : (!empty($formattedDate)
                     ? "{$basePath}/news/{$formattedDate}/{$id}-{$slug}/"
                     : "{$basePath}/news/{$id}-{$slug}/"),
-
             'date'           => "{$basePath}/news/" . ($data['year'] ?? '') . '/' . (!empty($data['month']) ? sprintf('%02d', $data['month']) . '/' : ''),
-
             'tag'            => "{$basePath}/news/tag/{$id}-{$slug}/",
 
-            default          => ''
+            // On utilise notre sécurité au lieu d'un simple string
+            default          => $urlFallback
         };
     }
 

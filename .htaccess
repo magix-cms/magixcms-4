@@ -198,7 +198,7 @@ ErrorDocument 500 /index.php?http_error=500
     # 3. FORCER LE WWW - Désactivé en local
     RewriteCond %{HTTP_HOST} !^www\.
     RewriteCond %{HTTP_HOST} !^localhost$
-    RewriteCond %{HTTP_HOST} !\.test$
+    #RewriteCond %{HTTP_HOST} !\.test$
     RewriteRule .* http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # 4. RÉÉCRITURE EN CASCADE (Logique URL Front-end)

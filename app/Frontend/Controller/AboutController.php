@@ -63,10 +63,39 @@ class AboutController extends BaseController
 
         $jsonLdList = SeoHelper::generateItemListJsonLd($about['subdata']);
 
+        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (About)
+        $allLangs = $this->view->getTemplateVars('langs');
+        $hreflangUrls = [];
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        if ($allLangs && is_array($allLangs)) {
+            foreach ($allLangs as $l) {
+                $lId = (int)$l['id_lang'];
+                $lIso = strtolower($l['iso_lang']);
+
+                // Requête spécifique à About
+                $translatedAbout = $db->getAboutPage($id, $lId);
+
+                if ($translatedAbout && !empty($translatedAbout['url_about'])) {
+                    $hreflangUrls[$lId] = $urlTool->buildUrl([
+                        'type' => 'about',
+                        'id'   => $id,
+                        'url'  => $translatedAbout['url_about'],
+                        'iso'  => $lIso
+                    ]);
+
+                    if (isset($l['is_default']) && $l['is_default'] == 1) {
+                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    }
+                }
+            }
+        }
+
         // 4. Assignation Smarty
         $this->view->assign([
             'about'     => $about,
             'json_ld'   => $jsonLdList,
+            'hreflang' => $hreflangUrls,
             'seo_title' => $about['seo']['title'],
             'seo_desc'  => $about['seo']['description']
         ]);

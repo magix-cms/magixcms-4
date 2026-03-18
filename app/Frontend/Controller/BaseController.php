@@ -18,6 +18,7 @@ use App\Component\File\ImageTool;
 use Smarty\Smarty;
 use Magepattern\Component\HTTP\JSON;
 use App\Component\Routing\UrlTool;
+use App\Frontend\Model\SeoHelper;
 
 abstract class BaseController
 {
@@ -64,6 +65,7 @@ abstract class BaseController
         $this->initGlobalData();
         $this->initMenu();
         $this->initTranslations();
+        $this->initCanonicalUrl();
     }
 
     /**
@@ -78,6 +80,8 @@ abstract class BaseController
     /**
      * @return void
      */
+    // BaseController.php
+
     private function initMenu(): void
     {
         $menuDb = new MenuDb();
@@ -88,6 +92,23 @@ abstract class BaseController
         $menuTree = $menuDb->getFrontendTree($idLang, $isoLang);
 
         foreach ($menuTree as &$item) {
+
+            // 🟢 1. SÉCURISATION DU LIEN PARENT (Niveau 1)
+            // On corrige les liens plugins ou custom (ex: /contact/) sans toucher aux liens déjà formatés
+            $urlLink = (string)($item['url_link'] ?? '');
+
+            if (!empty($urlLink) && !str_starts_with($urlLink, 'http') && $urlLink !== '#') {
+                $urlLink = '/' . ltrim($urlLink, '/'); // Assure qu'on commence par un seul slash
+
+                // Si l'URL ne commence pas DÉJÀ par la langue (ex: /fr/), on l'ajoute !
+                if (!str_starts_with($urlLink, "/{$isoLang}/") && $urlLink !== "/{$isoLang}") {
+                    $item['url_link'] = "/{$isoLang}{$urlLink}";
+                } else {
+                    $item['url_link'] = $urlLink;
+                }
+            }
+
+            // 2. ON TRAITE LES ENFANTS (Niveau 2+) SI DROPDOWN/MEGA
             if (isset($item['mode_link']) && in_array($item['mode_link'], ['dropdown', 'mega'])) {
                 $type = $item['type_link'] ?? '';
                 $idPageTarget = (int)($item['id_page'] ?? 0);
@@ -98,33 +119,30 @@ abstract class BaseController
                     foreach ($subData as &$sub) {
                         $sub['url_link'] = $urlTool->buildUrl([
                             'type' => 'pages',
-                            'id' => $sub['id_pages'],
-                            'url' => $sub['url_pages'] ?? $sub['url_link'],
-                            'iso' => $isoLang]
-                        );
+                            'id'   => $sub['id_pages'],
+                            'url'  => $sub['url_pages'] ?? $sub['url_link'],
+                            'iso'  => $isoLang
+                        ]);
                     }
                     $item['subdata'] = $subData;
                 }
-
                 // --- MODULE ABOUT ---
                 elseif ($type === 'about_page' && $idPageTarget > 0) {
                     $subData = $menuDb->getSubAbout($idPageTarget, $idLang);
                     foreach ($subData as &$sub) {
                         $sub['url_link'] = $urlTool->buildUrl([
                             'type' => 'about',
-                            'id' => $sub['id_about'],
-                            'url' => $sub['url_about'],
-                            'iso' => $isoLang]
-                        );
+                            'id'   => $sub['id_about'],
+                            'url'  => $sub['url_about'],
+                            'iso'  => $isoLang
+                        ]);
                     }
                     $item['subdata'] = $subData;
                 }
-
                 // --- MODULE CATALOGUE (CATEGORIES) ---
                 elseif ($type === 'category' && $idPageTarget > 0) {
                     $subData = $menuDb->getSubCategories($idPageTarget, $idLang);
                     foreach ($subData as &$sub) {
-                        // L'UrlTool utilisera le cas 'category' de son switch match()
                         $sub['url_link'] = $urlTool->buildUrl([
                             'type' => 'category',
                             'id'   => $sub['id_cat'],
@@ -262,6 +280,9 @@ abstract class BaseController
     /**
      * Centralise le chargement de TOUTES les données transversales
      */
+    /**
+     * Centralise le chargement de TOUTES les données transversales
+     */
     private function initGlobalData(): void
     {
         try {
@@ -299,21 +320,24 @@ abstract class BaseController
             $this->view->assign('logoFooter', $activeFooterLogo);
 
             // 3. VARIABLES D'URL POUR LE FRONTEND (Multilingue)
-            // On récupère le site_url généré juste avant
-            // On récupère le site_url généré juste avant
             $baseUrl = $this->view->getTemplateVars('site_url') . '/';
             $langIso = $this->currentLang['iso_lang'] ?? '';
 
-            // On vérifie le multilingue en comptant le tableau envoyé par initLanguage
             $langs = $this->view->getTemplateVars('langs');
             $isMultilang = (is_array($langs) && count($langs) > 1);
 
             $this->view->assign([
                 'base_url'     => $baseUrl,
-                'lang_iso'     => $langIso, // <--- CORRECTION ICI : On utilise lang_iso
+                'lang_iso'     => $langIso,
                 'is_multilang' => $isMultilang
             ]);
-            // 4 Share
+
+            // 🟢 4. SEO GLOBAL (JSON-LD WebSite)
+            $siteName = $companyInfo['name'] ?? 'Magix CMS';
+            $websiteJsonLd = SeoHelper::generateWebSiteJsonLd($siteName, $baseUrl);
+            $this->view->assign('website_json_ld', $websiteJsonLd);
+
+            // 5 Share
             $shareDb = new ShareDb();
             $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
 
@@ -375,6 +399,39 @@ abstract class BaseController
         } catch (\Throwable $e) {
             $this->logger->log("Erreur chargement i18n front (Plugins) : " . $e->getMessage(), "warning");
         }
+    }
+    private function initCanonicalUrl(): void
+    {
+        $settingDb = new SettingDb(); // Ou DomainDb selon où vous avez placé la méthode SQL
+        $canonicalDomain = $settingDb->getCanonicalDomain();
+
+        // Si aucun domaine canonique n'est défini en BDD, on s'arrête là.
+        // La balise <link> ne sera pas affichée.
+        if (!$canonicalDomain) {
+            $this->view->assign('canonical_url', false);
+            return;
+        }
+
+        // On récupère le protocole (http ou https)
+        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
+        $protocol = ($isSsl === 1) ? 'https://' : 'http://';
+
+        // On nettoie le domaine canonique (au cas où il y aurait un slash à la fin en BDD)
+        $cleanDomain = rtrim($canonicalDomain, '/');
+
+        // On récupère le chemin complet demandé par l'utilisateur (ex: /fr/contact.html?source=fb)
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+
+        // Optionnel : En SEO strict, on enlève souvent les paramètres GET (tout ce qui suit le "?")
+        // de l'URL canonique pour éviter les duplicatas liés au tracking (ex: ?utm_source=...)
+        $uriParts = explode('?', $requestUri);
+        $cleanUri = $uriParts[0];
+
+        // On assemble l'URL canonique parfaite !
+        $canonicalUrl = $protocol . $cleanDomain . $cleanUri;
+
+        // On l'envoie à Smarty
+        $this->view->assign('canonical_url', $canonicalUrl);
     }
     /**
      * Envoie une réponse JSON proprement formatée et arrête le script.

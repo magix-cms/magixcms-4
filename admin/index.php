@@ -11,6 +11,13 @@ define('MP_LOG_DIR',ROOT_DIR.BASEADMIN.DS.'var'.DS);
 define('SQLCACHEADMIN', ROOT_DIR.BASEADMIN . DS);
 define('EDITOR', '7.6.1');
 
+$config = APP_PATH.'init'.DS.'config.php';
+if (file_exists($config)) {
+    require $config;
+}else {
+    header('Location: /install/');
+}
+
 /*define('MP_DBHOST' , 'localhost');
 define('MP_DBNAME' , 'magixcms4');
 define('MP_DBUSER' , 'root');

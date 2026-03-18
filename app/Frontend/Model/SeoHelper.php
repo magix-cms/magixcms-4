@@ -38,4 +38,27 @@ class SeoHelper
 
         return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
+    /**
+     * Génère le JSON-LD global du site web (à placer dans le head de toutes les pages)
+     */
+    public static function generateWebSiteJsonLd(string $siteName, string $siteUrl): string
+    {
+        // On s'assure que l'URL de base se termine par un slash
+        $baseUrl = rtrim($siteUrl, '/') . '/';
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type'    => 'WebSite',
+            'name'     => $siteName,
+            'url'      => $baseUrl/*,
+            'potentialAction' => [
+                '@type'       => 'SearchAction',
+                // Adaptez l'URL '/search?q=' selon la vraie route de recherche de votre CMS
+                'target'      => $baseUrl . 'search?q={search_term_string}',
+                'query-input' => 'required name=search_term_string'
+            ]*/
+        ];
+
+        return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
+    }
 }

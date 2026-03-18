@@ -1,12 +1,25 @@
 // base/_typography.scss
 
+html {
+  height: 100%;
+}
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; // Prend toute la hauteur de l'écran au minimum
   font-family: $font-family-base;
   font-size: var(--fz-base); // Le texte grandira seul
   line-height: $line-height-base;
   @include media-breakpoint-down(lg) {
     padding-bottom: 60px; // La hauteur approximative de votre footbar
   }
+}
+main {
+  flex: 1 0 auto; // Force cette zone à occuper tout l'espace restant
+}
+
+footer {
+  flex-shrink: 0; // Empêche le footer de s'écraser
 }
 
 h1, .h1 { font-size: var(--fz-h1); }
