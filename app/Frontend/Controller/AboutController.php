@@ -66,7 +66,7 @@ class AboutController extends BaseController
         // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (About)
         $allLangs = $this->view->getTemplateVars('langs');
         $hreflangUrls = [];
-        $urlTool = new \App\Component\Routing\UrlTool();
+        $urlTool = new UrlTool();
 
         if ($allLangs && is_array($allLangs)) {
             foreach ($allLangs as $l) {

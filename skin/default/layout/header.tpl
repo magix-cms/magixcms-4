@@ -20,11 +20,6 @@
             </a>
         </div>
 
-        {* LANGUE DESKTOP *}
-        <div class="d-none d-lg-block">
-            {include file="components/language_switcher.tpl"}
-        </div>
-
         {* LE MENU OFFCANVAS *}
         <div class="offcanvas offcanvas-start w-75" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
 
@@ -47,6 +42,10 @@
                 </button>
             </div>
 
+        </div>
+        {* LANGUE DESKTOP *}
+        <div class="d-none d-lg-block">
+            {include file="components/language_switcher.tpl"}
         </div>
 
     </div>

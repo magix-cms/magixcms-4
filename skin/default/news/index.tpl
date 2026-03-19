@@ -3,6 +3,10 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{block name="styleSheet" append nocache}
+    {$page_css = ["news"] scope="parent"}
+{/block}
+
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}
     {$json_ld|default:'' nofilter}

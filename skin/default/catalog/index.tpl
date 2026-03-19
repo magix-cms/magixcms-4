@@ -4,6 +4,10 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{block name="head:structured_data"}
+    {$website_json_ld|default:'' nofilter}
+{/block}
+
 {* On injecte les variables CSS dans le bloc prévu en haut *}
 {block name="styleSheet" append nocache}
     {$page_css = ["catalog"] scope="parent"}
@@ -24,7 +28,7 @@
                 <h1 class="display-4 fw-bold text-primary mb-4">{$catalog_home.title}</h1>
 
                 {if $catalog_home.content}
-                    <div class="content-formatted lead text-muted">
+                    <div class="content-formatted text-muted">
                         {$catalog_home.content|default:'' nofilter}
                     </div>
                 {/if}

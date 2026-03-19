@@ -27,11 +27,11 @@
   --spacer: #{$spacer};
   --grid-gutter: var(--spacer);
   --toolbar-h: 0px;
-  --header-h: 80px;
+  --header-h: #{$header-h};
   --header-bg: #{$white};
 
   @include media-breakpoint-up(md) {
-    --toolbar-h: 40px;
+    --toolbar-h: #{$toolbar-h};
   }
   --footbar-text: #212529;
 }

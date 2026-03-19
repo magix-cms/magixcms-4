@@ -16,7 +16,7 @@
                 </button>
                 <ul class="dropdown-menu shadow border-0 mb-2">
                     {foreach $langs as $l}
-                        <li><a class="dropdown-item {if $l.id_lang == $current_lang.id_lang}active{/if}" href="{$base_url}{$l.iso_lang}/">{$l.name_lang}</a></li>
+                        <li><a class="dropdown-item {if $l.id_lang == $current_lang.id_lang}active{/if}" href="{$base_url}{$l.iso_lang}/">{$l.iso_lang|upper}</a></li>
                     {/foreach}
                 </ul>
             </div>

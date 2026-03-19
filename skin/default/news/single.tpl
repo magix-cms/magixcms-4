@@ -59,18 +59,6 @@
                 <div class="content-formatted">
                     {$news.content|default:'' nofilter}
                 </div>
-
-                {* --- TAGS --- *}
-                {if !empty($news.tags)}
-                    <div class="mt-5 pt-4 border-top">
-                        <h5 class="mb-3 h6 fw-bold">Mots-clés :</h5>
-                        {foreach $news.tags as $tag}
-                            <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-light text-secondary text-decoration-none me-2 mb-2 p-2 border">
-                                #{$tag.name_tag}
-                            </a>
-                        {/foreach}
-                    </div>
-                {/if}
             </div>
 
             {* --- GALERIE D'IMAGES AVEC SPLIDE --- *}
@@ -111,6 +99,19 @@
                 </div>
             {/if}
         </div>
+    </section>
+    <section class="page-body mb-5">
+        {* --- TAGS --- *}
+        {if !empty($news.tags)}
+            <div class="mt-5 pt-4 border-top">
+                <h5 class="mb-3 h6 fw-bold">Mots-clés :</h5>
+                {foreach $news.tags as $tag}
+                    <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-light text-secondary text-decoration-none me-2 mb-2 p-2 border">
+                        #{$tag.name_tag}
+                    </a>
+                {/foreach}
+            </div>
+        {/if}
     </section>
 
 {/block}

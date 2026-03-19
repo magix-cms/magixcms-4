@@ -28853,6 +28853,12 @@ h6, .h6 {
 #header .container {
   height: 100%;
 }
+@media (min-width: 768px) {
+  #header .dropdown {
+    margin-left: var(--spacer);
+  }
+}
+
 /* 🟢 SÉCURITÉ MENU FIXE : Repousse le tout premier élément (quel qu'il soit) qui suit le header */
 /* 🟢 SÉCURITÉ MENU : Repousse le tout premier élément qui suit le header */
 #header + * {
@@ -29121,13 +29127,5 @@ h6, .h6 {
     color: var(--main-color, var(--bs-primary)) !important;
   }
 }
-
-/*.home-header,
-.catalog-header,
-.category-header,
-.product-header,
-.page-header {
-  padding-top: var(--header-h);
-}*/
 
 /*# sourceMappingURL=global.css.map */

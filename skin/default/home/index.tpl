@@ -7,7 +7,7 @@
 
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}
-    {$json_ld|default:'' nofilter}
+    {$website_json_ld|default:'' nofilter}
 {/block}
 
 {* On injecte les variables CSS dans le bloc prévu en haut *}
