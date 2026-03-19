@@ -4,18 +4,22 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{* On injecte les variables CSS dans le bloc prévu en haut *}
+{block name="styleSheet" append nocache}
+    {$page_css = ["catalog"] scope="parent"}
+{/block}
+
 {* 🟢 Utilisation de "article" pour ÉCRASER la balise <article> du layout *}
 {block name="article"}
 
+    {* 🟢 CORRECTION : Le fil d'Ariane retrouve sa place naturelle, au-dessus du header *}
     {* --- FIL D'ARIANE --- *}
-    {$breadcrumbs = [
-    ['label' => 'Catalogue']
-    ]}
+    {$breadcrumbs = [['label' => 'Catalogue']]}
     {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
     {* --- 1. EN-TÊTE DE LA PAGE D'ACCUEIL DU CATALOGUE --- *}
     <header class="catalog-header mb-5">
-        <div class="row">
+        <div class="row"> {* Retrait du mt-3 qui n'est plus nécessaire *}
             <div class="col-12 text-center text-lg-start">
                 <h1 class="display-4 fw-bold text-primary mb-4">{$catalog_home.title}</h1>
 

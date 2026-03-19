@@ -39,7 +39,7 @@
                                 <div class="col-md-9">
                                     <label for="title_{$id}" class="form-label fw-medium">{#title#}</label>
                                     {* On utilise $langContent.title_page au lieu de $page.content.$id.title_page *}
-                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" maxlength="150" value="{$langContent.title_page|default:''}" required />
+                                    <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" maxlength="150" value="{$langContent.title_page|default:''}"  />
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-medium">Statut</label>

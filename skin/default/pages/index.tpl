@@ -17,16 +17,16 @@
 {/block}
 
 {block name="article:content"}
-    {* 🟢 AJOUT DU CONTAINER AVEC "py-5" POUR RÉTABLIR L'ESPACEMENT *}
     <article>
-
-        {* --- FIL D'ARIANE --- *}
-        {$breadcrumbs = [['label' => $pages.name]]}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
         {* --- EN-TÊTE --- *}
         <header class="page-header mb-5">
-            <div class="row">
+
+            {* --- FIL D'ARIANE --- *}
+            {$breadcrumbs = [['label' => $pages.name]]}
+            {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+            <div class="row mt-3">
                 <div class="col-12 text-center text-lg-start">
                     <h1 class="display-4 fw-bold text-primary mb-3">{$pages.name}</h1>
                     {if $pages.resume}

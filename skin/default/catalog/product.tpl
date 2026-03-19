@@ -14,24 +14,25 @@
 {* 🟢 Utilisation de article:content pour bénéficier de la balise <article> du layout parent *}
 {block name="article:content"}
 
-    {* --- FIL D'ARIANE DYNAMIQUE --- *}
-    {if !empty($product.cat_name)}
-        {$breadcrumbs = [
-        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-        ['url' => $product.url_cat, 'label' => $product.cat_name],
-        ['label' => $product.name]
-        ]}
-    {else}
-        {$breadcrumbs = [
-        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-        ['label' => $product.name]
-        ]}
-    {/if}
-    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
-
     {* --- EN-TÊTE --- *}
     <header class="product-header mb-5">
-        <div class="row">
+
+        {* --- FIL D'ARIANE DYNAMIQUE --- *}
+        {if !empty($product.cat_name)}
+            {$breadcrumbs = [
+            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+            ['url' => $product.url_cat, 'label' => $product.cat_name],
+            ['label' => $product.name]
+            ]}
+        {else}
+            {$breadcrumbs = [
+            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+            ['label' => $product.name]
+            ]}
+        {/if}
+        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+        <div class="row mt-3">
             <div class="col-12 text-center text-lg-start">
 
                 {* Badges : Prix, Référence (SKU) et EAN *}

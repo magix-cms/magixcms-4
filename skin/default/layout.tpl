@@ -12,7 +12,6 @@
         <link rel="canonical" href="{$canonical_url}" />
     {/if}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
     {include file="components/google_fonts.tpl" fonts=[
     'Roboto' => '300,400,400italic,700',
@@ -32,7 +31,7 @@
 {block name="main:before"}{/block}
 {block name="main"}
     <main class="flex-grow-1">
-        <div class="container py-5">
+        <div class="container py-2">
         {block name='article'}
             <article>
                 {block name='article:content'}{/block}
@@ -92,6 +91,15 @@
 
     });
 </script>
+{if isset($admin_maintenance_warning) && $admin_maintenance_warning}
+    <div class="position-fixed start-0 bottom-0 p-3" style="z-index: 1090; margin-bottom: 80px;">
+        <div class="alert alert-warning alert-dismissible fade show shadow-lg mb-0 py-2 pe-5" role="alert" style="border-radius: 50rem;">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 align-middle"></i>
+            <span class="fw-bold small align-middle">Mode Maintenance</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer" style="top: 50%; transform: translateY(-50%); padding: 0.75rem; right: 0.5rem;"></button>
+        </div>
+    </div>
+{/if}
 <div id="magix-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 </body>
 </html>

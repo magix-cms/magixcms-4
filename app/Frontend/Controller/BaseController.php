@@ -60,6 +60,10 @@ abstract class BaseController
         $this->initSettings();
         $this->initSiteUrl();
         $this->initSkin();
+        // 🟢 2. ON VÉRIFIE LA MAINTENANCE ICI !
+        // Si c'est un visiteur, le script fera un "exit" à l'intérieur de cette méthode
+        // et le reste du constructeur ne sera jamais exécuté.
+        $this->checkMaintenanceMode();
         $this->initLanguage();
 
         $this->initGlobalData();
@@ -432,6 +436,40 @@ abstract class BaseController
 
         // On l'envoie à Smarty
         $this->view->assign('canonical_url', $canonicalUrl);
+    }
+
+    /**
+     * Vérifie si le site est en maintenance et bloque l'accès aux visiteurs.
+     * Laisse passer les administrateurs connectés avec un avertissement.
+     */
+    private function checkMaintenanceMode(): void
+    {
+        $isMaintenance = isset($this->siteSettings['maintenance']['value']) ? (int)$this->siteSettings['maintenance']['value'] : 0;
+
+        if ($isMaintenance === 1) {
+
+            // On utilise bien 'id_admin' comme vous l'avez précisé
+            $isAdminLoggedIn = $this->session->get('id_admin') !== null;
+
+            if (!$isAdminLoggedIn) {
+                // VISITEUR : On bloque et on affiche la page 503
+                header('HTTP/1.1 503 Service Temporarily Unavailable');
+                header('Status: 503 Service Temporarily Unavailable');
+                header('Retry-After: 3600');
+
+                $this->view->assign('companyData', $this->siteSettings['site_name']['value'] ?? 'MagixCMS');
+                $this->view->assign('skin_url', $this->view->getTemplateVars('site_url') . '/skin/default');
+
+                $this->view->display('maintenance.tpl');
+                exit;
+            } else {
+                // 🟢 ADMINISTRATEUR : On laisse passer, mais on prévient Smarty !
+                $this->view->assign('admin_maintenance_warning', true);
+            }
+        } else {
+            // Sécurité : on s'assure que la variable est à false en temps normal
+            $this->view->assign('admin_maintenance_warning', false);
+        }
     }
     /**
      * Envoie une réponse JSON proprement formatée et arrête le script.

@@ -12,70 +12,73 @@ class CatalogController extends BaseController
 {
     public function run(): void
     {
-        // Pas besoin de routeur complexe, le root du catalogue EST la page d'accueil de la boutique.
-        if (Request::isMethod('POST')) {
-            $this->processSave();
+        $catalogDb = new CatalogDb();
+
+        // On utilise la même logique que Homepage : l'action 'edit' déclenche la sauvegarde
+        if (Request::isMethod('POST') && Request::isGet('action') && $_GET['action'] === 'edit') {
+            $this->processSave($catalogDb);
             return;
         }
 
-        $this->index();
-    }
+        // Chargement des données au format unifié ['id_page' => X, 'content' => [...]]
+        $pageData = $catalogDb->getCatalogHomeData();
 
-    private function index(): void
-    {
-        $db = new CatalogDb();
-
-        // On assigne les données actuelles à la vue
         $this->view->assign([
-            'catalog_home' => $db->getCatalogHome(),
-            'content'      => $db->getCatalogHomeContent(),
-            'hashtoken'    => $this->session->getToken()
+            'page'      => $pageData,
+            'hashtoken' => $this->session->getToken()
         ]);
 
         $this->view->display('catalog/index.tpl');
     }
 
-    private function processSave(): void
+    private function processSave(CatalogDb $db): void
     {
-        $token = $_POST['hashtoken'] ?? '';
+        $token = Request::isPost('hashtoken') ? $_POST['hashtoken'] : '';
+
         if (!$this->session->validateToken($token)) {
-            $this->jsonResponse(false, 'Session expirée.');
+            $this->jsonResponse(false, 'Session expirée ou jeton invalide.');
         }
 
-        $db = new CatalogDb();
-        $langs = $this->view->getTemplateVars('langs') ?? [];
-        $success = true;
+        if (isset($_POST['content']) && is_array($_POST['content'])) {
+            $idPage = $db->getOrInsertCatalogHomeId();
 
-        // On boucle sur toutes les langues actives
-        foreach ($langs as $idLang => $iso) {
+            if ($idPage === 0) {
+                $this->jsonResponse(false, 'Erreur critique : Impossible de créer la page racine du catalogue.');
+            }
 
-            // On récupère les données postées pour cette langue spécifique
-            $title    = $_POST['title_page'][$idLang] ?? '';
-            $content  = $_POST['content_page'][$idLang] ?? '';
-            $seoTitle = $_POST['seo_title_page'][$idLang] ?? '';
-            $seoDesc  = $_POST['seo_desc_page'][$idLang] ?? '';
-            $status   = isset($_POST['published'][$idLang]) ? 1 : 0;
+            $success = true;
 
-            // On ne sauvegarde que si un titre est renseigné
-            if (!empty($title)) {
+            foreach ($_POST['content'] as $idLang => $values) {
+                // Utilisation de ?? '' pour éviter les erreurs PHP 8
+                $title     = $values['title_page'] ?? '';
+                $content   = $values['content_page'] ?? '';
+                $seoTitle  = $values['seo_title_page'] ?? '';
+                $seoDesc   = $values['seo_desc_page'] ?? '';
+                $published = isset($values['published']) ? 1 : 0;
+
                 $data = [
                     'title_page'     => FormTool::simpleClean($title),
-                    'content_page'   => $content, // Attention: WYSIWYG, ne pas trop nettoyer !
+                    'content_page'   => $content,
                     'seo_title_page' => FormTool::simpleClean($seoTitle),
                     'seo_desc_page'  => FormTool::simpleClean($seoDesc),
-                    'published'      => $status
+                    'published'      => $published
                 ];
 
-                if (!$db->saveCatalogContent($idLang, $data)) {
+                if (!$db->saveCatalogContent($idPage, (int)$idLang, $data)) {
                     $success = false;
                 }
             }
-        }
 
-        if ($success) {
-            $this->jsonResponse(true, 'La page racine du catalogue a été mise à jour avec succès.', ['type' => 'update']);
+            if ($success) {
+                $this->jsonResponse(true, 'La page racine du catalogue a été mise à jour avec succès.', [
+                    'type' => 'update',
+                    'id'   => $idPage
+                ]);
+            } else {
+                $this->jsonResponse(false, 'Erreur lors de la sauvegarde du contenu multilingue.');
+            }
         } else {
-            $this->jsonResponse(false, 'Une erreur est survenue lors de l\'enregistrement de certaines traductions.');
+            $this->jsonResponse(false, 'Aucune donnée reçue.');
         }
     }
 }

@@ -22,16 +22,17 @@
 {* 🟢 Utilisation de "article" pour ÉCRASER la balise <article> du layout (car ce n'est pas un article) *}
 {block name="article"}
 
-    {* --- FIL D'ARIANE --- *}
-    {$breadcrumbs = [
-    ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-    ['label' => $category.name]
-    ]}
-    {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
-
     {* --- 1. EN-TÊTE DE LA CATÉGORIE --- *}
     <header class="category-header mb-5">
-        <div class="row">
+
+        {* --- FIL D'ARIANE --- *}
+        {$breadcrumbs = [
+            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
+            ['label' => $category.name]
+        ]}
+        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+        <div class="row mt-3">
             <div class="col-12 text-center text-lg-start">
                 <h1 class="display-4 fw-bold text-primary mb-3">{$category.name}</h1>
                 {if $category.resume}

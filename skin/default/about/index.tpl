@@ -17,13 +17,15 @@
 
 {block name="article"}
     <article>
-        {* 🟢 --- FIL D'ARIANE --- *}
-        {$breadcrumbs = [['label' => $about.name]]}
-        {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
         {* --- EN-TÊTE --- *}
         <header class="page-header mb-5">
-            <div class="row">
+
+            {* --- FIL D'ARIANE --- *}
+            {$breadcrumbs = [['label' => $about.name]]}
+            {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
+
+            <div class="row mt-3">
                 <div class="col-12 text-center text-lg-start">
                     <h1 class="display-4 fw-bold text-primary mb-3">{$about.name}</h1>
                     {if $about.resume}

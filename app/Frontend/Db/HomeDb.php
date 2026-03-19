@@ -18,7 +18,8 @@ class HomeDb extends BaseDb
         $qb->select(['p.*', 'c.*'])
             ->from('mc_home_page', 'p')
             ->join('mc_home_page_content', 'c', 'p.id_page = c.id_page')
-            ->where('c.id_lang = :lang', ['lang' => $idLang])
+            // 🟢 AJOUT CRUCIAL : "AND c.published = 1"
+            ->where('c.id_lang = :lang AND c.published = 1', ['lang' => $idLang])
             ->limit(1);
 
         return $this->executeRow($qb);

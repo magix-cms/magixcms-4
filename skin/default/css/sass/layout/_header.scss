@@ -29,9 +29,16 @@
   & + div,
   & + section,
   & + main {
-    margin-top: calc(var(--header-h) + var(--toolbar-h, 0px));
+    //margin-top: calc(var(--header-h) + var(--toolbar-h, 0px));
   }
 }
+/* 🟢 SÉCURITÉ MENU FIXE : Repousse le tout premier élément (quel qu'il soit) qui suit le header */
+/* 🟢 SÉCURITÉ MENU : Repousse le tout premier élément qui suit le header */
+#header + * {
+  margin-top: calc(var(--header-h, 100px) + var(--toolbar-h, 40px));
+  //var(--header-h, 100px) !important;
+}
+//.hero-transparent { margin-top: 0 !important; }
 
 .site-name {
   text-align: center;
@@ -44,33 +51,45 @@
   }
 
   a {
-    display: inline-block; // Mieux que block pour épouser la taille du logo
+    // 🟢 LA MAGIE FLEXBOX : Centre le contenu parfaitement
+    display: flex;
+    align-items: center; // Centre verticalement
+    height: var(--header-h); // Prend la hauteur totale du menu
+
     text-decoration: none;
     color: var(--mc-primary);
     font-weight: $font-weight-bold;
     font-family: $headings-font-family;
-    // On décolle le logo du haut du navigateur (espace de respiration)
-    padding-top: 10px;
+
+    // ❌ SUPPRIMÉ : On enlève le padding-top global qui faussait le texte
   }
 
+  // 🟢 NOUVEAU : Si c'est le logo texte (span)
+  span {
+    margin: 0 !important; // Annule les marges résiduelles de Bootstrap (ex: mb-0)
+    line-height: 1; // Évite les débordements invisibles de la police
+  }
+
+  // 🟢 Si c'est l'image
   img {
-    // 🟢 CORRECTION : On contraint la taille de l'image
     width: auto;
-    max-width: 250px; // Sécurité : empêche le logo de manger tout le menu
+    max-width: 250px;
 
-    // 🟢 LA MAGIE : La hauteur s'adapte à celle du header (moins le padding-top)
-    // Si --header-h = 80px, le logo fera environ 60px et rentrera parfaitement.
-    // Si un jour vous passez --header-h à 60px, le logo débordera naturellement.
-    height: calc(var(--header-h) - 15px);
+    // On peut appliquer le padding UNIQUEMENT à l'image si on veut la décoller du haut
+    //padding-top: 10px;
 
-    max-height: none !important; // Désactive la limite Bootstrap
-    object-fit: contain; // Garde les proportions sans déformer
-    object-position: left top; // Aligne proprement à gauche
+    // On ajuste le calcul de la hauteur pour tenir compte du padding
+    height: calc(var(--header-h) - 5px);
+
+    max-height: none !important;
+    object-fit: contain;
+    object-position: left center; // Changé de 'top' à 'center' pour une meilleure harmonie
 
     @include media-breakpoint-down(lg) {
       max-width: 180px;
-      height: calc(var(--header-h) - 20px); // Un peu plus petit sur mobile
-      object-position: center top; // Centré sur mobile
+      padding-top: 5px; // Un peu moins de padding sur mobile
+      height: calc(var(--header-h) - 10px);
+      object-position: center center;
     }
   }
 }

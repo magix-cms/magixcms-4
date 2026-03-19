@@ -4,6 +4,8 @@
 // 1. OUTILS ET CONFIGURATION (Muet)
 // ==========================================
 @import "abstract/init"; // Charge _core.scss (variables, mixins, maps)
+$bootstrap-icons-font-dir: "../fonts";
+@import "abstract/bootstrap-icons";
 @import "base/headings";
 // ==========================================
 // 2. VARIABLES CSS PERSONNALISÉES (Bavard)
@@ -40,3 +42,11 @@
 @import "layout/header";
 @import "layout/footer";
 @import "layout/footbar";
+
+/*.home-header,
+.catalog-header,
+.category-header,
+.product-header,
+.page-header {
+  padding-top: var(--header-h);
+}*/

@@ -13,16 +13,15 @@ class HomeController extends BaseController
         $db = new HomeDb();
         $idLang = (int)$this->currentLang['id_lang'];
 
-        // 1. Récupération des données SEO et du contenu depuis la BDD
+        // 1. Récupération des données (renverra false si désactivé)
         $homeData = $db->getHomeDataByLang($idLang);
 
-        // 2. Fallbacks
+        // 2. Fallbacks SEO par défaut
         $siteName = $this->siteSettings['site_name']['value'] ?? 'MagixCMS';
-
         $seoTitle = $siteName;
-        $seoDesc = '';
+        $seoDesc  = '';
 
-        // CORRECTION : On utilise les vrais noms de colonnes (_page)
+        // Si la page est publiée, on écrase les fallbacks SEO
         if ($homeData) {
             $seoTitle = !empty($homeData['seo_title_page']) ? $homeData['seo_title_page'] : $siteName;
             $seoDesc  = $homeData['seo_desc_page'] ?? '';
@@ -32,7 +31,7 @@ class HomeController extends BaseController
         $this->view->assign([
             'seo_title' => $seoTitle,
             'seo_desc'  => $seoDesc,
-            'home_data' => $homeData ?: [],
+            'home_data' => $homeData ?: [], // 🟢 Si false, devient un tableau vide
             'current_c' => 'home'
         ]);
 

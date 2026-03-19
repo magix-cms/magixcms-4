@@ -16,30 +16,30 @@
             <h6 class="m-0 fw-bold text-primary">{#edit_content#}</h6>
 
             {if isset($langs)}
-                {* Inclusion du composant Bootstrap 5 pour le switch de langue *}
                 {include file="components/dropdown-lang.tpl"}
             {/if}
         </div>
 
         <div class="card-body">
             {* 3. LE FORMULAIRE *}
-            <form id="edit_catalog" action="index.php?controller=Catalog" method="post" class="validate_form">
+            {* 🟢 CORRECTION : On pointe sur action=edit pour déclencher processSave *}
+            <form id="edit_catalog" action="index.php?controller=Catalog&action=edit" method="post" class="validate_form">
 
-                {* Jeton CSRF de sécurité *}
                 <input type="hidden" name="hashtoken" value="{$hashtoken|default:''}">
 
                 <div class="tab-content">
                     {if isset($langs)}
                         {foreach $langs as $id => $iso}
-                            {* ATTENTION : L'id "lang-{$id}" est crucial !
-                               Il fait le lien avec le data-bs-target du dropdown-lang.tpl
-                            *}
+                            {* 🟢 AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe *}
+                            {$langContent = $page.content.$id|default:[]}
+
                             <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
 
                                 <div class="row mb-3">
                                     <div class="col-md-9">
                                         <label for="title_{$id}" class="form-label fw-medium">{#title#}</label>
-                                        <input type="text" class="form-control" id="title_{$id}" name="title_page[{$id}]" value="{$content.$id.title_page|default:''}" />
+                                        {* Structure de tableau : name="content[{$id}][...]" *}
+                                        <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$langContent.title_page|default:''}" required />
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-medium">Statut</label>
@@ -48,9 +48,9 @@
                                                    type="checkbox"
                                                    role="switch"
                                                    id="switch_test_{$id}"
-                                                   name="published[{$id}]"
+                                                   name="content[{$id}][published]"
                                                    value="1"
-                                                    {if $content.$id.published|default:0 == 1} checked{/if} />
+                                                    {if $langContent.published|default:0 == 1} checked{/if} />
                                             <label class="form-check-label fs-6 text-muted" for="switch_test_{$id}">Publiée</label>
                                         </div>
                                     </div>
@@ -58,7 +58,7 @@
 
                                 <div class="mb-4">
                                     <label for="content_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                    <textarea name="content_page[{$id}]" id="content_{$id}" class="form-control mceEditor" rows="10">{$content.$id.content_page|default:''}</textarea>
+                                    <textarea name="content[{$id}][content_page]" id="content_{$id}" class="form-control mceEditor" rows="10">{$langContent.content_page|default:''}</textarea>
                                 </div>
 
                                 {* 4. ACCORDÉON SEO *}
@@ -79,10 +79,11 @@
                                                     </label>
                                                     <input type="text"
                                                            id="seo_title_{$id}"
-                                                           name="seo_title_page[{$id}]"
+                                                           name="content[{$id}][seo_title_page]"
                                                            class="form-control seo-counter"
                                                            data-target="#count-title-{$id}"
-                                                           value="{$content.$id.seo_title_page|default:''}" />
+                                                           data-max="70"
+                                                           value="{$langContent.seo_title_page|default:''}" />
                                                 </div>
 
                                                 <div class="mb-2">
@@ -91,11 +92,11 @@
                                                         <span id="count-desc-{$id}" class="badge bg-success">0 / 180</span>
                                                     </label>
                                                     <textarea id="seo_desc_{$id}"
-                                                              name="seo_desc_page[{$id}]"
+                                                              name="content[{$id}][seo_desc_page]"
                                                               class="form-control seo-counter"
                                                               data-target="#count-desc-{$id}"
                                                               data-max="180"
-                                                              rows="3">{$content.$id.seo_desc_page|default:''}</textarea>
+                                                              rows="3">{$langContent.seo_desc_page|default:''}</textarea>
                                                 </div>
 
                                             </div>
