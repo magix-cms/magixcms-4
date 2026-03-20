@@ -413,4 +413,37 @@ class FileTool
         }
         return $size;
     }
+
+    /**
+     * Copie récursivement le contenu d'un dossier vers un autre.
+     *
+     * @param string $src
+     * @param string $dst
+     * @return void
+     */
+    public static function copyDirectory(string $src, string $dst): void
+    {
+        $dir = opendir($src);
+
+        if (!is_dir($dst)) {
+            mkdir($dst, 0755, true);
+        }
+
+        while (($file = readdir($dir)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            // Utilisation de DIRECTORY_SEPARATOR au lieu de DS dans la librairie
+            $srcPath = $src . DIRECTORY_SEPARATOR . $file;
+            $dstPath = $dst . DIRECTORY_SEPARATOR . $file;
+
+            if (is_dir($srcPath)) {
+                self::copyDirectory($srcPath, $dstPath); // 🟢 Remplacement de $this-> par self::
+            } else {
+                copy($srcPath, $dstPath);
+            }
+        }
+        closedir($dir);
+    }
 }

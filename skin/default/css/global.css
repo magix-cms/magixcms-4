@@ -28872,8 +28872,10 @@ h6, .h6 {
 }
 @media (max-width: 991.98px) {
   .site-name {
+    display: flex;
     flex: 1;
     align-self: center;
+    justify-content: center;
   }
 }
 .site-name a {

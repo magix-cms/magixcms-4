@@ -62,6 +62,17 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // --- 1. Gestion du Header ---
+        const header = document.getElementById('header');
+        if (header) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    header.classList.remove('at-top');
+                } else {
+                    header.classList.add('at-top');
+                }
+            });
+        }
 
         // --- 1. Gestion de la Footbar ---
         const footbar = document.getElementById('footbar');

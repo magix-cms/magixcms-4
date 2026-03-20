@@ -7,6 +7,8 @@ namespace App\Backend\Controller;
 use App\Backend\Db\PluginDb;
 use App\Backend\Db\DashboardDb;
 use App\Backend\Db\LayoutDb;
+use App\Backend\Db\ThemeDb;
+use Magepattern\Component\File\FileTool;
 
 class PluginController extends BaseController
 {
@@ -141,6 +143,21 @@ class PluginController extends BaseController
                 }
             }
 
+            // 🟢 7. COPIE DES ASSETS (CSS) VERS LE SKIN COURANT S'ILS EXISTENT
+            $pluginCssDir = $pluginPath . DS . 'public' . DS . 'css';
+
+            if (is_dir($pluginCssDir)) {
+                // Instanciation de votre DB pour récupérer le thème courant
+                $themeDb = new ThemeDb();
+                $currentSkin = $themeDb->getCurrentTheme();
+
+                // Définition de la destination finale
+                $skinCssDir = ROOT_DIR . 'skin' . DS . $currentSkin . DS . 'css';
+
+                // Appel de votre FileTool
+                FileTool::copyDirectory($pluginCssDir, $skinCssDir);
+            }
+
             $hasConfig = $manifest['has_config'] ?? false;
 
             $this->jsonResponse(true, 'Le plugin a été installé avec succès !', [
@@ -186,8 +203,16 @@ class PluginController extends BaseController
             $dashDb = new DashboardDb();
             $dashDb->removeWidgetGlobally($pluginName);
 
-            // 🟢 APPEL PROPRE AU MODÈLE
+            // APPEL PROPRE AU MODÈLE
             $db->removePluginFromFrontendLayout($pluginName);
+
+            // On s'assure de ne cibler QUE le dossier /upload/nomduplugin/ en minuscules
+            $uploadDir = ROOT_DIR . 'upload' . DS . strtolower($pluginName);
+
+            if (is_dir($uploadDir)) {
+                // FileTool::remove va détruire le dossier d'upload et tout son contenu
+                FileTool::remove($uploadDir);
+            }
 
             $this->jsonResponse(true, 'Le plugin a été désinstallé avec succès.', ['type' => 'uninstall_success']);
         } else {

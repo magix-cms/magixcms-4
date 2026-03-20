@@ -1,5 +1,5 @@
 {* 🟢 Ajout de p-0 pour annuler les marges internes de .navbar *}
-<header id="header" class="navbar navbar-expand-lg p-0 {if isset($touch) && !$touch}at-top{/if}">
+<header id="header" class="navbar navbar-expand-lg p-0 at-top">
     {* 🟢 Ajout de position-relative au container *}
     <div class="container position-relative d-flex align-items-center justify-content-between h-100">
 

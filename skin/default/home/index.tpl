@@ -5,6 +5,10 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
+{* --- 1. CHARGEMENT DES FICHIERS CSS SPLIDE --- *}
+{block name="styleSheet" append nocache}
+    {$page_css = ["home","splide.min","magixslideshow"] scope="parent"}
+{/block}
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}
     {$website_json_ld|default:'' nofilter}
@@ -16,8 +20,6 @@
 {/block}
 
 {block name="main:before"}
-    {* --- SECTION 2 : HOOK HAUT (FULL WIDTH) --- *}
-    {* Le widget gérera lui-même son propre container s'il en a besoin *}
     <section class="home-hook-top">
         {hook name="displayHomeTop"}
     </section>
@@ -51,3 +53,42 @@
     'defer' => ['home-specific']
     ] scope="parent"}
 {/block}*}
+{* --- 3. CHARGEMENT ET INITIALISATION DU JS --- *}
+{block name="javascript_data" nocache}
+    {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
+{/block}
+
+{block name="javascript" append}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Splide !== 'undefined') {
+                var heroSlider = new Splide('#magix-hero-slideshow', {
+                    type: 'fade',
+                    rewind: true,
+                    autoplay: true,
+                    interval: 6000,
+                    pauseOnHover: false,
+                    arrows: true,
+                    pagination: true,
+                    speed: 1000,
+
+                    // 🟢 DESKTOP (Par défaut) : Ratio pour 1920x768
+                    heightRatio: 0.4,
+
+                    breakpoints: {
+                        // 🟢 TABLETTE (Écrans sous 992px de large) : Ratio pour 1024x600
+                        992: {
+                            heightRatio: 0.586,
+                        },
+                        // 🟢 MOBILE (Écrans sous 576px de large) : Ratio pour 600x400
+                        576: {
+                            heightRatio: 0.667,
+                            arrows: false // On cache les flèches pour laisser la place au tactile
+                        }
+                    }
+                });
+                heroSlider.mount();
+            }
+        });
+    </script>
+{/block}

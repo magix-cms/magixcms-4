@@ -51,8 +51,10 @@
   z-index: 1040;
 
   @include media-breakpoint-down(lg) {
+    display: flex;
     flex: 1;
     align-self: center;
+    justify-content: center;
   }
 
   a {
