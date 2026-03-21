@@ -114,7 +114,7 @@
             }, 300); // Un délai court suffit
         },
         // Snippets
-        snippets_url: '/'+baseadmin+'/index.php?controller=setting&action=getSnippet',
+        snippets_url: '/'+baseadmin+'/index.php?controller=Snippet&action=tinymce',
 
         // Design & Styles Bootstrap 5
         table_default_attributes: { class: 'table' },

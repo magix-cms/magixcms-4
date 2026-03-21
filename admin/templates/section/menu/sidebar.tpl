@@ -91,7 +91,7 @@
             </li>
         {/if}
 
-        {* --- BLOC ACTUALITÉS (NOUVEAU) --- *}
+        {* --- BLOC ACTUALITÉS --- *}
         {if isset($mc_config.news) && $mc_config.news == 1}
             <li class="mb-1">
                 {assign var="is_news" value=($current_c == 'news' || $current_c == 'newstag')}
@@ -290,8 +290,8 @@
         </li>
         {* --- BLOC APPARENCE --- *}
         <li class="mb-1">
-            {* 🟢 AJOUT : On inclut 'theme' dans la condition d'ouverture *}
-            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig' || $current_c == 'holder' || $current_c == 'theme')}
+            {* 🟢 AJOUT : On inclut 'theme' et 'snippet' dans la condition d'ouverture *}
+            {assign var="is_appearance" value=($current_c == 'logo' || $current_c == 'menu' || $current_c == 'layout' || $current_c == 'imageconfig' || $current_c == 'holder' || $current_c == 'theme' || $current_c == 'snippet')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_appearance}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -303,7 +303,7 @@
 
             <div class="collapse {if $is_appearance}show{/if}" id="menu-appearance">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
-                    {* 🟢 NOUVEAU LIEN : Thèmes (Skins) *}
+                    {* LIEN : Thèmes (Skins) *}
                     <li>
                         <a href="index.php?controller=Theme"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'theme'}active-sub{/if}">
@@ -329,6 +329,13 @@
                         <a href="index.php?controller=Menu"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'menu'}active-sub{/if}">
                             <i class="bi bi-menu-button-wide me-2 opacity-75"></i> Menus
+                        </a>
+                    </li>
+                    {* 🟢 NOUVEAU LIEN : Modèles (Snippets) *}
+                    <li>
+                        <a href="index.php?controller=Snippet"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'snippet'}active-sub{/if}">
+                            <i class="bi bi-code-square me-2 opacity-75"></i> Modèles (Snippets)
                         </a>
                     </li>
                     {* LIEN : Tailles d'images *}
