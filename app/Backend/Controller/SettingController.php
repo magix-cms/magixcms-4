@@ -7,6 +7,9 @@ namespace App\Backend\Controller;
 use App\Backend\Db\SettingDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
+// Si vous avez un composant Url pour récupérer l'URL de base, incluez-le
+use Magepattern\Component\HTTP\Url;
+use App\Backend\Db\DomainDb;
 
 class SettingController extends BaseController
 {
@@ -27,6 +30,10 @@ class SettingController extends BaseController
         $this->index();
     }
 
+    /**
+     * @return void
+     * @throws \Smarty\Exception
+     */
     private function index(): void
     {
         $db = new SettingDb();
@@ -40,6 +47,9 @@ class SettingController extends BaseController
         $this->view->display('setting/index.tpl');
     }
 
+    /**
+     * @return void
+     */
     private function processSave(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -50,7 +60,6 @@ class SettingController extends BaseController
         $db = new SettingDb();
         $success = true;
 
-        // 🟢 AJOUT ICI : 'product_catalog'
         $booleanKeys = [
             'concat', 'ssl',
             'http2', 'service_worker', 'amp', 'maintenance', 'geminiai', 'product_catalog'
@@ -72,6 +81,10 @@ class SettingController extends BaseController
             }
         }
 
+        if ($success && isset($postedSettings['robots'])) {
+            $this->generateRobotsTxt($postedSettings);
+        }
+
         if ($success) {
             $this->jsonResponse(true, 'La configuration a été mise à jour avec succès.', [
                 'type' => 'update'
@@ -79,5 +92,57 @@ class SettingController extends BaseController
         } else {
             $this->jsonResponse(false, 'Erreur lors de la mise à jour des paramètres.');
         }
+    }
+
+    /**
+     * Génère le fichier robots.txt à la racine du projet en incluant tous les sitemaps mères
+     */
+    /**
+     * @param array $postedSettings
+     * @return void
+     */
+    private function generateRobotsTxt(array $postedSettings): void
+    {
+        $robotsMode = $postedSettings['robots'];
+        $robotsFile = ROOT_DIR . 'robots.txt';
+        $content = "User-Agent: *\n";
+
+        if ($robotsMode === 'noindex,nofollow') {
+            $content .= "Disallow: /\n";
+        } else {
+            $content .= "Allow: /\n\n";
+
+            // 1. Détermination du protocole avec la donnée fraîchement sauvegardée
+            $isSsl = (int)($postedSettings['ssl'] ?? 0);
+            $protocol = ($isSsl === 1) ? 'https://' : 'http://';
+
+            // 2. Récupération de tous les domaines configurés
+            $domainDb = new DomainDb();
+            // On force une limite très haute (ex: 1000) pour récupérer tous les domaines
+            // en une seule fois, au cas où votre méthode fetchAllDomains utiliserait la pagination.
+            $domainsResult = $domainDb->fetchAllDomains(1, 1000, []);
+            $domains = $domainsResult['data'] ?? [];
+
+            // 3. Boucle sur chaque domaine pour inscrire son Sitemap mère
+            if (!empty($domains)) {
+                foreach ($domains as $domain) {
+                    $rawUrl = rtrim($domain['url_domain'], '/');
+                    $cleanDomainName = str_replace(['http://', 'https://'], '', $rawUrl);
+
+                    $baseUrl = $protocol . $cleanDomainName;
+
+                    // Exactement le même format que dans votre DomainController
+                    $content .= "Sitemap: {$baseUrl}/sitemap-{$cleanDomainName}.xml\n";
+                }
+            } else {
+                // Fallback de sécurité (si aucun domaine n'est défini en BDD)
+                $domainName = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                $baseUrl = $protocol . $domainName;
+                $content .= "Sitemap: {$baseUrl}/sitemap.xml\n";
+            }
+        }
+
+        // Écriture du fichier avec les droits standards (écrase le contenu précédent)
+        file_put_contents($robotsFile, $content);
     }
 }
