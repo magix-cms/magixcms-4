@@ -772,7 +772,7 @@ INSERT INTO `mc_share_network` (`id_share`, `name`, `url_share`, `icon`, `is_act
 (5, 'pinterest', 'https://pinterest.com/pin/create/button/?url=%URL%&description=%NAME%', 'bi-pinterest', 0, 5);
 
 CREATE TABLE IF NOT EXISTS `mc_snippet` (
-                                            `id_snippet` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_snippet` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `title_sp` varchar(150) NOT NULL,
     `description_sp` varchar(255) DEFAULT NULL,
     `content_sp` text NOT NULL,
