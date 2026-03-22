@@ -25,12 +25,19 @@ tinymce.PluginManager.add('mc_product', function(editor, url) {
 
     /* 2. Dialogue pour choisir un produit */
     const showDialog = () => {
+        // 🟢 EXTRACTION DE L'ID DE LANGUE
+        const parts = editor.id.split('_');
+        const langId = parts.length > 1 ? parts[parts.length - 1] : '';
+        const langParam = langId ? '&lang_id=' + langId : '';
+
+        // 🟢 GÉNÉRATION DE L'URL (Route API du CMS)
+        const popupUrl = (typeof baseadmin !== 'undefined')
+            ? '/' + baseadmin + '/index.php?controller=Product&action=tinymcePopup' + langParam
+            : '/admin/index.php?controller=Product&action=tinymcePopup' + langParam;
+
         editor.windowManager.openUrl({
             title: _('mc_product Title') || 'Insérer un produit',
-            // Fix URL : Utilisation sécurisée de baseadmin
-            url: (typeof baseadmin !== 'undefined')
-                ? '/' + baseadmin + '/plugins/mc_product/product.php'
-                : url + '/product.php',
+            url: popupUrl,
             width: 800,
             height: 550
         });

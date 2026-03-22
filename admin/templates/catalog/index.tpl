@@ -39,7 +39,7 @@
                                     <div class="col-md-9">
                                         <label for="title_{$id}" class="form-label fw-medium">{#title#}</label>
                                         {* Structure de tableau : name="content[{$id}][...]" *}
-                                        <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$langContent.title_page|default:''}" required />
+                                        <input type="text" class="form-control" id="title_{$id}" name="content[{$id}][title_page]" value="{$langContent.title_page|default:''}" />
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-medium">Statut</label>

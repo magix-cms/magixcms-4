@@ -444,4 +444,28 @@ class ProductDb extends BaseDb
         $result = $this->executeRow($qb);
         return $result ? (int)$result['total'] : 0;
     }
+    /**
+     * Récupère une liste allégée des produits (avec leur catégorie par défaut) pour la popup TinyMCE
+     */
+    public function getProductsForTinymce(int $idLang): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.id_product',
+            'c.name_p',
+            'c.url_p',
+            'cat_rel.id_cat AS default_category_id',
+            'cat_c.url_cat AS default_category_url',
+            'cat_c.name_cat AS default_category_name'
+        ])
+            ->from('mc_catalog_product', 'p')
+            ->join('mc_catalog_product_content', 'c', 'p.id_product = c.id_product')
+            ->leftJoin('mc_catalog', 'cat_rel', 'p.id_product = cat_rel.id_product AND cat_rel.default_c = 1')
+            ->leftJoin('mc_catalog_cat_content', 'cat_c', 'cat_rel.id_cat = cat_c.id_cat AND cat_c.id_lang = c.id_lang')
+            ->where('c.id_lang = :id_lang', ['id_lang' => $idLang])
+            ->orderBy('p.id_product', 'DESC'); // Les plus récents en premier
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
 }

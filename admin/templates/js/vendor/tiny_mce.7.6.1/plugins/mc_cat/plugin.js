@@ -26,13 +26,19 @@ tinymce.PluginManager.add('mc_cat', function(editor, url) {
 
     /* 2. Dialogue pour choisir une catégorie */
     const showDialog = () => {
-        // En TinyMCE 7, openUrl est parfait pour les iframes personnalisées
+        // 🟢 EXTRACTION DE L'ID DE LANGUE
+        const parts = editor.id.split('_');
+        const langId = parts.length > 1 ? parts[parts.length - 1] : '';
+        const langParam = langId ? '&lang_id=' + langId : '';
+
+        // 🟢 GÉNÉRATION DE L'URL AVEC PARAMÈTRE
+        const popupUrl = (typeof baseadmin !== 'undefined')
+            ? '/' + baseadmin + '/index.php?controller=Category&action=tinymcePopup' + langParam
+            : '/admin/index.php?controller=Category&action=tinymcePopup' + langParam;
+
         editor.windowManager.openUrl({
             title: _('mc_cat Title') || 'Insérer une catégorie',
-            // url: utilise dynamiquement baseadmin si dispo, sinon le chemin relatif
-            url: (typeof baseadmin !== 'undefined')
-                ? '/' + baseadmin + '/plugins/mc_cat/cat.php'
-                : url + '/cat.php',
+            url: popupUrl,
             width: 800,
             height: 550
         });

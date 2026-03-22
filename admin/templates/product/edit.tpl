@@ -169,7 +169,14 @@
 
                                         <div class="mb-4">
                                             <label for="content_p_{$id}" class="form-label fw-medium">Description complète :</label>
-                                            <textarea class="form-control mceEditor" id="content_p_{$id}" name="content_p[{$id}]" rows="10">{$product.content.$id.content_p|default:''}</textarea>
+                                            <textarea class="form-control mceEditor"
+                                                      id="content_p_{$id}"
+                                                      name="content_p[{$id}]"
+                                                      rows="10"
+                                                      data-controller="product"
+                                                      data-itemid="{$product.id_product}"
+                                                      data-lang="{$id}"
+                                                      data-field="content_p">{$product.content.$id.content_p|default:''}</textarea>
                                         </div>
 
                                         {* --- BLOC SEO ET LIENS --- *}

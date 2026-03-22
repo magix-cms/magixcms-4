@@ -15,6 +15,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\ProductDb;
+use App\Backend\Db\RevisionsDb;
 
 
 class CategoryController extends BaseController
@@ -23,6 +24,12 @@ class CategoryController extends BaseController
     {
         // --- 1. ROUTEUR D'ACTION ---
         $action = $_GET['action'] ?? null;
+
+        if ($action === 'tinymcePopup') {
+            $this->tinymcePopup();
+            return;
+        }
+
         if ($action && $action !== 'run' && method_exists($this, $action)) {
             $this->$action();
             return;
@@ -289,6 +296,13 @@ class CategoryController extends BaseController
 
                 $db->saveCategoryContent($idCat, $idLang, $contentData);
 
+                // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                if (!empty($contentData['content_cat'])) {
+                    $revDb = new RevisionsDb();
+                    // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
+                    $revDb->saveRevision('category', $idCat, (int)$idLang, 'content_cat', $contentData['content_cat']);
+                }
+
                 // --- NOUVEAU : On génère l'URL avec votre UrlTool ---
                 $publicUrls[$idLang] = $urlTool->buildUrl([
                     'iso'  => $iso,
@@ -504,5 +518,74 @@ class CategoryController extends BaseController
             }
         }
         $this->jsonResponse(false, 'Erreur d\'ordre.');
+    }
+    /**
+     * Affiche la liste des catégories dans une fenêtre modale allégée pour TinyMCE
+     */
+    public function tinymcePopup(): void
+    {
+        $db = new CategoryDb();
+
+        $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
+        $activeLangs = $db->fetchLanguages();
+        $iso = $activeLangs[$requestedLangId] ?? 'fr';
+
+        $rawCats = $db->getCategoriesForTinymce($requestedLangId);
+
+        // 1. Indexation pour recréer l'arbre (Parent -> Enfants)
+        $catsById = [];
+        foreach ($rawCats as $c) {
+            $catsById[$c['id_cat']] = $c;
+            $catsById[$c['id_cat']]['children'] = [];
+        }
+
+        $tree = [];
+        foreach ($catsById as $id => &$c) {
+            if (!empty($c['id_parent']) && isset($catsById[$c['id_parent']])) {
+                $catsById[$c['id_parent']]['children'][] = &$c;
+            } else {
+                $tree[] = &$c;
+            }
+        }
+
+        // 2. Aplatissement de l'arbre avec calcul de la profondeur (Depth)
+        $flatList = [];
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        $flatten = function($nodes, $depth = 0) use (&$flatten, &$flatList, $iso, $urlTool) {
+            foreach ($nodes as $node) {
+                $title = !empty($node['name_cat']) ? $node['name_cat'] : '⚠️ (Non traduit)';
+                $slug = !empty($node['url_cat']) ? $node['url_cat'] : Url::clean($title);
+
+                // Utilisation de votre UrlTool comme dans l'édition
+                $publicUrl = $urlTool->buildUrl([
+                    'iso'  => $iso,
+                    'type' => 'category',
+                    'id'   => $node['id_cat'],
+                    'url'  => $slug
+                ]);
+
+                $flatList[] = [
+                    'id'    => $node['id_cat'],
+                    'title' => $title,
+                    'url'   => $publicUrl,
+                    'depth' => $depth
+                ];
+
+                if (!empty($node['children'])) {
+                    $flatten($node['children'], $depth + 1);
+                }
+            }
+        };
+
+        $flatten($tree);
+
+        $this->view->assign([
+            'categoriesList' => $flatList,
+            'iso_lang'       => strtoupper($iso),
+            'hashtoken'      => $this->session->getToken()
+        ]);
+
+        $this->view->display('category/tinymce_popup.tpl');
     }
 }

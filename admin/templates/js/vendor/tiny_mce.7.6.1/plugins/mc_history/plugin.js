@@ -1,3 +1,9 @@
+/*
+ # -- BEGIN LICENSE BLOCK ----------------------------------
+ # ...
+ # -- END LICENSE BLOCK -----------------------------------
+ */
+
 tinymce.PluginManager.requireLangPack("mc_history");
 tinymce.PluginManager.add('mc_history', function(editor, url) {
 
@@ -10,7 +16,10 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         const lang = textarea.getAttribute('data-lang') || '1';
         const field = textarea.getAttribute('data-field') || 'content';
 
-        const apiUrl = `/admin/index.php?controller=revisions&action=get_list&type=${controller}&item_id=${itemId}&id_lang=${lang}&field=${field}`;
+        // 🟢 CORRECTION 1 : Utilisation des backticks (`) pour l'interpolation JS
+        const apiUrl = (typeof baseadmin !== 'undefined')
+            ? `/${baseadmin}/index.php?controller=Revisions&action=get_list&type=${controller}&item_id=${itemId}&id_lang=${lang}&field=${field}`
+            : `/admin/index.php?controller=Revisions&action=get_list&type=${controller}&item_id=${itemId}&id_lang=${lang}&field=${field}`;
 
         const dialog = editor.windowManager.open({
             title: editor.translate('Revision History'),
@@ -58,10 +67,8 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         const container = document.getElementById('mc-history-list');
         if (!container) return;
 
-        // Icône Poubelle SVG intégrée
         const trashIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
 
-        // Bouton Vider l'historique (Style Rouge conservé)
         let html = `
             <div style="text-align: right; margin-bottom: 10px;">
                 <button type="button" id="mc-clear-history" 
@@ -71,7 +78,6 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
                 </button>
             </div>`;
 
-        // Tableau (Style et Largeur conservés)
         html += '<table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 13px;">';
         html += `
             <tr style="background: #eee;">
@@ -80,7 +86,7 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
             </tr>`;
 
         data.forEach(rev => {
-            const dateObj = new Date(rev.date_register);
+            const dateObj = new Date(rev.date_register.replace(' ', 'T')); // FIX Safari/iOS Date parsing
             const dateFormatee = dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const heureFormatee = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -102,10 +108,13 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         html += '</table>';
         container.innerHTML = html;
 
+        // 🟢 CORRECTION 2 : Retrait du chemin /admin/ en dur
+        const basePath = (typeof baseadmin !== 'undefined') ? '/' + baseadmin : '/admin';
+
         // Event : Vider l'historique
         container.querySelector('#mc-clear-history').addEventListener('click', function() {
             if (confirm(editor.translate('Are you sure you want to delete all revisions for this language?'))) {
-                fetch(`/admin/index.php?controller=revisions&action=clear_history&type=${params.controller}&item_id=${params.itemId}&id_lang=${params.lang}&field=${params.field}`)
+                fetch(`${basePath}/index.php?controller=Revisions&action=clear_history&type=${params.controller}&item_id=${params.itemId}&id_lang=${params.lang}&field=${params.field}`)
                     .then(res => res.json())
                     .then(resData => {
                         if (resData.success) {
@@ -116,18 +125,19 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
             }
         });
 
-        // Event : Restaurer (Style Bleu conservé)
+        // Event : Restaurer
         container.querySelectorAll('.mc-restore-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const rid = this.getAttribute('data-id');
                 if (confirm(editor.translate('Do you want to restore this version?'))) {
-                    fetch(`/admin/index.php?controller=revisions&action=get_content&id=${rid}`)
+                    fetch(`${basePath}/index.php?controller=Revisions&action=get_content&id=${rid}`)
                         .then(res => res.json())
                         .then(resData => {
                             if (resData.content !== undefined) {
                                 editor.setContent(resData.content);
                                 editor.undoManager.add();
                                 dialogApi.close();
+                                editor.notificationManager.open({ text: editor.translate('Version restored.'), type: 'success', timeout: 3000 });
                             }
                         });
                 }
@@ -135,10 +145,8 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         });
     };
 
-    // Icône du Plugin
     editor.ui.registry.addIcon('revision-icon', '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 3C8.03 3 4 7.03 4 12H1L4.89 15.89L4.96 16.03L9 12H6C6 8.13 9.13 5 13 5C16.87 5 20 8.13 20 12C20 15.87 16.87 19 13 19C11.07 19 9.32 18.21 8.06 16.94L6.64 18.36C8.27 19.99 10.51 21 13 21C17.97 21 22 16.97 22 12C22 7.03 17.97 3 13 3ZM12 8V13L16.28 15.54L17 14.33L13.5 12.25V8H12Z" fill="currentColor"/></svg>');
 
-    // Menu Item
     editor.ui.registry.addMenuItem('mc_history', {
         text: editor.translate('Revision History'),
         icon: 'revision-icon',
@@ -146,6 +154,5 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         onAction: openHistoryDialog
     });
 
-    // Raccourci Clavier
     editor.addShortcut('meta+h', 'Open Revision History', openHistoryDialog);
 });

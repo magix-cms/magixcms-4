@@ -14,6 +14,7 @@ use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool; // Nécessaire pour la suppression physique
+use App\Backend\Db\RevisionsDb;
 
 class PagesController extends BaseController
 {
@@ -27,6 +28,12 @@ class PagesController extends BaseController
         // ... (Code identique au vôtre) ...
         // --- 1. MINI-ROUTEUR D'ACTION ---
         $action = $_GET['action'] ?? null;
+
+        if ($action === 'tinymcePopup') {
+            $this->tinymcePopup();
+            return;
+        }
+
         if ($action && $action !== 'run' && method_exists($this, $action)) {
             $this->$action();
             return;
@@ -306,6 +313,13 @@ class PagesController extends BaseController
 
             if (!$db->savePageContent($idPage, (int)$idLang, $data)) {
                 $success = false;
+            } else {
+                // 🟢 LA MAGIE OPÈRE ICI : On sauvegarde l'historique UNIQUEMENT si le contenu HTML n'est pas vide
+                if (!empty($data['content_pages'])) {
+                    $revDb = new RevisionsDb();
+                    // Paramètres : type (pages), item_id, id_lang, nom du champ (content_pages), contenu
+                    $revDb->saveRevision('pages', $idPage, (int)$idLang, 'content_pages', $data['content_pages']);
+                }
             }
         }
 
@@ -630,6 +644,69 @@ class PagesController extends BaseController
         }
 
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');
+    }
+    /**
+     * Affiche la liste des pages dans une fenêtre modale allégée pour TinyMCE
+     */
+    public function tinymcePopup(): void
+    {
+        $db = new PagesDb();
+
+        $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
+        $activeLangs = $db->fetchLanguages(); // Récupère [1 => 'fr', 2 => 'en', ...]
+        $iso = $activeLangs[$requestedLangId] ?? 'fr';
+
+        $controllerSlug = StringTool::strtolower('pages');
+        $rawPages = $db->getPagesForTinymce($requestedLangId);
+
+        // 1. Indexation pour recréer l'arbre (Parent -> Enfants)
+        $pagesById = [];
+        foreach ($rawPages as $p) {
+            $pagesById[$p['id_pages']] = $p;
+            $pagesById[$p['id_pages']]['children'] = [];
+        }
+
+        $tree = [];
+        foreach ($pagesById as $id => &$p) {
+            if (!empty($p['id_parent']) && isset($pagesById[$p['id_parent']])) {
+                $pagesById[$p['id_parent']]['children'][] = &$p;
+            } else {
+                $tree[] = &$p;
+            }
+        }
+
+        // 2. Aplatissement de l'arbre avec calcul de la profondeur (Depth) pour le design
+        $flatList = [];
+        $flatten = function($nodes, $depth = 0) use (&$flatten, &$flatList, $iso, $controllerSlug) {
+            foreach ($nodes as $node) {
+                $title = !empty($node['name_pages']) ? $node['name_pages'] : '⚠️ (Non traduit)';
+                $slug = !empty($node['url_pages']) ? $node['url_pages'] : Url::clean($title);
+
+                // Formatage de l'URL comme dans votre méthode processSave
+                $publicUrl = '/' . $iso . '/' . $controllerSlug . '/' . $node['id_pages'] . '-' . $slug . '/';
+
+                $flatList[] = [
+                    'id'    => $node['id_pages'],
+                    'title' => $title,
+                    'url'   => $publicUrl,
+                    'depth' => $depth // Niveau de profondeur (0 = Parent, 1 = Enfant, 2 = Petit-enfant)
+                ];
+
+                if (!empty($node['children'])) {
+                    $flatten($node['children'], $depth + 1);
+                }
+            }
+        };
+
+        $flatten($tree);
+
+        $this->view->assign([
+            'pagesList' => $flatList,
+            'iso_lang'  => strtoupper($iso),
+            'hashtoken' => $this->session->getToken()
+        ]);
+
+        $this->view->display('pages/tinymce_popup.tpl');
     }
     private function sendJsonResponse(array $data): void
     {

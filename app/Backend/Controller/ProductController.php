@@ -15,12 +15,19 @@ use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
+use App\Backend\Db\RevisionsDb;
 
 class ProductController extends BaseController
 {
     public function run(): void
     {
         $action = $_GET['action'] ?? null;
+
+        if ($action === 'tinymcePopup') {
+            $this->tinymcePopup();
+            return;
+        }
+
         if ($action && $action !== 'run' && method_exists($this, $action)) {
             $this->$action();
             return;
@@ -295,6 +302,13 @@ class ProductController extends BaseController
 
                 $db->saveProductContent($idProduct, $idLang, $contentData);
 
+                // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                if (!empty($contentData['content_p'])) {
+                    $revDb = new RevisionsDb();
+                    // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
+                    $revDb->saveRevision('product', $idProduct, (int)$idLang, 'content_p', $contentData['content_p']);
+                }
+
                 $urlParent = $defaultCategoryData ? ($defaultCategoryData['content'][$idLang]['url_cat'] ?? '') : '';
 
                 $publicUrls[$idLang] = $urlTool->buildUrl([
@@ -536,5 +550,52 @@ class ProductController extends BaseController
         unset($cat); // Toujours détruire la référence après la boucle
 
         return $tree['root'];
+    }
+
+    /**
+     * Affiche la liste des produits dans une fenêtre modale allégée pour TinyMCE
+     */
+    public function tinymcePopup(): void
+    {
+        $db = new ProductDb();
+
+        $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
+        $activeLangs = $db->fetchLanguages();
+        $iso = $activeLangs[$requestedLangId] ?? 'fr';
+
+        $rawProducts = $db->getProductsForTinymce($requestedLangId);
+        $urlTool = new \App\Component\Routing\UrlTool();
+
+        $productList = [];
+
+        foreach ($rawProducts as $p) {
+            $title = !empty($p['name_p']) ? $p['name_p'] : '⚠️ (Non traduit)';
+            $slug = !empty($p['url_p']) ? $p['url_p'] : Url::clean($title);
+
+            // Construction de l'URL publique stricte via UrlTool
+            $publicUrl = $urlTool->buildUrl([
+                'iso'          => $iso,
+                'type'         => 'product',
+                'id'           => $p['id_product'],
+                'url'          => $slug,
+                'id_category'  => $p['default_category_id'] ?? 0,
+                'url_category' => $p['default_category_url'] ?? ''
+            ]);
+
+            $productList[] = [
+                'id'       => $p['id_product'],
+                'title'    => $title,
+                'category' => $p['default_category_name'] ?? 'Sans catégorie',
+                'url'      => $publicUrl
+            ];
+        }
+
+        $this->view->assign([
+            'productList' => $productList,
+            'iso_lang'    => strtoupper($iso),
+            'hashtoken'   => $this->session->getToken()
+        ]);
+
+        $this->view->display('product/tinymce_popup.tpl');
     }
 }

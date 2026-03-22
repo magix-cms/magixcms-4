@@ -160,7 +160,14 @@
                                         {* Contenu TinyMCE *}
                                         <div class="mb-4">
                                             <label for="content_pages_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                            <textarea class="form-control mceEditor" id="content_pages_{$id}" name="content[{$id}][content_pages]" rows="10">{$page_data.content.$id.content_pages|default:''}</textarea>
+                                            <textarea class="form-control mceEditor"
+                                                      id="content_pages_{$id}"
+                                                      name="content[{$id}][content_pages]"
+                                                      rows="10"
+                                                      data-controller="pages"
+                                                      data-itemid="{$page_data.id_pages}"
+                                                      data-lang="{$id}"
+                                                      data-field="content_pages">{$page_data.content.$id.content_pages|default:''}</textarea>
                                         </div>
 
                                         {* Accordéons pour SEO et Liens *}

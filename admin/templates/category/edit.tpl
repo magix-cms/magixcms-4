@@ -158,7 +158,14 @@
 
                                         <div class="mb-4">
                                             <label for="content_cat_{$id}" class="form-label fw-medium">Description :</label>
-                                            <textarea class="form-control mceEditor" id="content_cat_{$id}" name="content_cat[{$id}]" rows="10">{$category.content.$id.content_cat|default:''}</textarea>
+                                            <textarea class="form-control mceEditor"
+                                                      id="content_cat_{$id}"
+                                                      name="content_cat[{$id}]"
+                                                      rows="10"
+                                                      data-controller="category"
+                                                      data-itemid="{$category.id_cat}"
+                                                      data-lang="{$id}"
+                                                      data-field="content_cat">{$category.content.$id.content_cat|default:''}</textarea>
                                         </div>
 
                                         <div class="accordion mb-3" id="advancedAccordion_{$id}">

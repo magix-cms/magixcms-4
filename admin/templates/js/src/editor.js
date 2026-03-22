@@ -62,7 +62,7 @@
         min_height: 500,
         autoresize_bottom_margin: 20,
         relative_urls: false,
-        remove_script_host: false,
+        remove_script_host: true,
         entity_encoding : "raw",
         schema: "html5",
 

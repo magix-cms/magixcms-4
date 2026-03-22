@@ -16,6 +16,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use Magepattern\Component\Tool\DateTool;
+use App\Backend\Db\RevisionsDb;
 
 class NewsController extends BaseController
 {
@@ -27,6 +28,12 @@ class NewsController extends BaseController
     public function run(): void
     {
         $action = $_GET['action'] ?? null;
+
+        if ($action === 'tinymcePopup') {
+            $this->tinymcePopup();
+            return;
+        }
+
         if ($action && $action !== 'run' && method_exists($this, $action)) {
             $this->$action();
             return;
@@ -275,6 +282,13 @@ class NewsController extends BaseController
 
                 if (!$db->saveNewsContent($idNews, (int)$idLang, $data)) {
                     $success = false;
+                } else {
+                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                    if (!empty($data['content_news'])) {
+                        $revDb = new RevisionsDb();
+                        // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
+                        $revDb->saveRevision('news', $idNews, (int)$idLang, 'content_news', $data['content_news']);
+                    }
                 }
             }
         }
@@ -502,7 +516,60 @@ class NewsController extends BaseController
 
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées.' : 'Erreur sauvegarde.');
     }
+    /**
+     * Affiche la liste des actualités dans une fenêtre modale allégée pour TinyMCE
+     */
+    public function tinymcePopup(): void
+    {
+        $db = new NewsDb();
 
+        // 🟢 1. LECTURE DE LA LANGUE DEMANDÉE PAR TINYMCE
+        // Si TinyMCE n'envoie rien (cas rare), on retombe sur la langue par défaut
+        $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
+
+        $activeLangs = (new LangDb())->getFrontendLanguages();
+
+        // On s'assure que l'ISO correspond bien à la langue demandée (ex: 'en', 'fr')
+        $iso = $activeLangs[$requestedLangId] ?? 'fr';
+
+        // Base de l'URL frontend
+        $controllerSlug = \Magepattern\Component\Tool\StringTool::strtolower('news');
+
+        // 🟢 2. REQUÊTE CIBLÉE SUR LA BONNE LANGUE
+        $result = $db->fetchAllNews(1, 100, [], $requestedLangId);
+
+        $newsList = [];
+        if ($result !== false && !empty($result['data'])) {
+            foreach ($result['data'] as $news) {
+
+                $rawDate = !empty($news['date_publish']) ? $news['date_publish'] : 'now';
+                $datePublish = \Magepattern\Component\Tool\DateTool::getDate($rawDate, 'sql');
+
+                // Fallback de sécurité : si le nom est vide (car l'actu n'est pas encore traduite dans cette langue)
+                // on affiche un marqueur visuel pour alerter le rédacteur
+                $title = !empty($news['name_news']) ? $news['name_news'] : '⚠️ (Non traduit)';
+                $slug = !empty($news['url_news']) ? $news['url_news'] : \Magepattern\Component\HTTP\Url::clean($title);
+
+                // L'URL publique sera générée avec le bon /iso/ (ex: /en/news/...)
+                $publicUrl = '/' . $iso . '/' . $controllerSlug . '/' . $datePublish . '/' . $news['id_news'] . '-' . $slug . '/';
+
+                $newsList[] = [
+                    'id'    => $news['id_news'],
+                    'title' => $title,
+                    'date'  => $datePublish,
+                    'url'   => $publicUrl
+                ];
+            }
+        }
+
+        $this->view->assign([
+            'newsList'  => $newsList,
+            'iso_lang'  => strtoupper($iso), // Pour l'afficher dans le titre de la popup
+            'hashtoken' => $this->session->getToken()
+        ]);
+
+        $this->view->display('news/tinymce_popup.tpl');
+    }
     private function sendJsonResponse(array $data): void
     {
         header('Content-Type: application/json');

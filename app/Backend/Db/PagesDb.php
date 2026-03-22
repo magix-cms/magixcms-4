@@ -456,6 +456,27 @@ class PagesDb extends BaseDb
         return $result ? (int)$result['total'] : 0;
     }
     /**
+     * Récupère une liste allégée des pages (avec leur slug) pour la popup TinyMCE
+     */
+    public function getPagesForTinymce(int $idLang): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.id_pages',
+            'p.id_parent',
+            'c.name_pages',
+            'c.url_pages'
+        ])
+            ->from('mc_cms_page', 'p')
+            ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages')
+            ->where('c.id_lang = :id_lang', ['id_lang' => $idLang])
+            ->orderBy('p.id_parent', 'ASC')
+            ->orderBy('p.order_pages', 'ASC');
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
+    /**
      * Utilitaire privé pour formater la date avant de l'envoyer dans la requête LIKE.
      * À remplacer si tu as un DateTool dans Magepattern.
      */

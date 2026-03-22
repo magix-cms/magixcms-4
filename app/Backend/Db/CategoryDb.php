@@ -408,4 +408,25 @@ class CategoryDb extends BaseDb
             return $this->executeInsert($qb);
         }
     }
+    /**
+     * Récupère une liste allégée des catégories (avec leur slug) pour la popup TinyMCE
+     */
+    public function getCategoriesForTinymce(int $idLang): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.id_cat',
+            'p.id_parent',
+            'c.name_cat',
+            'c.url_cat'
+        ])
+            ->from('mc_catalog_cat', 'p')
+            ->join('mc_catalog_cat_content', 'c', 'p.id_cat = c.id_cat')
+            ->where('c.id_lang = :id_lang', ['id_lang' => $idLang])
+            ->orderBy('p.id_parent', 'ASC')
+            ->orderBy('p.order_cat', 'ASC');
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
 }

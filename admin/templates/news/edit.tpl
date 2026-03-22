@@ -149,7 +149,14 @@
 
                                         <div class="mb-4">
                                             <label for="content_news_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                            <textarea class="form-control mceEditor" id="content_news_{$id}" name="content[{$id}][content_news]" rows="10">{$c.content_news|default:''}</textarea>
+                                            <textarea class="form-control mceEditor"
+                                                      id="content_news_{$id}"
+                                                      name="content[{$id}][content_news]"
+                                                      rows="10"
+                                                      data-controller="news"
+                                                      data-itemid="{$news_data.id_news}"
+                                                      data-lang="{$id}"
+                                                      data-field="content_news">{$c.content_news|default:''}</textarea>
                                         </div>
 
                                         <div class="accordion mb-3" id="advancedAccordion_{$id}">
