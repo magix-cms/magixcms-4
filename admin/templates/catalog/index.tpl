@@ -58,7 +58,14 @@
 
                                 <div class="mb-4">
                                     <label for="content_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                    <textarea name="content[{$id}][content_page]" id="content_{$id}" class="form-control mceEditor" rows="10">{$langContent.content_page|default:''}</textarea>
+                                    <textarea name="content[{$id}][content_page]"
+                                              id="content_{$id}"
+                                              class="form-control mceEditor"
+                                              rows="10"
+                                              data-controller="catalog"
+                                              data-itemid="{$page.id|default:1}"
+                                              data-lang="{$id}"
+                                              data-field="content_page">{$langContent.content_page|default:''}</textarea>
                                 </div>
 
                                 {* 4. ACCORDÉON SEO *}

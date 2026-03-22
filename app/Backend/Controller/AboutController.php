@@ -14,6 +14,7 @@ use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
+use App\Backend\Db\RevisionsDb;
 
 class AboutController extends BaseController
 {
@@ -293,7 +294,16 @@ class AboutController extends BaseController
                     'published_about'  => (int)($values['published_about'] ?? 0),
                     'last_update'      => date('Y-m-d H:i:s')
                 ];
-                if (!$db->saveAboutContent($idAbout, (int)$idLang, $data)) $success = false;
+                if (!$db->saveAboutContent($idAbout, (int)$idLang, $data)) {
+                    $success = false;
+                } else {
+                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                    if (!empty($data['content_about'])) {
+                        $revDb = new RevisionsDb();
+                        // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
+                        $revDb->saveRevision('about', $idAbout, (int)$idLang, 'content_about', $data['content_about']);
+                    }
+                }
             }
         }
 

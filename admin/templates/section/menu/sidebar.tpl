@@ -181,7 +181,8 @@
 
         {* --- BLOC CONFIGURATION --- *}
         <li class="mb-1">
-            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal' || $current_c == 'translation')}
+            {* 🟢 AJOUT : On inclut 'revisions' dans la condition *}
+            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal' || $current_c == 'translation' || $current_c == 'revisions')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_config}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -247,6 +248,14 @@
                         <a href="index.php?controller=Translation"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'translation'}active-sub{/if}">
                             <i class="bi bi-translate me-2 opacity-75"></i> Traductions
+                        </a>
+                    </li>
+
+                    {* 🟢 9. Historique des Révisions *}
+                    <li>
+                        <a href="index.php?controller=Revisions"
+                           class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'revisions'}active-sub{/if}">
+                            <i class="bi bi-clock-history me-2 opacity-75"></i> Historique
                         </a>
                     </li>
                 </ul>

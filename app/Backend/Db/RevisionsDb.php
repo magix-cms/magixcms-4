@@ -100,4 +100,27 @@ class RevisionsDb extends BaseDb
 
         return $this->executeInsert($qb);
     }
+    /**
+     * Compte le nombre total de révisions stockées (pour les statistiques du backend)
+     */
+    public function countTotalRevisions(): int
+    {
+        $qb = new QueryBuilder();
+        $qb->select(['COUNT(id) as total'])->from('mc_revisions_editor');
+
+        $result = $this->executeRow($qb);
+        return $result ? (int)$result['total'] : 0;
+    }
+
+    /**
+     * Vide intégralement la table des révisions
+     */
+    public function truncateEntireHistory(): bool
+    {
+        $qb = new QueryBuilder();
+        // Pour être sûr de tout supprimer sans bloquer sur une sécurité du QueryBuilder
+        $qb->delete('mc_revisions_editor')->where('id > 0');
+
+        return $this->executeDelete($qb);
+    }
 }

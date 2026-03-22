@@ -90,6 +90,11 @@ class MagixForms {
         }
 
         if (!data.status) return;
+
+        if (data.reload) {
+            setTimeout(() => { window.location.reload(); }, 1500);
+            return; // On arrête l'exécution ici
+        }
         // --- MISE À JOUR DES URLS PUBLIQUES ---
         if (data.public_urls) {
             for (const [idLang, url] of Object.entries(data.public_urls)) {

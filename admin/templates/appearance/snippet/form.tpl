@@ -48,7 +48,15 @@
 
                     <div class="col-12">
                         <label class="form-label fw-bold" for="content_sp">{#content#|default:'Contenu du modèle'}</label>
-                        <textarea id="content_sp" name="content_sp" class="form-control mceEditor" rows="15" placeholder="Saisissez le contenu de votre modèle...">{$snippet.content_sp|default:''}</textarea>
+                        <textarea id="content_sp"
+                                  name="content_sp"
+                                  class="form-control mceEditor"
+                                  rows="15"
+                                  placeholder="Saisissez le contenu de votre modèle..."
+                                  data-controller="snippet"
+                                  data-itemid="{$snippet.id_snippet|default:0}"
+                                  data-lang="1"
+                                  data-field="content_sp">{$snippet.content_sp|default:''}</textarea>
                     </div>
                 </div>
 

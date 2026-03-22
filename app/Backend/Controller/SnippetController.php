@@ -7,6 +7,7 @@ namespace App\Backend\Controller;
 use App\Backend\Db\SnippetDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
+use App\Backend\Db\RevisionsDb;
 
 class SnippetController extends BaseController
 {
@@ -214,6 +215,18 @@ class SnippetController extends BaseController
         }
 
         if ($success !== false) {
+            // 🟢 AJOUT : Enregistrement dans l'historique si on a du contenu
+            // On le fait seulement si la sauvegarde principale a réussi
+            if (!empty($data['content_sp'])) {
+                // Si c'est une création ($isNew), on récupère le nouvel ID inséré,
+                // sinon on utilise l'ID existant ($idSnippet).
+                $revId = $isNew ? $success : $idSnippet;
+
+                $revDb = new RevisionsDb();
+                // Paramètres : item_type ('snippet'), item_id, id_lang (on force 1 car pas de multilingue), nom_du_champ, contenu
+                $revDb->saveRevision('snippet', (int)$revId, 1, 'content_sp', $data['content_sp']);
+            }
+
             $this->jsonResponse(true, $msg, ['type' => $isNew ? 'add' : 'update']);
         } else {
             $this->jsonResponse(false, 'Erreur lors de la sauvegarde du snippet.');

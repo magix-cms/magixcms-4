@@ -7,6 +7,7 @@ namespace App\Backend\Controller;
 use App\Backend\Db\CatalogDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
+use App\Backend\Db\RevisionsDb;
 
 class CatalogController extends BaseController
 {
@@ -66,6 +67,13 @@ class CatalogController extends BaseController
 
                 if (!$db->saveCatalogContent($idPage, (int)$idLang, $data)) {
                     $success = false;
+                } else {
+                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                    if (!empty($content)) {
+                        $revDb = new RevisionsDb();
+                        // Paramètres : item_type ('catalog'), item_id, id_lang, nom_du_champ, contenu
+                        $revDb->saveRevision('catalog', $idPage, (int)$idLang, 'content_page', $content);
+                    }
                 }
             }
 

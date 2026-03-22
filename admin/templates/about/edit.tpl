@@ -158,7 +158,14 @@
                                         {* Contenu TinyMCE *}
                                         <div class="mb-4">
                                             <label for="content_about_{$id}" class="form-label fw-medium">Contenu :</label>
-                                            <textarea class="form-control mceEditor" id="content_about_{$id}" name="content[{$id}][content_about]" rows="10">{$page_data.content.$id.content_about|default:''}</textarea>
+                                            <textarea class="form-control mceEditor"
+                                                      id="content_about_{$id}"
+                                                      name="content[{$id}][content_about]"
+                                                      rows="10"
+                                                      data-controller="about"
+                                                      data-itemid="{$page_data.id_about}"
+                                                      data-lang="{$id}"
+                                                      data-field="content_about">{$page_data.content.$id.content_about|default:''}</textarea>
                                         </div>
 
                                         {* Accordéons pour SEO et Liens *}
