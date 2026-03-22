@@ -111,7 +111,7 @@ INSERT INTO `mc_module` (`id_module`, `name`) VALUES
 (11, 'about'),(12, 'news'),(13, 'mailsetting'),(14, 'category'),(15, 'catalog'),
 (16, 'product'),(17, 'theme'),(18, 'plugin'),(19, 'translate'),(20, 'logo'),
 (21, 'snippet'),(22, 'company'),(23, 'menu'),(24, 'layout'),(25, 'share'),
-(26, 'imageconfig'),(27, 'holder'),(28, 'translation');
+(26, 'imageconfig'),(27, 'holder'),(28, 'translation'),(29, 'revisions');
 
 CREATE TABLE IF NOT EXISTS `mc_admin_access` (
     `id_access` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -137,7 +137,7 @@ INSERT INTO `mc_admin_access` (`id_role`, `id_module`, `view`, `append`, `edit`,
 (1, 19, 1, 1, 1, 1, 1), (1, 20, 1, 1, 1, 1, 1), (1, 21, 1, 1, 1, 1, 1),
 (1, 22, 1, 1, 1, 1, 1), (1, 23, 1, 1, 1, 1, 1), (1, 24, 1, 1, 1, 1, 1),
 (1, 25, 1, 1, 1, 1, 1), (1, 26, 1, 1, 1, 1, 1), (1, 27, 1, 1, 1, 1, 1),
-(1, 28, 1, 1, 1, 1, 1);
+(1, 28, 1, 1, 1, 1, 1),(1, 29, 1, 1, 1, 1, 1);
 
 CREATE TABLE IF NOT EXISTS `mc_admin_role_user` (
     `id_role` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
