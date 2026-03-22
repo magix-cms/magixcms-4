@@ -7,7 +7,7 @@ define('DS', DIRECTORY_SEPARATOR);
 define('ROOT_DIR', dirname(__DIR__) . DS);
 define('APP_PATH', ROOT_DIR . 'app' . DS);
 define('BASEADMIN', 'admin');
-define('MP_LOG_DIR',ROOT_DIR.BASEADMIN.DS.'var'.DS);
+define('MP_LOG_DIR',ROOT_DIR.BASEADMIN.DS.'var'.DS. 'log' .DS);
 define('SQLCACHEADMIN', ROOT_DIR.BASEADMIN . DS);
 define('EDITOR', '7.6.1');
 
@@ -17,13 +17,6 @@ if (file_exists($config)) {
 }else {
     header('Location: /install/');
 }
-
-/*define('MP_DBHOST' , 'localhost');
-define('MP_DBNAME' , 'magixcms4');
-define('MP_DBUSER' , 'root');
-define('MP_DBPASSWORD' , 'root');
-define('MP_DBDRIVER'  , 'mysql');
-define('MP_LOG_DETAILS','full');*/
 
 // 2. Inclusion de l'Autoloader
 require_once APP_PATH . 'Autoloader.php';

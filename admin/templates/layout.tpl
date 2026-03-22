@@ -45,17 +45,7 @@
     {/block}
 
     {block name="footer"}
-        <footer class="py-3 bg-body-tertiary border-top flex-shrink-0">
-            <div class="container-fluid text-center">
-                {* On assigne l'année en cours à une variable pour que ce soit propre *}
-                {assign var="current_year" value=$smarty.now|date_format:"%Y"}
-
-                <p class="mb-0 text-muted small">
-                    <i class="bi bi-copyright"></i> 2008{if $current_year != '2008'} - {$current_year}{/if}
-                    <a href="https://www.magix-cms.com/" class="text-muted text-decoration-none" target="_blank">Magix CMS</a> &mdash; Tous droits réservés.
-                </p>
-            </div>
-        </footer>
+        {include file='section/footer.tpl'}
     {/block}
 </div>
 <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
@@ -68,7 +58,7 @@
     <script src="{$site_url}/{$baseadmin}/templates/js/vendor/Sortable.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/vendor/glightbox.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixUITools.min.js?v={$smarty.now}"></script>
-
+    {*<script src="{$site_url}/{$baseadmin}/templates/js/MagixUITools.min.js?v={$mc_settings.version.value|default:'4.0.0'}"></script>*}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Initialisation de la boite à outils UI
