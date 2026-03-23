@@ -1,5 +1,7 @@
 # Magix CMS 4
 
+[![Release](https://img.shields.io/github/release/magix-cms/magixcms-4.svg)](https://github.com/magix-cms/magixcms-4/releases/latest)
+[![License](https://img.shields.io/github/license/magix-cms/magixcms-4.svg)](LICENSE)
 ![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-8892bf.svg)
 ![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
 
