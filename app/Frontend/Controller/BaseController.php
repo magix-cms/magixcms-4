@@ -19,6 +19,7 @@ use Smarty\Smarty;
 use Magepattern\Component\HTTP\JSON;
 use App\Component\Routing\UrlTool;
 use App\Frontend\Model\SeoHelper;
+use App\Component\Hook\HookManager;
 
 abstract class BaseController
 {
@@ -46,8 +47,13 @@ abstract class BaseController
 
         if (!$pluginsLoaded) {
             if (class_exists('\App\Component\Hook\HookManager')) {
-                // On enregistre le hook Smarty
+                // 1. Le hook CLASSIQUE (Widgets visuels via la Base de données)
                 $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
+
+                // 2. 🟢 Le hook D'ÉVÉNEMENT (Scripts invisibles en mémoire via Boot.php)
+                $this->view->registerPlugin('function', 'event', function(array $params, $template) {
+                    return HookManager::exec($params);
+                });
             }
 
             // On démarre les plugins Magix

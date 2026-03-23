@@ -29,11 +29,11 @@ class MagixFrontForms {
                     return;
                 }
 
-                // 2. Validation optionnelle de Google reCAPTCHA (s'il est présent)
-                const recaptcha = form.querySelector('.g-recaptcha-response');
+                // 2. Validation exclusive Google reCAPTCHA v3
+                const recaptcha = form.querySelector('input[name="g-recaptcha-response"]');
                 if (recaptcha && recaptcha.value === '') {
                     if (typeof MagixToast !== 'undefined') {
-                        MagixToast.warning('Veuillez cocher la case de sécurité anti-spam (reCAPTCHA).');
+                        MagixToast.warning('La validation de sécurité a échoué. Veuillez patienter un instant.');
                     }
                     return;
                 }
@@ -48,7 +48,6 @@ class MagixFrontForms {
         this.displayLoader(form);
 
         const formData = new FormData(form);
-        // 🟢 Utilisation STRICTE de l'URL définie dans l'attribut action du HTML
         const url = form.getAttribute('action');
         const method = (form.getAttribute('method') || 'POST').toUpperCase();
 
@@ -99,11 +98,11 @@ class MagixFrontForms {
         // Si le message est envoyé avec succès, on nettoie le formulaire
         if (isSuccess) {
             form.reset();
-            form.classList.remove('was-validated'); // Retire les bordures vertes de Bootstrap
+            form.classList.remove('was-validated');
 
-            // Si un reCAPTCHA est présent, on le réinitialise
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.reset();
+            // 🟢 Régénération du jeton reCAPTCHA v3 pour un éventuel nouvel envoi
+            if (typeof refreshRecaptchaToken === 'function') {
+                refreshRecaptchaToken();
             }
         }
     }

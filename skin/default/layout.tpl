@@ -24,6 +24,8 @@
     {* On change le nom de la variable de l'enfant pour éviter les conflits *}
     {block name="styleSheet" nocache}{/block}
     {include file="components/css.tpl"}
+    {include file="components/analytics.tpl"}
+    {event name="displayHead"}
 </head>
 <body class="bg-light">
 {include file="layout/header.tpl"}
