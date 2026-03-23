@@ -24,3 +24,4 @@ plugins/*
 !plugins/MagixFooterMenu
 !plugins/MagixLastNews
 !plugins/MagixSocial
+!plugins/MagixClear

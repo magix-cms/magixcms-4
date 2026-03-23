@@ -1,0 +1,9 @@
+{
+  "name": "MagixClear",
+  "version": "1.0.0",
+  "author": "Magix CMS",
+  "description": "Vide les caches",
+  "type": "backend",
+  "has_config": false,
+  "core_targets": {}
+}
