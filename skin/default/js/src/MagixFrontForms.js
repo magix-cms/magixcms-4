@@ -1,6 +1,6 @@
 /**
  * MAGIX CMS 4 - Frontend Forms Manager
- * @description Gestionnaire global des formulaires Frontend en Vanilla JS
+ * @description Gestionnaire global des formulaires Frontend en Vanilla JS (Optimisé reCAPTCHA v3 JIT)
  */
 class MagixFrontForms {
     constructor() {
@@ -29,24 +29,58 @@ class MagixFrontForms {
                     return;
                 }
 
-                // 2. Validation exclusive Google reCAPTCHA v3
-                const recaptcha = form.querySelector('input[name="g-recaptcha-response"]');
-                if (recaptcha && recaptcha.value === '') {
-                    if (typeof MagixToast !== 'undefined') {
-                        MagixToast.warning('La validation de sécurité a échoué. Veuillez patienter un instant.');
+                // 2. Validation Google reCAPTCHA v3 (Mode "Just-In-Time")
+                // On vérifie si Google est chargé ET si le plugin a fourni une clé publique
+                if (typeof grecaptcha !== 'undefined' && window.magixRecaptchaSiteKey) {
+
+                    // On verrouille le bouton tout de suite pour éviter les doubles clics
+                    // pendant que Google génère le jeton en arrière-plan
+                    this.displayLoader(form);
+
+                    try {
+                        // On demande un jeton tout neuf à Google
+                        const token = await new Promise((resolve, reject) => {
+                            grecaptcha.ready(() => {
+                                grecaptcha.execute(window.magixRecaptchaSiteKey, { action: 'submit' })
+                                    .then(resolve)
+                                    .catch(reject);
+                            });
+                        });
+
+                        // On cherche le champ caché ou on le crée s'il n'existe pas
+                        let input = form.querySelector('input[name="g-recaptcha-response"]');
+                        if (!input) {
+                            input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'g-recaptcha-response';
+                            form.appendChild(input);
+                        }
+
+                        // On injecte le jeton frais dans le formulaire
+                        input.value = token;
+
+                    } catch (error) {
+                        this.removeLoader(form);
+                        console.error('Erreur de génération reCAPTCHA:', error);
+                        if (typeof MagixToast !== 'undefined') {
+                            MagixToast.error('La vérification de sécurité a échoué. Veuillez réessayer.');
+                        }
+                        return; // On annule l'envoi si Google bloque
                     }
-                    return;
                 }
 
                 // 3. Soumission AJAX
+                // Le jeton reCAPTCHA frais est maintenant dans le formulaire, submitForm va le récupérer !
                 this.submitForm(form);
             });
         });
     }
 
     async submitForm(form) {
+        // Au cas où le formulaire n'a pas de reCAPTCHA, on s'assure que le bouton affiche le loader
         this.displayLoader(form);
 
+        // FormData récupère automatiquement TOUS les champs, y compris notre input caché reCAPTCHA
         const formData = new FormData(form);
         const url = form.getAttribute('action');
         const method = (form.getAttribute('method') || 'POST').toUpperCase();
@@ -99,11 +133,8 @@ class MagixFrontForms {
         if (isSuccess) {
             form.reset();
             form.classList.remove('was-validated');
-
-            // 🟢 Régénération du jeton reCAPTCHA v3 pour un éventuel nouvel envoi
-            if (typeof refreshRecaptchaToken === 'function') {
-                refreshRecaptchaToken();
-            }
+            // PLUS BESOIN de rafraîchir le jeton ici !
+            // S'il clique à nouveau, le submit génèrera un nouveau jeton automatiquement.
         }
     }
 

@@ -25,6 +25,7 @@
     {block name="styleSheet" nocache}{/block}
     {include file="components/css.tpl"}
     {include file="components/analytics.tpl"}
+    {include file="components/favicon.tpl"}
     {event name="displayHead"}
 </head>
 <body class="bg-light">

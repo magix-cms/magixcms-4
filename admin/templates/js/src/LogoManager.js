@@ -7,6 +7,7 @@ class LogoManager {
         this.modalEl = document.getElementById('modalEditLogo');
         this.modal = this.modalEl ? new bootstrap.Modal(this.modalEl) : null;
         this.init();
+        this.bindFaviconEvents();
     }
 
     init() {
@@ -193,6 +194,101 @@ class LogoManager {
             }
         } catch (error) {
             console.error('Erreur rafraîchissement galerie:', error);
+        }
+    }
+    // ==========================================
+    // GESTION DES FAVICONS
+    // ==========================================
+
+    bindFaviconEvents() {
+        // 1. Upload Favicon
+        const faviconForm = document.getElementById('favicon_form');
+        if (faviconForm) {
+            faviconForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.uploadFavicon(faviconForm);
+            });
+        }
+
+        // 2. Variables pour la modale de suppression
+        let faviconTokenToDelete = null;
+        const modalFaviconsEl = document.getElementById('modalDeleteFavicons');
+        const modalFavicons = modalFaviconsEl ? new bootstrap.Modal(modalFaviconsEl) : null;
+
+        // 3. Clic sur le bouton "Supprimer" (Ouvre la modale)
+        const btnDeleteFavicons = document.getElementById('btnDeleteFavicons');
+        if (btnDeleteFavicons) {
+            btnDeleteFavicons.addEventListener('click', (e) => {
+                e.preventDefault();
+                faviconTokenToDelete = btnDeleteFavicons.getAttribute('data-token');
+                if (modalFavicons) modalFavicons.show();
+            });
+        }
+
+        // 4. Clic sur le bouton "Oui, supprimer" DANS la modale
+        const btnConfirmDeleteFavicons = document.getElementById('btnConfirmDeleteFavicons');
+        if (btnConfirmDeleteFavicons) {
+            btnConfirmDeleteFavicons.addEventListener('click', () => {
+                if (faviconTokenToDelete) {
+                    this.deleteFavicons(faviconTokenToDelete); // On lance l'AJAX
+                    if (modalFavicons) modalFavicons.hide(); // On ferme la modale
+                    faviconTokenToDelete = null; // On vide la mémoire
+                }
+            });
+        }
+    }
+
+    async uploadFavicon(form) {
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn.innerHTML;
+
+        // Mode chargement
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(form.action, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (data.status) {
+                if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
+                // On recharge la page pour rafraîchir le cache des images dans le navigateur
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                if (typeof MagixToast !== 'undefined') MagixToast.error(data.message);
+                submitBtn.innerHTML = originalBtnHtml;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            if (typeof MagixToast !== 'undefined') MagixToast.error("Erreur de connexion.");
+            submitBtn.innerHTML = originalBtnHtml;
+            submitBtn.disabled = false;
+        }
+    }
+
+    async deleteFavicons(token) {
+        // 🟢 PLUS DE confirm() ICI !
+
+        const formData = new FormData();
+        formData.append('hashtoken', token);
+
+        try {
+            const response = await fetch(`${this.controllerUrl}&action=deleteFavicons`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.status) {
+                if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                if (typeof MagixToast !== 'undefined') MagixToast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Erreur suppression favicons:', error);
+            if (typeof MagixToast !== 'undefined') MagixToast.error("Erreur lors de la suppression.");
         }
     }
 }

@@ -64,6 +64,62 @@
                     </form>
                 </div>
             </div>
+            {* --- NOUVEAU BLOC : GESTION DU FAVICON --- *}
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-browser-chrome me-2 text-primary"></i> Favicon & App Icons</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Générez automatiquement toutes les tailles requises (32x32, 180x180, 192x192) à partir d'une seule image carrée.
+                    </p>
+
+                    {* APERÇU SI LES FAVICONS EXISTENT *}
+                    {if $favicons.standard.exists}
+                        <div class="d-flex justify-content-center gap-3 align-items-end mb-4 p-3 bg-light rounded border">
+                            <div class="text-center">
+                                <img src="{$favicons.standard.url}" alt="Standard" class="border rounded shadow-sm bg-white mb-1" style="width: 32px; height: 32px;">
+                                <div class="small text-muted" style="font-size: 10px;">32x32</div>
+                            </div>
+                            <div class="text-center">
+                                <img src="{$favicons.apple.url}" alt="Apple" class="border rounded shadow-sm bg-white mb-1" style="width: 64px; height: 64px;">
+                                <div class="small text-muted" style="font-size: 10px;">180x180</div>
+                            </div>
+                            <div class="text-center">
+                                <img src="{$favicons.android.url}" alt="Android" class="border rounded shadow-sm bg-white mb-1" style="width: 72px; height: 72px;">
+                                <div class="small text-muted" style="font-size: 10px;">192x192</div>
+                            </div>
+                        </div>
+                    {else}
+                        <div class="text-center text-muted p-3 bg-light rounded border mb-4 border-dashed">
+                            <i class="bi bi-image fs-1 opacity-25 d-block mb-2"></i>
+                            <span class="small fw-bold">Aucun favicon actuel</span>
+                        </div>
+                    {/if}
+
+                    {* FORMULAIRE D'UPLOAD (Sans base de données) *}
+                    <form id="favicon_form" class="mb-0" action="index.php?controller=Logo&action=uploadFavicon" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="hashtoken" value="{$token}">
+
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="file" class="form-control" name="favicon_file" accept="image/png, image/jpeg" required>
+                            <button class="btn btn-primary px-3" type="submit">
+                                <i class="bi bi-magic"></i> Créer
+                            </button>
+                        </div>
+                    </form>
+
+                    {* BOUTON DE SUPPRESSION *}
+                    {if $favicons.standard.exists}
+                        <div class="text-end mt-2">
+                            <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" id="btnDeleteFavicons" data-token="{$token}">
+                                <i class="bi bi-trash"></i> Supprimer les icônes
+                            </button>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+            {* --- FIN DU BLOC FAVICON --- *}
         </div>
 
         {* --- COLONNE DROITE : GALERIE --- *}
@@ -147,6 +203,22 @@
                     <div class="d-flex justify-content-center gap-2">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
                         <button type="button" class="btn btn-danger" id="btnConfirmDeleteLogo">Oui, supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {* --- MODAL DE CONFIRMATION DE SUPPRESSION FAVICONS --- *}
+    <div class="modal fade" id="modalDeleteFavicons" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-trash3 text-danger display-4 d-block mb-3"></i>
+                    <h5 class="fw-bold">Supprimer les icônes ?</h5>
+                    <p class="text-muted mb-4 small">Cette action effacera définitivement les favicons générés de votre serveur. C'est irréversible.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmDeleteFavicons">Oui, supprimer</button>
                     </div>
                 </div>
             </div>

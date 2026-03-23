@@ -351,6 +351,25 @@ abstract class BaseController
             $shareDb = new ShareDb();
             $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
 
+            // 5 Share
+            $shareDb = new ShareDb();
+            $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
+
+            // 🟢 6. FAVICON & APP ICONS
+            $faviconPath = ROOT_DIR . 'img' . DS . 'favicon' . DS . 'favicon-32x32.png';
+            $hasFavicon = false;
+            $faviconVersion = '';
+
+            if (file_exists($faviconPath)) {
+                $hasFavicon = true;
+                $faviconVersion = filemtime($faviconPath);
+            }
+
+            $this->view->assign([
+                'has_favicon'     => $hasFavicon,
+                'favicon_version' => $faviconVersion
+            ]);
+
         } catch (\Throwable $e) {
             $this->logger->log("Erreur chargement globales front : " . $e->getMessage(), "warning");
         }
