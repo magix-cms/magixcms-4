@@ -1,7 +1,7 @@
 # Magix CMS 4
 
 ![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-8892bf.svg)
-![Status](https://img.shields.io/badge/Status-Pre--Alpha-red.svg)
+![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
 
 ## 📌 À propos de Magix CMS
 
@@ -50,9 +50,12 @@ Conformément à l'approche de Magix CMS, **l'installation ne nécessite pas Com
 
 ---
 
-## ⚠️ Avertissement (État du Projet)
+## ⚠️ État du Projet (Phase Beta)
 
-Ce projet est actuellement en phase **Pre-Alpha / Alpha**.
-Il est en cours de développement actif. De nombreuses fonctionnalités sont encore en chantier, et l'architecture peut subir des modifications sans préavis.
+Ce projet est actuellement en phase **Beta**.
+L'architecture logicielle est désormais stabilisée. Bien que cette version soit fonctionnelle, elle est mise à disposition pour :
+- Tests de performance et d'ergonomie.
+- Remontées de bugs.
+- Développement de thèmes et de modules tiers.
 
-**Il est strictement déconseillé d'utiliser cette version en production.** Elle est mise à disposition à des fins de tests, de développement et de retour d'expérience.
+**Utilisation en production :** Bien que plus stable que l'Alpha, la prudence reste de mise pour les projets critiques. Effectuez toujours des sauvegardes complètes avant toute mise à jour.

@@ -1,0 +1,40 @@
+{
+  "name": "magix-cms/google-recaptcha",
+  "description": "Intégration invisible de Google reCAPTCHA v3 (JIT) pour protéger les formulaires de Magix CMS 4.",
+  "type": "magix-plugin",
+  "keywords": [
+    "magix-cms",
+    "plugin",
+    "recaptcha",
+    "security",
+    "anti-spam",
+    "form"
+  ],
+  "homepage": "https://www.magix-cms.com",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Gerits Aurelien",
+      "homepage": "https://www.magix-cms.com",
+      "role": "Lead Developer"
+    }
+  ],
+  "require": {
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Plugins\\GoogleRecaptcha\\": ""
+    }
+  },
+  "extra": {
+    "magix-cms": {
+      "name": "GoogleRecaptcha",
+      "version": "1.0.0",
+      "author": "Gerits Aurelien"
+    }
+  },
+  "minimum-stability": "stable"
+}

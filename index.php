@@ -6,7 +6,7 @@ declare(strict_types=1);
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT_DIR', __DIR__ . DS); // <-- On est déjà à la racine ici
 define('APP_PATH', ROOT_DIR . 'app' . DS);
-define('MP_LOG_DIR', ROOT_DIR . 'var' . DS); // Exemple de dossier de log global
+define('MP_LOG_DIR', ROOT_DIR . 'var' . DS. 'log' .DS); // Exemple de dossier de log global
 define('SQLCACHEDIR', ROOT_DIR . 'var' . DS);
 
 $config = APP_PATH.'init'.DS.'config.php';

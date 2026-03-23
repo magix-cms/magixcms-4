@@ -1,0 +1,11 @@
+{
+  "name": "GoogleRecaptcha",
+  "version": "1.0.0",
+  "author": "Magix CMS",
+  "description": "Protège vos formulaires contre le spam grâce à Google reCAPTCHA v3.",
+  "type": "hybrid",
+  "has_config": true,
+  "core_targets": {
+    "contact": 1
+  }
+}

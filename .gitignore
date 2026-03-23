@@ -25,3 +25,4 @@ plugins/*
 !plugins/MagixLastNews
 !plugins/MagixSocial
 !plugins/MagixClear
+!plugins/GoogleRecaptcha

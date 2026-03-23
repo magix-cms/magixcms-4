@@ -78,6 +78,23 @@ class FrontendController extends BaseController
             $this->jsonResponse(false, 'L\'adresse e-mail fournie est invalide.');
         }
 
+        // =================================================================
+        // 🟢 INTÉGRATION GOOGLE RECAPTCHA (Couplage faible)
+        // =================================================================
+        $isHuman = true;
+
+        if (class_exists('\Plugins\GoogleRecaptcha\src\FrontendController')) {
+            $recaptcha = new \Plugins\GoogleRecaptcha\src\FrontendController();
+            // On vérifie le jeton spécifiquement pour le module 'contact'
+            $isHuman = $recaptcha->verify('contact');
+        }
+
+        if (!$isHuman) {
+            $this->jsonResponse(false, 'Erreur de sécurité : Validation reCAPTCHA échouée. Veuillez réessayer.');
+        }
+        // =================================================================
+
+        // Si on arrive ici, c'est un humain valide, on continue le script !
         $idContact = (int)($msg['id_contact'] ?? 0);
         $db = new ContactFrontDb();
 

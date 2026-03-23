@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Sass install" pattern="file:install/templates/css/sass/*.scss" />
+</component>
