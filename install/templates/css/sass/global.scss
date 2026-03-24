@@ -8,6 +8,8 @@
 // ==========================================
 // 2. VENDORS BOOTSTRAP (Le moteur)
 // ==========================================
+$bootstrap-icons-font-dir: "../fonts";
+@import "abstract/bootstrap-icons";
 @import "bootstrap-bundles/bootstrap-full";
 
 // ==========================================
