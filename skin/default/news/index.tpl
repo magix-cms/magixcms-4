@@ -65,8 +65,8 @@
     </header>
 
     {* --- LISTE DES ACTUALITÉS --- *}
-    <section class="news-list">
-        {include file="news/loop/news-grid.tpl" data=$news_list}
+    <section id="news-list">
+        {include file="news/loop/news-grid.tpl" data=$news_list classType="normal"}
         {include file="components/pagination.tpl" pg=$pagination url=$page_url_base}
     </section>
 

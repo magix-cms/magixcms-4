@@ -2,14 +2,21 @@
     {if isset($data.id)}
         {$data = [$data]}
     {/if}
-    {if !isset($lazy)}
-        {$lazy = true}
+    {$lazy = $lazy|default:true}
+    {$class = ""}
+    {if isset($classType)}
+        {if $classType == "large"}
+            {$class = "-large"}
+        {elseif $classType == "normal"}
+            {$class = ""}
+        {/if}
     {/if}
 {/strip}
+
 {if isset($data) && $data|count > 0}
-    <ul class="news-grid-list list-grid mb-0">
+    <ul class="news-list{$class} list-grid mb-0">
         {foreach $data as $item}
-            <li class="news-card">
+            <li class="news-card{$class}">
                 <div class="figure transition-hover">
                     <a href="{$item.url}" class="time-figure rounded-top">
                         {include file="components/img.tpl" img=$item.img responsiveC=true lazy=$lazy}

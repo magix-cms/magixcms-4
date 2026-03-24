@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":[],"names":[],"mappings":"","file":"catalog.min.css"}
+{"version":3,"sourceRoot":"","sources":["sass/catalog.scss"],"names":[],"mappings":"AAAA,mBACE","file":"catalog.min.css"}

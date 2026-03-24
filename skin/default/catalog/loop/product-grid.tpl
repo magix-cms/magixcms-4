@@ -2,15 +2,21 @@
     {if isset($data.id)}
         {$data = [$data]}
     {/if}
-    {if !isset($lazy)}
-        {$lazy = true}
+    {$lazy = $lazy|default:true}
+    {$class = ""}
+    {if isset($classType)}
+        {if $classType == "large"}
+            {$class = "-large"}
+        {elseif $classType == "normal"}
+            {$class = ""}
+        {/if}
     {/if}
 {/strip}
 
 {if isset($data) && $data|count > 0}
-    <ul class="product-list list-grid mb-0">
+    <ul class="product-list{$class} list-grid mb-0">
         {foreach $data as $item}
-            <li class="product-card">
+            <li class="product-card{$class}">
                 <div class="figure bg-white transition-hover">
                     {* 🟢 Ajout de position-relative pour le badge de promo *}
                     <div class="time-figure rounded-top position-relative">

@@ -13,7 +13,7 @@
 
 {* --- CSS --- *}
 {block name="styleSheet" append nocache}
-    {$page_css = ["splide.min", "gallery"] scope="parent"}
+    {$page_css = ["pages","splide.min", "gallery"] scope="parent"}
 {/block}
 
 {block name="article:content"}
@@ -94,7 +94,7 @@
                     <div class="col-12 mb-4">
                         <h3 class="fw-bold text-primary">En savoir plus</h3>
                     </div>
-                    {include file="pages/loop/pages-grid.tpl" data=$pages.subdata}
+                    {include file="pages/loop/pages-grid.tpl" data=$pages.subdata classType="normal"}
                 </div>
             </section>
         {/if}

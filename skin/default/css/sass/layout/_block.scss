@@ -68,9 +68,17 @@
 .pages-list,
 .category-list,
 .product-list,
-.news-grid-list,
+.news-list,
 .about-list {
   @include auto-grid(3, 300px);
+}
+
+.pages-list-large,
+.category-list-large,
+.product-list-large,
+.news-list-large,
+.about-list-large {
+  @include auto-grid(1, 300px);
 }
 
 
@@ -164,7 +172,7 @@
 
     @include media-breakpoint-up(md) {
       width: 40%;
-      border-right: 2px solid var(--main-color, #0d6efd);
+      //border-right: 2px solid var(--main-color, #0d6efd);
       flex-shrink: 0;
     }
 
@@ -237,7 +245,10 @@
   @include media-breakpoint-up(md) {
     &:nth-child(even) .figure {
       flex-direction: row-reverse;
-      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+      .time-figure {
+        border-right: none;
+        //border-left: 2px solid var(--main-color);
+      }
     }
   }
 }
@@ -303,7 +314,10 @@
   @include media-breakpoint-up(md) {
     &:nth-child(even) .figure {
       flex-direction: row-reverse;
-      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+      .time-figure {
+        border-right: none;
+        //border-left: 2px solid var(--main-color);
+      }
     }
   }
 }
@@ -368,12 +382,17 @@
   @include media-breakpoint-up(md) {
     &:nth-child(even) .figure {
       flex-direction: row-reverse;
-      .time-figure { border-right: none; border-left: 2px solid var(--main-color); }
+      .time-figure {
+        border-right: none;
+        //border-left: 2px solid var(--main-color);
+      }
       .date { place-self: start end; }
     }
   }
 }
-
+#news-list{
+  margin-bottom: calc(var(--spacer) * 2);
+}
 // --------------------------------------------------------
 // 6. GALLERY HOLDER (Masonry basique)
 // --------------------------------------------------------

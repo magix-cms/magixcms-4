@@ -12,7 +12,7 @@
 {/block}
 
 {block name="styleSheet" append nocache}
-    {$page_css = ["splide.min", "gallery"] scope="parent"}
+    {$page_css = ["about","splide.min", "gallery"] scope="parent"}
 {/block}
 
 {block name="article"}

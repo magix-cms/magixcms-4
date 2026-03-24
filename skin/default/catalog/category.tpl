@@ -6,9 +6,10 @@
 
 {* --- CSS (Chargé uniquement si une galerie existe) --- *}
 {block name="styleSheet" append nocache}
-    {if isset($category.gallery) && $category.gallery|count > 0}
+    {$page_css = ["catalog","vendor/splide", "gallery"] scope="parent"}
+    {*{if isset($category.gallery) && $category.gallery|count > 0}
         {$page_css = ["vendor/splide", "gallery"] scope="parent"}
-    {/if}
+    {/if}*}
 {/block}
 
 {block name="head:structured_data"}
@@ -95,7 +96,7 @@
                 <div class="col-12 mb-4">
                     <h3 class="fw-bold text-secondary border-bottom pb-2">Affiner votre recherche</h3>
                 </div>
-                {include file="catalog/loop/category-grid.tpl" data=$category.subdata}
+                {include file="catalog/loop/category-grid.tpl" data=$category.subdata classType="normal"}
             </div>
         </section>
     {/if}
@@ -107,7 +108,7 @@
                 <div class="col-12 mb-4">
                     <h2 class="fw-bold text-dark mb-4">Produits disponibles</h2>
                 </div>
-                {include file="catalog/loop/product-grid.tpl" data=$category.products}
+                {include file="catalog/loop/product-grid.tpl" data=$category.products classType="normal"}
             </div>
         {elseif (!isset($category.subdata) || $category.subdata|count == 0)}
             {* Message affiché uniquement si la catégorie n'a NI sous-catégories NI produits *}
