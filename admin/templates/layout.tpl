@@ -10,7 +10,6 @@
     <!--[if IE]>
     <link rel="shortcut icon" type="image/x-icon" href="{$site_url}/{$baseadmin}/templates/img/favicon.ico" />
     <![endif]-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/global.css">
     <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/glightbox.min.css">
     {*<link rel="stylesheet" href="templates/css/elfinder-flat.css">*}

@@ -1,45 +1,41 @@
-// global.scss
+/// tinymce.scss - Administration MagixCMS
 
 // ==========================================
-// 1. OUTILS ET CONFIGURATION (Muet)
+// 1. OUTILS ET CONFIGURATION (Silencieux)
 // ==========================================
-@import "abstract/init"; // Charge _core.scss (variables, mixins, maps)
+@import "abstract/core"; // Charge les variables, mixins et prépare Bootstrap
 
 // ==========================================
-// 2. VARIABLES CSS PERSONNALISÉES (Bavard)
-// ==========================================
-:root {
-  @each $key, $value in $theme-color-map {
-    $palette: generate-palette($value);
-    --#{$key}-color-darker:  #{map-get($palette, "darker")};
-    --#{$key}-color-dark:    #{map-get($palette, "dark")};
-    --#{$key}-color:         #{$value};
-    --#{$key}-color-light:   #{map-get($palette, "light")};
-    --#{$key}-color-lighter: #{map-get($palette, "lighter")};
-  }
-}
-
-// ==========================================
-// 3. RENDU BOOTSTRAP 5.3.8 COMPLET
+// 2. VENDORS (Moteur)
 // ==========================================
 
-// On importe le pack complet d'un coup
+$bootstrap-icons-font-dir: "../fonts";
+@import "abstract/bootstrap-icons";
 @import "bootstrap-bundles/bootstrap-full";
 @import "icofont/icofont";
+
 // ==========================================
-// 4. VOS COMPOSANTS MAGIXCMS
+// 3. BASE (CSS natif)
+// ==========================================
+@import "base/root"; // Variables CSS générées
+
+// ==========================================
+// 4. COMPOSANTS MAGIXCMS
 // ==========================================
 @import "components/buttons";
 @import "components/cards";
 @import "components/badges";
 @import "components/table";
 @import "components/pageTab";
+@import "components/layout";
+
+// ==========================================
+// 5. STRUCTURE DE LA PAGE (Layout Admin)
+// ==========================================
 @import "layout/admin-sidebar";
 @import "layout/admin-header";
 @import "layout/admin-forms";
 @import "layout/admin-editor";
-// @import "layout/footer";
-// @import "components/cards";
 
 body{
   margin: 1rem;

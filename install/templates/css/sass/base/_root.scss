@@ -1,0 +1,19 @@
+// base/_root.scss
+
+:root {
+  // --- COULEURS (MagixCMS + Passerelle Bootstrap 5) ---
+  @each $key, $value in $theme-color-map {
+
+    // Génération de la palette Magix
+    $palette: generate-palette($value);
+    --#{$key}-color-darker:  #{map-get($palette, "darker")};
+    --#{$key}-color-dark:    #{map-get($palette, "dark")};
+    --#{$key}-color:         #{$value};
+    --#{$key}-color-light:   #{map-get($palette, "light")};
+    --#{$key}-color-lighter: #{map-get($palette, "lighter")};
+
+    // Passerelle Bootstrap
+    --bs-#{$key}: #{$value};
+    --bs-#{$key}-rgb: #{red($value)}, #{green($value)}, #{blue($value)};
+  }
+}

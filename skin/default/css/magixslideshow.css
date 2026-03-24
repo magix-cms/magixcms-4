@@ -1,0 +1,34 @@
+@charset "UTF-8";
+/* ==========================================================================
+   CSS SPÉCIFIQUE À LA PAGE D'ACCUEIL (home.tpl)
+   ========================================================================== */
+/* 1. On annule la marge de sécurité du header.
+      Le slider va remonter se coller tout en haut de l'écran (sous le header). */
+#header + * {
+  margin-top: var(--header-h, 100px);
+}
+
+/* 2. Quand on est tout en haut (.at-top), le header devient transparent */
+/*#header.at-top {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-bottom: transparent !important;
+  transition: background-color 0.3s ease-in-out;
+}*/
+/* (Optionnel) Passer le texte/logo en blanc quand le fond est transparent */
+/*#header.at-top .nav-link,
+#header.at-top .navbar-brand {
+  color: #ffffff !important;
+  transition: color 0.3s ease-in-out;
+}*/
+/* 3. SÉCURITÉ UX : On ajoute un padding interne en haut du slider.
+      Cela empêche le texte (H2) de votre premier slide de remonter
+      derrière le logo et le menu du header transparent. */
+#magix-hero-slideshow {
+  margin-bottom: calc(var(--spacer) * 2);
+}
+#magix-hero-slideshow .text-shadow {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7), 0px 0px 20px rgba(0, 0, 0, 0.3);
+}
+
+/*# sourceMappingURL=magixslideshow.css.map */

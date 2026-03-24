@@ -1,43 +1,28 @@
 // global.scss
 
-// ==========================================
-// 1. OUTILS ET CONFIGURATION (Muet)
-// ==========================================
-@import "abstract/init"; // Charge _core.scss (variables, mixins, maps)
+// 1. OUTILS ET VARIABLES (Silencieux)
+@import "abstract/core";       // Les variables SASS et Mixins
 $bootstrap-icons-font-dir: "../fonts";
 @import "abstract/bootstrap-icons";
-@import "base/headings";
-// ==========================================
-// 2. VARIABLES CSS PERSONNALISÉES (Bavard)
-// ==========================================
-:root {
-  @each $key, $value in $theme-color-map {
-    $palette: generate-palette($value);
-    --#{$key}-color-darker:  #{map-get($palette, "darker")};
-    --#{$key}-color-dark:    #{map-get($palette, "dark")};
-    --#{$key}-color:         #{$value};
-    --#{$key}-color-light:   #{map-get($palette, "light")};
-    --#{$key}-color-lighter: #{map-get($palette, "lighter")};
-  }
-}
 
-// ==========================================
-// 3. RENDU BOOTSTRAP 5.3.8 COMPLET
-// ==========================================
-
-// On importe le pack complet d'un coup
-@import "bootstrap-bundles/bootstrap-full";
+// 2. VENDORS (Bootstrap & Icônes)
+@import "bootstrap-bundles/bootstrap-full"; // Moteur principal
 @import "icofont/icofont";
-// ==========================================
-// 4. VOS COMPOSANTS MAGIXCMS
-// ==========================================
-@import "abstract/typography";
+
+// 3. BASE ET RACINE (Le CSS commence à être généré ici)
+@import "base/root";           // On génère vos variables CSS natives en premier
+@import "base/typography";     // 🟢 DÉPLACÉ ICI : Après Bootstrap pour imposer vos règles !
+@import "base/headings";
+
+// 4. COMPOSANTS MAGIXCMS
 @import "components/buttons";
 @import "components/cards";
 @import "components/badges";
 @import "components/table";
 @import "components/layout";
 @import "components/menu";
+
+// 5. LAYOUT
 @import "layout/block";
 @import "layout/header";
 @import "layout/footer";

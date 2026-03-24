@@ -1,18 +1,24 @@
 // base/_root.scss
 
 :root {
-  // --- 1. COULEURS (La passerelle Bootstrap 5) ---
-  // On boucle sur votre map de couleurs MagixCMS pour tout synchroniser
+  // --- 1. COULEURS (MagixCMS + Génération Bootstrap 5) ---
+  // On boucle UNE SEULE FOIS sur votre map pour tout générer !
   @each $key, $value in $theme-color-map {
-    // Variables Magix (votre usage perso)
-    --#{$key}-color: #{$value};
 
-    // Variables Bootstrap (pour que .text-primary, .bg-primary fonctionnent)
+    // A. Vos variables Magix (Génération de la palette)
+    $palette: generate-palette($value);
+    --#{$key}-color-darker:  #{map-get($palette, "darker")};
+    --#{$key}-color-dark:    #{map-get($palette, "dark")};
+    --#{$key}-color:         #{$value};
+    --#{$key}-color-light:   #{map-get($palette, "light")};
+    --#{$key}-color-lighter: #{map-get($palette, "lighter")};
+
+    // B. Passerelle Bootstrap (pour que .text-primary, bg-success etc. fonctionnent)
     --bs-#{$key}: #{$value};
     --bs-#{$key}-rgb: #{red($value)}, #{green($value)}, #{blue($value)};
   }
 
-  // --- 2. TYPOGRAPHIE (Votre logique actuelle) ---
+  // --- 2. TYPOGRAPHIE ---
   --mc-font-scale: 1;
   --fz-base: calc(#{$font-size-base} * var(--mc-font-scale));
 
@@ -24,6 +30,7 @@
   --fz-h6: calc(#{$h6-font-size} * var(--mc-font-scale));
 
   // --- 3. LAYOUT & SPACERS ---
+  --body-bg: #fff;
   --spacer: #{$spacer};
   --grid-gutter: var(--spacer);
   --toolbar-h: 0px;
@@ -33,5 +40,6 @@
   @include media-breakpoint-up(md) {
     --toolbar-h: #{$toolbar-h};
   }
+
   --footbar-text: #212529;
 }

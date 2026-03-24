@@ -262,7 +262,7 @@
       place-self: start end;
       margin: 1rem;
       z-index: 2;
-      background: var(--main-color, #0d6efd);
+      background: var(--dark-color, #212529);
       color: var(--white, #fff);
       padding: 0.25rem 0.75rem;
       border-radius: 4px;
@@ -270,6 +270,7 @@
       width: fit-content;
       height: fit-content;
       pointer-events: none;
+      transition: all 0.25s ease-in-out;
     }
 
     .product-price {
@@ -294,6 +295,9 @@
         color: var(--white, #fff);
         border-color: var(--dark-color, #212529);
         transform: translateY(-2px);
+      }
+      .cat-label {
+        background: var(--main-color, #0d6efd);
       }
     }
   }
