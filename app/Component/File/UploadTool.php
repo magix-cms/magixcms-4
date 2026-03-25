@@ -236,4 +236,84 @@ class UploadTool
         }
         return $normalized;
     }
+    /**
+     * 1. Retourne la liste complète de TOUTES les images originales d'un module
+     */
+    public function getOriginalImagesList(string $module, string $attribute): array
+    {
+        $baseDir = $_SERVER['DOCUMENT_ROOT'] . '/upload/' . $module;
+        if (!is_dir($baseDir)) {
+            return [];
+        }
+
+        $resizeConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
+        $prefixes = array_column($resizeConfig, 'prefix');
+        $files = [];
+
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($baseDir));
+
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $filename = $file->getFilename();
+                $ext = strtolower($file->getExtension());
+                $path = $file->getPath() . '/';
+
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) continue;
+
+                // On ignore les déclinaisons existantes (s_, m_, etc.)
+                $isVariant = false;
+                foreach ($prefixes as $p) {
+                    if (str_starts_with($filename, $p . '_')) {
+                        $isVariant = true;
+                        break;
+                    }
+                }
+                if ($isVariant) continue;
+
+                // On ignore le master WebP si l'original JPG/PNG existe à côté
+                $filenameNoExt = pathinfo($filename, PATHINFO_FILENAME);
+                if ($ext === 'webp' && (file_exists($path . $filenameNoExt . '.jpg') || file_exists($path . $filenameNoExt . '.png'))) {
+                    continue;
+                }
+
+                // On stocke le chemin complet
+                $files[] = $file->getPathname();
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * 2. Traite uniquement un lot précis d'images (ex: de la 10ème à la 20ème)
+     */
+    public function processImageBatch(array $filesList, string $module, string $attribute, int $offset, int $limit): int
+    {
+        $resizeConfig = $this->imageConfig->fetchImageSizes($module, $attribute);
+        if (empty($resizeConfig)) return 0;
+
+        // On découpe le tableau pour ne prendre que la tranche demandée
+        $chunk = array_slice($filesList, $offset, $limit);
+        $processedCount = 0;
+
+        foreach ($chunk as $filePath) {
+            if (file_exists($filePath)) {
+                $path = dirname($filePath) . '/';
+                $filename = basename($filePath);
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $filenameNoExt = pathinfo($filename, PATHINFO_FILENAME);
+
+                try {
+                    $this->generateVariations($filePath, $path, $filenameNoExt, $ext, $resizeConfig);
+                    $processedCount++;
+                } catch (\Throwable $e) {
+                    $this->logger->log($e, 'php', 'error');
+                }
+            }
+        }
+
+        if (function_exists('gc_collect_cycles')) gc_collect_cycles();
+
+        return $processedCount;
+    }
 }

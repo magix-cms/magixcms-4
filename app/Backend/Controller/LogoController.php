@@ -10,7 +10,7 @@ use App\Component\File\ImageTool;
 use App\Backend\Db\CompanyDb;
 use Magepattern\Component\HTTP\Url;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver; // Le driver GD est parfait et natif pour le PNG
+use Intervention\Image\Drivers\Gd\Driver;
 
 class LogoController extends BaseController
 {
@@ -34,11 +34,9 @@ class LogoController extends BaseController
         $activeLangs = $db->fetchLanguages();
 
         $company = $companyDb->getCompanyInfo();
-        $defaultName = $company['name'] ?? $company['name_info'] ?? 'logo-site';
+        $defaultName = !empty($company['name']) ? $company['name'] : (!empty($company['name_info']) ? $company['name_info'] : 'logo-site');
 
         $rawLogos = $db->fetchAllLogos($idLangue);
-
-        // CORRECTION 1 : On appelle l'attribut 'logo' et non 'image'
         $formattedLogos = $imageTool->setModuleImages('logo', 'logo', $rawLogos, 0, '/img/logo/');
 
         $this->view->assign([
@@ -52,6 +50,36 @@ class LogoController extends BaseController
         $this->view->display('appearance/logo/index.tpl');
     }
 
+    // 🟢 LA SOLUTION : Fonction pour générer logo, logo-1, logo-2 dynamiquement
+    private function generateUniqueFilename(string $baseName, string $postKey): string
+    {
+        $cleanFileName = Url::clean($baseName);
+        if (empty($cleanFileName)) {
+            $cleanFileName = 'logo'; // Si vide, on force le mot "logo"
+        }
+
+        // On détermine l'extension du fichier uploadé
+        $originalExt = 'jpg';
+        if (isset($_FILES[$postKey]['name'])) {
+            $ext = strtolower(pathinfo($_FILES[$postKey]['name'], PATHINFO_EXTENSION));
+            if (!empty($ext)) {
+                $originalExt = $ext;
+            }
+        }
+
+        $targetDir = ROOT_DIR . 'img' . DS . 'logo' . DS;
+        $finalName = $cleanFileName;
+        $counter = 1;
+
+        // Tant que le fichier existe déjà, on ajoute "-1", "-2", etc.
+        while (file_exists($targetDir . $finalName . '.' . $originalExt)) {
+            $finalName = $cleanFileName . '-' . $counter;
+            $counter++;
+        }
+
+        return $finalName;
+    }
+
     public function upload(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -59,20 +87,17 @@ class LogoController extends BaseController
             $this->jsonResponse(false, 'Session invalide.');
         }
 
-        $companyDb = new CompanyDb();
-        $company = $companyDb->getCompanyInfo();
-
+        // Si le nom est vide, on part de la base 'logo'
         $customName = trim($_POST['filename'] ?? '');
-        $baseName = !empty($customName) ? $customName : ($company['name'] ?? 'logo');
+        $baseName = !empty($customName) ? $customName : 'logo';
 
-        $cleanFileName = Url::clean($baseName);
+        // 🟢 Utilisation de notre générateur de nom unique
+        $uniqueFileName = $this->generateUniqueFilename($baseName, 'logo_file');
 
         $uploadTool = new UploadTool();
-
-        // CORRECTION 2 : Attribut 'logo' + Retrait du suffixe time()
         $uploadResult = $uploadTool->singleImageUpload(
             'logo', 'logo', '', ['img', 'logo'],
-            ['postKey' => 'logo_file', 'name' => $cleanFileName]
+            ['postKey' => 'logo_file', 'name' => $uniqueFileName]
         );
 
         if ($uploadResult['status'] === true) {
@@ -118,16 +143,28 @@ class LogoController extends BaseController
         $this->jsonResponse(false, "Erreur de suppression.");
     }
 
-    private function physicalDelete(string $filename): void
+    private function physicalDelete(?string $filename): void
     {
+        if (empty($filename)) return;
+
         $dir = ROOT_DIR . 'img' . DS . 'logo' . DS;
         $fileNoExt = pathinfo($filename, PATHINFO_FILENAME);
 
-        $files = glob($dir . '*{' . $filename . ',' . $fileNoExt . '.webp}', GLOB_BRACE);
+        $filesToDelete = [
+            $dir . $filename,
+            $dir . $fileNoExt . '.webp'
+        ];
 
-        if ($files) {
-            foreach ($files as $f) {
-                if (file_exists($f)) @unlink($f);
+        // On cherche les miniatures exactes (ex: s_logo.png, s_logo.webp)
+        $variants = glob($dir . '*_' . $filename);
+        if ($variants) $filesToDelete = array_merge($filesToDelete, $variants);
+
+        $variantsWebp = glob($dir . '*_' . $fileNoExt . '.webp');
+        if ($variantsWebp) $filesToDelete = array_merge($filesToDelete, $variantsWebp);
+
+        foreach ($filesToDelete as $f) {
+            if (file_exists($f) && is_file($f)) {
+                @unlink($f);
             }
         }
     }
@@ -140,7 +177,6 @@ class LogoController extends BaseController
         $success = false;
 
         if ($idLogo > 0) {
-            // 1. Mise à jour SEO (Multilingue)
             if (!empty($contents)) {
                 foreach ($contents as $idLang => $data) {
                     $db->updateLogoContent(
@@ -153,23 +189,24 @@ class LogoController extends BaseController
                 $success = true;
             }
 
-            // 2. Remplacement Physique
             if (isset($_FILES['edit_logo_file']) && $_FILES['edit_logo_file']['error'] === UPLOAD_ERR_OK) {
-
                 $oldFilename = $db->getLogoFilename($idLogo);
-                $cleanFileName = Url::clean($_POST['edit_filename'] ?? 'logo-update');
+
+                $customName = trim($_POST['edit_filename'] ?? '');
+                $baseName = !empty($customName) ? $customName : 'logo';
+
+                // 🟢 On garantit l'unicité même lors d'un remplacement
+                $uniqueFileName = $this->generateUniqueFilename($baseName, 'edit_logo_file');
 
                 $uploadTool = new UploadTool();
-
-                // CORRECTION 3 : Attribut 'logo' + Retrait du suffixe
                 $uploadResult = $uploadTool->singleImageUpload(
                     'logo', 'logo', '', ['img', 'logo'],
-                    ['postKey' => 'edit_logo_file', 'name' => $cleanFileName]
+                    ['postKey' => 'edit_logo_file', 'name' => $uniqueFileName]
                 );
 
                 if ($uploadResult['status'] === true) {
                     if ($oldFilename) {
-                        $this->physicalDelete($oldFilename); // On efface proprement l'ancien !
+                        $this->physicalDelete($oldFilename);
                     }
                     $db->updateLogoFilename($idLogo, $uploadResult['file']);
                     $success = true;
@@ -208,16 +245,14 @@ class LogoController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
 
         $rawLogos = $db->fetchAllLogos($idLangue);
-
-        // CORRECTION 4 : On appelle l'attribut 'logo'
         $formattedLogos = $imageTool->setModuleImages('logo', 'logo', $rawLogos, 0, '/img/logo/');
 
         $this->view->assign('logos', $formattedLogos);
-
         $html = $this->view->fetch('appearance/logo/gallery.tpl');
 
         $this->jsonResponse(true, 'OK', ['result' => $html]);
     }
+
     public function activateFooter(): void
     {
         $id = (int)($_POST['id'] ?? 0);
@@ -227,13 +262,10 @@ class LogoController extends BaseController
         }
         $this->jsonResponse(false, "Erreur lors de l'activation du logo footer.");
     }
-    // ==========================================
-    // GESTION DES FAVICONS (Sans Base de Données)
-    // ==========================================
 
-    /**
-     * Récupère l'état physique des favicons sur le serveur
-     */
+    // ==========================================
+    // GESTION DES FAVICONS
+    // ==========================================
     public function getFaviconStatus(): array
     {
         $faviconDir = ROOT_DIR . 'img' . DS . 'favicon' . DS;
@@ -248,7 +280,6 @@ class LogoController extends BaseController
         foreach ($favicons as $key => $data) {
             if (file_exists($faviconDir . $data['file'])) {
                 $favicons[$key]['exists'] = true;
-                // On ajoute un timestamp pour forcer le rafraîchissement du cache navigateur en admin
                 $favicons[$key]['url'] = $baseUrl . $data['file'] . '?v=' . time();
             }
         }
@@ -256,9 +287,6 @@ class LogoController extends BaseController
         return $favicons;
     }
 
-    /**
-     * Upload et génération des favicons via Intervention Image 3
-     */
     public function uploadFavicon(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -273,29 +301,16 @@ class LogoController extends BaseController
         $tmpName = $_FILES['favicon_file']['tmp_name'];
         $faviconDir = ROOT_DIR . 'img' . DS . 'favicon' . DS;
 
-        // Création du dossier physique s'il n'existe pas encore
         if (!is_dir($faviconDir)) {
             mkdir($faviconDir, 0755, true);
         }
 
         try {
-            // Initialisation d'Intervention Image 3
             $manager = new ImageManager(new Driver());
 
-            // 1. Android / Chrome (192x192)
-            $manager->read($tmpName)
-                ->scaleDown(192, 192)
-                ->save($faviconDir . 'android-chrome-192x192.png');
-
-            // 2. Apple Touch Icon (180x180)
-            $manager->read($tmpName)
-                ->scaleDown(180, 180)
-                ->save($faviconDir . 'apple-touch-icon.png');
-
-            // 3. Favicon Standard (32x32)
-            $manager->read($tmpName)
-                ->scaleDown(32, 32)
-                ->save($faviconDir . 'favicon-32x32.png');
+            $manager->read($tmpName)->scaleDown(192, 192)->save($faviconDir . 'android-chrome-192x192.png');
+            $manager->read($tmpName)->scaleDown(180, 180)->save($faviconDir . 'apple-touch-icon.png');
+            $manager->read($tmpName)->scaleDown(32, 32)->save($faviconDir . 'favicon-32x32.png');
 
             $this->jsonResponse(true, "Favicons générés avec succès !", [
                 'success' => true,
@@ -308,9 +323,6 @@ class LogoController extends BaseController
         }
     }
 
-    /**
-     * Suppression physique de tous les favicons
-     */
     public function deleteFavicons(): void
     {
         $token = $_POST['hashtoken'] ?? '';

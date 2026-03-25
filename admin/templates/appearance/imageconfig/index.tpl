@@ -208,6 +208,24 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="batch-progress-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mise à jour des images en cours</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-3 text-muted">Veuillez patienter, ne fermez pas cette page.</p>
+
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div id="batch-progress-bar" class="progress-bar bg-primary progress-bar-striped" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                    <div id="batch-progress-text" class="fw-bold">Initialisation...</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 {/block}
 
 {block name='javascripts' append}

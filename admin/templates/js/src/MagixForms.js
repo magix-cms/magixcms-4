@@ -91,9 +91,15 @@ class MagixForms {
 
         if (!data.status) return;
 
+        // 🟢 NOUVEAU : Interception du traitement par lots (Batch)
+        if (data.action === 'start_batch') {
+            this.runBatchProcess(data.module, data.attribute);
+            return; // On arrête l'exécution classique ici
+        }
+
         if (data.reload) {
             setTimeout(() => { window.location.reload(); }, 1500);
-            return; // On arrête l'exécution ici
+            return;
         }
         // --- MISE À JOUR DES URLS PUBLIQUES ---
         if (data.public_urls) {
@@ -147,7 +153,99 @@ class MagixForms {
             }
         }
     }
+    // ==========================================
+    // X. TRAITEMENT PAR LOTS (SERVER-SIDE BATCH)
+    // ==========================================
+    // ==========================================
+    // X. TRAITEMENT PAR LOTS (SERVER-SIDE BATCH)
+    // ==========================================
+    async runBatchProcess(moduleName, attributeName) {
+        const modalEl = document.getElementById('batch-progress-modal');
+        const progressBar = document.getElementById('batch-progress-bar');
+        const progressText = document.getElementById('batch-progress-text');
 
+        if (!modalEl || !progressBar) {
+            console.error('Éléments UI manquants pour la barre de progression Batch.');
+            return;
+        }
+
+        // 1. Afficher la modale
+        const batchModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+        batchModal.show();
+
+        progressBar.style.width = '0%';
+        progressBar.classList.add('progress-bar-animated');
+        progressText.textContent = 'Calcul du nombre d\'images...';
+
+        try {
+            // 2. Initialisation
+            let initData = new FormData();
+            initData.append('module', moduleName);
+            initData.append('attribute', attributeName);
+
+            const initRes = await fetch(`/admin/index.php?controller=${this.controller}&action=initBatch`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: initData
+            }).then(res => res.json());
+
+            // 🟢 CORRECTION ICI : On utilise initRes.total et non initRes.data.total
+            if (!initRes.status || initRes.total === 0) {
+                progressText.textContent = 'Aucune image à traiter.';
+                setTimeout(() => { batchModal.hide(); window.location.reload(); }, 1500);
+                return;
+            }
+
+            // 3. Lancer la boucle récursive
+            await this._loopBatchProcess(moduleName, attributeName, 0, batchModal, progressBar, progressText);
+
+        } catch (error) {
+            console.error('Erreur Batch Init:', error);
+            progressText.textContent = 'Erreur lors de l\'initialisation.';
+            progressBar.classList.replace('bg-primary', 'bg-danger');
+        }
+    }
+
+    async _loopBatchProcess(moduleName, attributeName, currentOffset, batchModal, progressBar, progressText) {
+        try {
+            let formData = new FormData();
+            formData.append('module', moduleName);
+            formData.append('attribute', attributeName);
+            formData.append('offset', currentOffset);
+
+            const res = await fetch(`/admin/index.php?controller=${this.controller}&action=processBatch`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            }).then(r => r.json());
+
+            // 🟢 CORRECTION ICI : On utilise res.finished, res.progress et res.next_offset directement
+            if (res.finished) {
+                // TERMINÉ !
+                progressBar.style.width = '100%';
+                progressBar.classList.replace('bg-primary', 'bg-success');
+                progressBar.classList.remove('progress-bar-animated');
+                progressText.textContent = '100% - Regénération terminée !';
+
+                setTimeout(() => {
+                    batchModal.hide();
+                    window.location.reload();
+                }, 1500);
+
+            } else if (res.progress !== undefined) {
+                // EN COURS
+                progressBar.style.width = res.progress + '%';
+                progressText.textContent = `Traitement en cours : ${res.progress}%`;
+
+                // On rappelle la fonction avec le nouvel offset
+                await this._loopBatchProcess(moduleName, attributeName, res.next_offset, batchModal, progressBar, progressText);
+            }
+        } catch (error) {
+            console.error('Erreur boucle Batch:', error);
+            progressText.textContent = 'Erreur réseau pendant le traitement. Regénération stoppée.';
+            progressBar.classList.replace('bg-primary', 'bg-danger');
+        }
+    }
     // ==========================================
     // 3. CHAMPS CONDITIONNELS (Optional Fields)
     // ==========================================
