@@ -182,7 +182,7 @@
         {* --- BLOC CONFIGURATION --- *}
         <li class="mb-1">
             {* 🟢 AJOUT : On inclut 'revisions' dans la condition *}
-            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'seoglobal' || $current_c == 'translation' || $current_c == 'revisions')}
+            {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'translation' || $current_c == 'revisions')}
 
             <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_config}collapsed{/if}"
                     data-bs-toggle="collapse"
@@ -236,12 +236,12 @@
                     </li>
 
                     {* 7. SEO Global *}
-                    <li>
+                    {*<li>
                         <a href="index.php?controller=SeoGlobal"
                            class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'seoglobal'}active-sub{/if}">
                             <i class="bi bi-search-heart me-2 opacity-75"></i> SEO Global
                         </a>
-                    </li>
+                    </li>*}
 
                     {* 8. Traductions *}
                     <li>
