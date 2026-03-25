@@ -71,6 +71,7 @@ abstract class BaseController
         // et le reste du constructeur ne sera jamais exécuté.
         $this->checkMaintenanceMode();
         $this->initLanguage();
+        $this->initCookieConsent();
 
         $this->initGlobalData();
         $this->initMenu();
@@ -288,8 +289,36 @@ abstract class BaseController
     }
 
     /**
-     * Centralise le chargement de TOUTES les données transversales
+     * Lit le cookie de consentement RGPD (magix_consent) s'il existe
+     * et transmet l'objet JSON décodé à Smarty.
      */
+    private function initCookieConsent(): void
+    {
+        $consentedCookies = [];
+        $consentAsked = false;
+
+        // Le nom du cookie doit correspondre exactement à celui défini dans votre JS (cookie-consent.js)
+        $cookieName = 'magix_consent';
+
+        if (isset($_COOKIE[$cookieName])) {
+            $consentAsked = true; // L'utilisateur a déjà répondu au bandeau
+
+            // On décode la chaîne JSON stockée dans le cookie
+            $decoded = json_decode($_COOKIE[$cookieName], true);
+
+            // Si le JSON est valide, on l'assigne au tableau
+            if (is_array($decoded)) {
+                $consentedCookies = $decoded;
+            }
+        }
+
+        // On assigne les variables à Smarty
+        $this->view->assign([
+            'consentedCookies' => $consentedCookies,
+            'consentAsked'     => $consentAsked
+        ]);
+    }
+
     /**
      * Centralise le chargement de TOUTES les données transversales
      */
@@ -374,9 +403,6 @@ abstract class BaseController
             $this->logger->log("Erreur chargement globales front : " . $e->getMessage(), "warning");
         }
     }
-    /**
-     * Charge les fichiers de traduction (.conf) pour le thème et les plugins
-     */
     /**
      * Charge les fichiers de traduction (.conf) pour le thème et les plugins
      */
