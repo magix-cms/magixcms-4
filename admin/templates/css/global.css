@@ -22832,6 +22832,7 @@ textarea.form-control-lg {
   margin-bottom: 4px;
   border: none;
   border-radius: 8px;
+  overflow-anchor: none;
   color: rgba(255, 255, 255, 0.7);
   background-color: transparent;
   text-decoration: none;
@@ -22856,6 +22857,10 @@ textarea.form-control-lg {
 }
 #aside :is(.nav-link, .btn-toggle).active i {
   color: #fff;
+}
+#aside :is(.nav-link, .btn-toggle):focus {
+  outline: none;
+  box-shadow: none;
 }
 #aside .btn-toggle::after {
   width: 1.25em;

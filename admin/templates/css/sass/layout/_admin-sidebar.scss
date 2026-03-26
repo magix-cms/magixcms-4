@@ -49,6 +49,7 @@
     margin-bottom: 4px;
     border: none;
     border-radius: 8px;
+    overflow-anchor: none;
 
     // État par défaut (inactif)
     color: rgba(255, 255, 255, 0.7);
@@ -81,6 +82,11 @@
       i {
         color: #fff; // Icône blanche pour contraster sur le fond bleu
       }
+    }
+
+    &:focus {
+      outline: none; // Évite l'anneau de focus natif du navigateur
+      box-shadow: none; // Évite l'ombre de focus de Bootstrap
     }
   }
 

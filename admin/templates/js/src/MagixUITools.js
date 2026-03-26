@@ -30,6 +30,7 @@ class MagixUITools {
         this.handleBackdrop();
         this.handleResize();
         this.handleAutoExpand(); // <-- La nouvelle fonctionnalité
+        this.scrollToActiveItem();
     }
 
     /**
@@ -99,5 +100,23 @@ class MagixUITools {
                 }
             }
         });
+    }
+    /**
+     * NOUVEAU : Fait défiler la sidebar jusqu'à l'élément actif au chargement de la page
+     */
+    scrollToActiveItem() {
+        // On cherche le lien actif. Priorité au sous-menu (.active-sub) puis au menu parent (.nav-link.active)
+        const activeItem = this.sidebar.querySelector('.active-sub') || this.sidebar.querySelector('.nav-link.active');
+
+        if (activeItem) {
+            // Un très léger délai (50ms) permet au navigateur de terminer de calculer
+            // la hauteur des sous-menus Bootstrap (collapse.show) avant de calculer le scroll.
+            setTimeout(() => {
+                activeItem.scrollIntoView({
+                    behavior: 'auto', // 'auto' fait un saut instantané invisible au chargement (contrairement à 'smooth')
+                    block: 'center'   // Aligne l'élément actif bien au centre vertical de la sidebar
+                });
+            }, 50);
+        }
     }
 }
