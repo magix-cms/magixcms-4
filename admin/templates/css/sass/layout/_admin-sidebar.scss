@@ -13,6 +13,11 @@
   background-color: var(--bs-dark);
   z-index: 1050;
 
+  // Pour Firefox
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+  // Pour Chrome/Edge/Safari (votre code actuel)
   &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb {

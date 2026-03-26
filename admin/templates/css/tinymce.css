@@ -22799,6 +22799,8 @@ textarea.form-control-lg {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: var(--bs-dark);
   z-index: 1050;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 #aside::-webkit-scrollbar {
   width: 5px;
