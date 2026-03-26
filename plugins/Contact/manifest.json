@@ -4,6 +4,7 @@
   "description": "Formulaire de contact et widget des coordonnées de l'entreprise.",
   "author": "Magix CMS",
   "type": "hybrid",
+  "has_config": true,
   "default_hooks": [
     "displayFooter"
   ]

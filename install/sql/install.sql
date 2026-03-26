@@ -679,6 +679,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins` (
     `id_plugins` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(200) NOT NULL,
     `version` varchar(10) NOT NULL,
+    `has_config` tinyint(1) NOT NULL DEFAULT '1', -- 🟢 LA LIGNE À NE PAS OUBLIER
     `home` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     `about` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     `pages` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',

@@ -4,6 +4,6 @@
   "author": "Magix CMS",
   "description": "Vide les caches",
   "type": "backend",
-  "has_config": false,
+  "has_config": true,
   "core_targets": {}
 }

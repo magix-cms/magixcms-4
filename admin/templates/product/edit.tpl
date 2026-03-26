@@ -3,6 +3,7 @@
 {block name='head:title'}Modifier le produit{/block}
 
 {block name='article'}
+    {* En-tête simple et aligné sur Pages *}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
             <i class="bi bi-box-seam me-2"></i> Modifier le produit : <span class="text-primary">{$product.reference_p|default:''}</span>
@@ -15,41 +16,47 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white p-0 border-bottom-0">
             <ul class="nav nav-tabs nav-fill" id="productTab" role="tablist">
+
+                {* Onglet 1 : Infos & Textes *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active py-3 fw-bold" id="general-tab" data-bs-toggle="tab" data-bs-target="#general_pane" type="button" role="tab">
-                        <i class="bi bi-info-circle me-2"></i> Infos & Textes
+                        <i class="bi bi-pencil-square me-2"></i>Infos & Textes
                     </button>
                 </li>
+
+                {* Onglet 2 : Catégories (Avec Badge pour copier le style Pages) *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link py-3 fw-bold" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories_pane" type="button" role="tab">
-                        <i class="bi bi-tags me-2"></i> Catégories
+                        <i class="bi bi-tags me-2"></i>Catégories
+                        <span class="badge {if isset($product.categories) && $product.categories|count > 0}bg-primary{else}bg-secondary{/if} ms-1">
+                            {if isset($product.categories)}{$product.categories|count}{else}0{/if}
+                        </span>
                     </button>
                 </li>
+
+                {* Onglet 3 : Galerie *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link py-3 fw-bold" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery_pane" type="button" role="tab">
-                        <i class="bi bi-images me-2"></i> Galerie
+                        <i class="bi bi-images me-2"></i>Galerie
                     </button>
                 </li>
 
-                {* === HOOK 1 : INJECTION DES BOUTONS D'ONGLETS DES PLUGINS === *}
+                {* Hook dynamique pour notre plugin MagixMultiText *}
                 {hook name='product_edit_tab' id_product=$product.id_product}
-
             </ul>
         </div>
 
         <div class="card-body p-4">
+            <div class="tab-content" id="productTabContent">
 
-            {* ==========================================
-               BLOC 1 : FORMULAIRE PRINCIPAL (Infos + Catégories)
-               ========================================== *}
-            <form id="edit_product_form" action="index.php?controller=Product&action=edit&edit={$product.id_product}" method="post" class="validate_form">
-                <input type="hidden" name="hashtoken" value="{$hashtoken}">
-                <input type="hidden" name="id_product" value="{$product.id_product}">
+                {* ==========================================
+                   BLOC 1 : FORMULAIRE PRINCIPAL (Infos + Catégories)
+                   ========================================== *}
+                <div class="tab-pane fade show active" id="general_pane" role="tabpanel">
+                    <form id="edit_product_form" action="index.php?controller=Product&action=edit&edit={$product.id_product}" method="post" class="validate_form">
+                        <input type="hidden" name="hashtoken" value="{$hashtoken}">
+                        <input type="hidden" name="id_product" value="{$product.id_product}">
 
-                <div class="tab-content">
-
-                    {* --- ONGLET 1 : INFOS GÉNÉRALES --- *}
-                    <div class="tab-pane fade show active" id="general_pane" role="tabpanel">
                         <div class="bg-light p-4 rounded border mb-4">
                             <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-upc-scan me-2"></i>Données logistiques & tarifaires</h6>
                             <div class="row g-3 mb-3">
@@ -242,10 +249,14 @@
                                 <i class="bi bi-save me-2"></i> Enregistrer
                             </button>
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    {* --- ONGLET 2 : CATÉGORIES --- *}
-                    <div class="tab-pane fade" id="categories_pane" role="tabpanel">
+                {* --- ONGLET 2 : CATÉGORIES --- *}
+                <div class="tab-pane fade" id="categories_pane" role="tabpanel">
+                    <form action="index.php?controller=Product&action=edit&edit={$product.id_product}" method="post" class="validate_form">
+                        <input type="hidden" name="hashtoken" value="{$hashtoken}">
+                        <input type="hidden" name="id_product" value="{$product.id_product}">
                         <div class="alert alert-info border-0 shadow-sm d-flex mb-4">
                             <i class="bi bi-info-circle-fill fs-4 me-3 mt-1"></i>
                             <div>
@@ -298,16 +309,12 @@
                                 <i class="bi bi-save me-2"></i> Enregistrer
                             </button>
                         </div>
-                    </div>
-                    {* === HOOK 2 : INJECTION DU CONTENU DES ONGLETS DES PLUGINS === *}
-                    {hook name='product_edit_content' id_product=$product.id_product}
-                </div> {* Fin du tab-content principal (Fin du formulaire) *}
-            </form>
+                    </form>
+                </div>
 
-            {* ==========================================
-               BLOC 2 : GALERIE (Isolé dans un autre tab-content)
-               ========================================== *}
-            <div class="tab-content">
+                {* ==========================================
+                   BLOC 2 : GALERIE
+                   ========================================== *}
                 <div class="tab-pane fade" id="gallery_pane" role="tabpanel">
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-white py-3 border-bottom">
@@ -351,8 +358,9 @@
                         </button>
                     </div>
                 </div>
-            </div> {* Fin du tab-content galerie *}
 
+                {hook name='product_edit_content' id_product=$product.id_product}
+            </div>
         </div>
     </div>
 {/block}

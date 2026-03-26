@@ -39,6 +39,7 @@
                         </span>
                     </button>
                 </li>
+                {hook name='pages_edit_tab' id_pages=$page_data.id_pages}
             </ul>
         </div>
 
@@ -105,7 +106,7 @@
                                         {* Titre & Statut *}
                                         <div class="row mb-3">
                                             <div class="col-md-9">
-                                                <label for="name_pages_{$id}" class="form-label fw-medium">{#title#} <span class="text-danger">*</span></label>
+                                                <label for="name_pages_{$id}" class="form-label fw-medium">{#title#}</label>
                                                 <input type="text" class="form-control" id="name_pages_{$id}" name="content[{$id}][name_pages]" value="{$page_data.content.$id.name_pages|default:''}" />
                                             </div>
                                             <div class="col-md-3">
@@ -325,7 +326,7 @@
                     {/if}
                     {include file="components/table-forms.tpl" data=$subpages checkbox=true sortable=true dlt=true}
                 </div>
-
+                {hook name='pages_edit_content' id_pages=$page_data.id_pages}
             </div>
         </div>
     </div>

@@ -399,12 +399,15 @@
                     {if isset($installed_plugins) && $installed_plugins|count > 0}
                         <li><hr class="dropdown-divider my-1 opacity-25"></li>
                         {foreach $installed_plugins as $plugin}
-                            <li>
-                                <a href="index.php?controller={$plugin.name}"
-                                   class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == $plugin.name|lower}active-sub{/if}">
-                                    <i class="bi bi-box me-2 opacity-75"></i> {$plugin.name}
-                                </a>
-                            </li>
+                            {* 🟢 ON FILTRE ICI : On affiche uniquement si has_config vaut 1 (ou s'il n'est pas défini par sécurité) *}
+                            {if !isset($plugin.has_config) || $plugin.has_config == 1}
+                                <li>
+                                    <a href="index.php?controller={$plugin.name}"
+                                       class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == $plugin.name|lower}active-sub{/if}">
+                                        <i class="bi bi-box me-2 opacity-75"></i> {$plugin.name}
+                                    </a>
+                                </li>
+                            {/if}
                         {/foreach}
                     {/if}
                 </ul>

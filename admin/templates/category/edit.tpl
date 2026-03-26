@@ -48,6 +48,7 @@
                         </span>
                     </button>
                 </li>
+                {hook name='category_edit_tab' id_cat=$category.id_cat}
             </ul>
         </div>
 
@@ -287,6 +288,7 @@
                 {* ==========================================
                    ONGLET 3 : SOUS-CATÉGORIES
                    ========================================== *}
+
                 <div class="tab-pane fade" id="subcats_pane" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 text-muted small text-uppercase fw-bold">Sous-catégories</h5>
@@ -294,7 +296,17 @@
                             <i class="bi bi-plus-lg me-1"></i> Ajouter une sous-catégorie
                         </a>
                     </div>
-                    {include file="components/table-forms.tpl" data=$subcategories checkbox=true sortable=true dlt=true controller="Category"}
+
+                    {* On passe les variables spécifiques au tableau des catégories *}
+                    {include file="components/table-forms.tpl"
+                    data=$subcategories
+                    scheme=$scheme_cat
+                    columns=$columns_cat
+                    idcolumn="id_cat"
+                    checkbox=true
+                    sortable=true
+                    dlt=true
+                    controller="Category"}
                 </div>
 
                 {* ==========================================
@@ -325,6 +337,8 @@
                         </div>
                     {/if}
                 </div>
+
+                {hook name='category_edit_content' id_cat=$category.id_cat}
 
             </div>
         </div>

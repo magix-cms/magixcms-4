@@ -13,10 +13,12 @@
     {/if}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
-    {include file="components/google_fonts.tpl" fonts=[
-    'Roboto' => '300,400,400italic,700',
-    'Montserrat' => '700,900'
-    ]}
+    {if isset($consentedCookies.ggWebfontCookies) && $consentedCookies.ggWebfontCookies == true}
+        {include file="components/google_fonts.tpl" fonts=[
+        'Roboto' => '300,400,400italic,700',
+        'Montserrat' => '700,900'
+        ]}
+    {/if}
     {* 1. ON DÉFINIT LES CSS GLOBAUX (chargés sur toutes les pages) *}
     {$global_css = ["global"]}
 
@@ -24,7 +26,9 @@
     {* On change le nom de la variable de l'enfant pour éviter les conflits *}
     {block name="styleSheet" nocache}{/block}
     {include file="components/css.tpl"}
-    {include file="components/analytics.tpl"}
+    {if isset($consentedCookies.analyticCookies) && $consentedCookies.analyticCookies == true}
+        {include file="components/analytics.tpl"}
+    {/if}
     {include file="components/favicon.tpl"}
     {event name="displayHead"}
 </head>
@@ -46,10 +50,10 @@
 {block name="main:after"}{/block}
 {include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
-
+{include file="components/cookies.tpl"}
 {* 1. On définit les JS globaux du parent *}
 {$global_js = [
-'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd'],
+'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd', 'CookieConsent'],
 'async' => [],
 'normal' => []
 ]}

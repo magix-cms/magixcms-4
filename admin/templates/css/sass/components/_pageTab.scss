@@ -1,58 +1,66 @@
+// components/_pageTabs.scss
+
 // Variables
 $tabs-bg-main: #f8f9fa;
-$tabs-bg-inactive: #e2e6ea; // Un peu plus sombre pour le contraste
-$tabs-border-color: #adb5bd; // Bordure plus voyante (gris moyen)
+$tabs-bg-inactive: #e2e6ea;
+$tabs-border-color: #adb5bd;
 $tabs-active-color: var(--bs-primary);
 $tabs-active-bg: #ffffff;
 
-#pageTab, #aboutTab, #configTab, #settingTab, #domainTab, #newsTab {
-  // On utilise :where pour les styles de base (spécificité 0)
-  // Cela permet à n'importe quelle autre règle de prendre le dessus si besoin
-  display: flex;
-  border-bottom: 2px solid $tabs-border-color;
-  background-color: $tabs-bg-main;
-  padding: 0;
-  list-style: none;
+// On cible .nav-tabs ET les IDs pour une spécificité maximale
+// components/_pageTabs.scss
 
-  .nav-item {
-    flex: 1;
-  }
+.nav-tabs {
+  // AJOUT DE &#catTab ICI
+  &#pageTab, &#aboutTab, &#productTab, &#catTab, &#configTab, &#settingTab, &#domainTab, &#newsTab {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 
-  // Sélecteur combiné pour éviter !important
-  // #pageTab .nav-link a déjà une spécificité plus haute que .nav-tabs .nav-link
-  .nav-link {
-    display: block;
-    width: 100%;
-    padding: 1rem 0.5rem;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.2s ease-in-out;
+    border-bottom: 2px solid $tabs-border-color;
+    background-color: $tabs-bg-main;
+    padding: 0;
+    list-style: none;
 
-    // Style "Inactif" par défaut
-    color: #495057;
-    background-color: $tabs-bg-inactive;
-    border: 1px solid $tabs-border-color;
-    border-bottom: none;
-    margin-right: 2px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
 
-    &:hover:not(.active) {
-      background-color: darken($tabs-bg-inactive, 8%);
-      border-color: darken($tabs-border-color, 15%);
-      color: #000;
+    .nav-item {
+      flex: 0 0 auto !important;
+      margin-bottom: 0;
     }
 
-    // Utilisation de :is() pour cibler l'état actif proprement
-    // La spécificité ici est naturellement supérieure à celle de Bootstrap
-    &:is(.active) {
-      color: $tabs-active-color;
-      background-color: $tabs-active-bg;
-      border-top: 4px solid $tabs-active-color; // Bordure haute plus épaisse
-      border-left: 1px solid $tabs-border-color;
-      border-right: 1px solid $tabs-border-color;
-      border-bottom: 2px solid $tabs-active-bg; // On "fond" l'onglet dans la carte
-      margin-bottom: -2px;
-      transform: translateY(0); // Stable
+    .nav-link {
+      display: block;
+      padding: 1rem 1.2rem;
+      font-weight: 600;
+      white-space: nowrap !important; // Garde les "Produits associés" sur une ligne
+
+      color: #495057 !important;
+      background-color: $tabs-bg-inactive !important;
+      border: 1px solid $tabs-border-color !important;
+      border-bottom: none !important;
+      margin-right: 2px;
+      border-radius: 0;
+
+      &:hover:not(.active) {
+        background-color: darken($tabs-bg-inactive, 5%) !important;
+        color: #000 !important;
+      }
+
+      &.active {
+        color: $tabs-active-color !important;
+        background-color: $tabs-active-bg !important;
+        border-top: 4px solid $tabs-active-color !important;
+        border-left: 1px solid $tabs-border-color !important;
+        border-right: 1px solid $tabs-border-color !important;
+        border-bottom: 2px solid $tabs-active-bg !important;
+        margin-bottom: -2px;
+        position: relative;
+        z-index: 2;
+      }
     }
   }
 }

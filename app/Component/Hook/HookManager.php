@@ -72,7 +72,10 @@ class HookManager
         }
 
         $output = '';
+        $executedPlugins = []; // Pour éviter les doublons
+
         try {
+            // --- 1. RÉCUPÉRATION DE LA CONFIGURATION (Base de données) ---
             $qb = new QueryBuilder();
             $qb->select(['hi.module_name'])
                 ->from('mc_hook_item', 'hi')
@@ -81,8 +84,6 @@ class HookManager
                 ->where('hi.active = 1')
                 ->orderBy('hi.position', 'ASC');
 
-            // ASTUCE : On crée une classe DB "jetable" à la volée pour utiliser
-            // la méthode officielle executeAll($qb) sans générer d'erreurs
             $db = new class extends \App\Frontend\Db\BaseDb {
                 public function fetchHookModules(QueryBuilder $qb) {
                     return $this->executeAll($qb);
@@ -91,29 +92,36 @@ class HookManager
 
             $plugins = $db->fetchHookModules($qb);
 
-            if (empty($plugins)) {
-                return '';
+            // --- 2. EXÉCUTION DES PLUGINS EN BASE DE DONNÉES ---
+            if (!empty($plugins)) {
+                foreach ($plugins as $plugin) {
+                    $moduleName = $plugin['module_name'];
+                    $executedPlugins[] = $moduleName;
+
+                    // PRIORITÉ A : Le plugin a un callback enregistré via register()
+                    if (isset(self::$hooks[$hookName][$moduleName])) {
+                        $output .= call_user_func(self::$hooks[$hookName][$moduleName], $params);
+                    }
+                    // PRIORITÉ B : LE RETOUR DU "ELSE" (Convention de nommage automatique)
+                    else {
+                        $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
+                        if (class_exists($className) && method_exists($className, 'renderWidget')) {
+                            $output .= $className::renderWidget($params);
+                        }
+                    }
+                }
             }
 
-            foreach ($plugins as $plugin) {
-                $moduleName = $plugin['module_name'];
-
-                // 🟢 CORRECTION : On vérifie D'ABORD si le plugin s'est enregistré officiellement
-                if (isset(self::$hooks[$hookName][$moduleName])) {
-                    $callback = self::$hooks[$hookName][$moduleName];
-
-                    if (is_callable($callback)) {
+            // --- 3. EXÉCUTION DES PLUGINS "STATIQUES" (Register() seul, pas en DB) ---
+            // 🟢 C'est ici que MagixMultiText s'affiche même s'il n'est pas dans le Layout
+            if (isset(self::$hooks[$hookName])) {
+                foreach (self::$hooks[$hookName] as $moduleName => $callback) {
+                    if (!in_array($moduleName, $executedPlugins)) {
                         $output .= call_user_func($callback, $params);
                     }
                 }
-                // 🟠 FALLBACK : Au cas où des vieux plugins utilisent encore l'ancienne méthode codée en dur
-                else {
-                    $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
-                    if (class_exists($className) && method_exists($className, 'renderWidget')) {
-                        $output .= $className::renderWidget($params);
-                    }
-                }
             }
+
         } catch (\Throwable $e) {
             Logger::getInstance()->log($e, 'php', 'error');
         }

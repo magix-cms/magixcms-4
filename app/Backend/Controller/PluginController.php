@@ -97,17 +97,20 @@ class PluginController extends BaseController
         }
 
         $targets = $manifest['core_targets'] ?? [];
+        $hasConfig = isset($manifest['has_config']) && $manifest['has_config'] === false ? 0 : 1;
+
         $data = [
-            'name'    => $pluginName,
-            'version' => $manifest['version'] ?? '1.0.0',
-            'home'    => $targets['home'] ?? 0,
-            'about'   => $targets['about'] ?? 0,
-            'pages'   => $targets['pages'] ?? 0,
-            'news'    => $targets['news'] ?? 0,
-            'catalog' => $targets['catalog'] ?? 0,
-            'category'=> $targets['category'] ?? 0,
-            'product' => $targets['product'] ?? 0,
-            'seo'     => $targets['seo'] ?? 0
+            'name'       => $pluginName,
+            'version'    => $manifest['version'] ?? '1.0.0',
+            'has_config' => $hasConfig, // 🟢 ON AJOUTE L'INFO ICI
+            'home'       => $targets['home'] ?? 0,
+            'about'      => $targets['about'] ?? 0,
+            'pages'      => $targets['pages'] ?? 0,
+            'news'       => $targets['news'] ?? 0,
+            'catalog'    => $targets['catalog'] ?? 0,
+            'category'   => $targets['category'] ?? 0,
+            'product'    => $targets['product'] ?? 0,
+            'seo'        => $targets['seo'] ?? 0
         ];
 
         // 3. Insertion dans mc_plugins

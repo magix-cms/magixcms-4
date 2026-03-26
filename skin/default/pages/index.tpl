@@ -87,6 +87,8 @@
             </div>
         </section>
 
+        {hook name='displayPageBottom' id_pages=$pages.id}
+
         {* --- SECTION 2 : SOUS-PAGES (Enfants directs) --- *}
         {if isset($pages.subdata) && $pages.subdata|count > 0}
             <section class="page-children mt-5 pt-4 border-top">

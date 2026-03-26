@@ -4,5 +4,6 @@
   "description": "Affiche le logo spécifique du pied de page et une petite description.",
   "author": "Magix CMS",
   "type": "widget",
+  "has_config": false,
   "default_hooks": ["displayFooter"]
 }

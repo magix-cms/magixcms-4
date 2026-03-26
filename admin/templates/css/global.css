@@ -22708,44 +22708,51 @@ textarea.form-control-lg {
   transition: all 0.4s ease-in-out;
 }
 
-#pageTab, #aboutTab, #configTab, #settingTab, #domainTab, #newsTab {
-  display: flex;
+.nav-tabs#pageTab, .nav-tabs#aboutTab, .nav-tabs#productTab, .nav-tabs#catTab, .nav-tabs#configTab, .nav-tabs#settingTab, .nav-tabs#domainTab, .nav-tabs#newsTab {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   border-bottom: 2px solid #adb5bd;
   background-color: #f8f9fa;
   padding: 0;
   list-style: none;
+  scrollbar-width: none;
 }
-#pageTab .nav-item, #aboutTab .nav-item, #configTab .nav-item, #settingTab .nav-item, #domainTab .nav-item, #newsTab .nav-item {
-  flex: 1;
+.nav-tabs#pageTab::-webkit-scrollbar, .nav-tabs#aboutTab::-webkit-scrollbar, .nav-tabs#productTab::-webkit-scrollbar, .nav-tabs#catTab::-webkit-scrollbar, .nav-tabs#configTab::-webkit-scrollbar, .nav-tabs#settingTab::-webkit-scrollbar, .nav-tabs#domainTab::-webkit-scrollbar, .nav-tabs#newsTab::-webkit-scrollbar {
+  display: none;
 }
-#pageTab .nav-link, #aboutTab .nav-link, #configTab .nav-link, #settingTab .nav-link, #domainTab .nav-link, #newsTab .nav-link {
+.nav-tabs#pageTab .nav-item, .nav-tabs#aboutTab .nav-item, .nav-tabs#productTab .nav-item, .nav-tabs#catTab .nav-item, .nav-tabs#configTab .nav-item, .nav-tabs#settingTab .nav-item, .nav-tabs#domainTab .nav-item, .nav-tabs#newsTab .nav-item {
+  flex: 0 0 auto !important;
+  margin-bottom: 0;
+}
+.nav-tabs#pageTab .nav-link, .nav-tabs#aboutTab .nav-link, .nav-tabs#productTab .nav-link, .nav-tabs#catTab .nav-link, .nav-tabs#configTab .nav-link, .nav-tabs#settingTab .nav-link, .nav-tabs#domainTab .nav-link, .nav-tabs#newsTab .nav-link {
   display: block;
-  width: 100%;
-  padding: 1rem 0.5rem;
+  padding: 1rem 1.2rem;
   font-weight: 600;
-  text-align: center;
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-  color: #495057;
-  background-color: #e2e6ea;
-  border: 1px solid #adb5bd;
-  border-bottom: none;
+  white-space: nowrap !important;
+  color: #495057 !important;
+  background-color: #e2e6ea !important;
+  border: 1px solid #adb5bd !important;
+  border-bottom: none !important;
   margin-right: 2px;
+  border-radius: 0;
 }
-#pageTab .nav-link:hover:not(.active), #aboutTab .nav-link:hover:not(.active), #configTab .nav-link:hover:not(.active), #settingTab .nav-link:hover:not(.active), #domainTab .nav-link:hover:not(.active), #newsTab .nav-link:hover:not(.active) {
-  background-color: rgb(202.336, 209.6, 216.864);
-  border-color: rgb(130.6148648649, 142.75, 154.8851351351);
-  color: #000;
+.nav-tabs#pageTab .nav-link:hover:not(.active), .nav-tabs#aboutTab .nav-link:hover:not(.active), .nav-tabs#productTab .nav-link:hover:not(.active), .nav-tabs#catTab .nav-link:hover:not(.active), .nav-tabs#configTab .nav-link:hover:not(.active), .nav-tabs#settingTab .nav-link:hover:not(.active), .nav-tabs#domainTab .nav-link:hover:not(.active), .nav-tabs#newsTab .nav-link:hover:not(.active) {
+  background-color: rgb(211.21, 217.25, 223.29) !important;
+  color: #000 !important;
 }
-#pageTab .nav-link:is(.active), #aboutTab .nav-link:is(.active), #configTab .nav-link:is(.active), #settingTab .nav-link:is(.active), #domainTab .nav-link:is(.active), #newsTab .nav-link:is(.active) {
-  color: var(--bs-primary);
-  background-color: #ffffff;
-  border-top: 4px solid var(--bs-primary);
-  border-left: 1px solid #adb5bd;
-  border-right: 1px solid #adb5bd;
-  border-bottom: 2px solid #ffffff;
+.nav-tabs#pageTab .nav-link.active, .nav-tabs#aboutTab .nav-link.active, .nav-tabs#productTab .nav-link.active, .nav-tabs#catTab .nav-link.active, .nav-tabs#configTab .nav-link.active, .nav-tabs#settingTab .nav-link.active, .nav-tabs#domainTab .nav-link.active, .nav-tabs#newsTab .nav-link.active {
+  color: var(--bs-primary) !important;
+  background-color: #ffffff !important;
+  border-top: 4px solid var(--bs-primary) !important;
+  border-left: 1px solid #adb5bd !important;
+  border-right: 1px solid #adb5bd !important;
+  border-bottom: 2px solid #ffffff !important;
   margin-bottom: -2px;
-  transform: translateY(0);
+  position: relative;
+  z-index: 2;
 }
 
 /*.nav-tabs {

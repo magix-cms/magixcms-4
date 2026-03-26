@@ -136,21 +136,39 @@ class CategoryController extends BaseController
         $idLangDefault = (int)$this->defaultLang['id_lang'];
         $activeLangs = $db->fetchLanguages();
 
-        // Récupération des enfants
+        // ==========================================
+        // 1. SCHEME ET DONNÉES : SOUS-CATÉGORIES
+        // ==========================================
+        $rawSchemeCat = array_merge(
+            $db->getTableScheme('mc_catalog_cat'),
+            $db->getTableScheme('mc_catalog_cat_content')
+        );
+        $rawSchemeCat[] = ['column' => 'parent_cat', 'type' => 'varchar(255)'];
+
+        $associationsCat = [
+            'id_cat'          => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'parent_cat'      => ['title' => 'parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
+            'name_cat'        => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
+            'published_cat'   => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
+            'date_register'   => ['title' => 'date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
+        ];
+
+        // On génère le scheme pour les catégories
+        $this->getScheme($rawSchemeCat, ['id_cat', 'parent_cat', 'name_cat', 'published_cat', 'date_register'], $associationsCat);
+        $schemeCat = $this->view->getTemplateVars('scheme');
+        $columnsCat = $this->view->getTemplateVars('columns');
+
+        // On récupère et formate les enfants
         $children = $db->fetchCategoriesByParent($id, $idLangDefault);
         $subcategoriesData = [];
         if ($children !== false && !empty($children)) {
-            // On utilise getItems pour formater le tableau comme dans l'index
             $subcategoriesData = $this->getItems('subcategories', $children, true);
         }
 
-        // --- NOUVEAU : Calcul des URLs publiques avec UrlTool ---
-        $urlTool = new UrlTool(); // Assurez-vous d'avoir le "use" en haut du fichier si vous enlevez le chemin absolu
-
+        // --- Calcul des URLs publiques ---
+        $urlTool = new UrlTool();
         foreach ($activeLangs as $langId => $iso) {
             $slug = $category['content'][$langId]['url_cat'] ?? '';
-
-            // On délègue la construction à buildUrl
             $category['content'][$langId]['public_url'] = $urlTool->buildUrl([
                 'iso'  => $iso,
                 'type' => 'category',
@@ -158,11 +176,13 @@ class CategoryController extends BaseController
                 'url'  => $slug
             ]);
         }
-        // --- NOUVEAU : Récupération des Produits de la catégorie ---
+
+        // ==========================================
+        // 2. SCHEME ET DONNÉES : PRODUITS
+        // ==========================================
         $productDb = new ProductDb();
         $productsList = $productDb->fetchProductsByCategory($id, $idLangDefault);
 
-        // On génère un "Scheme" spécifique pour le tableau des produits
         $rawSchemeProd = [
             ['column' => 'id_product', 'type' => 'int'],
             ['column' => 'reference_p', 'type' => 'varchar'],
@@ -176,20 +196,24 @@ class CategoryController extends BaseController
             'published_p' => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_']
         ];
 
+        // On écrase l'ancien scheme pour générer celui des produits
         $this->getScheme($rawSchemeProd, ['id_product', 'reference_p', 'name_p', 'published_p'], $associationsProd);
         $schemeProd = $this->view->getTemplateVars('scheme');
         $columnsProd = $this->view->getTemplateVars('columns');
 
-        // N'oubliez pas d'ajouter ceci dans le $this->view->assign() existant :
-
+        // ==========================================
+        // 3. ASSIGNATION À SMARTY
+        // ==========================================
         $this->view->assign([
             'category'        => $category,
             'category_select' => $db->fetchAllCategoriesForSelect($idLangDefault),
             'subcategories'   => $subcategoriesData ?: $children,
+            'scheme_cat'      => $schemeCat,   // Les colonnes des sous-catégories
+            'columns_cat'     => $columnsCat,
             'langs'           => $activeLangs,
             'hashtoken'       => $this->session->getToken(),
             'products_list'   => $productsList,
-            'scheme_prod'     => $schemeProd,
+            'scheme_prod'     => $schemeProd,  // Les colonnes des produits
             'columns_prod'    => $columnsProd,
         ]);
 
