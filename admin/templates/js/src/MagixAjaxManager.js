@@ -81,51 +81,81 @@ class MagixAjaxManager {
         return document.getElementById(`${this.prefix}_desc`).value;
     }
 
-    addItem() {
-        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = '0';
-        document.getElementById(`${this.prefix}_title`).value = '';
-        document.getElementById(`${this.prefix}_published`).checked = true;
+    // ==========================================
+    // ACTIONS UTILISATEUR
+    // ==========================================
 
-        this.setTinyContent('');
+    addItem() {
+        const form = document.getElementById(`${this.prefix}_form_element`);
+        if (form) form.reset();
+
+        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = '0';
+
+        // 🟢 CORRECTION ICI : Utilisation d'une boucle classique au lieu de forEach
+        if (typeof tinymce !== 'undefined' && tinymce.editors && tinymce.editors.length > 0) {
+            for (let i = 0; i < tinymce.editors.length; i++) {
+                const editor = tinymce.editors[i];
+                if (editor.id.startsWith(`${this.prefix}_desc_`)) {
+                    editor.setContent('');
+                }
+            }
+        }
+
         this.showForm('Ajouter un élément');
     }
 
     editItem(item) {
-        if (typeof item === 'string') {
-            item = JSON.parse(item);
+        if (typeof item === 'string') item = JSON.parse(item);
+
+        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = item[`id_${this.suffix}`];
+
+        // 🟢 NOUVEAU : On peuple les champs pour CHAQUE langue
+        if (item.content) {
+            for (const [idLang, translation] of Object.entries(item.content)) {
+
+                // 1. Titre
+                const titleInput = document.querySelector(`input[name="title_${this.suffix}[${idLang}]"]`);
+                if (titleInput) titleInput.value = translation[`title_${this.suffix}`] || '';
+
+                // 2. Statut
+                const pubInput = document.querySelector(`input[type="checkbox"][name="published_${this.suffix}[${idLang}]"]`);
+                if (pubInput) pubInput.checked = (translation[`published_${this.suffix}`] == 1);
+
+                // 3. Description (TinyMCE ou Textarea)
+                const descContent = translation[`desc_${this.suffix}`] || '';
+                const editorId = `${this.prefix}_desc_${idLang}`;
+
+                if (typeof tinymce !== 'undefined' && tinymce.get(editorId)) {
+                    tinymce.get(editorId).setContent(descContent);
+                } else {
+                    const descInput = document.querySelector(`textarea[name="desc_${this.suffix}[${idLang}]"]`);
+                    if (descInput) descInput.value = descContent;
+                }
+            }
         }
 
-        // On assigne dynamiquement les valeurs selon le suffixe de ta BDD
-        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = item[`id_${this.suffix}`];
-        document.getElementById(`${this.prefix}_title`).value = item[`title_${this.suffix}`];
-        document.getElementById(`${this.prefix}_published`).checked = (item[`published_${this.suffix}`] == 1);
-
-        this.setTinyContent(item[`desc_${this.suffix}`] || '');
-        this.showForm(`Modifier : ${item[`title_${this.suffix}`]}`);
+        this.showForm(`Modifier l'élément #${item[`id_${this.suffix}`]}`);
     }
 
+    // ==========================================
+    // SAUVEGARDE & REQUÊTES AJAX
+    // ==========================================
+
     save() {
-        const title = document.getElementById(`${this.prefix}_title`).value.trim();
-        if (title === '') {
-            MagixToast.error('Le titre est obligatoire.');
-            return;
+        // Force TinyMCE à synchroniser son contenu visuel avec les <textarea> cachés
+        if (typeof tinymce !== 'undefined') {
+            tinymce.triggerSave();
         }
 
-        const formData = new FormData();
+        // 🟢 NOUVEAU : On aspire TOUT le formulaire d'un coup (titres, checkbox, textareas de toutes les langues)
+        const formElement = document.getElementById(`${this.prefix}_form_element`);
+        const formData = new FormData(formElement);
+
+        // On y ajoute nos variables techniques d'authentification et de contexte
         const tokenInput = document.getElementById(`${this.prefix}_hashtoken`) || document.querySelector('input[name="hashtoken"]');
         formData.append('hashtoken', tokenInput.value);
-
-        // On construit le payload dynamique pour PHP
         formData.append(`module_${this.suffix}`, this.container.dataset.module);
         formData.append('id_module', this.container.dataset.id);
-
-        formData.append(`id_${this.suffix}`, document.getElementById(`${this.prefix}_id_${this.suffix}`).value);
-        formData.append(`title_${this.suffix}`, title);
-        formData.append(`desc_${this.suffix}`, this.getTinyContent());
-
-        if (document.getElementById(`${this.prefix}_published`).checked) {
-            formData.append(`published_${this.suffix}`, '1');
-        }
 
         fetch(`index.php?controller=${this.controllerName}&action=save`, {
             method: 'POST',
@@ -179,6 +209,10 @@ class MagixAjaxManager {
             .then(res => res.json())
             .then(data => {
                 if (this.deleteModalInstance) {
+                    // 🟢 CORRECTION ARIA : On retire le focus actif avant de fermer la modale
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
                     this.deleteModalInstance.hide();
                 }
 

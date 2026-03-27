@@ -92,28 +92,44 @@
 {if !isset($ajax_delete_modal_loaded)}
     {assign var="ajax_delete_modal_loaded" value=true scope="global"}
 
-    <div class="modal fade" id="ajax_delete_modal" tabindex="-1" aria-hidden="true">
+    {* 🟢 CORRECTION 1 : On supprime aria-hidden="true" écrit en dur. Bootstrap le gérera dynamiquement *}
+    {* 🟢 CORRECTION 2 : On ajoute aria-labelledby pour relier la modale à son titre *}
+    <div class="modal fade" id="ajax_delete_modal" tabindex="-1" aria-labelledby="ajax_delete_modal_label">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
+
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title d-flex align-items-center">
+                    {* On ajoute l'ID correspondant au aria-labelledby *}
+                    <h5 class="modal-title d-flex align-items-center" id="ajax_delete_modal_label">
                         <i class="bi bi-trash3 me-2"></i> {#modal_delete_title#|default:'Suppression'}
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+
                 <div class="modal-body p-4 text-center">
                     <i class="bi bi-exclamation-octagon text-danger display-4 mb-3 d-block"></i>
                     <p class="fs-5 fw-bold mb-1">{#modal_delete_message#|default:'Êtes-vous sûr ?'}</p>
                     <p class="text-muted small mb-0">{#modal_delete_info#|default:'Cette action est irréversible.'}</p>
                 </div>
-                <div class="modal-footer bg-light justify-content-center border-0">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">{#cancel#|default:'Annuler'}</button>
 
-                    {* 🟢 Notez l'ID 'ajax_confirm_delete_btn' : Le JS l'utilisera pour injecter l'action *}
-                    <button type="button" id="ajax_confirm_delete_btn" class="btn btn-danger px-4 fw-bold">
+                <div class="modal-footer bg-light justify-content-center border-0">
+                    {* 🟢 Correction sur le bouton Annuler *}
+                    <button type="button"
+                            class="btn btn-outline-secondary px-4"
+                            data-bs-dismiss="modal"
+                            onmousedown="this.blur();">
+                        {#cancel#|default:'Annuler'}
+                    </button>
+
+                    {* 🟢 Correction sur le bouton Supprimer *}
+                    <button type="button"
+                            id="ajax_confirm_delete_btn"
+                            class="btn btn-danger px-4 fw-bold"
+                            onmousedown="this.blur();">
                         {#remove#|default:'Supprimer'}
                     </button>
                 </div>
+
             </div>
         </div>
     </div>
