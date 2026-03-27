@@ -77,6 +77,7 @@
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableSorter.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableDeleter.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixTableSelection.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixAjaxManager.min.js"></script>
     <script>
         // Variables globales pour MagixCMS 4
         const iso = 'fr'; // Ex: 'fr'

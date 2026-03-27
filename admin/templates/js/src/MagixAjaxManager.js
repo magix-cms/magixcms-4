@@ -1,17 +1,21 @@
 /**
  * MagixAjaxManager
  * Gère l'affichage Master-Detail (Liste/Formulaire), le remplissage de TinyMCE
- * via l'API native, et les requêtes AJAX pour les plugins intégrés dans les onglets du CMS.
+ * et les requêtes AJAX pour les plugins intégrés.
  */
 class MagixAjaxManager {
 
-    constructor(containerId, tabId, controllerName) {
+    // 🟢 AJOUT DE prefix ET suffix
+    constructor(containerId, tabId, controllerName, prefix = 'mt', suffix = 'textmulti') {
         this.container = document.getElementById(containerId);
         this.tab = document.getElementById(tabId);
         this.controllerName = controllerName;
+        this.prefix = prefix;
+        this.suffix = suffix;
 
         this.isLoaded = false;
-        this.viewForm = document.getElementById('mt_view_form');
+        // On cible dynamiquement le bon formulaire
+        this.viewForm = document.getElementById(`${this.prefix}_view_form`);
 
         if (this.tab && this.container) {
             this.initTabEvent();
@@ -36,7 +40,6 @@ class MagixAjaxManager {
                 this.container.innerHTML = html;
                 this.isLoaded = true;
 
-                // Initialisation de SortableJS pour le Drag & Drop
                 const sortableList = this.container.querySelector('.ajax-sortable-list');
                 if (sortableList && typeof Sortable !== 'undefined') {
                     new Sortable(sortableList, {
@@ -49,56 +52,41 @@ class MagixAjaxManager {
             });
     }
 
-    // ==========================================
-    // BASCULE DES VUES (Master-Detail)
-    // ==========================================
-
     showList() {
         this.viewForm.style.display = 'none';
-
-        // On cible la vue de liste (qui est rechargée en AJAX)
-        const viewList = document.getElementById('mt_view_list');
+        const viewList = document.getElementById(`${this.prefix}_view_list`);
         if (viewList) viewList.style.display = 'block';
     }
 
     showForm(titleText) {
-        const viewList = document.getElementById('mt_view_list');
+        const viewList = document.getElementById(`${this.prefix}_view_list`);
         if (viewList) viewList.style.display = 'none';
 
         this.viewForm.style.display = 'block';
-        document.getElementById('mt_form_title').innerHTML = `<i class="bi bi-pencil-square me-2"></i>${titleText}`;
+        document.getElementById(`${this.prefix}_form_title`).innerHTML = `<i class="bi bi-pencil-square me-2"></i>${titleText}`;
     }
 
-    // ==========================================
-    // PILOTAGE DE TINYMCE (API Native Uniquement)
-    // ==========================================
-
     setTinyContent(content) {
-        if (typeof tinymce !== 'undefined' && tinymce.get('mt_desc')) {
-            tinymce.get('mt_desc').setContent(content);
+        if (typeof tinymce !== 'undefined' && tinymce.get(`${this.prefix}_desc`)) {
+            tinymce.get(`${this.prefix}_desc`).setContent(content);
         } else {
-            // Fallback si TinyMCE est lent à charger ou désactivé
-            document.getElementById('mt_desc').value = content;
+            document.getElementById(`${this.prefix}_desc`).value = content;
         }
     }
 
     getTinyContent() {
-        if (typeof tinymce !== 'undefined' && tinymce.get('mt_desc')) {
-            return tinymce.get('mt_desc').getContent();
+        if (typeof tinymce !== 'undefined' && tinymce.get(`${this.prefix}_desc`)) {
+            return tinymce.get(`${this.prefix}_desc`).getContent();
         }
-        return document.getElementById('mt_desc').value;
+        return document.getElementById(`${this.prefix}_desc`).value;
     }
 
-    // ==========================================
-    // ACTIONS UTILISATEUR
-    // ==========================================
-
     addItem() {
-        document.getElementById('mt_id_textmulti').value = '0';
-        document.getElementById('mt_title').value = '';
-        document.getElementById('mt_published').checked = true;
+        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = '0';
+        document.getElementById(`${this.prefix}_title`).value = '';
+        document.getElementById(`${this.prefix}_published`).checked = true;
 
-        this.setTinyContent(''); // On vide l'éditeur proprement
+        this.setTinyContent('');
         this.showForm('Ajouter un élément');
     }
 
@@ -107,40 +95,36 @@ class MagixAjaxManager {
             item = JSON.parse(item);
         }
 
-        document.getElementById('mt_id_textmulti').value = item.id_textmulti;
-        document.getElementById('mt_title').value = item.title_textmulti;
-        document.getElementById('mt_published').checked = (item.published_textmulti == 1);
+        // On assigne dynamiquement les valeurs selon le suffixe de ta BDD
+        document.getElementById(`${this.prefix}_id_${this.suffix}`).value = item[`id_${this.suffix}`];
+        document.getElementById(`${this.prefix}_title`).value = item[`title_${this.suffix}`];
+        document.getElementById(`${this.prefix}_published`).checked = (item[`published_${this.suffix}`] == 1);
 
-        this.setTinyContent(item.desc_textmulti || ''); // On injecte le texte dans l'éditeur
-        this.showForm(`Modifier : ${item.title_textmulti}`);
+        this.setTinyContent(item[`desc_${this.suffix}`] || '');
+        this.showForm(`Modifier : ${item[`title_${this.suffix}`]}`);
     }
 
-    // ==========================================
-    // SAUVEGARDE & REQUÊTES AJAX
-    // ==========================================
-
     save() {
-        const title = document.getElementById('mt_title').value.trim();
+        const title = document.getElementById(`${this.prefix}_title`).value.trim();
         if (title === '') {
             MagixToast.error('Le titre est obligatoire.');
             return;
         }
 
         const formData = new FormData();
-        const tokenInput = document.getElementById('mt_hashtoken') || document.querySelector('input[name="hashtoken"]');
+        const tokenInput = document.getElementById(`${this.prefix}_hashtoken`) || document.querySelector('input[name="hashtoken"]');
         formData.append('hashtoken', tokenInput.value);
 
-        formData.append('module_textmulti', this.container.dataset.module);
+        // On construit le payload dynamique pour PHP
+        formData.append(`module_${this.suffix}`, this.container.dataset.module);
         formData.append('id_module', this.container.dataset.id);
 
-        formData.append('id_textmulti', document.getElementById('mt_id_textmulti').value);
-        formData.append('title_textmulti', title);
+        formData.append(`id_${this.suffix}`, document.getElementById(`${this.prefix}_id_${this.suffix}`).value);
+        formData.append(`title_${this.suffix}`, title);
+        formData.append(`desc_${this.suffix}`, this.getTinyContent());
 
-        // 🟢 Appel natif pour récupérer le contenu (gère TinyMCE et fallback text)
-        formData.append('desc_textmulti', this.getTinyContent());
-
-        if (document.getElementById('mt_published').checked) {
-            formData.append('published_textmulti', '1');
+        if (document.getElementById(`${this.prefix}_published`).checked) {
+            formData.append(`published_${this.suffix}`, '1');
         }
 
         fetch(`index.php?controller=${this.controllerName}&action=save`, {
@@ -152,23 +136,18 @@ class MagixAjaxManager {
                 if (data.status || data.success) {
                     MagixToast.success(data.message);
                     this.showList();
-                    this.loadList(); // Rafraîchit le tableau AJAX
+                    this.loadList();
                 } else {
                     MagixToast.error(data.message || 'Erreur lors de la sauvegarde.');
                 }
             });
     }
 
-    // ==========================================
-    // SUPPRESSION (Modale Anti-Clignotement)
-    // ==========================================
-
     deleteItem(idItem) {
         this.itemToDelete = idItem;
         const modalEl = document.getElementById('ajax_delete_modal');
 
         if (modalEl) {
-            // Déplacement dans le <body> pour éviter le z-index / clignotement
             if (modalEl.parentNode !== document.body) {
                 document.body.appendChild(modalEl);
             }
@@ -189,9 +168,9 @@ class MagixAjaxManager {
         if (!this.itemToDelete) return;
 
         const formData = new FormData();
-        const tokenInput = document.getElementById('mt_hashtoken') || document.querySelector('input[name="hashtoken"]');
+        const tokenInput = document.getElementById(`${this.prefix}_hashtoken`) || document.querySelector('input[name="hashtoken"]');
         formData.append('hashtoken', tokenInput.value);
-        formData.append('id_textmulti', this.itemToDelete);
+        formData.append(`id_${this.suffix}`, this.itemToDelete);
 
         fetch(`index.php?controller=${this.controllerName}&action=delete`, {
             method: 'POST',
@@ -218,11 +197,12 @@ class MagixAjaxManager {
         if (rows.length === 0) return;
 
         const formData = new FormData();
-        const tokenInput = document.getElementById('mt_hashtoken') || document.querySelector('input[name="hashtoken"]');
+        const tokenInput = document.getElementById(`${this.prefix}_hashtoken`) || document.querySelector('input[name="hashtoken"]');
         formData.append('hashtoken', tokenInput.value);
 
         rows.forEach(tr => {
-            formData.append('text_ids[]', tr.getAttribute('data-id'));
+            // 🟢 CHANGEMENT ICI : J'ai mis 'ids[]' pour que ce soit générique
+            formData.append('ids[]', tr.getAttribute('data-id'));
         });
 
         fetch(`index.php?controller=${this.controllerName}&action=reorder`, {
