@@ -531,7 +531,10 @@ INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`) VALUES
 (2, 'displayHomeBottom', 'Bas de page (Accueil)', 'Zone pour les produits phares ou réassurance'),
 (3, 'displayFooter', 'Pied de page', 'Zone pour les widgets du footer'),
 (4, 'displayLeftColumn', 'Colonne de gauche', 'Utilisée sur les pages catégories ou CMS'),
-(5, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes du footer (idéal pour les liens légaux ou le copyright).');
+(5, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes du footer (idéal pour les liens légaux ou le copyright).'),
+(6,'displayPageBottom', 'Bas de page (CMS)', 'Zone située sous le contenu principal des pages'),
+(7,'displayProductExtraContent', 'Contenu supplémentaire (Produit)', 'Zone pour les blocs de texte sur la fiche produit'),
+(8,'displayCategoryBottom', 'Bas de page (Catégorie)', 'Idéal pour le contenu SEO en bas de liste');
 
 CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `id_item` int UNSIGNED NOT NULL AUTO_INCREMENT,
