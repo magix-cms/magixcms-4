@@ -7,7 +7,7 @@
 
 {* --- 1. CHARGEMENT DES FICHIERS CSS SPLIDE --- *}
 {block name="styleSheet" append nocache}
-    {$page_css = ["home","splide.min","magixslideshow"] scope="parent"}
+    {$page_css = ["home","splide.min","magixslideshow","advmulti"] scope="parent"}
 {/block}
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}

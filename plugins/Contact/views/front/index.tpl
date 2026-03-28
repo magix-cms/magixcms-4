@@ -41,7 +41,7 @@
         <div class="row g-5">
             {* --- COLONNE GAUCHE : LE FORMULAIRE --- *}
             <div class="col-12 col-lg-7">
-                <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
+                <div class="bg-body p-4 p-md-5 rounded shadow-sm border">
                     <h2 class="h4 mb-4 fw-bold border-bottom pb-2">Envoyez-nous un message</h2>
 
                     {* Contenu WYSIWYG : Dynamique OU Statique *}
@@ -60,7 +60,7 @@
 
             {* --- COLONNE DROITE : LES INFOS DE L'ENTREPRISE (<aside>) --- *}
             <aside class="col-12 col-lg-5">
-                <div class="bg-light p-4 p-md-5 rounded border h-100">
+                <div class="bg-body-tertiary p-4 p-md-5 rounded border h-100">
                     <h2 class="h4 mb-4 fw-bold border-bottom pb-2">Nos coordonnées</h2>
 
                     {* Utilisation de la variable globale $companyData (Remplie par Magix CMS) *}

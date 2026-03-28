@@ -32,7 +32,7 @@
     {include file="components/favicon.tpl"}
     {event name="displayHead"}
 </head>
-<body class="bg-light">
+<body class="bg-body-tertiary">
 {include file="layout/header.tpl"}
 {* 3. LE CORPS : C'est ici que le contenu de la page enfant va s'insérer *}
 {block name="main:before"}{/block}

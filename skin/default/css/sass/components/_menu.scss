@@ -1,3 +1,4 @@
+// components/_menu.scss
 // ==========================================
 // MENU PRINCIPAL (Magix CMS 4 / Bootstrap 5)
 // ==========================================
@@ -29,20 +30,22 @@
       left: 0;
       right: 0;
       padding: 2rem;
-      // Ajoutez ici la logique de colonnes pour votre méga menu (ex: CSS Grid)
     }
 
-    // d. Esthétique des liens principaux
+    // d. Esthétique des liens principaux (NETTOYÉ DES DOUBLONS)
     .nav-link {
       font-weight: 500;
       padding: 1rem 1.5rem;
-      color: var(--bs-nav-link-color);
+
+      // Le lien lit la variable forcée par le Centre de Contrôle du #header
+      color: var(--bs-navbar-color);
       transition: color 0.2s;
 
       &:hover, &.active {
-        color: var(--main-color); // Utilise la couleur principale de Bootstrap
+        color: var(--bs-navbar-hover-color);
       }
     }
+
     .nav-link.dropdown-toggle::after {
       display: none !important;
     }
@@ -61,20 +64,26 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      // Assure que le texte reste lisible sur mobile, peu importe le header
+      color: var(--bs-body-color);
     }
 
-    // On transforme la petite flèche native en "plus" / "moins" (Optionnel)
+    // 🟢 FUSION MOBILE : On garde vos flèches Bootstrap Icons
     .dropdown-toggle::after {
-      content: '\e145'; // Code Material Icons pour "add" (+)
-      font-family: 'Material Icons';
+      display: inline-block;
+      font-family: "bootstrap-icons"; // On utilise bien votre police Bootstrap
+      content: "\F4FE"; // Code pour bi-plus-lg
       border: none;
-      font-size: 1.2rem;
-      transition: transform 0.3s;
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+      vertical-align: middle;
     }
 
-    // Quand l'accordéon est ouvert, on met un moins (-)
+    // Quand l'accordéon est ouvert
     .dropdown-toggle[aria-expanded="true"]::after {
-      content: '\e15b'; // Code Material Icons pour "remove" (-)
+      content: "\F2EA"; // Code pour bi-dash-lg
+      transform: rotate(180deg);
     }
 
     // Esthétique des sous-menus mobiles
@@ -90,43 +99,20 @@
       }
     }
   }
-  @include media-breakpoint-down(lg) {
-    .dropdown-toggle::after {
-      display: inline-block;
-      font-family: "bootstrap-icons"; // On change la police
-      content: "\F4FE"; // Code pour bi-plus-lg
-      border: none;
-      font-size: 1rem;
-      transition: transform 0.3s ease;
-      vertical-align: middle;
-    }
-
-    .dropdown-toggle[aria-expanded="true"]::after {
-      content: "\F2EA"; // Code pour bi-dash-lg
-      transform: rotate(180deg);
-    }
-  }
 }
 
 // ----------------------------------------
-// 3. ANIMATION LÉGÈRE (Fade In pour le Desktop)
+// 3. ANIMATIONS (Fade In pour le Desktop)
 // ----------------------------------------
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-// CSS pour le menu au survol
+
 @media (min-width: 992px) {
   .dropdown-hover:hover > .dropdown-menu {
     display: block;
     margin-top: 0;
-    // Petit bonus d'animation fluide
     animation: fadeInMenu 0.2s ease-in-out;
   }
 }

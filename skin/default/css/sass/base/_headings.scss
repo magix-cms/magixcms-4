@@ -35,9 +35,18 @@ h6, .h6 { font-size: var(--fz-h6); }
   margin-bottom: #{$display-margin-bottom};
 }
 
+// base/_headings.scss
+
 @each $level, $size in $display-font-sizes {
   .display-#{$level} {
-    // CORRECTION : On entoure la variable SASS par #{} pour le calc()
-    font-size: calc(#{$size} * var(--mc-font-scale, 1));
+    // Explication du clamp() :
+    // 1. Min : On prend la taille max ($size) multipliée par 0.6 (60% de la taille sur mobile)
+    // 2. Fluide : On utilise les 'vw' (largeur de l'écran) pour que ça grandisse progressivement
+    // 3. Max : La taille définie dans votre tableau $display-font-sizes
+
+    --fluid-size: clamp(#{$size} * 0.6, 3vw + #{$size} * 0.4, #{$size});
+
+    // On applique ensuite votre variable d'échelle (--mc-font-scale)
+    font-size: calc(var(--fluid-size) * var(--mc-font-scale, 1));
   }
 }

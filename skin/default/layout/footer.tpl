@@ -19,13 +19,13 @@
             <div id="legal" class="col-12 text-center mt-3">
                 <ul class="list-inline mb-0">
                     <li class="list-inline-item me-3">
-                        <a href="#" class="text-decoration-none">À propos</a>
+                        <a href="{#about_url#}" class="text-decoration-none">{#about_label#}</a>
                     </li>
                     <li class="list-inline-item me-3">
-                        <a href="#" class="text-decoration-none">Mentions légales</a>
+                        <a href="{#legal_url#}" class="text-decoration-none">{#legal_label#}</a>
                     </li>
                     <li class="list-inline-item">
-                        <a href="#" class="text-decoration-none">Contact</a>
+                        <a href="{#contact_url#}" class="text-decoration-none">{#contact_label#}</a>
                     </li>
                 </ul>
             </div>

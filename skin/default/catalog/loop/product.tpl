@@ -9,7 +9,7 @@
 {if isset($category.products) && $category.products|count > 0}
     {foreach $category.products as $product}
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0 bg-light transition-hover">
+            <div class="card shadow-sm h-100 border-0 bg-body-tertiary transition-hover">
 
                 {* LE LIEN ET L'IMAGE AVEC VOTRE COMPOSANT *}
                 <a href="{$product.url}" title="{$product.name}">

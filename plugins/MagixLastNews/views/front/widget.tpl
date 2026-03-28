@@ -1,4 +1,4 @@
-<section class="py-5 bg-light">
+<section class="py-5 bg-body-tertiary">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 fw-bold mb-0">À la une</h2>

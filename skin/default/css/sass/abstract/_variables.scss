@@ -55,15 +55,22 @@ $line-height-base:        $gold-n;
 // --------------------------------------------------
 // 6. TITRES (Valeurs SASS de référence)
 // --------------------------------------------------
-// --------------------------------------------------
-// 6. TITRES (Valeurs SASS de référence)
-// --------------------------------------------------
 $h1-font-size:            2.5rem !default;
 $h2-font-size:            2rem !default;
 $h3-font-size:            1.75rem !default;
 $h4-font-size:            1.5rem !default;
 $h5-font-size:            1.25rem !default;
 $h6-font-size:            1rem !default;
+
+// 🟢 NOUVEAU : On regroupe les tailles dans un tableau pour pouvoir boucler dessus
+$headings-font-sizes: (
+        1: $h1-font-size,
+        2: $h2-font-size,
+        3: $h3-font-size,
+        4: $h4-font-size,
+        5: $h5-font-size,
+        6: $h6-font-size
+);
 
 $headings-font-family:    "Montserrat", sans-serif;
 $headings-font-weight:    700;
@@ -80,13 +87,15 @@ $display-font-style:      normal;                // <--- AJOUTÉ
 $display-line-height:     1.1;                   // <--- AJOUTÉ
 $display-margin-bottom:   1.5rem;                // <--- AJOUTÉ
 
+// abstract/_variables.scss
+
 $display-font-sizes: (
-        1: 5rem,
-        2: 4.5rem,
-        3: 4rem,
-        4: 3.5rem,
-        5: 3rem,
-        6: 2.5rem
+        1: 4rem,   // au lieu de 5rem (approx 64px max)
+        2: 3.5rem, // au lieu de 4.5rem
+        3: 3rem,   // au lieu de 4rem
+        4: 2.5rem, // au lieu de 3.5rem
+        5: 2rem,   // au lieu de 3rem
+        6: 1.5rem  // au lieu de 2.5rem
 );
 
 // --------------------------------------------------

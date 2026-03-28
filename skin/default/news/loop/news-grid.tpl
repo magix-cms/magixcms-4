@@ -43,7 +43,7 @@
                     <div class="tag-list position-relative z-2">
                         {if !empty($item.tags)}
                             {foreach $item.tags as $tag}
-                                <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-light text-secondary text-decoration-none transition-hover me-1">#{$tag.name_tag}</a>
+                                <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-body-tertiary text-secondary text-decoration-none transition-hover me-1">#{$tag.name_tag}</a>
                             {/foreach}
                         {/if}
                     </div>

@@ -38,7 +38,7 @@
             <div class="d-flex gap-2">
                 {* Filtre par Tags *}
                 {if !empty($all_tags)}
-                    <select class="form-select bg-white shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
+                    <select class="form-select bg-body shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
                         <option value="{$reset_url}">Tous les tags</option>
                         {foreach $all_tags as $t}
                             <option value="{$t.url}" {if $current_tag == $t.id_tag}selected{/if}>
@@ -50,7 +50,7 @@
 
                 {* Filtre par Date (Mois/Année) *}
                 {if !empty($archives)}
-                    <select class="form-select bg-white shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
+                    <select class="form-select bg-body shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
                         <option value="{$reset_url}">Toutes les dates</option>
                         {foreach $archives as $a}
                             {* Utilisation de la date factice formatée par Smarty *}

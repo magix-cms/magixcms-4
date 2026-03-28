@@ -39,10 +39,10 @@
 
                     {* Affichage des tags s'il y en a *}
                     {if !empty($item.tags)}
-                        <div class="card-footer bg-white border-top-0 pt-0 position-relative z-2">
+                        <div class="card-footer bg-body border-top-0 pt-0 position-relative z-2">
                             {foreach $item.tags as $tag}
                                 {* L'UrlTool a été exécuté côté DB/Controleur, ici on recrée l'URL dynamiquement ou on la génère dans la vue *}
-                                <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-light text-secondary text-decoration-none transition-hover">#{$tag.name_tag}</a>
+                                <a href="{$base_url}{$current_lang.iso_lang}/news/tag/{$tag.id_tag}-{$tag.name_tag|lower|replace:' ':'-'}/" class="badge bg-body-tertiary text-secondary text-decoration-none transition-hover">#{$tag.name_tag}</a>
                             {/foreach}
                         </div>
                     {/if}

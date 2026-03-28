@@ -17,7 +17,7 @@
     <ul class="product-list{$class} list-grid mb-0">
         {foreach $data as $item}
             <li class="product-card{$class}">
-                <div class="figure bg-white transition-hover">
+                <div class="figure bg-body transition-hover">
                     {* 🟢 Ajout de position-relative pour le badge de promo *}
                     <div class="time-figure rounded-top position-relative">
 
@@ -35,7 +35,7 @@
                     </div>
                     <div class="desc">
                         <h3>
-                            <a href="{$item.url}" class="text-decoration-none stretched-link text-reset" title="{$item.name}">{$item.name}</a>
+                            <a href="{$item.url}" class="text-decoration-none stretched-link{* text-reset*}" title="{$item.name}">{$item.name}</a>
                         </h3>
                         <p class="mb-0 mt-2">
                             {if !empty($item.resume)}

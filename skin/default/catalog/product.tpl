@@ -46,7 +46,7 @@
                                 {$product.price_formatted} € {$product.price_suffix}
                             </span>
                             {* Ancien prix barré (Gris clair) *}
-                            <span class="badge bg-light text-muted text-decoration-line-through fs-5 py-2 px-3 border">
+                            <span class="badge bg-body-tertiary text-muted text-decoration-line-through fs-5 py-2 px-3 border">
                                 {$product.price_original_formatted} €
                             </span>
                             {* Badge de pourcentage (Jaune) *}
@@ -70,7 +70,7 @@
 
                     {* 3. Le Code EAN (Si disponible) *}
                     {if !empty($product.ean_p)}
-                        <span class="badge bg-light text-dark border fs-6 fw-normal" title="Code-barres EAN">
+                        <span class="badge bg-body-tertiary text-dark border fs-6 fw-normal" title="Code-barres EAN">
                             <i class="bi bi-upc-scan me-1"></i> EAN: {$product.ean_p}
                         </span>
                     {/if}

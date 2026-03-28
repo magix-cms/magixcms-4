@@ -10,19 +10,35 @@
 // 3. LE HEADER FIXE
 // layout/_header.scss
 
+// layout/_header.scss
 #header {
   z-index: 1030;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  // 🟢 On force la hauteur stricte du header ici
   height: var(--header-h);
+
+  // 🟢 1. Le fond s'applique ici
   background: var(--header-bg);
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, .1), 0 5px 20px 0 rgba(0, 0, 0, .05);
 
+  // 🟢 2. Redéfinition du Scope Bootstrap
+  // On injecte vos variables du root dans le moteur de la navbar Bootstrap
+  --bs-navbar-color: var(--header-text);
+  --bs-navbar-hover-color: var(--header-text-hover);
+  --bs-navbar-active-color: var(--header-text-hover);
+  --bs-navbar-brand-color: var(--header-text);
+  --bs-navbar-brand-hover-color: var(--header-text-hover);
+
   .container {
-    height: 100%; // Le container épouse la hauteur stricte
+    height: 100%;
+  }
+
+  @include media-breakpoint-up(md) {
+    .dropdown{
+      margin-left: var(--spacer);
+    }
   }
 
   // Pousse le contenu en dessous
@@ -30,11 +46,6 @@
   & + section,
   & + main {
     //margin-top: calc(var(--header-h) + var(--toolbar-h, 0px));
-  }
-  @include media-breakpoint-up(md) {
-    .dropdown{
-      margin-left: var(--spacer);
-    }
   }
 }
 /* 🟢 SÉCURITÉ MENU FIXE : Repousse le tout premier élément (quel qu'il soit) qui suit le header */

@@ -15,7 +15,7 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-light">
+<body class="bg-body-tertiary">
 
 <div class="maintenance-wrapper">
     <div class="container text-center">
