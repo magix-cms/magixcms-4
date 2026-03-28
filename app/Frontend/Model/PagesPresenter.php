@@ -165,9 +165,18 @@ class PagesPresenter
         ];
 
         if (!empty($imgData['default']['src'])) {
-            $schema['image'] = $imgData['default']['src'];
+            $imageUrl = $imgData['default']['src'];
+
+            // 1. Pour Schema.org (L'objet complet)
+            $schema['primaryImageOfPage'] = [
+                '@type' => 'ImageObject',
+                'url'   => $imageUrl
+            ];
+
+            // 2. Pour Google (Un tableau contenant l'URL brute)
+            $schema['image'] = [$imageUrl];
         }
 
-        return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+        return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
 }

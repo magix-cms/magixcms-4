@@ -174,10 +174,17 @@ class ProductPresenter
             ]
         ];
 
+        if (!empty($imgData['default']['src'])) {
+            $schema['image'] = [
+                '@type' => 'ImageObject',
+                'url'   => $imgData['default']['src']
+            ];
+        }
+
         if (!empty($companyInfo['name'])) {
             $schema['brand'] = ['@type' => 'Brand', 'name' => $companyInfo['name']];
         }
 
-        return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+        return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
 }

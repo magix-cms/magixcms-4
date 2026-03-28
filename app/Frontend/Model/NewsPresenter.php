@@ -126,6 +126,15 @@ class NewsPresenter
     {
         $imageUrl = $imgData['default']['src'] ?? '';
 
+        // 🟢 1. On prépare l'objet Image proprement
+        $imageNode = null;
+        if (!empty($imageUrl)) {
+            $imageNode = [
+                '@type' => 'ImageObject',
+                'url'   => $imageUrl
+            ];
+        }
+
         // Éditeur (Important pour les NewsArticles SEO)
         $publisher = [];
         if (!empty($companyInfo['name'])) {
@@ -145,30 +154,44 @@ class NewsPresenter
         }
 
         if (!empty($data['date_start'])) {
+            // --- MODE EVENT ---
             $schema = [
                 '@context'    => 'https://schema.org',
                 '@type'       => 'Event',
                 'name'        => $data['name'],
                 'description' => trim(strip_tags($data['resume'] ?: $data['content'])),
-                'image'       => $imageUrl,
                 'startDate'   => date('c', strtotime($data['date_start'])),
                 'url'         => $siteUrl . $data['url']
             ];
+
+            // 🟢 2. On injecte l'objet image seulement s'il existe
+            if ($imageNode) {
+                $schema['image'] = $imageNode;
+            }
+
             if (!empty($publisher)) $schema['organizer'] = $publisher;
             if (!empty($data['date_end'])) $schema['endDate'] = date('c', strtotime($data['date_end']));
+
         } else {
+            // --- MODE NEWS ARTICLE ---
             $schema = [
                 '@context'      => 'https://schema.org',
                 '@type'         => 'NewsArticle',
                 'headline'      => $data['name'],
                 'description'   => trim(strip_tags($data['resume'] ?: $data['content'])),
-                'image'         => [$imageUrl],
                 'datePublished' => date('c', strtotime($data['date_publish'] ?? 'now')),
                 'url'           => $siteUrl . $data['url']
             ];
+
+            // 🟢 3. On injecte l'objet image seulement s'il existe
+            if ($imageNode) {
+                $schema['image'] = $imageNode;
+            }
+
             if (!empty($publisher)) $schema['publisher'] = $publisher;
         }
 
-        return '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+        // 🟢 4. Et on n'oublie pas les sauts de ligne (\n) pour un code HTML propre !
+        return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
 }

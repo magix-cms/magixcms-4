@@ -61,4 +61,43 @@ class SeoHelper
 
         return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
+    /**
+     * Génère le JSON-LD FAQPage de manière universelle
+     * @param array $data Tableau attendu : [['question' => '...', 'answer' => '...'], ...]
+     */
+    public static function generateFaqJsonLd(array $data): string
+    {
+        if (empty($data)) {
+            return '';
+        }
+
+        $mainEntity = [];
+
+        foreach ($data as $item) {
+            // Le Helper ne connaît que "question" et "answer"
+            $question = $item['question'] ?? '';
+            $answer = $item['answer'] ?? '';
+
+            if (!empty($question) && !empty($answer)) {
+                $mainEntity[] = [
+                    '@type'          => 'Question',
+                    'name'           => strip_tags((string)$question),
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => strip_tags((string)$answer)
+                    ]
+                ];
+            }
+        }
+
+        $schema = [
+            '@context'   => 'https://schema.org',
+            '@type'      => 'FAQPage',
+            'mainEntity' => $mainEntity
+        ];
+
+        return '<script type="application/ld+json">' . "\n" .
+            json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) .
+            "\n" . '</script>';
+    }
 }
