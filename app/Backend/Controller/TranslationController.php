@@ -104,17 +104,24 @@ class TranslationController extends BaseController
         }
 
         $translations = [];
-        $keys = [];
+        $structure = []; // 🟢 NOUVEAU : On stocke la structure [Groupe => [clés]]
 
         foreach ($activeLangs as $lang) {
             $iso = $lang['iso_lang'];
             $langPath = $i18nDir . $iso . '.conf';
+
+            // readConf renvoie maintenant [ 'Groupe' => ['cle' => 'val'] ]
             $parsed = $this->readConf($langPath);
             $translations[$iso] = $parsed;
 
-            foreach (array_keys($parsed) as $k) {
-                if (!in_array($k, $keys)) {
-                    $keys[] = $k;
+            foreach ($parsed as $group => $keysArr) {
+                if (!isset($structure[$group])) {
+                    $structure[$group] = [];
+                }
+                foreach (array_keys($keysArr) as $k) {
+                    if (!in_array($k, $structure[$group])) {
+                        $structure[$group][] = $k;
+                    }
                 }
             }
         }
@@ -122,9 +129,9 @@ class TranslationController extends BaseController
         $this->view->assign([
             'domain'       => $domain,
             'domain_label' => $domainLabel,
-            'langs'        => $formattedLangs, // 🟢 Transmis au composant dropdown
+            'langs'        => $formattedLangs,
             'translations' => $translations,
-            'keys'         => $keys,
+            'structure'    => $structure, // 🟢 Remplacement de 'keys' par 'structure'
             'plugins'      => $installedPlugins,
             'hashtoken'    => $this->session->getToken()
         ]);
@@ -140,9 +147,11 @@ class TranslationController extends BaseController
         }
 
         $domain = $_POST['domain'] ?? 'theme';
-        $contents = $_POST['content'] ?? []; // 🟢 Reçoit toutes les langues : ['fr' => [...], 'en' => [...]]
+        $contents = $_POST['content'] ?? []; // Format: ['fr' => ['Groupe' => ['key' => 'val']]]
+
         $newKey = trim($_POST['new_key'] ?? '');
-        $newValues = $_POST['new_value'] ?? []; // 🟢 Reçoit les nouvelles traductions : ['fr' => 'val', 'en' => 'val']
+        $newGroup = trim($_POST['new_group'] ?? 'Général'); // 🟢 Le groupe de la nouvelle variable
+        $newValues = $_POST['new_value'] ?? [];
 
         if ($domain === 'theme') {
             $themeDb = new ThemeDb();
@@ -154,17 +163,19 @@ class TranslationController extends BaseController
 
         $success = true;
 
-        // On boucle sur les langues envoyées depuis le formulaire
         foreach ($contents as $iso => $transData) {
             $filePath = $baseDir . $iso . '.conf';
 
-            // Si l'utilisateur a rempli une nouvelle clé ET une valeur pour cette langue
+            // Ajout de la nouvelle variable dans le bon groupe
             if (!empty($newKey) && isset($newValues[$iso]) && trim($newValues[$iso]) !== '') {
                 $cleanKey = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($newKey));
-                $transData[$cleanKey] = trim($newValues[$iso]);
+                if (!isset($transData[$newGroup])) {
+                    $transData[$newGroup] = [];
+                }
+                $transData[$newGroup][$cleanKey] = trim($newValues[$iso]);
             }
 
-            // On écrase le fichier .conf avec les nouvelles données
+            // Écriture du fichier structuré
             if (!$this->writeConf($filePath, $transData)) {
                 $success = false;
             }
@@ -177,15 +188,30 @@ class TranslationController extends BaseController
         }
     }
 
+    /**
+     * Parse le fichier et groupe les variables en fonction des commentaires #
+     */
     private function readConf(string $path): array
     {
         if (!file_exists($path)) return [];
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
         $data = [];
+        $currentGroup = 'Général'; // Groupe par défaut
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (empty($line) || str_starts_with($line, '#') || str_starts_with($line, ';')) continue;
+            if (empty($line) || str_starts_with($line, ';')) continue;
+
+            // 🟢 DÉTECTION DES GROUPES via les commentaires
+            if (str_starts_with($line, '#')) {
+                $possibleGroup = trim(substr($line, 1));
+                // On ignore le commentaire système généré par le CMS
+                if ($possibleGroup !== 'Fichier généré par Magix CMS' && $possibleGroup !== '') {
+                    $currentGroup = $possibleGroup;
+                }
+                continue;
+            }
 
             if (strpos($line, '=') !== false) {
                 list($key, $val) = explode('=', $line, 2);
@@ -195,32 +221,30 @@ class TranslationController extends BaseController
                 if (str_starts_with($val, '"') && str_ends_with($val, '"')) {
                     $val = substr($val, 1, -1);
                 }
-                $data[$key] = stripcslashes($val);
+                $data[$currentGroup][$key] = stripcslashes($val);
             }
         }
         return $data;
     }
 
     /**
-     * Écrit un tableau clé => valeur dans un fichier .conf compatible Smarty
-     * (Sans guillemets pour permettre le HTML brut)
+     * Écrit le fichier avec des sauts de lignes et les entêtes de groupes #
      */
     private function writeConf(string $path, array $data): bool
     {
-        $content = "# Fichier généré par Magix CMS\n\n";
+        $content = "# Fichier généré par Magix CMS\n";
 
-        foreach ($data as $key => $val) {
-            // On s'assure de travailler sur une chaîne de caractères
-            $cleanVal = (string)$val;
+        foreach ($data as $group => $keys) {
+            // On recrée le commentaire visuel pour le groupe
+            $content .= "\n# {$group}\n";
 
-            // 🟢 SECURITÉ : Sans guillemets, Smarty ne supporte pas les sauts de ligne physiques.
-            // On remplace les "Entrées" du textarea par de simples espaces.
-            $cleanVal = str_replace(["\r\n", "\r", "\n"], " ", trim($cleanVal));
-
-            // On écrit au format strict demandé : cle = valeur (sans guillemets)
-            $content .= "{$key} = {$cleanVal}\n";
+            foreach ($keys as $key => $val) {
+                $cleanVal = (string)$val;
+                $cleanVal = str_replace(["\r\n", "\r", "\n"], " ", trim($cleanVal));
+                $content .= "{$key} = {$cleanVal}\n";
+            }
         }
 
-        return file_put_contents($path, $content) !== false;
+        return file_put_contents($path, ltrim($content)) !== false;
     }
 }

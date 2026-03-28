@@ -42,8 +42,6 @@
         </div>
 
         <div class="card-body bg-light">
-            {* 3. LE FORMULAIRE UNIQUE POUR TOUTES LES LANGUES *}
-            {* On a retiré 'validate_form' pour laisser notre classe JS faire le travail toute seule *}
             <form id="edit_translations" action="index.php?controller=Translation&action=save" method="post">
                 <input type="hidden" name="hashtoken" value="{$hashtoken|default:''}">
                 <input type="hidden" name="domain" value="{$domain}">
@@ -51,31 +49,50 @@
                 <div class="tab-content">
                     {if isset($langs)}
                         {foreach $langs as $id => $iso}
-                            {* L'id "lang-{$id}" est crucial pour faire le lien avec dropdown-lang.tpl *}
                             <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
 
-                                <div class="row g-4"> {* Remplacement de g-3 par g-4 pour un peu plus d'espace vertical *}
-                                    {* Variables existantes *}
-                                    {if $keys|count > 0}
-                                        {foreach $keys as $key}
-                                            {* 🟢 MODIFICATION ICI : col-12 pour prendre toute la largeur *}
-                                            <div class="col-12">
-                                                <div class="form-group bg-white p-3 rounded border shadow-sm">
-                                                    <label class="form-label fw-bold text-primary mb-2">{$key}</label>
-                                                    {* 🟢 MODIFICATION ICI : rows="3" et retrait de form-control-sm *}
-                                                    <textarea class="form-control"
-                                                              name="content[{$iso}][{$key}]"
-                                                              rows="1">{$translations.$iso.$key|default:''|escape}</textarea>
+                                {if $structure|count > 0}
+                                    {* 🟢 LES ACCORDÉONS BOOTSTRAP 5 *}
+                                    <div class="accordion shadow-sm" id="accordionLang{$iso}">
+
+                                        {foreach $structure as $groupName => $keysArr}
+                                            {* On crée un ID valide pour Bootstrap (sans espaces) *}
+                                            {$cleanGroupId = $groupName|replace:' ':'_'|replace:'&':''|replace:'é':'e'|lower}
+
+                                            <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+                                                <h2 class="accordion-header" id="heading-{$iso}-{$cleanGroupId}">
+                                                    <button class="accordion-button {if !$keysArr@first}collapsed{/if} bg-white fw-bold text-primary border-bottom" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{$iso}-{$cleanGroupId}">
+                                                        <i class="bi bi-folder2-open me-2"></i> {$groupName}
+                                                        <span class="badge bg-secondary ms-auto rounded-pill">{$keysArr|count} clés</span>
+                                                    </button>
+                                                </h2>
+
+                                                <div id="collapse-{$iso}-{$cleanGroupId}" class="accordion-collapse collapse {if $keysArr@first}show{/if}" data-bs-parent="#accordionLang{$iso}">
+                                                    <div class="accordion-body bg-light">
+                                                        <div class="row g-4">
+                                                            {foreach $keysArr as $key}
+                                                                <div class="col-12">
+                                                                    <div class="form-group bg-white p-3 rounded border border-light">
+                                                                        <label class="form-label fw-bold text-dark mb-2">{$key}</label>
+                                                                        <textarea class="form-control bg-light"
+                                                                                  name="content[{$iso}][{$groupName}][{$key}]"
+                                                                                  rows="1">{$translations.$iso.$groupName.$key|default:''|escape}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            {/foreach}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         {/foreach}
-                                    {else}
-                                        <div class="col-12 text-center text-muted py-4">
-                                            <i class="bi bi-journal-x fs-1 d-block mb-2"></i>
-                                            Aucune variable définie pour le moment.
-                                        </div>
-                                    {/if}
-                                </div>
+
+                                    </div>
+                                {else}
+                                    <div class="col-12 text-center text-muted py-4 bg-white rounded shadow-sm">
+                                        <i class="bi bi-journal-x fs-1 d-block mb-2"></i>
+                                        Aucune variable définie pour le moment.
+                                    </div>
+                                {/if}
 
                             </fieldset>
                         {/foreach}
@@ -84,10 +101,19 @@
                         <div class="mt-5 p-4 bg-primary bg-opacity-10 border border-primary-subtle rounded shadow-sm">
                             <h5 class="fw-bold text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Créer une nouvelle variable</h5>
                             <div class="row g-4">
-                                {* 🟢 MODIFICATION : On passe la clé en haut (pleine largeur) ou on garde une belle disposition *}
-                                <div class="col-12">
+                                <div class="col-md-6">
                                     <label class="form-label fw-bold">Clé (Ex: texte_bienvenue)</label>
                                     <input type="text" name="new_key" class="form-control" placeholder="Clé unique (sans espaces)">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Groupe de classement</label>
+                                    {* 🟢 MODIFICATION : On permet de choisir un groupe existant ou d'en créer un (via un datalist) *}
+                                    <input type="text" name="new_group" class="form-control" list="groupList" placeholder="Ex: Footer" value="Général">
+                                    <datalist id="groupList">
+                                        {foreach $structure as $groupName => $keysArr}
+                                            <option value="{$groupName}"></option>
+                                        {/foreach}
+                                    </datalist>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Valeurs traduites</label>
@@ -95,7 +121,6 @@
                                         {foreach $langs as $id => $iso}
                                             <div class="col-12 d-flex align-items-start">
                                                 <span class="badge bg-secondary me-3 mt-1" style="width:45px; padding: 0.5em;">{$iso|upper}</span>
-                                                {* 🟢 MODIFICATION : Transformation en textarea pour la création aussi *}
                                                 <textarea name="new_value[{$iso}]" class="form-control" rows="1" placeholder="Traduction en {$iso|upper}"></textarea>
                                             </div>
                                         {/foreach}
