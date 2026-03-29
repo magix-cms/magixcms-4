@@ -70,7 +70,6 @@
             uiTools.init();
         });
     </script>
-    {* @todo exemple pour les formulaires*}
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixForms.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixToast.min.js"></script>
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixTabManager.min.js"></script>
@@ -83,11 +82,11 @@
         const iso = 'fr'; // Ex: 'fr'
         const site_url = "{$site_url}/{$baseadmin}/"
         const baseadmin = "{$baseadmin}"; // Ton dossier admin (ex: 'admin')
-        const contentCSS = ['templates/css/tinymce.css']; // Chemin vers le CSS de ton thème frontend
+        const contentCSS = {if $mc_settings.content_css.value != ''}['{$mc_settings.content_css.value}','templates/css/tinymce-minimal.min.css']{else}['templates/css/tinymce.min.css']{/if}; // Chemin vers le CSS de ton thème frontend
 
         // Si tu utilises l'IA Gemini
         window.MagixCMS = {
-            ai_enabled: {if $ai_enabled}true{else}false{/if}
+            ai_enabled: {if $mc_settings.geminiai.value|default:0}true{else}false{/if}
         };
     </script>
     {block name="editor"}
