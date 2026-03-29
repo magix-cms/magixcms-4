@@ -18,10 +18,7 @@
         {foreach $data as $item}
             <li class="product-card{$class}">
                 <div class="figure bg-body transition-hover">
-                    {* 🟢 Ajout de position-relative pour le badge de promo *}
                     <div class="time-figure rounded-top position-relative">
-
-                        {* Badge Promo sur l'image *}
                         {if $item.has_promo}
                             <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1 shadow-sm">
                                 -{$item.promo_percent}%
@@ -45,7 +42,6 @@
                             {/if}
                         </p>
                     </div>
-                    {* 🟢 Gestion des prix dans la vignette *}
                     <div class="product-price flex-column gap-1 mt-2">
                         {if !empty($item.price_final) && $item.price_final > 0}
                             <div class="d-flex align-items-center flex-wrap gap-2">

@@ -12,8 +12,8 @@
 
     {if !empty($companyData.name)}
         <p class="text-white-50 small mb-0 pe-lg-4">
-            Bienvenue chez <strong>{$companyData.name}</strong>.
-            Découvrez notre expertise et naviguez sur notre site pour en savoir plus sur nos services.
+            {#footer_logo_welcome#} <strong>{$companyData.name}</strong>.
+            {#footer_logo_description#}
         </p>
     {/if}
 </div>

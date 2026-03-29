@@ -41,8 +41,8 @@
     <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mt-4">
         <i class="bi bi-info-circle fs-4 me-3"></i>
         <div>
-            <h5 class="mb-1">Aucune catégorie</h5>
-            <p class="mb-0">Il n'y a pas encore de catégorie disponible dans ce rayon.</p>
+            <h5 class="mb-1">{#category_loop_empty_title#}</h5>
+            <p class="mb-0">{#category_loop_empty_text#}</p>
         </div>
     </div>
 {/if}

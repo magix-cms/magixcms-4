@@ -1,35 +1,24 @@
 {extends file="layout.tpl"}
 
-{* --- SEO --- *}
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
-{* --- CSS (Chargé uniquement si une galerie existe) --- *}
 {block name="styleSheet" append nocache}
     {$page_css = ["catalog","vendor/splide", "gallery"] scope="parent"}
-    {*{if isset($category.gallery) && $category.gallery|count > 0}
-        {$page_css = ["vendor/splide", "gallery"] scope="parent"}
-    {/if}*}
 {/block}
 
 {block name="head:structured_data"}
-    {* 1. L'identité de la catégorie (générée par CategoryPresenter) *}
     {$category.json_ld|default:'' nofilter}
-
-    {* 2. La liste des produits qu'elle contient (générée par le SeoHelper du Controller) *}
     {$json_ld|default:'' nofilter}
 {/block}
 
-{* 🟢 Utilisation de "article" pour ÉCRASER la balise <article> du layout (car ce n'est pas un article) *}
 {block name="article"}
 
-    {* --- 1. EN-TÊTE DE LA CATÉGORIE --- *}
     <header class="category-header mb-5">
 
-        {* --- FIL D'ARIANE --- *}
         {$breadcrumbs = [
-            ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => 'Catalogue'],
-            ['label' => $category.name]
+        ['url' => "{$base_url}{$current_lang.iso_lang}/catalog/", 'label' => {#catalog_category_breadcrumb#}],
+        ['label' => $category.name]
         ]}
         {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
@@ -43,7 +32,6 @@
         </div>
     </header>
 
-    {* --- 2. CONTENU TEXTE & GALERIE --- *}
     {if $category.content || (isset($category.gallery) && $category.gallery|count > 0)}
         <section class="category-body mb-5">
             <div class="row">
@@ -53,7 +41,6 @@
                     </div>
                 </div>
 
-                {* Galerie de la catégorie (identique au module Pages) *}
                 {if isset($category.gallery) && $category.gallery|count > 0}
                     <div class="col-lg-6">
                         <div class="c-gallery c-gallery--category">
@@ -89,46 +76,43 @@
         </section>
     {/if}
 
-    {* --- 3. SOUS-CATÉGORIES (Rayons enfants) --- *}
     {if isset($category.subdata) && $category.subdata|count > 0}
         <section class="category-children mb-5">
             <div class="row">
                 <div class="col-12 mb-4">
-                    <h3 class="fw-bold text-secondary border-bottom pb-2">Affiner votre recherche</h3>
+                    <h3 class="fw-bold text-secondary border-bottom pb-2">
+                        {#catalog_category_refine#}
+                    </h3>
                 </div>
                 {include file="catalog/loop/category-grid.tpl" data=$category.subdata classType="normal"}
             </div>
         </section>
     {/if}
 
-    {* --- 4. PRODUITS (Le design de votre widget) --- *}
     <section class="category-products mt-4">
         {if isset($category.products) && $category.products|count > 0}
             <div class="row">
                 <div class="col-12 mb-4">
-                    <h2 class="fw-bold text-dark mb-4">Produits disponibles</h2>
+                    <h2 class="fw-bold text-dark mb-4">{#catalog_category_products#}</h2>
                 </div>
                 {include file="catalog/loop/product-grid.tpl" data=$category.products classType="normal"}
             </div>
         {elseif (!isset($category.subdata) || $category.subdata|count == 0)}
-            {* Message affiché uniquement si la catégorie n'a NI sous-catégories NI produits *}
             <div class="alert alert-info text-center mt-5 p-4 shadow-sm border-0">
                 <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
-                Aucun produit disponible dans cette catégorie pour le moment.
+                {#catalog_category_empty#}
             </div>
         {/if}
     </section>
 
 {/block}
 
-{* 1. L'enfant déclare ses fichiers JS requis *}
 {block name="javascript_data"}
     {$page_js = [
     'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
 {/block}
 
-{* 2. L'enfant écrit son code d'initialisation *}
 {block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

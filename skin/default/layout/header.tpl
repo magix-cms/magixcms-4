@@ -14,23 +14,30 @@
                 {/if}
             </a>
         </div>
+
         {strip}
-        <div class="offcanvas offcanvas-start w-75" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-            <div class="offcanvas-header bg-body-tertiary border-bottom d-lg-none">
-                <h5 class="offcanvas-title fw-bold" id="offcanvasMenuLabel">Navigation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+            <div class="offcanvas offcanvas-start w-75" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+                <div class="offcanvas-header bg-body-tertiary border-bottom d-lg-none">
+                    <h5 class="offcanvas-title fw-bold" id="offcanvasMenuLabel">
+                        {#header_nav_title#}
+                    </h5>
+                    {* Aria-label traduit pour l'accessibilité *}
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{#header_close_aria#}"></button>
+                </div>
+
+                <div class="offcanvas-body">
+                    {include file="layout/menu.tpl"}
+                </div>
+
+                <div class="offcanvas-footer border-top p-3 d-lg-none bg-body-tertiary">
+                    <button type="button" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center border-0" data-bs-dismiss="offcanvas">
+                        <i class="bi bi-x-circle fs-4 me-2"></i>
+                        <span class="fw-bold text-uppercase small-text">{#header_close_btn#}</span>
+                    </button>
+                </div>
             </div>
-            <div class="offcanvas-body">
-                {include file="layout/menu.tpl"}
-            </div>
-            <div class="offcanvas-footer border-top p-3 d-lg-none bg-body-tertiary">
-                <button type="button" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center border-0" data-bs-dismiss="offcanvas">
-                    <i class="bi bi-x-circle fs-4 me-2"></i>
-                    <span class="fw-bold text-uppercase small-text">Fermer le menu</span>
-                </button>
-            </div>
-        </div>
         {/strip}
+
         <div class="d-none d-lg-block">
             {include file="components/language_switcher.tpl"}
         </div>

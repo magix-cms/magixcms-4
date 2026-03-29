@@ -1,7 +1,8 @@
 {* Fichier : plugins/MagixFooterMenu/views/front/widget.tpl *}
 <div id="footermenu" class="col-12 col-md-6 col-lg-4 mb-4">
-    <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Navigation</h5>
-
+    <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">
+        {#footer_menu_title#}
+    </h5>
     {* Fonction récursive adaptée pour une colonne de footer *}
     {function name="renderFooterMenu" items=[] depth=0 max_depth=1}
         <ul class="{if $depth == 0}list-unstyled mb-0{else}list-unstyled ms-3 mt-2 border-start border-secondary ps-3{/if}">
@@ -19,7 +20,6 @@
                         {/if}
                         {$link_name}
                     </a>
-
                     {* Affichage des sous-éléments (subdata) *}
                     {if $has_children}
                         {call name="renderFooterMenu" items=$item.subdata depth=$depth+1 max_depth=$max_depth}
@@ -29,11 +29,10 @@
             {/foreach}
         </ul>
     {/function}
-
     {* Lancement de la génération avec la variable globale $menuData *}
     {if isset($menuData) && is_array($menuData) && $menuData|count > 0}
         {call name="renderFooterMenu" items=$menuData depth=0 max_depth=1}
     {else}
-        <p class="text-muted small">Aucun menu assigné.</p>
+        <p class="text-muted small">{#footer_menu_empty#}</p>
     {/if}
 </div>

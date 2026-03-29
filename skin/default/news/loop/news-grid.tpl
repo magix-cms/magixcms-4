@@ -22,7 +22,7 @@
                         {include file="components/img.tpl" img=$item.img responsiveC=true lazy=$lazy}
                         <div class="date small fw-bold">
                             {if !empty($item.date_start)}
-                                <i class="bi bi-calendar-event me-2"></i> Du {$item.date_start|date_format:"%d/%m"}
+                                <i class="bi bi-calendar-event me-2"></i> {#news_loop_date_from#} {$item.date_start|date_format:"%d/%m"}
                             {else}
                                 {$item.date_publish|date_format:"%d %b %Y"}
                             {/if}
@@ -55,8 +55,11 @@
     <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mt-4">
         <i class="bi bi-info-circle fs-4 me-3"></i>
         <div>
-            <h5 class="mb-1">Aucune actualité trouvée</h5>
-            <p class="mb-0">Essayez de modifier vos filtres ou <a href="{$reset_url}" class="alert-link">retournez à toutes les actualités</a>.</p>
+            <h5 class="mb-1">{#news_loop_empty_title#}</h5>
+            <p class="mb-0">
+                {#news_loop_empty_text#}
+                <a href="{$reset_url}" class="alert-link">{#news_loop_empty_link#}</a>.
+            </p>
         </div>
     </div>
 {/if}
