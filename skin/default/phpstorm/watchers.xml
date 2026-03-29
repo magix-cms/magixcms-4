@@ -14,9 +14,29 @@
     <option name="outputFromStdout" value="false" />
     <option name="program" value="/opt/homebrew/bin/sass" />
     <option name="runOnExternalChanges" value="true" />
-    <option name="scopeName" value="Frontend javascript" />
+    <option name="scopeName" value="Sass Backend" />
     <option name="trackOnlyRoot" value="true" />
     <option name="workingDir" value="" />
+    <envs />
+  </TaskOptions>
+  <TaskOptions>
+    <option name="arguments" value="$FilePath$:$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.css --no-source-map" />
+    <option name="checkSyntaxErrors" value="true" />
+    <option name="description" />
+    <option name="exitCodeBehavior" value="ERROR" />
+    <option name="fileExtension" value="scss" />
+    <option name="immediateSync" value="true" />
+    <option name="name" value="SCSS Admin" />
+    <option name="output" value="$ProjectFileDir$/admin/templates/css/$FileNameWithoutExtension$.css" />
+    <option name="outputFilters">
+      <array />
+    </option>
+    <option name="outputFromStdout" value="false" />
+    <option name="program" value="sass" />
+    <option name="runOnExternalChanges" value="true" />
+    <option name="scopeName" value="Sass Backend" />
+    <option name="trackOnlyRoot" value="true" />
+    <option name="workingDir" value="$FileDir$" />
     <envs />
   </TaskOptions>
   <TaskOptions>
@@ -34,7 +54,7 @@
     <option name="outputFromStdout" value="false" />
     <option name="program" value="sass" />
     <option name="runOnExternalChanges" value="true" />
-    <option name="scopeName" value="Sass Roots" />
+    <option name="scopeName" value="Sass Backend" />
     <option name="trackOnlyRoot" value="true" />
     <option name="workingDir" value="$FileDir$" />
     <envs />

@@ -1,0 +1,29 @@
+// global.scss
+
+// 1. OUTILS ET VARIABLES (Silencieux)
+@import "abstract/core";       // Les variables SASS et Mixins
+$bootstrap-icons-font-dir: "../fonts";
+@import "abstract/bootstrap-icons";
+
+// 2. VENDORS (Bootstrap & Icônes)
+@import "bootstrap-bundles/bootstrap-full"; // Moteur principal
+@import "icofont/icofont";
+
+// 3. BASE ET RACINE (Le CSS commence à être généré ici)
+@import "base/root";           // On génère vos variables CSS natives en premier
+@import "base/typography";     // 🟢 DÉPLACÉ ICI : Après Bootstrap pour imposer vos règles !
+@import "base/headings";
+
+// 4. COMPOSANTS MAGIXCMS
+@import "components/buttons";
+@import "components/cards";
+@import "components/badges";
+@import "components/table";
+@import "components/layout";
+@import "components/menu";
+
+// 5. LAYOUT
+@import "layout/block";
+@import "layout/header";
+@import "layout/footer";
+@import "layout/footbar";

@@ -59,36 +59,37 @@
 {/block}
 
 {block name="javascript" append}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Splide !== 'undefined') {
-                var heroSlider = new Splide('#magix-hero-slideshow', {
-                    type: 'fade',
-                    rewind: true,
-                    autoplay: true,
-                    interval: 6000,
-                    pauseOnHover: false,
-                    arrows: true,
-                    pagination: true,
-                    speed: 1000,
+    {if isset($slideshow_items) && $slideshow_items|count > 0}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-                    // 🟢 DESKTOP (Par défaut) : Ratio pour 1920x768
-                    heightRatio: 0.4,
+                // Double sécurité : on vérifie que l'élément HTML existe bien dans le DOM
+                var sliderElement = document.getElementById('magix-hero-slideshow');
 
-                    breakpoints: {
-                        // 🟢 TABLETTE (Écrans sous 992px de large) : Ratio pour 1024x600
-                        992: {
-                            heightRatio: 0.586,
-                        },
-                        // 🟢 MOBILE (Écrans sous 576px de large) : Ratio pour 600x400
-                        576: {
-                            heightRatio: 0.667,
-                            arrows: false // On cache les flèches pour laisser la place au tactile
+                if (typeof Splide !== 'undefined' && sliderElement) {
+                    var heroSlider = new Splide(sliderElement, {
+                        type: 'fade',
+                        rewind: true,
+                        autoplay: true,
+                        interval: 6000,
+                        pauseOnHover: false,
+                        arrows: true,
+                        pagination: true,
+                        speed: 1000,
+                        heightRatio: 0.4,
+                        breakpoints: {
+                            992: {
+                                heightRatio: 0.586,
+                            },
+                            576: {
+                                heightRatio: 0.667,
+                                arrows: false
+                            }
                         }
-                    }
-                });
-                heroSlider.mount();
-            }
-        });
-    </script>
+                    });
+                    heroSlider.mount();
+                }
+            });
+        </script>
+    {/if}
 {/block}

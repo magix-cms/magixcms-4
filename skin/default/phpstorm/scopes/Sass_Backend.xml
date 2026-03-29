@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Sass Backend" pattern="file:admin/templates/css/sass/*.scss" />
+</component>
