@@ -22284,6 +22284,17 @@ h6, .h6 {
   }
 }
 
+[data-bs-theme=dark] .btn-outline-dark {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
+}
+
 .btn-sd {
   background-color: #808285;
   border-color: #808285;
@@ -22617,6 +22628,17 @@ h6, .h6 {
     background-color: #808285 !important;
     color: #fff !important;
   }
+}
+
+[data-bs-theme=dark] .btn-outline-dark {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
 }
 
 .btn-dark {
@@ -22954,6 +22976,17 @@ h6, .h6 {
   }
 }
 
+[data-bs-theme=dark] .btn-outline-dark {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
+}
+
 .btn-green {
   background-color: #5cb75c;
   border-color: #5cb75c;
@@ -23289,6 +23322,17 @@ h6, .h6 {
   }
 }
 
+[data-bs-theme=dark] .btn-outline-dark {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
+}
+
 .btn-white {
   background-color: #ffffff;
   border-color: #ffffff;
@@ -23622,6 +23666,17 @@ h6, .h6 {
     background-color: #ffffff !important;
     color: #000 !important;
   }
+}
+
+[data-bs-theme=dark] .btn-outline-dark {
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-border-color: var(--bs-light);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-light);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-light);
+  --bs-btn-active-border-color: var(--bs-light);
 }
 
 .card {
@@ -24107,7 +24162,7 @@ h6, .h6 {
   padding: 0 1rem 1rem 1rem;
   margin-top: auto;
 }
-.product-card .figure .product-price .btn-outline-dark {
+.product-card .figure .product-price .btn {
   transition: all 0.25s ease-in-out;
 }
 .product-card .figure .product-price .crossed-price {
@@ -24118,11 +24173,13 @@ h6, .h6 {
   font-size: var(--fz-h3, 1.5rem);
   transition: color 0.25s ease-in-out;
 }
-.product-card .figure:hover .btn-outline-dark {
-  background-color: var(--dark-color, #212529);
-  color: var(--white, #fff);
-  border-color: var(--dark-color, #212529);
+.product-card .figure:hover .btn {
   transform: translateY(-2px);
+}
+.product-card .figure:hover .btn[class*=-outline] {
+  background-color: var(--main-color, #0d6efd) !important;
+  border-color: var(--main-color, #0d6efd) !important;
+  color: var(--white, #fff) !important;
 }
 .product-card .figure:hover .cat-label {
   background: var(--main-color, #0d6efd);

@@ -99,4 +99,24 @@ $invert-base-color: #333333; // Modifiable selon vos besoins
     // 10. GLASS (Glassmorphism)
     &-glass { @include button-glass($color); }
   }
+  // ==========================================
+  // RUSTINE : INVERSION DU BOUTON DARK EN MODE SOMBRE
+  // ==========================================
+  [data-bs-theme="dark"] {
+    .btn-outline-dark {
+      // On remplace les couleurs foncées par du clair (gris/blanc)
+      --bs-btn-color: var(--bs-light);
+      --bs-btn-border-color: var(--bs-light);
+
+      // Au survol, le fond devient clair et le texte devient foncé
+      --bs-btn-hover-color: #000;
+      --bs-btn-hover-bg: var(--bs-light);
+      --bs-btn-hover-border-color: var(--bs-light);
+
+      // S'assurer que le focus/active est visible
+      --bs-btn-active-color: #000;
+      --bs-btn-active-bg: var(--bs-light);
+      --bs-btn-active-border-color: var(--bs-light);
+    }
+  }
 }

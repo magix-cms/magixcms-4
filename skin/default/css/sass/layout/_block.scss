@@ -280,7 +280,9 @@
       gap: var(--spacer, 1rem);
       padding: 0 1rem 1rem 1rem;
       margin-top: auto;
-      .btn-outline-dark {
+
+      // 🟢 On cible TOUS les boutons à l'intérieur du prix
+      .btn {
         transition: all 0.25s ease-in-out;
       }
       .crossed-price { color: var(--sd-color, #999); text-decoration: line-through; }
@@ -288,14 +290,23 @@
     }
 
     // Hover spécifique au produit
+    // Hover spécifique au produit
+    // Hover spécifique au produit
     &:hover {
-      // .price { color: var(--main-color, #0d6efd); } // Désactivé si on utilise les couleurs text-primary / text-danger de Bootstrap
-      .btn-outline-dark {
-        background-color: var(--dark-color, #212529);
-        color: var(--white, #fff);
-        border-color: var(--dark-color, #212529);
+      // 1. Le petit saut vers le haut (pour tous les boutons)
+      .btn {
         transform: translateY(-2px);
       }
+
+      // 2. Le remplissage du bouton (La méthode infaillible)
+      // On cible n'importe quel bouton "outline" et on force ses couleurs au survol de la carte
+      .btn[class*="-outline"] {
+        background-color: var(--main-color, #0d6efd) !important;
+        border-color: var(--main-color, #0d6efd) !important;
+        color: var(--white, #fff) !important;
+      }
+
+      // 3. Le label de catégorie
       .cat-label {
         background: var(--main-color, #0d6efd);
       }

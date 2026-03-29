@@ -63,7 +63,7 @@
                                 {/if}
                             </div>
                         {/if}
-                        <a href="{$item.url}" class="btn btn-outline-dark btn-sm w-100 mt-2 position-relative z-2">Voir le produit</a>
+                        <a href="{$item.url}" class="btn btn-main-outline btn-sm w-100 mt-2 position-relative z-2">Voir le produit</a>
                     </div>
 
                 </div>
