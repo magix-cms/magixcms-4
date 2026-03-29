@@ -39,18 +39,27 @@ abstract class BaseController
     {
         $this->view = SmartyTool::getInstance('front');
         $this->logger = Logger::getInstance();
-        $this->session = new Session(false);
         $this->json = new JSON();
-        // 🟢 CORRECTIF : On utilise une variable statique pour s'assurer
-        // que cette portion de code ne s'exécute qu'une seule fois par requête HTTP
+
+        // 🟢 1. On charge les paramètres globaux (mc_setting) AVANT la session
+        $this->initSettings();
+
+        // 🟢 2. Détection du SSL depuis les paramètres chargés
+        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
+        $isSslActive = ($isSsl === 1);
+
+        // 🟢 3. Initialisation de la session Magepattern AVEC la détection SSL
+        $this->session = new Session($isSslActive);
+
+        // 4. Hook manager et Plugins
         static $pluginsLoaded = false;
 
         if (!$pluginsLoaded) {
             if (class_exists('\App\Component\Hook\HookManager')) {
-                // 1. Le hook CLASSIQUE (Widgets visuels via la Base de données)
+                // Le hook CLASSIQUE
                 $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
 
-                // 2. 🟢 Le hook D'ÉVÉNEMENT (Scripts invisibles en mémoire via Boot.php)
+                // Le hook D'ÉVÉNEMENT
                 $this->view->registerPlugin('function', 'event', function(array $params, $template) {
                     return HookManager::exec($params);
                 });
@@ -62,32 +71,21 @@ abstract class BaseController
             $pluginsLoaded = true;
         }
 
-        // Le reste des initialisations continue normalement
-        $this->initSettings();
+        // 5. La suite des initialisations
         $this->initSiteUrl();
         $this->initSkin();
-        // 🟢 2. ON VÉRIFIE LA MAINTENANCE ICI !
-        // Si c'est un visiteur, le script fera un "exit" à l'intérieur de cette méthode
-        // et le reste du constructeur ne sera jamais exécuté.
+
+        // VÉRIFICATION DE LA MAINTENANCE
         $this->checkMaintenanceMode();
+
         $this->initLanguage();
         $this->initCookieConsent();
-
         $this->initGlobalData();
         $this->initMenu();
         $this->initTranslations();
         $this->initCanonicalUrl();
     }
 
-    /**
-     * @return void
-     */
-    /**
-     * @return void
-     */
-    /**
-     * @return void
-     */
     /**
      * @return void
      */

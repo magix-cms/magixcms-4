@@ -53,7 +53,6 @@ abstract class BaseController
         $this->logger = Logger::getInstance();
 
         // --- NOUVEAU : Enregistrement dynamique de la balise {hook} ---
-        // On le fait côté App pour préserver l'agnosticisme de Magepattern
         if (class_exists('\App\Component\Hook\HookManager')) {
             $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'exec']);
         }
@@ -61,8 +60,6 @@ abstract class BaseController
         // --- Définition du contrôleur actif pour les menus Smarty ---
         $currentController = $_GET['controller'] ?? 'Dashboard';
         $cleanController = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $currentController)));
-
-        // On assigne la variable globale à la vue
         $this->view->assign('controller', $cleanController);
 
         // 1. On charge la langue par défaut
@@ -71,13 +68,24 @@ abstract class BaseController
         // 2. On charge la configuration globale de l'entreprise (mc_company_info)
         $this->initCompanyData();
 
-        // 3. NOUVEAU : On charge la configuration globale du site (Feature Toggles)
+        // 3. On charge la configuration globale du site (Feature Toggles)
         $this->initGlobalConfig();
 
-        // 3. Initialisation de la session Magepattern
-        $this->session = new Session(false);
+        // ==========================================================
+        // 4. CHARGEMENT GLOBAL DES PARAMÈTRES (mc_setting) & SSL
+        // ==========================================================
+        $settingDb = new SettingDb();
+        $this->siteSettings = $settingDb->fetchAllSettings();
+        $this->view->assign('mc_settings', $this->siteSettings);
 
-        // 4. Le Guard : On vérifie l'accès ET les permissions
+        // Détection du SSL depuis les paramètres
+        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
+        $isSslActive = ($isSsl === 1);
+
+        // 5. Initialisation de la session Magepattern AVEC la détection SSL
+        $this->session = new Session($isSslActive);
+
+        // 6. Le Guard : On vérifie l'accès ET les permissions
         if ($this->requireAuth) {
             $this->checkAuthentication($this->session);
 
@@ -86,52 +94,32 @@ abstract class BaseController
 
             $this->initCurrentUser();
 
-            // --- MODIFIÉ : On initialise les plugins ET la sidebar ---
+            // --- On initialise les plugins ET la sidebar ---
             $this->initPlugins();
         }
 
-        // 5. Initialisation des traductions (i18n)
+        // 7. Initialisation des traductions (i18n)
         $this->initTranslations($this->session);
 
         $this->json = new JSON();
-
         $this->view->assign('installed_plugins', $this->getValidatedPluginsForMenu());
-
-        // CHARGEMENT GLOBAL DES PARAMÈTRES (mc_setting)
-        $settingDb = new SettingDb();
-        $this->siteSettings = $settingDb->fetchAllSettings();
-
-        // On le rend disponible pour tous les templates Smarty
-        $this->view->assign('mc_settings', $this->siteSettings);
 
         // ==========================================================
         // URL DU SITE GLOBALE POUR SMARTY
         // ==========================================================
 
-        // 1. Détermination du protocole
-        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
-        $protocol = ($isSsl === 1) ? 'https://' : 'http://';
-
-        // 2. Récupération du host (ex: magixcms4.test)
+        $protocol = $isSslActive ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
-
-        // 3. Construction de l'URL de base
         $siteUrl = $protocol . $host;
 
-        // --- LA PARTIE OPTIONNELLE EXPLIQUÉE ---
-        // Si votre projet est dans un sous-dossier (ex: localhost/mon-projet/)
-        // ou si vous voulez être sûr de retirer le dossier "admin" de l'URL de base
+        // Gestion du sous-dossier éventuel
         $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        // On retire "admin" du chemin s'il est présent
         $publicRoot = str_replace('/'.BASEADMIN, '', $scriptDir);
         $publicRoot = rtrim($publicRoot, '/');
 
-        // URL Finale : racine du site + chemin vers le dossier public
         $siteUrl = $siteUrl . $publicRoot;
 
-        // On assigne à Smarty
-
-        // 4. Assignation globale à Smarty
+        // Assignation globale à Smarty
         $this->view->assign('site_url', $siteUrl);
         $this->view->assign('baseadmin', BASEADMIN);
     }

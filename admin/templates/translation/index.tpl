@@ -76,7 +76,7 @@
                                                                         <label class="form-label fw-bold text-dark mb-2">{$key}</label>
                                                                         <textarea class="form-control bg-light"
                                                                                   name="content[{$iso}][{$groupName}][{$key}]"
-                                                                                  rows="1">{$translations.$iso.$groupName.$key|default:''|escape}</textarea>
+                                                                                  rows="2">{$translations.$iso.$groupName.$key|default:''|escape}</textarea>
                                                                     </div>
                                                                 </div>
                                                             {/foreach}
