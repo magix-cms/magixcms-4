@@ -22,7 +22,7 @@
                     {if !empty($page.name_page)}
                         {$page.name_page}
                     {else}
-                        Contactez-nous
+                        {#interested_form#}
                     {/if}
                 </h1>
 
@@ -30,7 +30,7 @@
                 {if !empty($page.resume_page)}
                     <p class="lead text-muted">{$page.resume_page}</p>
                 {else}
-                    <p class="lead text-muted">Nous sommes à votre écoute. N'hésitez pas à nous contacter pour toute demande d'information, notre équipe vous répondra dans les plus brefs délais.</p>
+                    <p class="lead text-muted">{#contact_info#}</p>
                 {/if}
             </div>
         </div>
@@ -42,14 +42,14 @@
             {* --- COLONNE GAUCHE : LE FORMULAIRE --- *}
             <div class="col-12 col-lg-7">
                 <div class="bg-body p-4 p-md-5 rounded shadow-sm border">
-                    <h2 class="h4 mb-4 fw-bold border-bottom pb-2">Envoyez-nous un message</h2>
+                    <h2 class="h4 mb-4 fw-bold border-bottom pb-2">{#send_us_a_message#}</h2>
 
                     {* Contenu WYSIWYG : Dynamique OU Statique *}
                     <div class="content-formatted mb-4 text-muted">
                         {if !empty($page.content_page)}
                             {$page.content_page nofilter}
                         {else}
-                            <p>Veuillez remplir le formulaire ci-dessous. Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires.</p>
+                            <p>{#contact_fields_request#}</p>
                         {/if}
                     </div>
 

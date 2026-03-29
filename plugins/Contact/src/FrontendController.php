@@ -97,11 +97,32 @@ class FrontendController extends BaseController
         // Si on arrive ici, c'est un humain valide, on continue le script !
         $idContact = (int)($msg['id_contact'] ?? 0);
         $db = new ContactFrontDb();
+        $idLang = (int)$this->currentLang['id_lang'];
 
-        $recipientEmail = $db->getContactEmail($idContact);
+        $recipients = [];
 
-        if (empty($recipientEmail)) {
-            $this->jsonResponse(false, 'Le service sélectionné n\'est pas disponible.');
+        if ($idContact > 0) {
+            // OPTION A : Un service spécifique a été choisi (le dropdown est présent)
+            $recipientEmail = $db->getContactEmail($idContact);
+            if (!empty($recipientEmail)) {
+                $recipients[$recipientEmail] = 'Service Web';
+            }
+        } else {
+            // OPTION B : Aucun service choisi (le dropdown a été supprimé du TPL)
+            // On récupère TOUS les contacts actifs et on les ajoute à la liste d'envoi
+            $activeContacts = $db->getActiveContacts($idLang);
+            foreach ($activeContacts as $contact) {
+                $email = $db->getContactEmail((int)$contact['id_contact']);
+                if (!empty($email)) {
+                    $name = $contact['name_contact'] ?? 'Service Web';
+                    $recipients[$email] = $name;
+                }
+            }
+        }
+
+        // Sécurité : Vérifier s'il y a au moins un destinataire valide
+        if (empty($recipients)) {
+            $this->jsonResponse(false, 'Aucun service de contact n\'est actuellement disponible pour recevoir votre message.');
         }
 
         // Configuration mail depuis les Settings globaux du site
@@ -123,13 +144,14 @@ class FrontendController extends BaseController
         // L'expéditeur officiel du site
         $sender = !empty($this->siteSettings['mail_sender']['value']) ? $this->siteSettings['mail_sender']['value'] : (string)$msg['email'];
 
+        // 🟢 On passe le tableau $recipients qui contient soit 1, soit N adresses !
         $sent = $mailer->sendTemplate(
-            'front', // 🟢 CORRECTION VITALE : 'front' au lieu de 'frontend' !
+            'front',
             'emails/message.tpl',
             $msg,
             "Nouveau message : " . $subject,
             $sender,
-            [$recipientEmail => 'Service Web']
+            $recipients
         );
 
         if ($sent) {
