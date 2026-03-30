@@ -54,8 +54,8 @@
                 <div class="col-12 col-md-4 text-white-50 small text-md-end">
                     <p class="mb-0">
                         {#powered_by#|default:'Créé par'}
-                        <a href="https://www.magix-cms.com" target="_blank" title="{#go_to_website#|default:'Aller sur le site'}: Magix CMS" class="link-light text-decoration-none fw-bold">
-                            Magix CMS
+                        <a href="{#footer_website_url#}" target="_blank" title="{#go_to_website#|default:'Aller sur le site'}: {#footer_website_title#}" class="link-light text-decoration-none fw-bold">
+                            {#footer_website_title#}
                         </a>
                     </p>
                 </div>
