@@ -19,27 +19,37 @@ if (!isset($_SESSION['id_admin'])) {
     exit;
 }
 
-// 3. Chemin absolu
+// 3. Chemin physique absolu sur le serveur (Pour qu'elFinder puisse lire les fichiers)
 $rootPath = dirname(__FILE__, 7) . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR;
+
+// 🟢 LE FIX : Calcul du chemin Web relatif (Portable)
+$scriptPath = $_SERVER['SCRIPT_NAME'];
+$webRoot = '';
+
+// On coupe la chaîne proprement juste avant le dossier "admin"
+if (($pos = strpos($scriptPath, '/admin/')) !== false) {
+    $webRoot = substr($scriptPath, 0, $pos);
+}
+
+// URL portable finale (ex: /magixcms4/media/ ou /media/)
+$portableUrl = $webRoot . '/media/';
 
 // 4. Chargement d'elFinder
 require './autoload.php';
 
 $opts = array(
-    // J'AI SUPPRIMÉ LES BLOCS "bind" ET "plugin" QUI FAISAIENT PLANTER L'UPLOAD
     'roots' => array(
         array(
             'driver'        => 'LocalFileSystem',
             'path'          => $rootPath,
-            'URL'           => '/media/',
-            'mimeDetect'    => 'internal', // Conserve la détection par extension
+            'URL'           => $portableUrl, // 🟢 On injecte l'URL portable ici
+            'mimeDetect'    => 'internal',
             'uploadDeny'    => array('all'),
-            'uploadAllow'   => array('image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'application/pdf'),
+            'uploadAllow'   => array('image', 'application/pdf'), // Fix pour le bug "grisé"
             'uploadOrder'   => array('deny', 'allow'),
             'uploadMaxSize' => '8M',
             'alias'         => 'Medias',
             'attributes' => array(
-                // CORRECTION : Cache tous les fichiers cachés (comme .htaccess)
                 array(
                     'pattern' => '/\/\./',
                     'read'    => false,
@@ -47,7 +57,6 @@ $opts = array(
                     'hidden'  => true,
                     'locked'  => true
                 ),
-                // Sécurité sur les scripts
                 array(
                     'pattern' => '/\.(php|phtml|html|js|cgi|py|sh|exe)$/i',
                     'read'    => false,

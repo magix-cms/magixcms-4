@@ -42,8 +42,8 @@ class FrontendController extends BaseController
                 'resume_page'  => '',
                 'content_page' => ''
             ];
-            $seoTitle = 'Contactez-nous';
-            $seoDesc  = 'Formulaire de contact';
+            $seoTitle = $this->view->getConfigVars('interested_form');
+            $seoDesc  = $this->view->getConfigVars('contact_form');
         } else {
             $seoTitle = !empty($pageData['seo_title_page']) ? $pageData['seo_title_page'] : ($pageData['name_page'] ?? 'Contact');
             $seoDesc  = $pageData['seo_desc_page'] ?? '';
@@ -149,7 +149,7 @@ class FrontendController extends BaseController
             'front',
             'emails/message.tpl',
             $msg,
-            "Nouveau message : " . $subject,
+            $this->view->getConfigVars('email_contact_new_message')." : " . $subject,
             $sender,
             $recipients
         );

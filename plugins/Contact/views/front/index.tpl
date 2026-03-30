@@ -49,7 +49,7 @@
                         {if !empty($page.content_page)}
                             {$page.content_page nofilter}
                         {else}
-                            <p>{#contact_fields_request#}</p>
+                            <p>{#contact_fields_request# nofilter}</p>
                         {/if}
                     </div>
 
