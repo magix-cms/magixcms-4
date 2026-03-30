@@ -102,7 +102,7 @@ class PluginController extends BaseController
         $data = [
             'name'       => $pluginName,
             'version'    => $manifest['version'] ?? '1.0.0',
-            'has_config' => $hasConfig, // 🟢 ON AJOUTE L'INFO ICI
+            'has_config' => $hasConfig,
             'home'       => $targets['home'] ?? 0,
             'about'      => $targets['about'] ?? 0,
             'pages'      => $targets['pages'] ?? 0,
@@ -146,19 +146,28 @@ class PluginController extends BaseController
                 }
             }
 
-            // 🟢 7. COPIE DES ASSETS (CSS) VERS LE SKIN COURANT S'ILS EXISTENT
+            // 7. COPIE DES ASSETS (CSS & JS) VERS LE SKIN COURANT S'ILS EXISTENT
             $pluginCssDir = $pluginPath . DS . 'public' . DS . 'css';
+            $pluginJsDir  = $pluginPath . DS . 'public' . DS . 'js';
 
-            if (is_dir($pluginCssDir)) {
-                // Instanciation de votre DB pour récupérer le thème courant
+            // On vérifie si au moins l'un des deux dossiers existe avant d'interroger la base de données
+            if (is_dir($pluginCssDir) || is_dir($pluginJsDir)) {
+
+                // Instanciation de votre DB pour récupérer le thème courant (fait une seule fois)
                 $themeDb = new ThemeDb();
                 $currentSkin = $themeDb->getCurrentTheme();
 
-                // Définition de la destination finale
-                $skinCssDir = ROOT_DIR . 'skin' . DS . $currentSkin . DS . 'css';
+                // Copie du CSS
+                if (is_dir($pluginCssDir)) {
+                    $skinCssDir = ROOT_DIR . 'skin' . DS . $currentSkin . DS . 'css';
+                    FileTool::copyDirectory($pluginCssDir, $skinCssDir);
+                }
 
-                // Appel de votre FileTool
-                FileTool::copyDirectory($pluginCssDir, $skinCssDir);
+                // Copie du JS
+                if (is_dir($pluginJsDir)) {
+                    $skinJsDir = ROOT_DIR . 'skin' . DS . $currentSkin . DS . 'js';
+                    FileTool::copyDirectory($pluginJsDir, $skinJsDir);
+                }
             }
 
             $hasConfig = $manifest['has_config'] ?? false;
