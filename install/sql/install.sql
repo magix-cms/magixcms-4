@@ -519,12 +519,12 @@ CREATE TABLE IF NOT EXISTS `mc_home_page_content` (
 
 CREATE TABLE IF NOT EXISTS `mc_hook` (
     `id_hook` int UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `title` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `name` varchar(64) NOT NULL,
+    `title` varchar(128) NOT NULL,
     `description` text COLLATE utf8mb4_unicode_ci,
     PRIMARY KEY (`id_hook`),
     UNIQUE KEY `idx_hook_name` (`name`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`) VALUES
 (1, 'displayHomeTop', 'Haut de page (Accueil)', 'Zone située juste sous le slider ou le header'),
@@ -539,12 +539,12 @@ INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`) VALUES
 CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `id_item` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_hook` int UNSIGNED NOT NULL,
-    `module_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `module_name` varchar(64) NOT NULL,
     `position` int UNSIGNED NOT NULL DEFAULT '0',
     `active` tinyint(1) NOT NULL DEFAULT '1',
     PRIMARY KEY (`id_item`),
     KEY `idx_hook` (`id_hook`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `mc_lang` (
     `id_lang` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -783,7 +783,37 @@ CREATE TABLE IF NOT EXISTS `mc_snippet` (
     `order_sp` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_snippet`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
+
+INSERT INTO `mc_snippet` (`title_sp`, `description_sp`, `content_sp`, `order_sp`, `date_register`) VALUES
+(
+'Image et texte',
+'Image à gauche et texte a droite',
+'<div class="row align-items-center my-4">
+<div class="col-md-5 text-center mb-4 mb-md-0"><img class="img-fluid rounded shadow-sm" src="https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Image+a+Gauche" alt="Description"></div>
+<div class="col-md-7 text-start">
+<h2 class="fw-bold mb-3">Votre titre d''introduction</h2>
+<p class="lead text-muted">Le texte est ici à droite, mais toujours centré verticalement par rapport à l''image.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>
+<a class="btn btn-primary mt-2" href="#">Découvrir la suite</a></div>
+</div>',
+1,
+NOW()
+),
+(
+'texte et image',
+'Text à gauche et image à droite',
+'<div class="row align-items-center my-4">
+<div class="col-md-7 mb-4 mb-md-0 text-start">
+<h2 class="fw-bold mb-3">Votre titre d''introduction</h2>
+<p class="lead text-muted">Une courte phrase d''accroche pour résumer l''idée principale de ce bloc.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>
+<a class="btn btn-primary mt-2" href="#">En savoir plus</a></div>
+<div class="col-md-5 text-center"><img class="img-fluid rounded shadow-sm" src="https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Votre+Image+Ici" alt="Description de l''image"></div>
+</div>',
+2,
+NOW()
+);
 
 CREATE TABLE IF NOT EXISTS `mc_webservice` (
     `id_ws` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -791,7 +821,6 @@ CREATE TABLE IF NOT EXISTS `mc_webservice` (
     `status_ws` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_ws`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
 
 -- --------------------------------------------------------
 -- CONTRAINTES DES TABLES (CLÉS ÉTRANGÈRES)
