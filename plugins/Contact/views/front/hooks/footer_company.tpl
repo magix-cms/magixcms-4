@@ -30,10 +30,18 @@
             </li>
         {/if}
 
-        {if !empty($companyData.email)}
-            <li class="mb-3">
+        {if !empty($companyData.mail)}
+            <li class="mb-3 text-light">
                 <i class="bi bi-envelope text-light opacity-75 me-2"></i>
-                <a href="mailto:{$companyData.email}" class="text-decoration-none text-light">{$companyData.email}</a>
+                {if $companyData.click_to_mail}
+                    {mailto address=$companyData.mail encode="javascript_charcode" class="text-decoration-none text-light"}
+                {else}
+                    {if $companyData.crypt_mail}
+                        <span>{$companyData.mail|replace:'@':'<span class="fas ico ico-at"></span>' nofilter}</span>
+                    {else}
+                        <span>{$companyData.mail}</span>
+                    {/if}
+                {/if}
             </li>
         {/if}
 

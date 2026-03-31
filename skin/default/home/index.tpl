@@ -57,39 +57,3 @@
 {block name="javascript_data" nocache}
     {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
 {/block}
-
-{block name="javascript" append}
-    {if isset($slideshow_items) && $slideshow_items|count > 0}
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-
-                // Double sécurité : on vérifie que l'élément HTML existe bien dans le DOM
-                var sliderElement = document.getElementById('magix-hero-slideshow');
-
-                if (typeof Splide !== 'undefined' && sliderElement) {
-                    var heroSlider = new Splide(sliderElement, {
-                        type: 'fade',
-                        rewind: true,
-                        autoplay: true,
-                        interval: 6000,
-                        pauseOnHover: false,
-                        arrows: true,
-                        pagination: true,
-                        speed: 1000,
-                        heightRatio: 0.4,
-                        breakpoints: {
-                            992: {
-                                heightRatio: 0.586,
-                            },
-                            576: {
-                                heightRatio: 0.667,
-                                arrows: false
-                            }
-                        }
-                    });
-                    heroSlider.mount();
-                }
-            });
-        </script>
-    {/if}
-{/block}
