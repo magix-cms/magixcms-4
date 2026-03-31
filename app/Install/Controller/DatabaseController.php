@@ -98,6 +98,15 @@ class DatabaseController
         $templatePath = APP_PATH . 'init' . DS . 'config.php.in';
         $configPath   = APP_PATH . 'init' . DS . 'config.php';
 
+        // ========================================================================
+        // SÉCURITÉ 2 : ANTI-ÉCRASEMENT DE LA CONFIGURATION
+        // Empêche l'attaquant de détourner le site vers sa propre base de données
+        // ========================================================================
+        if (file_exists($configPath)) {
+            echo json_encode(['success' => false, 'message' => 'Sécurité : Le fichier config.php existe déjà. Opération bloquée.']);
+            exit;
+        }
+
         if (!file_exists($templatePath)) {
             echo json_encode(['success' => false, 'message' => 'Le fichier modèle config.php.in est introuvable.']);
             exit;

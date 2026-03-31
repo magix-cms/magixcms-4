@@ -17,9 +17,14 @@ class FinalizeController
 
     public function __construct()
     {
+        $lockFile = ROOT_DIR . BASEINSTALL . DS . 'install.lock';
+        if (file_exists($lockFile)) {
+            header('HTTP/1.1 403 Forbidden');
+            die('Opération interdite : L\'installation est verrouillée.');
+        }
+
         $this->view = SmartyTool::getInstance(BASEINSTALL);
 
-        // Sécurité : Interdiction d'accès direct par l'URL
         if (!Request::isMethod('POST')) {
             header('Location: index.php?step=3');
             exit;
@@ -28,7 +33,6 @@ class FinalizeController
 
     public function run(): void
     {
-        // 1. Récupération et Nettoyage STRICT
         $siteName  = Request::isPost('site_name') ? FormTool::simpleClean($_POST['site_name']) : '';
         $firstName = Request::isPost('admin_firstname') ? FormTool::simpleClean($_POST['admin_firstname']) : '';
         $lastName  = Request::isPost('admin_lastname') ? FormTool::simpleClean($_POST['admin_lastname']) : '';
@@ -36,7 +40,6 @@ class FinalizeController
         $password  = Request::isPost('admin_password') ? $_POST['admin_password'] : '';
         $urlDomain = Request::isPost('url_domain') ? FormTool::simpleClean($_POST['url_domain']) : '';
 
-        // Nettoyage de l'URL : on retire "http://", "https://" et le slash de fin s'il y en a un
         $urlDomain = preg_replace('#^https?://#', '', $urlDomain);
         $urlDomain = rtrim($urlDomain, '/');
 
@@ -45,7 +48,6 @@ class FinalizeController
                 throw new \Exception("Le format de l'adresse e-mail est invalide.");
             }
 
-            // 2. Instanciation du Layer AVEC les constantes générées
             $config = [
                 'driver'   => defined('MP_DBDRIVER') ? MP_DBDRIVER : 'mysql',
                 'hostname' => defined('MP_DBHOST') ? MP_DBHOST : 'localhost',
@@ -63,7 +65,22 @@ class FinalizeController
                 throw new \Exception("Impossible d'établir la connexion PDO. Le fichier config.php est mal généré.");
             }
 
-            // 3. Exécution du fichier SQL d'installation
+            // SÉCURITÉ 2 : ANTI-TAKEOVER avec QueryBuilder
+            try {
+                $qbCheck = new QueryBuilder();
+                $qbCheck->select('COUNT(*)')->from('mc_admin_employee');
+
+                $stmtCheck = $pdo->prepare($qbCheck->getSql());
+                $stmtCheck->execute($qbCheck->getParams());
+
+                if ($stmtCheck->fetchColumn() > 0) {
+                    throw new \Exception("Une tentative de réinstallation a été bloquée : Un administrateur existe déjà dans cette base de données.");
+                }
+            } catch (\PDOException $e) {
+                // Table inexistante
+            }
+
+            // Exécution du fichier SQL d'installation
             $sqlFile = ROOT_DIR . BASEINSTALL . DS . 'sql' . DS . 'install.sql';
             if (!file_exists($sqlFile)) {
                 throw new \Exception("Le fichier install.sql est introuvable dans le dossier : " . $sqlFile);
@@ -79,39 +96,44 @@ class FinalizeController
                 }
             }
 
-            // 4. Mise à jour du nom du site
+            // Mise à jour du nom du site
             $qbInfo = new QueryBuilder();
             $qbInfo->update('mc_company_info', ['value_info' => $siteName])
                 ->where('name_info = "name"');
             $db->update($qbInfo->getSql(), $qbInfo->getParams());
 
-            // =================================================================
-            // 🟢 NOUVEAU : CRÉATION DU SUPER ADMIN ET ATTRIBUTION DU RÔLE
-            // =================================================================
-
+            // NETTOYAGE DES TABLES ADMIN avec QueryBuilder
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $keyuniqid = md5(uniqid((string)microtime(true), true));
 
-            // Par précaution, on nettoie la table de liaison au cas où le fichier SQL
-            // contiendrait un INSERT résiduel, pour éviter un doublon de clé primaire.
-            $db->exec("DELETE FROM mc_admin_access_rel");
-            $db->exec("DELETE FROM mc_admin_employee");
+            $qbDelRel = new QueryBuilder();
+            $qbDelRel->delete('mc_admin_access_rel');
 
-            // A) Insertion de l'utilisateur
+            // Layer devrait avoir une méthode delete(). Si ce n'est pas le cas,
+            // vous pouvez utiliser $pdo->prepare()->execute() comme pour le SELECT.
+            $stmtDelRel = $pdo->prepare($qbDelRel->getSql());
+            $stmtDelRel->execute($qbDelRel->getParams());
+
+            $qbDelEmp = new QueryBuilder();
+            $qbDelEmp->delete('mc_admin_employee');
+            $stmtDelEmp = $pdo->prepare($qbDelEmp->getSql());
+            $stmtDelEmp->execute($qbDelEmp->getParams());
+
+            // Insertion de l'utilisateur
             $qbAdmin = new QueryBuilder();
             $qbAdmin->insert('mc_admin_employee', [
-                'id_admin'        => 1, // On force l'ID 1
+                'id_admin'        => 1,
                 'keyuniqid_admin' => $keyuniqid,
                 'title_admin'     => 'm',
                 'firstname_admin' => $firstName,
                 'lastname_admin'  => $lastName,
                 'email_admin'     => $email,
                 'passwd_admin'    => $hash,
-                'active_admin'    => 1 // Le compte est actif immédiatement
+                'active_admin'    => 1
             ]);
             $db->insert($qbAdmin->getSql(), $qbAdmin->getParams());
 
-            // B) Attribution du rôle (id_admin = 1 -> id_role = 1)
+            // Attribution du rôle
             $qbRole = new QueryBuilder();
             $qbRole->insert('mc_admin_access_rel', [
                 'id_admin' => 1,
@@ -119,26 +141,25 @@ class FinalizeController
             ]);
             $db->insert($qbRole->getSql(), $qbRole->getParams());
 
-            // =================================================================
-            // 🟢 CRÉATION DU DOMAINE PRINCIPAL (SANS LIAISON LANGUE)
-            // =================================================================
+            // NETTOYAGE ET CRÉATION DU DOMAINE PRINCIPAL avec QueryBuilder
+            $qbDelDomain = new QueryBuilder();
+            $qbDelDomain->delete('mc_domain');
+            $stmtDelDomain = $pdo->prepare($qbDelDomain->getSql());
+            $stmtDelDomain->execute($qbDelDomain->getParams());
 
-            // Nettoyage de la table des domaines pour partir sur une base saine
-            $db->exec("DELETE FROM mc_domain");
-
-            // Insertion du domaine racine
             $qbDomain = new QueryBuilder();
             $qbDomain->insert('mc_domain', [
-                'id_domain'        => 1, // On force l'ID 1 pour la cohérence système
+                'id_domain'        => 1,
                 'url_domain'       => $urlDomain,
-                'default_domain'   => 1, // C'est le domaine par défaut du CMS
-                'canonical_domain' => 1  // C'est l'URL de référence pour le SEO
+                'default_domain'   => 1,
+                'canonical_domain' => 1
             ]);
-
             $db->insert($qbDomain->getSql(), $qbDomain->getParams());
-            // =================================================================
 
-            // 6. Affichage du succès
+            // Génération du verrou
+            $lockFile = ROOT_DIR . BASEINSTALL . DS . 'install.lock';
+            file_put_contents($lockFile, date('Y-m-d H:i:s') . ' - Magix CMS 4 installé avec succès par ' . $email);
+
             $this->view->assign([
                 'step'      => 4,
                 'site_name' => $siteName,
