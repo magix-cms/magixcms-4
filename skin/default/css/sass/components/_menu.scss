@@ -33,21 +33,61 @@
     }
 
     // d. Esthétique des liens principaux (NETTOYÉ DES DOUBLONS)
-    .nav-link {
-      font-weight: 500;
-      padding: 1rem 1.5rem;
+    // 🟢 AJOUT : On cible uniquement les enfants directs pour ne pas toucher aux sous-menus complexes
+    > .nav-item {
+      > .nav-link {
 
-      // Le lien lit la variable forcée par le Centre de Contrôle du #header
-      color: var(--bs-navbar-color);
-      transition: color 0.2s;
+        // Le lien lit la variable forcée par le Centre de Contrôle du #header
+        color: var(--color-text);
+        transition: color 0.2s;
 
-      &:hover, &.active {
-        color: var(--bs-navbar-hover-color);
+        // 🟢 AJOUT : Structure du span pour l'effet de soulignement centré
+        span {
+          position: relative;
+          padding-bottom: calc(var(--spacer) / 2); // Équivalent de calc(var(--spacer) / 2)
+
+          &::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%) scaleX(0);
+            transform-origin: 50% 50%;
+            width: 100%;
+            height: 2px;
+            background-color: var(--main-color); // Remplacement de @gold-color
+            transition: transform 250ms ease-in-out;
+          }
+        }
+
+        &:hover, &.active {
+          color: var(--main-color);
+
+          // 🟢 AJOUT : Déclenchement de l'animation au survol ou si actif
+          span::after {
+            transform: translateX(-50%) scaleX(1);
+          }
+        }
       }
     }
-
+    .nav-item{}
     .nav-link.dropdown-toggle::after {
       display: none !important;
+    }
+    .dropdown-menu {
+      background-color: var(--bs-dropdown-bg);
+      color: var(--color-text);
+      .dropdown-item {
+        &:hover, &.active {
+          background-color: var(--bs-dropdown-link-hover-bg);
+          color: var(--main-color);
+        }
+      }
+    }
+    .dropdown-hover:hover {
+      > .dropdown-menu{
+
+      }
     }
   }
 

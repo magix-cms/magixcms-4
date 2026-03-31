@@ -23,7 +23,7 @@
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-body-secondary profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     {* Avatar dynamique avec les initiales de l'utilisateur *}
-                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-weight: bold; font-size: 0.9rem;">
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
                         {if isset($current_user.firstname_admin)}
                             {$current_user.firstname_admin|substr:0:1|upper}{$current_user.lastname_admin|substr:0:1|upper}
                         {else}

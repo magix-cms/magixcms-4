@@ -41,41 +41,32 @@ abstract class BaseController
         $this->logger = Logger::getInstance();
         $this->json = new JSON();
 
-        // 🟢 1. On charge les paramètres globaux (mc_setting) AVANT la session
         $this->initSettings();
 
-        // 🟢 2. Détection du SSL depuis les paramètres chargés
         $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
         $isSslActive = ($isSsl === 1);
 
-        // 🟢 3. Initialisation de la session Magepattern AVEC la détection SSL
         $this->session = new Session($isSslActive);
 
-        // 4. Hook manager et Plugins
         static $pluginsLoaded = false;
 
         if (!$pluginsLoaded) {
             if (class_exists('\App\Component\Hook\HookManager')) {
-                // Le hook CLASSIQUE
                 $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'smartyHook']);
 
-                // Le hook D'ÉVÉNEMENT
                 $this->view->registerPlugin('function', 'event', function(array $params, $template) {
                     return HookManager::exec($params);
                 });
             }
 
-            // On démarre les plugins Magix
             $this->bootPlugins();
 
             $pluginsLoaded = true;
         }
 
-        // 5. La suite des initialisations
         $this->initSiteUrl();
         $this->initSkin();
 
-        // VÉRIFICATION DE LA MAINTENANCE
         $this->checkMaintenanceMode();
 
         $this->initLanguage();
@@ -102,14 +93,11 @@ abstract class BaseController
 
         foreach ($menuTree as &$item) {
 
-            // 🟢 1. SÉCURISATION DU LIEN PARENT (Niveau 1)
-            // On corrige les liens plugins ou custom (ex: /contact/) sans toucher aux liens déjà formatés
             $urlLink = (string)($item['url_link'] ?? '');
 
             if (!empty($urlLink) && !str_starts_with($urlLink, 'http') && $urlLink !== '#') {
-                $urlLink = '/' . ltrim($urlLink, '/'); // Assure qu'on commence par un seul slash
+                $urlLink = '/' . ltrim($urlLink, '/');
 
-                // Si l'URL ne commence pas DÉJÀ par la langue (ex: /fr/), on l'ajoute !
                 if (!str_starts_with($urlLink, "/{$isoLang}/") && $urlLink !== "/{$isoLang}") {
                     $item['url_link'] = "/{$isoLang}{$urlLink}";
                 } else {
@@ -117,12 +105,10 @@ abstract class BaseController
                 }
             }
 
-            // 2. ON TRAITE LES ENFANTS (Niveau 2+) SI DROPDOWN/MEGA
             if (isset($item['mode_link']) && in_array($item['mode_link'], ['dropdown', 'mega'])) {
                 $type = $item['type_link'] ?? '';
                 $idPageTarget = (int)($item['id_page'] ?? 0);
 
-                // --- MODULE PAGES ---
                 if ($type === 'pages' && $idPageTarget > 0) {
                     $subData = $menuDb->getSubPages($idPageTarget, $idLang);
                     foreach ($subData as &$sub) {
@@ -135,7 +121,6 @@ abstract class BaseController
                     }
                     $item['subdata'] = $subData;
                 }
-                // --- MODULE ABOUT ---
                 elseif ($type === 'about_page' && $idPageTarget > 0) {
                     $subData = $menuDb->getSubAbout($idPageTarget, $idLang);
                     foreach ($subData as &$sub) {
@@ -148,7 +133,6 @@ abstract class BaseController
                     }
                     $item['subdata'] = $subData;
                 }
-                // --- MODULE CATALOGUE (CATEGORIES) ---
                 elseif ($type === 'category' && $idPageTarget > 0) {
                     $subData = $menuDb->getSubCategories($idPageTarget, $idLang);
                     foreach ($subData as &$sub) {
@@ -164,6 +148,9 @@ abstract class BaseController
             }
         }
         unset($item);
+
+        $currentUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+        $this->markActiveTrail($menuTree, $currentUrl, $isoLang);
 
         $this->view->assign('menuData', $menuTree);
         $this->view->assign('active_link', ['controller' => '', 'ids' => []]);
@@ -519,6 +506,50 @@ abstract class BaseController
             // Sécurité : on s'assure que la variable est à false en temps normal
             $this->view->assign('admin_maintenance_warning', false);
         }
+    }
+
+    /**
+     * Parcours récursivement l'arbre du menu pour définir 'active' = true
+     * sur le lien courant ET sur tous ses parents (Active Trail).
+     */
+    private function markActiveTrail(array &$items, string $currentUrl, string $isoLang): bool
+    {
+        $hasActiveChild = false;
+
+        foreach ($items as &$item) {
+            $item['active'] = false; // Initialisation par défaut
+            $linkUrl = $item['url_link'] ?? '';
+
+            $isMatch = false;
+
+            // On compare les URLs (en ignorant le slash de fin pour éviter les faux négatifs)
+            if ($linkUrl === $currentUrl || rtrim($linkUrl, '/') === rtrim($currentUrl, '/')) {
+                // Règle stricte pour la page d'accueil (pour éviter qu'elle ne soit active partout)
+                $homeUrls = ['/', "/{$isoLang}", "/{$isoLang}/"];
+                if (!in_array($linkUrl, $homeUrls) || in_array($currentUrl, $homeUrls)) {
+                    $isMatch = true;
+                }
+            }
+
+            // Si c'est le lien exact
+            if ($isMatch) {
+                $item['active'] = true;
+                $hasActiveChild = true;
+            }
+
+            // Si l'élément possède un sous-menu, on plonge dedans !
+            if (!empty($item['subdata'])) {
+                // L'appel récursif nous dira si un des enfants (ou petits-enfants) est actif
+                $childIsActive = $this->markActiveTrail($item['subdata'], $currentUrl, $isoLang);
+
+                if ($childIsActive) {
+                    $item['active'] = true; // LA MAGIE EST ICI : Le parent s'allume !
+                    $hasActiveChild = true;
+                }
+            }
+        }
+
+        return $hasActiveChild; // On prévient le niveau supérieur
     }
     /**
      * Envoie une réponse JSON proprement formatée et arrête le script.

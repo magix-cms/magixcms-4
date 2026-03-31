@@ -116,6 +116,11 @@
                                     <input class="form-check-input" type="checkbox" name="company[crypt_mail]" value="1" {if $company_data.crypt_mail|default:'1' == '1'}checked{/if}>
                                     <label class="form-check-label text-muted">Crypter l'email sur le site (Anti-spam)</label>
                                 </div>
+                                <div class="form-check form-switch mt-2 small">
+                                    <input type="hidden" name="company[click_to_mail]" value="0">
+                                    <input class="form-check-input" type="checkbox" name="company[click_to_mail]" value="1" {if $company_data.click_to_mail|default:'1' == '1'}checked{/if}>
+                                    <label class="form-check-label text-muted">Clique sur l'email</label>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Téléphone</label>

@@ -36,7 +36,8 @@
   }
 
   @include media-breakpoint-up(md) {
-    .dropdown{
+    // On cible les dropdowns, SAUF s'ils sont aussi des éléments de navigation
+    .dropdown:not(.nav-item) {
       margin-left: var(--spacer);
     }
   }

@@ -27,6 +27,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.ico-m {
+  &:before {
+    content: $ico-m;
+    color: #fff;
+  }
+}
 .ico-dailymotion {
   &:before {
     content: $ico-dailymotion;
@@ -112,11 +118,6 @@
     content: $ico-disk;
   }
 }
-.ico-file_downloadget_app {
-  &:before {
-    content: $ico-file_downloadget_app;
-  }
-}
 .ico-fullscreen {
   &:before {
     content: $ico-fullscreen;
@@ -175,11 +176,6 @@
 .ico-phone {
   &:before {
     content: $ico-phone;
-  }
-}
-.ico-redeemcard_giftcard {
-  &:before {
-    content: $ico-redeemcard_giftcard;
   }
 }
 .ico-remove {

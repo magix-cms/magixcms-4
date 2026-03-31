@@ -20596,6 +20596,11 @@ textarea.form-control-lg {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.ico-m:before {
+  content: "\e939";
+  color: #fff;
+}
+
 .ico-dailymotion:before {
   content: "\e938";
 }
@@ -20664,10 +20669,6 @@ textarea.form-control-lg {
   content: "\e904";
 }
 
-.ico-file_downloadget_app:before {
-  content: "\e939";
-}
-
 .ico-fullscreen:before {
   content: "\e903";
 }
@@ -20714,10 +20715,6 @@ textarea.form-control-lg {
 
 .ico-phone:before {
   content: "\e92b";
-}
-
-.ico-redeemcard_giftcard:before {
-  content: "\e93a";
 }
 
 .ico-remove:before {
@@ -22976,9 +22973,10 @@ textarea.form-control-lg {
   background-color: rgba(0, 0, 0, 0.05);
 }
 #topbar .avatar {
-  width: 36px;
-  height: 36px;
-  font-size: 1.2rem;
+  width: 35px;
+  height: 35px;
+  font-size: 0.9rem;
+  font-weight: bold;
 }
 #topbar .profile-dropdown::after {
   margin-left: 0.5rem;

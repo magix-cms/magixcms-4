@@ -23,9 +23,10 @@
 
   // --- Avatar du Profil ---
   .avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 1.2rem;
+    width: 35px;
+    height: 35px;
+    font-size: .9rem;//1.2rem;
+    font-weight: bold;
   }
 
   // On nettoie la flèche par défaut du dropdown Bootstrap
