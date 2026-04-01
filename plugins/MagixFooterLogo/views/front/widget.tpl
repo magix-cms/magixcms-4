@@ -1,5 +1,5 @@
 {* Fichier : plugins/MagixFooterLogo/views/front/widget.tpl *}
-<div id="footerlogo" class="col-12 col-md-6 col-lg-4 mb-4">
+<div class="widget-footerlogo mb-4">
     {if !empty($logoFooter)}
         <a href="{$base_url}" class="d-inline-block mb-4">
             <img src="{$logoFooter.img.adaptive.src|default:$logoFooter.img.original.src}"

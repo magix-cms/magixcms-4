@@ -10,50 +10,66 @@ use App\Frontend\Db\CompanyDb;
 
 class FrontendController
 {
+    /**
+     * Méthode appelée par défaut par le HookManager (Priorité B)
+     */
     public static function renderWidget(array $params = []): string
     {
+        // =========================================================
+        // 🟢 1. L'AIGUILLAGE INTELLIGENT
+        // On regarde quel Hook est en train d'appeler ce module
+        // =========================================================
+        $hookName = $params['name'] ?? '';
+
+        // Si le nom du hook commence par 'displayFooterCol', on redirige vers le design Footer
+        if (str_starts_with($hookName, 'displayFooterCol')) {
+            return self::renderFooterWidget($params);
+        }
+
+        // =========================================================
+        // 🟢 2. SINON, RENDU NORMAL (Ex: Page d'accueil - displayHome)
+        // =========================================================
         $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
         $idLang = (int)$currentLang['id_lang'];
         $siteUrl = $params['site_url'] ?? 'http://localhost';
 
-        // 1. On instancie le moteur central des News
+        // On instancie le moteur central des News
         $newsDb = new NewsDb();
 
-        // 2. On récupère le tableau complet (items + pagination)
+        // On récupère le tableau complet (items + pagination)
         $dbResult = $newsDb->getNewsList($idLang, [
             'limit' => 3 // Je ne veux que les 3 dernières !
         ]);
 
-        // 🟢 LA CORRECTION EST ICI : On extrait uniquement les articles (items)
+        // On extrait uniquement les articles (items)
         $rawNews = $dbResult['items'] ?? [];
 
         if (empty($rawNews)) {
             return ''; // S'il n'y a pas de news, on n'affiche rien
         }
 
-        // 3. Formatage via le Presenter universel
+        // Formatage via le Presenter universel
         $lastNews = [];
-
-        // 🟢 (Optionnel) : Si votre NewsPresenter a besoin des infos de l'entreprise
         $companyDb = new CompanyDb();
         $companyInfo = $companyDb->getCompanyInfo();
 
         foreach ($rawNews as $row) {
-            // J'ai rajouté $companyInfo ici pour correspondre à la signature de votre Presenter si vous l'avez modifiée
             $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
-
             // Récupérer les tags pour le widget
             $formatted['tags'] = $newsDb->getNewsTags((int)$formatted['id'], $idLang);
-
             $lastNews[] = $formatted;
         }
 
-        // 4. Envoi à Smarty
+        // Envoi à Smarty
         $view = SmartyTool::getInstance('front');
         $view->assign('last_news', $lastNews);
 
         return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget.tpl');
     }
+
+    /**
+     * Méthode spécifique pour le Footer
+     */
     public static function renderFooterWidget(array $params = []): string
     {
         $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
@@ -80,10 +96,7 @@ class FrontendController
         foreach ($rawNews as $row) {
             // Utilisation de votre Presenter pour un formatage parfait et sécurisé
             $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
-
-            // Note : On peut ignorer la requête des tags ici pour gagner en performance,
-            // vu qu'on ne les affichera probablement pas dans le petit espace du footer.
-
+            // Note : On a ignoré les tags ici pour la performance (non nécessaires dans le footer)
             $footerNews[] = $formatted;
         }
 

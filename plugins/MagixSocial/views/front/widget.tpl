@@ -1,4 +1,4 @@
-<div class="col-12 col-md-6 col-lg-4 mb-4">
+<div class="widget-social mb-4">
     <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Suivez-nous</h5>
 
     <div class="d-flex flex-wrap gap-3">

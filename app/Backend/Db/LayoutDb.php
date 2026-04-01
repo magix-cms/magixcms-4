@@ -11,7 +11,8 @@ class LayoutDb extends BaseDb
     public function getAllHooks(): array|false
     {
         $qb = new QueryBuilder();
-        $qb->select(['*'])->from('mc_hook')->orderBy('name', 'ASC');
+        // 🟢 On remplace 'name' par 'position'
+        $qb->select(['*'])->from('mc_hook')->orderBy('position', 'ASC');
         return $this->executeAll($qb);
     }
 

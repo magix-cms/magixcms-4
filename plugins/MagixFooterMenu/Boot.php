@@ -11,16 +11,16 @@ class Boot
 {
     public function register(): void
     {
-        HookManager::register(
+        /*HookManager::register(
             'displayFooter',
             'MagixFooterMenu',
             [$this, 'hookDisplayFooter']
-        );
+        );*/
     }
 
-    public function hookDisplayFooter(): string
+    /*public function hookDisplayFooter(): string
     {
         $view = SmartyTool::getInstance('front');
         return $view->fetch(ROOT_DIR . 'plugins/MagixFooterMenu/views/front/widget.tpl');
-    }
+    }*/
 }

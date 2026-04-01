@@ -33,21 +33,37 @@ class LayoutController extends BaseController
     {
         $view = SmartyTool::getInstance('admin');
         $hooks = $this->layoutDb->getAllHooks() ?: [];
-        $fullLayout = [];
+
+        // 🟢 NOUVEAU : On prépare nos catégories
+        $groupedLayout = [
+            'Accueil'               => [],
+            'Général & Pages'       => [],
+            'Pied de page (Footer)' => []
+        ];
 
         foreach ($hooks as $hook) {
-            $fullLayout[] = [
+            $hookName = $hook['name'];
+            $zoneData = [
                 'info' => $hook,
                 'items' => $this->layoutDb->getItemsByHook((int)$hook['id_hook']) ?: []
             ];
+
+            // 🟢 AIGUILLAGE PAR CATÉGORIE
+            if (str_contains($hookName, 'Home')) {
+                $groupedLayout['Accueil'][] = $zoneData;
+            } elseif (str_contains($hookName, 'Footer')) {
+                $groupedLayout['Pied de page (Footer)'][] = $zoneData;
+            } else {
+                $groupedLayout['Général & Pages'][] = $zoneData;
+            }
         }
 
-        // 🟢 NOUVEAU : On récupère la liste des plugins disponibles
         $availablePlugins = $this->getAvailablePlugins();
 
         $view->assign([
-            'layout'           => $fullLayout,
-            'availablePlugins' => $availablePlugins, // 🟢 Assignation à Smarty
+            'layout_groups'    => $groupedLayout, // 🟢 Nouvelle variable
+            'layout'           => $hooks,         // On garde ça pour le select "Zone de destination"
+            'availablePlugins' => $availablePlugins,
             'hashtoken'        => $this->session->getToken()
         ]);
 

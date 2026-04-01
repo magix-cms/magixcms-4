@@ -6,6 +6,6 @@
   "type": "widget",
   "has_config": false,
   "default_hooks": [
-    "displayFooter"
+    "displayFooterColLeft"
   ]
 }

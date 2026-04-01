@@ -6,6 +6,6 @@
   "type": "hybrid",
   "has_config": true,
   "default_hooks": [
-    "displayFooter"
+    "displayFooterColRight"
   ]
 }

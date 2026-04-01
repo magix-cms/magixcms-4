@@ -14,9 +14,44 @@ use Magepattern\Component\HTTP\Request;
 
 class FrontendController extends BaseController
 {
+    // =================================================================
+    // 🟢 1. LE MOTEUR DE HOOKS INTELLIGENT (Priorité B)
+    // =================================================================
+    public static function renderWidget(array $params = []): string
+    {
+        $hookName = $params['name'] ?? '';
+
+        // Aiguillage A : WIDGET FOOTER (Pour les 3 colonnes)
+        if (str_starts_with($hookName, 'displayFooterCol')) {
+            return self::renderFooterWidget($params);
+        }
+
+        // Aiguillage B : WIDGET COLONNE DE GAUCHE
+        if ($hookName === 'displayLeftColumn') {
+            return self::renderLeftColumnWidget($params);
+        }
+
+        return '';
+    }
+
+    public static function renderFooterWidget(array $params = []): string
+    {
+        $view = SmartyTool::getInstance('front');
+        return $view->fetch(ROOT_DIR . 'plugins/Contact/views/front/hooks/footer_company.tpl');
+    }
+
+    public static function renderLeftColumnWidget(array $params = []): string
+    {
+        $view = SmartyTool::getInstance('front');
+        return $view->fetch(ROOT_DIR . 'plugins/Contact/views/front/hooks/left_company.tpl');
+    }
+
+    // =================================================================
+    // 🟢 2. LE CONTRÔLEUR CLASSIQUE DE LA PAGE DE CONTACT
+    // (Votre code existant reste strictement inchangé ci-dessous)
+    // =================================================================
     public function run(): void
     {
-        // 🟢 On utilise bien 'front' (le nom officiel de l'instance du CMS)
         SmartyTool::addTemplateDir('front', ROOT_DIR . 'plugins' . DS . 'Contact' . DS . 'views' . DS . 'front');
 
         $action = $_GET['action'] ?? 'index';
@@ -78,23 +113,17 @@ class FrontendController extends BaseController
             $this->jsonResponse(false, 'L\'adresse e-mail fournie est invalide.');
         }
 
-        // =================================================================
-        // 🟢 INTÉGRATION GOOGLE RECAPTCHA (Couplage faible)
-        // =================================================================
         $isHuman = true;
 
         if (class_exists('\Plugins\GoogleRecaptcha\src\FrontendController')) {
             $recaptcha = new \Plugins\GoogleRecaptcha\src\FrontendController();
-            // On vérifie le jeton spécifiquement pour le module 'contact'
             $isHuman = $recaptcha->verify('contact');
         }
 
         if (!$isHuman) {
             $this->jsonResponse(false, 'Erreur de sécurité : Validation reCAPTCHA échouée. Veuillez réessayer.');
         }
-        // =================================================================
 
-        // Si on arrive ici, c'est un humain valide, on continue le script !
         $idContact = (int)($msg['id_contact'] ?? 0);
         $db = new ContactFrontDb();
         $idLang = (int)$this->currentLang['id_lang'];
@@ -102,14 +131,11 @@ class FrontendController extends BaseController
         $recipients = [];
 
         if ($idContact > 0) {
-            // OPTION A : Un service spécifique a été choisi (le dropdown est présent)
             $recipientEmail = $db->getContactEmail($idContact);
             if (!empty($recipientEmail)) {
                 $recipients[$recipientEmail] = 'Service Web';
             }
         } else {
-            // OPTION B : Aucun service choisi (le dropdown a été supprimé du TPL)
-            // On récupère TOUS les contacts actifs et on les ajoute à la liste d'envoi
             $activeContacts = $db->getActiveContacts($idLang);
             foreach ($activeContacts as $contact) {
                 $email = $db->getContactEmail((int)$contact['id_contact']);
@@ -120,12 +146,10 @@ class FrontendController extends BaseController
             }
         }
 
-        // Sécurité : Vérifier s'il y a au moins un destinataire valide
         if (empty($recipients)) {
             $this->jsonResponse(false, 'Aucun service de contact n\'est actuellement disponible pour recevoir votre message.');
         }
 
-        // Configuration mail depuis les Settings globaux du site
         $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
         $type = $isSmtp ? 'smtp' : 'mail';
 
@@ -141,10 +165,8 @@ class FrontendController extends BaseController
         $msg['content'] = nl2br((string)$msg['content']);
         $subject = $msg['subject'] ?? 'Demande de contact';
 
-        // L'expéditeur officiel du site
         $sender = !empty($this->siteSettings['mail_sender']['value']) ? $this->siteSettings['mail_sender']['value'] : (string)$msg['email'];
 
-        // 🟢 On passe le tableau $recipients qui contient soit 1, soit N adresses !
         $sent = $mailer->sendTemplate(
             'front',
             'emails/message.tpl',

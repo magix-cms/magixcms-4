@@ -11,6 +11,6 @@
   },
   "default_hooks": [
     "displayHome",
-    "displayFooter"
+    "displayFooterColLeft"
   ]
 }

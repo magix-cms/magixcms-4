@@ -518,23 +518,27 @@ CREATE TABLE IF NOT EXISTS `mc_home_page_content` (
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `mc_hook` (
-    `id_hook` int UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` varchar(64) NOT NULL,
+                                         `id_hook` int UNSIGNED NOT NULL AUTO_INCREMENT,
+                                         `name` varchar(64) NOT NULL,
     `title` varchar(128) NOT NULL,
-    `description` text COLLATE utf8mb4_unicode_ci,
+    `description` text,
+    `position` int UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_hook`),
     UNIQUE KEY `idx_hook_name` (`name`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`) VALUES
-(1, 'displayHomeTop', 'Haut de page (Accueil)', 'Zone située juste sous le slider ou le header'),
-(2, 'displayHomeBottom', 'Bas de page (Accueil)', 'Zone pour les produits phares ou réassurance'),
-(3, 'displayFooter', 'Pied de page', 'Zone pour les widgets du footer'),
-(4, 'displayLeftColumn', 'Colonne de gauche', 'Utilisée sur les pages catégories ou CMS'),
-(5, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes du footer (idéal pour les liens légaux ou le copyright).'),
-(6,'displayPageBottom', 'Bas de page (CMS)', 'Zone située sous le contenu principal des pages'),
-(7,'displayProductExtraContent', 'Contenu supplémentaire (Produit)', 'Zone pour les blocs de texte sur la fiche produit'),
-(8,'displayCategoryBottom', 'Bas de page (Catégorie)', 'Idéal pour le contenu SEO en bas de liste');
+INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`, `position`) VALUES
+(1, 'displayHomeTop', 'Haut de page (Accueil)', 'Zone située juste sous le slider ou le header', 1),
+(2, 'displayHomeBottom', 'Bas de page (Accueil)', 'Zone pour les produits phares ou réassurance', 2),
+(3, 'displayLeftColumn', 'Colonne de gauche', 'Utilisée sur les pages catégories ou CMS', 3),
+(4, 'displayPageBottom', 'Bas de page (CMS)', 'Zone située sous le contenu principal des pages', 4),
+(5, 'displayCategoryBottom', 'Bas de page (Catégorie)', 'Idéal pour le contenu SEO en bas de liste', 5),
+(6, 'displayProductExtraContent', 'Contenu supplémentaire (Produit)', 'Zone pour les blocs de texte sur la fiche produit', 6),
+(7, 'displayFooter', 'Pied de page (Global)', 'Zone pour les widgets du footer (Pleine largeur)', 7),
+(8, 'displayFooterColLeft', 'Pied de page - Gauche', 'Colonne de gauche du footer (ex: Réseaux sociaux)', 8),
+(9, 'displayFooterColCenter', 'Pied de page - Centre', 'Colonne centrale du footer (ex: Menu rapide)', 9),
+(10, 'displayFooterColRight', 'Pied de page - Droite', 'Colonne de droite du footer (ex: Dernières actualités)', 10),
+(11, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes', 11);
 
 CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `id_item` int UNSIGNED NOT NULL AUTO_INCREMENT,

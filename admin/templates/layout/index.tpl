@@ -3,40 +3,107 @@
 {block name='head:title'}Mise en page & Hooks{/block}
 
 {block name='article'}
+    {* --- EN-TÊTE AVEC BOUTON D'ACTION --- *}
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <h1 class="h2 mb-0"><i class="bi bi-layout-three-columns me-2 text-muted"></i>Gestion de la mise en page</h1>
+
+        {* Bouton qui déclenche la modal d'ajout *}
+        <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAddWidget">
+            <i class="bi bi-plus-circle me-2"></i>Greffer un widget
+        </button>
     </div>
 
-    <div class="row g-4">
-        {* --- COLONNE GAUCHE : FORMULAIRE D'AJOUT --- *}
-        <div class="col-md-5 col-xl-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Greffer un widget</h5>
+    {* --- GRILLE DES ZONES (HOOKS) GROUPÉES --- *}
+    {if isset($layout_groups)}
+        {foreach $layout_groups as $groupName => $zones}
+            {if !empty($zones)}
+
+                {* Titre de la catégorie *}
+                <h5 class="mt-4 mb-3 fw-bold text-secondary border-bottom pb-2">
+                    <i class="bi bi-collection me-2"></i>{$groupName}
+                </h5>
+
+                {* Grille spécifique à cette catégorie *}
+                <div class="row g-4 mb-4">
+                    {foreach $zones as $zone}
+                        {* On détecte si c'est une zone "Colonne" ou "Pleine largeur" *}
+                        {if $zone.info.name|strpos:"Col" !== false || $zone.info.name == 'displayLeftColumn'}
+                            {assign var="gridClass" value="col-12 col-md-6 col-xl-4"}
+                        {else}
+                            {assign var="gridClass" value="col-12"}
+                        {/if}
+
+                        <div class="{$gridClass}">
+                            <div class="card h-100 border-0 shadow-sm">
+
+                                <div class="card-header bg-white py-3 border-bottom-0 d-flex align-items-center">
+                                    <i class="bi bi-pin-angle-fill text-primary me-2"></i>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark text-uppercase">{$zone.info.title}</h6>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{$zone.info.name}</small>
+                                    </div>
+                                </div>
+
+                                <div class="card-body bg-light rounded-bottom pt-2">
+                                    <ul class="list-group shadow-sm sortable-list" data-hook="{$zone.info.id_hook}" style="min-height: 60px; background: #fff; border-radius: .25rem;">
+                                        {if empty($zone.items)}
+                                            <li class="list-group-item text-muted small fst-italic bg-white opacity-75 empty-placeholder no-sort border-dashed text-center py-3">
+                                                Aucun widget greffé.
+                                                <br><span style="font-size: 0.75rem;">Glissez un widget ici.</span>
+                                            </li>
+                                        {else}
+                                            {foreach $zone.items as $item}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center border-start border-4 {if $item.active}border-success{else}border-warning{/if} py-2" data-id="{$item.id_item}">
+
+                                                    <div class="d-flex align-items-center text-truncate pe-2">
+                                                        <i class="bi bi-grip-vertical text-muted me-2 drag-handle" style="cursor:move; font-size: 1.2rem;"></i>
+                                                        <span class="fw-bold text-truncate {if !$item.active}text-muted text-decoration-line-through{/if}" style="font-size: 0.9rem;" title="{$item.module_name}">
+                                                            {$item.module_name}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="btn-group btn-group-sm flex-shrink-0">
+                                                        <a href="?controller=layout&action=toggle&id={$item.id_item}" class="btn {if $item.active}btn-light text-success{else}btn-light text-warning{/if} border ajax-link px-2" title="Activer/Désactiver">
+                                                            <i class="bi bi-power"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-white text-danger border btn-delete-item px-2" data-id="{$item.id_item}" title="Débrancher">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+
+                                                </li>
+                                            {/foreach}
+                                        {/if}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {/foreach}
                 </div>
-                <div class="card-body">
+            {/if}
+        {/foreach}
+    {/if}
+
+    {* --- MODAL 1 : AJOUTER UN WIDGET --- *}
+    <div class="modal fade" id="modalAddWidget" tabindex="-1" aria-labelledby="modalAddWidgetLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="modalAddWidgetLabel"><i class="bi bi-plus-circle text-primary me-2"></i>Greffer un widget</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
                     <form class="validate_form add_form" action="index.php?controller=layout&action=add" method="post">
                         <input type="hidden" name="hashtoken" value="{$hashtoken}">
 
-                        <div class="mb-3">
-                            <label for="id_hook" class="form-label fw-bold small">Zone de destination (Hook)</label>
-                            <select name="id_hook" id="id_hook" class="form-select" required>
-                                <option value="">-- Choisir une zone --</option>
-                                {foreach $layout as $zone}
-                                    <option value="{$zone.info.id_hook}">{$zone.info.title} ({$zone.info.name})</option>
-                                {/foreach}
-                            </select>
-                        </div>
-
                         <div class="mb-4">
-                            <label for="module_name" class="form-label fw-bold small">Widget / Plugin à greffer</label>
-                            <select name="module_name" id="module_name" class="form-select" required>
+                            <label for="module_name" class="form-label fw-bold small text-muted text-uppercase">1. Widget / Plugin</label>
+                            <select name="module_name" id="module_name" class="form-select form-select-lg" required>
                                 <option value="">-- Choisir un widget --</option>
                                 {if isset($availablePlugins) && !empty($availablePlugins)}
                                     {foreach $availablePlugins as $plugin}
                                         <option value="{$plugin.technical_name}">
-                                            {$plugin.display_name}
-                                            {if !empty($plugin.description)} - {$plugin.description|truncate:60}{/if}
+                                            {$plugin.display_name} {if !empty($plugin.description)} ({$plugin.description|truncate:40}){/if}
                                         </option>
                                     {/foreach}
                                 {else}
@@ -45,82 +112,26 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                            <i class="bi bi-plus-circle me-1"></i> Greffer à la zone
+                        <div class="mb-4">
+                            <label for="id_hook" class="form-label fw-bold small text-muted text-uppercase">2. Zone de destination (Hook)</label>
+                            <select name="id_hook" id="id_hook" class="form-select form-select-lg" required>
+                                <option value="">-- Choisir une zone --</option>
+                                {foreach $layout as $zone}
+                                    <option value="{$zone.info.id_hook}">{$zone.info.title}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm mt-2">
+                            Confirmer la greffe
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-
-        {* --- COLONNE DROITE : STRUCTURE AVEC DRAG & DROP --- *}
-        <div class="col-md-7 col-xl-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Zones actives et Widgets</h5>
-                </div>
-                <div class="card-body bg-light">
-                    {if $layout}
-                        {foreach $layout as $zone}
-                            <div class="mb-4">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="bi bi-pin-angle-fill text-primary me-2"></i>
-                                    <span class="fw-bold text-dark text-uppercase small">{$zone.info.title}</span>
-                                </div>
-
-                                {* NOUVEAU : CSS min-height pour pouvoir déposer dans une zone vide *}
-                                <ul class="list-group shadow-sm sortable-list pb-2" data-hook="{$zone.info.id_hook}" style="min-height: 50px; background: #fff; border-radius: .25rem;">
-                                    {if empty($zone.items)}
-                                        <li class="list-group-item text-muted small italic bg-white opacity-75 empty-placeholder no-sort">
-                                            Aucun widget n'est greffé sur cette zone.
-                                        </li>
-                                    {else}
-                                        {foreach $zone.items as $item}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center border-start border-4 {if $item.active}border-success{else}border-warning{/if}" data-id="{$item.id_item}">
-                                                <div class="d-flex align-items-center">
-                                                    <i class="bi bi-grip-vertical text-muted me-2 drag-handle" style="cursor:move; font-size: 1.2rem;"></i>
-                                                    <span class="fw-bold {if !$item.active}text-muted text-decoration-line-through{/if}">
-                                                        {$item.module_name}
-                                                    </span>
-                                                </div>
-
-                                                <div class="btn-group btn-group-sm">
-                                                    {* On désactive le bouton UP si c'est le premier de la liste *}
-                                                    <a href="?controller=layout&action=move&id={$item.id_item}&direction=up"
-                                                       class="btn btn-white border ajax-link {if $item@first}disabled text-muted bg-light{/if}"
-                                                       title="Monter"
-                                                       {if $item@first}tabindex="-1" aria-disabled="true"{/if}>
-                                                        <i class="bi bi-arrow-up"></i>
-                                                    </a>
-
-                                                    {* On désactive le bouton DOWN si c'est le dernier de la liste *}
-                                                    <a href="?controller=layout&action=move&id={$item.id_item}&direction=down"
-                                                       class="btn btn-white border ajax-link {if $item@last}disabled text-muted bg-light{/if}"
-                                                       title="Descendre"
-                                                       {if $item@last}tabindex="-1" aria-disabled="true"{/if}>
-                                                        <i class="bi bi-arrow-down"></i>
-                                                    </a>
-
-                                                    <a href="?controller=layout&action=toggle&id={$item.id_item}" class="btn {if $item.active}btn-light text-success{else}btn-light text-warning{/if} border ajax-link" title="Activer/Désactiver">
-                                                        <i class="bi bi-power"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-white text-danger border btn-delete-item" data-id="{$item.id_item}">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        {/foreach}
-                                    {/if}
-                                </ul>
-                            </div>
-                        {/foreach}
-                    {/if}
-                </div>
-            </div>
-        </div>
     </div>
 
-    {* MODAL DE SUPPRESSION *}
+    {* --- MODAL 2 : SUPPRESSION (Inchangée) --- *}
     <div class="modal fade" id="modalDeleteLayout" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -138,17 +149,12 @@
 {/block}
 
 {block name='javascripts' append}
-    {* 2. Chargement de votre nouvelle classe (Ajustez le chemin selon votre structure) *}
     <script src="templates/js/LayoutManager.min.js"></script>
-
-    {* 3. Instanciation *}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // On vérifie que le token existe et que MagixToast est bien présent
             const tokenInput = document.querySelector('[name="hashtoken"]');
 
             if (tokenInput && typeof MagixToast !== 'undefined') {
-                // On lance la machine !
                 new LayoutManager(tokenInput.value);
             } else {
                 console.error("Erreur d'initialisation : Token manquant ou MagixToast non défini.");

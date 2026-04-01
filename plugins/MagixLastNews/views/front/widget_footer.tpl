@@ -1,8 +1,9 @@
 {* Fichier : plugins/MagixLastNews/views/front/widget_footer.tpl *}
-<div class="col-12 col-md-6 col-lg-4 mb-4">
+<div class="widget-footer-news mb-4"> {* 🟢 Suppression de col-12, ajout de mb-4 *}
     <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">
-        {#footer_news_title#}
+        {#footer_news_title#|default:'Dernières actualités'}
     </h5>
+
     <div class="d-flex flex-column gap-3">
         {if isset($footer_news) && $footer_news|count > 0}
             {foreach $footer_news as $news}

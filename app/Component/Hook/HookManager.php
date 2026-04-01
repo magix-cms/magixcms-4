@@ -65,6 +65,12 @@ class HookManager
      * @param string $hookName
      * @param array $params Variables globales envoyées par Smarty (Langue, URL...)
      */
+    /**
+     * NOUVEAU : 3. MÉTHODE SPÉCIFIQUE FRONTEND (Pilotée par la base de données)
+     * Récupère les plugins assignés à un hook précis et exécute leur rendu.
+     * @param string $hookName
+     * @param array $params Variables globales envoyées par Smarty (Langue, URL...)
+     */
     public static function execFront(string $hookName, array $params = []): string
     {
         if (empty($hookName)) {
@@ -72,16 +78,18 @@ class HookManager
         }
 
         $output = '';
-        $executedPlugins = []; // Pour éviter les doublons
+        $executedPlugins = []; // Liste des plugins gérés par la BDD (actifs ou non)
 
         try {
             // --- 1. RÉCUPÉRATION DE LA CONFIGURATION (Base de données) ---
             $qb = new QueryBuilder();
-            $qb->select(['hi.module_name'])
+            // 🟢 MODIFICATION 1 : On demande aussi la colonne "active"
+            $qb->select(['hi.module_name', 'hi.active'])
                 ->from('mc_hook_item', 'hi')
                 ->join('mc_hook', 'h', 'h.id_hook = hi.id_hook')
                 ->where('h.name = :hook_name', ['hook_name' => $hookName])
-                ->where('hi.active = 1')
+                // 🟢 MODIFICATION 2 : On supprime la ligne `where('hi.active = 1')`
+                // On veut TOUT récupérer pour dire à l'étape 3 de ne pas les forcer
                 ->orderBy('hi.position', 'ASC');
 
             $db = new class extends \App\Frontend\Db\BaseDb {
@@ -96,24 +104,31 @@ class HookManager
             if (!empty($plugins)) {
                 foreach ($plugins as $plugin) {
                     $moduleName = $plugin['module_name'];
+
+                    // 🟢 MODIFICATION 3 : On marque le plugin comme "traité par la BDD"
+                    // Qu'il soit actif ou inactif, cela empêchera l'étape 3 de le ressusciter !
                     $executedPlugins[] = $moduleName;
 
-                    // PRIORITÉ A : Le plugin a un callback enregistré via register()
-                    if (isset(self::$hooks[$hookName][$moduleName])) {
-                        $output .= call_user_func(self::$hooks[$hookName][$moduleName], $params);
-                    }
-                    // PRIORITÉ B : LE RETOUR DU "ELSE" (Convention de nommage automatique)
-                    else {
-                        $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
-                        if (class_exists($className) && method_exists($className, 'renderWidget')) {
-                            $output .= $className::renderWidget($params);
+                    // 🟢 MODIFICATION 4 : On génère l'affichage UNIQUEMENT s'il est actif
+                    if ((int)$plugin['active'] === 1) {
+                        // PRIORITÉ A : Le plugin a un callback enregistré via register()
+                        if (isset(self::$hooks[$hookName][$moduleName])) {
+                            $output .= call_user_func(self::$hooks[$hookName][$moduleName], $params);
+                        }
+                        // PRIORITÉ B : LE RETOUR DU "ELSE" (Convention de nommage automatique)
+                        else {
+                            $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
+                            if (class_exists($className) && method_exists($className, 'renderWidget')) {
+                                $output .= $className::renderWidget($params);
+                            }
                         }
                     }
                 }
             }
 
             // --- 3. EXÉCUTION DES PLUGINS "STATIQUES" (Register() seul, pas en DB) ---
-            // 🟢 C'est ici que MagixMultiText s'affiche même s'il n'est pas dans le Layout
+            // 🟢 Désormais, si un plugin est inactif en BDD, il est présent dans $executedPlugins.
+            // Ce if ne le laissera plus passer !
             if (isset(self::$hooks[$hookName])) {
                 foreach (self::$hooks[$hookName] as $moduleName => $callback) {
                     if (!in_array($moduleName, $executedPlugins)) {
