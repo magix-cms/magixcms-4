@@ -102,11 +102,5 @@ class PagesController extends BaseController
         $this->view->display('pages/index.tpl');
     }
 
-    private function render404(): void
-    {
-        header("HTTP/1.0 404 Not Found");
-        $tpl404 = 'errors/404.tpl';
-        if ($this->view->templateExists($tpl404)) $this->view->display($tpl404);
-        else die("Erreur 404 : Template manquant.");
-    }
+
 }

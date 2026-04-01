@@ -183,7 +183,8 @@ ErrorDocument 500 /index.php?http_error=500
     # 1. EXCLUSIONS IMPORTANTES (Admin, Skin, Uploads)
     RewriteCond %{REQUEST_URI} ^/admin [OR]
     RewriteCond %{REQUEST_URI} ^/skin [OR]
-    RewriteCond %{REQUEST_URI} ^/upload
+    RewriteCond %{REQUEST_URI} ^/upload [OR]
+    RewriteCond %{REQUEST_URI} ^/install
     RewriteRule ^ - [L]
 
     # 2. FORCER LE HTTPS (SSL) - Désactivé en local
@@ -203,7 +204,7 @@ ErrorDocument 500 /index.php?http_error=500
 
     # 4. RÉÉCRITURE EN CASCADE (Logique URL Front-end)
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteCond %{REQUEST_FILENAME} !-d
 
     # A. Extraction de la langue (/fr/...) -> Transformé en ?lang=fr
     RewriteCond %{REQUEST_URI} !^/amp
@@ -251,7 +252,7 @@ ErrorDocument 500 /index.php?http_error=500
 
     # 5. POINT DE CHUTE FINAL (CONTROLLER)
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^([0-9a-zA-Z]+)/?$ /index.php?controller=$1 [QSA,L]
 
 </IfModule>

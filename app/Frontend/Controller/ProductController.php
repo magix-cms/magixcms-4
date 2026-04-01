@@ -81,12 +81,4 @@ class ProductController extends BaseController
 
         $this->view->display('catalog/product.tpl');
     }
-
-    private function render404(): void
-    {
-        header("HTTP/1.0 404 Not Found");
-        $tpl = 'errors/404.tpl';
-        if ($this->view->templateExists($tpl)) $this->view->display($tpl);
-        else die("Erreur 404 : Template manquant.");
-    }
 }

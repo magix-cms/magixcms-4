@@ -584,6 +584,33 @@ abstract class BaseController
         return $hasActiveChild; // On prévient le niveau supérieur
     }
     /**
+     * Affiche la page d'erreur 404 globale et stoppe le script.
+     */
+    protected function render404(): void
+    {
+        // 1. On envoie le code HTTP 404 au navigateur (crucial pour le SEO)
+        header("HTTP/1.0 404 Not Found");
+
+        // 2. On assigne des variables SEO par défaut pour éviter que le template ne plante
+        $this->view->assign([
+            'seo_title'     => 'Page introuvable - Erreur 404',
+            'seo_desc'      => 'La page que vous recherchez n\'existe plus ou a été déplacée.',
+            'canonical_url' => false // On ne veut pas de balise canonical sur une 404
+        ]);
+
+        // 3. Affichage du template
+        $tpl404 = 'errors/404.tpl';
+        if ($this->view->templateExists($tpl404)) {
+            $this->view->display($tpl404);
+        } else {
+            // Sécurité ultime si le fichier tpl a été supprimé par erreur
+            die("<h1>Erreur 404</h1><p>La page demandée n'existe pas (Template manquant).</p>");
+        }
+
+        // 4. TRÈS IMPORTANT : On coupe l'exécution de PHP ici !
+        exit;
+    }
+    /**
      * Envoie une réponse JSON proprement formatée et arrête le script.
      */
     protected function jsonResponse(bool $status, string $message, array $data = []): void
