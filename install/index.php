@@ -9,7 +9,6 @@ define('BASEINSTALL', 'install');
 define('MP_LOG_DIR', ROOT_DIR . BASEINSTALL . DS . 'var' . DS);
 
 // ========================================================================
-// 🟢 SÉCURITÉ 1 : VERROUILLAGE GLOBAL PAR FICHIER LOCK
 // Bloque instantanément toute tentative d'accès si l'installation est finie
 // ========================================================================
 $lockFile = ROOT_DIR . BASEINSTALL . DS . 'install.lock';
@@ -96,11 +95,9 @@ try {
             $controller->run();
             break;
         case 4:
-            // 🟢 L'Étape finale que nous créons maintenant
             $controller = new FinalizeController();
             $controller->run();
             break;
-        // etc...
         default:
             header("Location: index.php?step=1");
             exit;

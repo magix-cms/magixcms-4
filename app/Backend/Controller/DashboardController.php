@@ -43,7 +43,7 @@ class DashboardController extends BaseController
         $rawWidgets = HookManager::execToArray('dashboard_main');
 
         // --- AJOUT DU WIDGET DE TEST DANS LE TABLEAU POUR QU'IL SOIT TRIABLE ---
-        $rawWidgets['TestWidget'] = '
+        /*$rawWidgets['TestWidget'] = '
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3" style="cursor: grab;">
                 <h6 class="m-0 fw-bold text-muted">Widget de Test (PHP)</h6>
@@ -51,7 +51,7 @@ class DashboardController extends BaseController
             <div class="card-body">
                 <p>Ce widget est maintenant injecté depuis le contrôleur, il gardera sa position !</p>
             </div>
-        </div>';
+        </div>';*/
 
         $langDb = new LangDb();
         $pageDb = new PagesDb();
@@ -78,7 +78,7 @@ class DashboardController extends BaseController
             'total_categories'   => $db->countCategories(),
             'total_employees'    => $db->countEmployees(),
             'total_plugins'      => $db->countPlugins(),
-            'total_news'         => $db->countNews(), // 🟢 NOUVEL AJOUT
+            'total_news'         => $db->countNews(),
             'total_media_size'   => $mediaSizeFormatted
         ]);
 
