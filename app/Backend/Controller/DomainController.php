@@ -152,15 +152,26 @@ class DomainController extends BaseController
         $domainLangs = $db->fetchDomainLanguages($id);
 
         $sitemapLangs = !empty($domainLangs) ? $domainLangs : $allLangs;
+        
+        $indexFileName = "sitemap-{$cleanDomainName}.xml";
+        $indexExists = file_exists(ROOT_DIR . '/' . $indexFileName);
+
+        foreach ($sitemapLangs as &$lang) {
+            $iso = strtolower($lang['iso_lang'] ?? 'fr');
+            $lang['page_sitemap_exists'] = file_exists(ROOT_DIR . '/' . "{$iso}-sitemap-{$cleanDomainName}.xml");
+            $lang['img_sitemap_exists']  = file_exists(ROOT_DIR . '/' . "{$iso}-sitemap-image-{$cleanDomainName}.xml");
+        }
+        unset($lang); // Sécurité après un passage par référence
 
         $this->view->assign([
-            'domain'        => $domain,
-            'base_url'      => $baseUrl,
-            'clean_domain'  => $cleanDomainName,
-            'all_langs'     => $allLangs,
-            'domain_langs'  => $domainLangs,
-            'sitemap_langs' => $sitemapLangs,
-            'hashtoken'     => $this->session->getToken()
+            'domain'               => $domain,
+            'base_url'             => $baseUrl,
+            'clean_domain'         => $cleanDomainName,
+            'all_langs'            => $allLangs,
+            'domain_langs'         => $domainLangs,
+            'sitemap_langs'        => $sitemapLangs,
+            'index_sitemap_exists' => $indexExists, // 🟢 Nouvelle variable
+            'hashtoken'            => $this->session->getToken()
         ]);
 
         $this->view->display('domain/edit.tpl');

@@ -116,27 +116,53 @@
                         <div class="col-12">
                             <h6 class="fw-bold mb-3"><i class="bi bi-link-45deg me-1"></i> Liens attendus (Index & Langues)</h6>
                             <ul class="list-group list-group-flush border rounded shadow-sm mb-4">
-                                {* Index Mère (Utilisation des variables PHP propres) *}
+                                {* Index Mère *}
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-light">
-                                    <a href="{$base_url}/sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-bold text-dark">
-                                        <i class="bi bi-diagram-3-fill text-primary me-2"></i> {$base_url}/sitemap-{$clean_domain}.xml <span class="badge bg-primary ms-2">Index Mère</span>
-                                    </a>
+                                    <div>
+                                        <a href="{$base_url}/sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-bold text-dark">
+                                            <i class="bi bi-diagram-3-fill text-primary me-2"></i> {$base_url}/sitemap-{$clean_domain}.xml
+                                        </a>
+                                        {if $index_sitemap_exists}
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success ms-2"><i class="bi bi-check-circle me-1"></i>Présent</span>
+                                        {else}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger ms-2"><i class="bi bi-exclamation-circle me-1"></i>Manquant</span>
+                                        {/if}
+                                    </div>
+                                    <span class="badge bg-primary">Index Mère</span>
                                 </li>
 
-                                {* Boucle sur les langues effectives du domaine (Sitemap Langs) *}
+                                {* Boucle sur les langues *}
                                 {if isset($sitemap_langs) && !empty($sitemap_langs)}
                                     {foreach $sitemap_langs as $dLang}
                                         {$iso = $dLang.iso_lang|lower}
+
+                                        {* Sitemap Pages *}
                                         <li class="list-group-item d-flex justify-content-between align-items-center p-3 ps-5">
-                                            <a href="{$base_url}/{$iso}-sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
-                                                <i class="bi bi-filetype-xml me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-{$clean_domain}.xml
-                                            </a>
+                                            <div>
+                                                <a href="{$base_url}/{$iso}-sitemap-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
+                                                    <i class="bi bi-filetype-xml me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-{$clean_domain}.xml
+                                                </a>
+                                                {if $dLang.page_sitemap_exists}
+                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success ms-2"><i class="bi bi-check-circle me-1"></i>Présent</span>
+                                                {else}
+                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary ms-2">Manquant</span>
+                                                {/if}
+                                            </div>
                                             <span class="badge bg-secondary">Pages & Produits</span>
                                         </li>
+
+                                        {* Sitemap Images *}
                                         <li class="list-group-item d-flex justify-content-between align-items-center p-3 ps-5">
-                                            <a href="{$base_url}/{$iso}-sitemap-image-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
-                                                <i class="bi bi-image me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-image-{$clean_domain}.xml
-                                            </a>
+                                            <div>
+                                                <a href="{$base_url}/{$iso}-sitemap-image-{$clean_domain}.xml" target="_blank" class="text-decoration-none fw-medium text-secondary">
+                                                    <i class="bi bi-image me-2"></i> {$base_url}/<span class="text-dark fw-bold">{$iso}</span>-sitemap-image-{$clean_domain}.xml
+                                                </a>
+                                                {if $dLang.img_sitemap_exists}
+                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success ms-2"><i class="bi bi-check-circle me-1"></i>Présent</span>
+                                                {else}
+                                                    <span class="badge bg-light text-muted border ms-2">Aucune image</span>
+                                                {/if}
+                                            </div>
                                             <span class="badge bg-info text-dark">Images</span>
                                         </li>
                                     {/foreach}
@@ -278,6 +304,10 @@
 
                         if (data.status) {
                             if (typeof MagixToast !== 'undefined') MagixToast.success(data.message);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+
                         } else {
                             if (typeof MagixToast !== 'undefined') MagixToast.error(data.message);
                         }
