@@ -23837,7 +23837,7 @@ h6, .h6 {
     display: none !important;
   }
   .navbar-nav .dropdown-menu {
-    background-color: var(--bs-dropdown-bg);
+    background-color: var(--header-bg);
     color: var(--color-text);
   }
   .navbar-nav .dropdown-menu .dropdown-item:hover, .navbar-nav .dropdown-menu .dropdown-item.active {
@@ -24595,17 +24595,17 @@ h6, .h6 {
 #footer :where(a:not(.social-icon-link)):hover {
   color: var(--white-color, #ffffff);
 }
-#footer #footermenu a {
+#footer .widget-footermenu a {
   transform: translateX(0);
 }
-#footer #footermenu a:hover {
+#footer .widget-footermenu a:hover {
   transform: translateX(5px);
   color: var(--white-color, #ffffff);
 }
-#footer #footermenu i.bi-chevron-right {
+#footer .widget-footermenu i.bi-chevron-right {
   transition: transform 0.3s ease;
 }
-#footer #footermenu a:hover i.bi-chevron-right {
+#footer .widget-footermenu a:hover i.bi-chevron-right {
   transform: translateX(3px);
 }
 #footer #colophon {

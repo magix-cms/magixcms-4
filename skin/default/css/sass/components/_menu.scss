@@ -75,7 +75,7 @@
       display: none !important;
     }
     .dropdown-menu {
-      background-color: var(--bs-dropdown-bg);
+      background-color: var(--header-bg);
       color: var(--color-text);
       .dropdown-item {
         &:hover, &.active {

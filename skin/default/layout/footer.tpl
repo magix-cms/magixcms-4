@@ -4,8 +4,26 @@
 
         {* ZONE 1 : Les colonnes dynamiques avec Masonry *}
         {* On ajoute un ID spécifique "footer-masonry" pour le cibler en JS *}
-        <div id="footer-masonry" class="row">
+        {*<div id="footer-masonry" class="row">
             {hook name="displayFooter"}
+        </div>*}
+        <div id="footer-widgets" class="row">
+
+            {* Colonne Gauche *}
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+                {hook name="displayFooterColLeft"}
+            </div>
+
+            {* Colonne Centrale *}
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+                {hook name="displayFooterColCenter"}
+            </div>
+
+            {* Colonne Droite *}
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+                {hook name="displayFooterColRight"}
+            </div>
+
         </div>
 
         {* Séparateur esthétique *}
@@ -25,7 +43,7 @@
                         <a href="{#legal_url#}" class="text-decoration-none">{#legal_label#}</a>
                     </li>
                     <li class="list-inline-item">
-                        <a href="{#contact_url#}" class="text-decoration-none">{#contact_label#}</a>
+                        <a href="{$base_url}{$current_lang.iso_lang}/contact/" class="text-decoration-none">{#contact_label#}</a>
                     </li>
                 </ul>
             </div>
