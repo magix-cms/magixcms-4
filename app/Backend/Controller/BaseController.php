@@ -93,6 +93,7 @@ abstract class BaseController
             $this->checkPermissions($cleanController);
 
             $this->initCurrentUser();
+            $this->initMenuPermissions();
 
             // --- On initialise les plugins ET la sidebar ---
             $this->initPlugins();
@@ -360,6 +361,38 @@ abstract class BaseController
 
         return $validatedPlugins;
     }
+
+    /**
+     * Charge toutes les permissions du rôle de l'utilisateur pour construire la sidebar.
+     */
+    private function initMenuPermissions(): void
+    {
+        $idAdmin = (int)$this->session->get('id_admin');
+        if ($idAdmin <= 0) return;
+
+        // On récupère l'utilisateur courant pour vérifier s'il est SuperAdmin (id_role = 1)
+        $user = $this->view->getTemplateVars('current_user');
+        $isSuperAdmin = ($user && (int)$user['id_role'] === 1);
+        $this->view->assign('is_super_admin', $isSuperAdmin);
+
+        if (!$isSuperAdmin) {
+            $db = new EmployeeDb();
+            // 🟢 Vous devrez ajouter cette méthode dans EmployeeDb (voir étape 2)
+            $allPerms = $db->getAllModuleAccess($idAdmin);
+
+            $menuPerms = [];
+            if ($allPerms) {
+                foreach ($allPerms as $p) {
+                    $moduleName = strtolower($p['module_name'] ?? '');
+                    if ($moduleName) {
+                        $menuPerms[$moduleName] = ((int)$p['view'] === 1);
+                    }
+                }
+            }
+            $this->view->assign('menu_perms', $menuPerms);
+        }
+    }
+
     /**
      * Envoie une réponse JSON proprement formatée et arrête le script.
      */

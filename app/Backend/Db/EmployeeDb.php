@@ -182,12 +182,28 @@ class EmployeeDb extends BaseDb
             ->from('mc_admin_access', 'a')
             ->join('mc_module', 'm', 'a.id_module = m.id_module')
             ->join('mc_admin_access_rel', 'rel', 'a.id_role = rel.id_role')
-            // CORRECTION ICI : On retire LOWER() qui fait planter le QueryBuilder
             ->where('rel.id_admin = :id_admin AND m.name = :module', [
                 'id_admin' => $idAdmin,
                 'module'   => $moduleName
             ]);
 
         return $this->executeRow($qb);
+    }
+
+    /**
+     * Récupère toutes les permissions d'un administrateur selon son rôle
+     */
+    public function getAllModuleAccess(int $idAdmin): array|false
+    {
+        $qb = new QueryBuilder();
+
+        // On récupère le nom du module et le droit "view"
+        $qb->select(['m.name AS module_name', 'a.view'])
+            ->from('mc_admin_access', 'a')
+            ->join('mc_module', 'm', 'a.id_module = m.id_module')
+            ->join('mc_admin_access_rel', 'rel', 'a.id_role = rel.id_role')
+            ->where('rel.id_admin = :id', ['id' => $idAdmin]);
+
+        return $this->executeAll($qb);
     }
 }

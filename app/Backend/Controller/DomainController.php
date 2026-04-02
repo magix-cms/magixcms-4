@@ -316,7 +316,7 @@ class DomainController extends BaseController
                     if (!empty($item['images'])) {
                         if (!$hasImages) {
                             $imgSitemap = new Sitemap();
-                            $imgSitemap->init(ROOT_DIR . '/' . $imgSitemapName);
+                            $imgSitemap->init(ROOT_DIR . '/' . $imgSitemapName, false, true);
                             $hasImages = true;
                         }
 
