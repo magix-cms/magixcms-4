@@ -106,7 +106,22 @@
                 });
             });
         }
+        document.addEventListener('click', function(e) {
 
+            const toggleBtn = e.target.closest('.js-mobile-toggle');
+
+            if (toggleBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 🟢 LA CORRECTION EST ICI
+                // On remonte au lien parent (<a>) car c'est lui le vrai "voisin" du <ul>
+                const parentLink = toggleBtn.closest('a');
+
+                // On demande à Bootstrap d'ouvrir le menu associé à ce lien
+                bootstrap.Dropdown.getOrCreateInstance(parentLink).toggle();
+            }
+        });
     });
 </script>
 {if isset($admin_maintenance_warning) && $admin_maintenance_warning}

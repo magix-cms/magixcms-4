@@ -76,8 +76,22 @@
     }
     .dropdown-menu {
       background-color: var(--header-bg);
-      color: var(--color-text);
+
+      // 🟢 CORRECTION 1 : Gérer les arrondis et le fond haut/bas
+      padding-top: 0;     // Supprime le vide en haut
+      padding-bottom: 0;  // Supprime le vide en bas
+      overflow: hidden;   // Force les liens à respecter le border-radius du parent
+
       .dropdown-item {
+        color: var(--color-text);
+
+        // 🟢 CORRECTION 2 : Effet de transition doux
+        transition: background-color 0.3s ease, color 0.3s ease;
+
+        // On redonne un peu de hauteur aux liens vu qu'on a supprimé le padding du parent
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+
         &:hover, &.active {
           background-color: var(--bs-dropdown-link-hover-bg);
           color: var(--main-color);
@@ -121,7 +135,8 @@
     }
 
     // Quand l'accordéon est ouvert
-    .dropdown-toggle[aria-expanded="true"]::after {
+    // Quand l'accordéon est ouvert (Bootstrap met l'attribut sur le <a> parent)
+    a[aria-expanded="true"] .dropdown-toggle::after {
       content: "\F2EA"; // Code pour bi-dash-lg
       transform: rotate(180deg);
     }
@@ -137,6 +152,10 @@
         padding: 0.5rem 1rem;
         font-size: 0.95rem;
       }
+    }
+    // Animation d'ouverture douce pour le menu mobile
+    .dropdown-menu.show {
+      animation: slideMobileMenu 0.3s ease-out forwards;
     }
   }
 }
@@ -160,4 +179,15 @@
 @keyframes fadeInMenu {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideMobileMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-10px); // Le menu part légèrement d'en haut
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); // Et glisse à sa position naturelle
+  }
 }

@@ -23838,7 +23838,15 @@ h6, .h6 {
   }
   .navbar-nav .dropdown-menu {
     background-color: var(--header-bg);
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+  .navbar-nav .dropdown-menu .dropdown-item {
     color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
   }
   .navbar-nav .dropdown-menu .dropdown-item:hover, .navbar-nav .dropdown-menu .dropdown-item.active {
     background-color: var(--bs-dropdown-link-hover-bg);
@@ -23864,7 +23872,7 @@ h6, .h6 {
     transition: transform 0.3s ease;
     vertical-align: middle;
   }
-  .navbar-nav .dropdown-toggle[aria-expanded=true]::after {
+  .navbar-nav a[aria-expanded=true] .dropdown-toggle::after {
     content: "\f2ea";
     transform: rotate(180deg);
   }
@@ -23877,6 +23885,9 @@ h6, .h6 {
   .navbar-nav .dropdown-menu .dropdown-item {
     padding: 0.5rem 1rem;
     font-size: 0.95rem;
+  }
+  .navbar-nav .dropdown-menu.show {
+    animation: slideMobileMenu 0.3s ease-out forwards;
   }
 }
 
@@ -23901,6 +23912,16 @@ h6, .h6 {
   from {
     opacity: 0;
     transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideMobileMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;

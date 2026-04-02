@@ -55,5 +55,5 @@
 {/block}*}
 {* --- 3. CHARGEMENT ET INITIALISATION DU JS --- *}
 {block name="javascript_data" nocache}
-    {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
+    {$page_js = ['defer' => ['vendor/splide','MagixHeroSlider']] scope="parent"}
 {/block}
