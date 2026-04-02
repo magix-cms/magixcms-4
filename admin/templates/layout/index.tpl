@@ -117,7 +117,7 @@
                             <select name="id_hook" id="id_hook" class="form-select form-select-lg" required>
                                 <option value="">-- Choisir une zone --</option>
                                 {foreach $layout as $zone}
-                                    <option value="{$zone.info.id_hook}">{$zone.info.title}</option>
+                                    <option value="{$zone.id_hook}">{$zone.title}</option>
                                 {/foreach}
                             </select>
                         </div>
