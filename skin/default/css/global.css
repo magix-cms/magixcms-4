@@ -24392,6 +24392,7 @@ h6, .h6 {
 .news-card .figure .tag-list {
   padding: 0 1rem 1rem 1rem;
   margin-top: auto;
+  align-items: flex-start;
 }
 .news-card .figure .tag-list:empty {
   min-height: 2rem;
@@ -24483,10 +24484,11 @@ h6, .h6 {
   height: fit-content;
 }
 .news-card-large .figure .tag-list {
-  margin-top: 1rem;
+  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: center;
 }
 .news-card-large .figure:hover .date {
   background: var(--main-color, #0d6efd);

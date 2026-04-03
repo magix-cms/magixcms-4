@@ -171,7 +171,7 @@
                                             <button class="btn btn-sm btn-outline-primary me-1 btn-edit-contact" data-id="{$contact.id_contact}">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="Magix.delete('index.php?controller=Contact&action=deleteContact&id_contact={$contact.id_contact}');">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-contact" data-id="{$contact.id_contact}">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -210,7 +210,7 @@
                     </div>
                 </div>
 
-                <form id="contact_form" action="index.php?controller=Contact&action=saveContact" method="post" class="validate_form">
+                <form id="contact_form" action="index.php?controller=Contact&action=saveContact" method="post" class="validate_form add_modal_form">
                     <div class="modal-body p-4">
                         <input type="hidden" name="hashtoken" value="{$hashtoken|default:''}">
                         <input type="hidden" name="id_contact" id="edit_id_contact" value="0">
@@ -222,6 +222,7 @@
                             </div>
                             <div class="col-md-4 pt-4 text-md-end">
                                 <div class="form-check form-switch fs-5 d-inline-block mt-1">
+                                    <input type="hidden" name="is_default" value="0">
                                     <input class="form-check-input" type="checkbox" role="switch" id="edit_is_default" name="is_default" value="1" />
                                     <label class="form-check-label fs-6 text-muted ms-2" for="edit_is_default">Contact par défaut</label>
                                 </div>
@@ -235,11 +236,13 @@
                                 {foreach $langs as $id => $iso}
                                     <div class="tab-pane fade {if $iso@first}show active{/if}" id="modal-lang-{$id}" role="tabpanel">
                                         <div class="mb-3">
-                                            <label class="form-label fw-medium">Nom du service ou du contact ({$iso|upper})</label>
-                                            <input type="text" id="edit_name_{$id}" name="contact_content[{$id}][name_contact]" class="form-control" placeholder="ex: Service Commercial">
+                                            <label class="form-label fw-medium">Nom du service ou du contact ({$iso|upper}) <span class="text-danger">*</span></label>
+                                            {* 🟢 AJOUT DE 'required' POUR LA LANGUE PAR DÉFAUT *}
+                                            <input type="text" id="edit_name_{$id}" name="contact_content[{$id}][name_contact]" class="form-control" placeholder="ex: Service Commercial" {if $iso@first}required{/if}>
                                         </div>
                                         <div class="form-check form-switch mt-3">
-                                            {* 🟢 HTML CORRIGÉ : ID edit_status_ *}
+                                            {* 🟢 AJOUT DU CHAMP CACHÉ *}
+                                            <input type="hidden" name="contact_content[{$id}][published_contact]" value="0">
                                             <input class="form-check-input" type="checkbox" role="switch" id="edit_status_{$id}" name="contact_content[{$id}][published_contact]" value="1" checked>
                                             <label class="form-check-label text-muted" for="edit_status_{$id}">Ce service est disponible dans cette langue</label>
                                         </div>
@@ -319,6 +322,41 @@
                 document.getElementById('modalContactLabel').innerHTML = '<i class="bi bi-person-plus me-2"></i> Ajouter un destinataire';
 
                 document.querySelectorAll('[id^="edit_status_"]').forEach(el => el.checked = true);
+            });
+            // 4. 🟢 Gestion de la suppression
+            document.querySelectorAll('.btn-delete-contact').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce destinataire ?')) {
+                        const idContact = this.getAttribute('data-id');
+                        const token = document.querySelector('input[name="hashtoken"]').value;
+
+                        const formData = new FormData();
+                        formData.append('hashtoken', token);
+
+                        try {
+                            // On passe l'ID dans l'URL (comme attendu par le CMS) et le token en POST
+                            const url = `index.php?controller=Contact&action=deleteContact&id_contact=${idContact}`;
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success || result.status) {
+                                if (typeof MagixToast !== 'undefined') MagixToast.success('Destinataire supprimé avec succès.');
+                                // On recharge la page pour mettre à jour le tableau
+                                setTimeout(() => window.location.reload(), 800);
+                            } else {
+                                if (typeof MagixToast !== 'undefined') MagixToast.error(result.message || 'Erreur lors de la suppression.');
+                            }
+                        } catch (error) {
+                            console.error('Erreur AJAX:', error);
+                        }
+                    }
+                });
             });
         });
         {/literal}

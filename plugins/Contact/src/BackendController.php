@@ -148,7 +148,11 @@ class BackendController extends BaseController
         }
 
         if ($db->saveContact($idContact, $mainData, $contentData)) {
-            $this->jsonResponse(true, 'Destinataire enregistré avec succès.', ['type' => 'add']);
+            // 🟢 AJOUT DU SIGNAL RELOAD POUR MAGIXFORMS
+            $this->jsonResponse(true, 'Destinataire enregistré avec succès.', [
+                'type' => 'add',
+                'reload' => true
+            ]);
         } else {
             $this->jsonResponse(false, 'Erreur lors de l\'enregistrement du destinataire.');
         }

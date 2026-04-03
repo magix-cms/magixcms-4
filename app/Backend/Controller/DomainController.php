@@ -10,6 +10,7 @@ use App\Component\Routing\UrlTool; // IMPORTANT POUR LE SITEMAP
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\XML\Sitemap; // IMPORTANT POUR LE SITEMAP
+use App\Backend\Db\PluginDb; // 🟢 NOUVEAU : Import pour scanner les plugins
 
 class DomainController extends BaseController
 {
@@ -282,6 +283,10 @@ class DomainController extends BaseController
 
         $activeModules = ['pages', 'news', 'catalog_cat', 'catalog_pro'];
 
+        // 🟢 NOUVEAU : On récupère tous les plugins installés
+        $pluginDb = new PluginDb();
+        $installedPlugins = $pluginDb->fetchInstalledPlugins();
+
         foreach ($domainLangs as $lang) {
             $iso = strtolower($lang['iso_lang'] ?? 'fr');
             $idLang = (int)$lang['id_lang'];
@@ -294,6 +299,9 @@ class DomainController extends BaseController
             $imgSitemap = null;
             $hasImages = false;
 
+            // ==========================================
+            // 1. LES MODULES NATIFS DU CMS (Core)
+            // ==========================================
             foreach ($activeModules as $module) {
                 $items = $db->getSitemapData($module, $idLang);
 
@@ -307,19 +315,14 @@ class DomainController extends BaseController
                     } elseif ($module === 'catalog_cat') {
                         $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'category', 'id' => $item['id'], 'url' => $item['url']]);
                     } elseif ($module === 'news') {
-                        // CORRECTION : Sécurisation de la date pour éviter le double slash //
-                        // Si la date est vide ou invalide (ex: 0000-00-00), on force la date actuelle
                         $rawDate = (!empty($item['date']) && !str_starts_with($item['date'], '0000')) ? $item['date'] : 'now';
                         $datePublish = date('Y-m-d', strtotime($rawDate));
-
                         $uri = '/' . $iso . '/news/' . $datePublish . '/' . $item['id'] . '-' . $item['url'] . '/';
                     } elseif ($module === 'pages') {
                         $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'pages', 'id' => $item['id'], 'url' => $item['url']]);
                     }
 
-                    // On utilise le protocole dicté par la configuration
                     $fullUrl = str_starts_with($uri, 'http') ? $uri : $baseUrl . '/' . ltrim($uri, '/');
-
                     $priority = ($module === 'catalog_pro') ? 0.8 : (($module === 'catalog_cat') ? 0.7 : 0.6);
                     $pageSitemap->addUrl($fullUrl, $item['date'] ?? 'now', 'weekly', $priority);
 
@@ -332,8 +335,6 @@ class DomainController extends BaseController
                         }
 
                         $formattedImages = array_map(function($img) use ($baseUrl, $module, $item) {
-
-                            // 1. Détermination du nom de dossier selon le module
                             $folderMap = [
                                 'catalog_pro' => 'product',
                                 'catalog_cat' => 'category',
@@ -341,8 +342,6 @@ class DomainController extends BaseController
                                 'pages'       => 'pages'
                             ];
                             $folderName = $folderMap[$module] ?? $module;
-
-                            // 2. FALLBACK SEO : Si le alt ou le titre de l'image est vide, on prend le titre traduit de l'élément
                             $imgTitle = !empty(trim($img['title'] ?? '')) ? trim($img['title']) : trim($item['title'] ?? '');
                             $imgCaption = !empty(trim($img['caption'] ?? '')) ? trim($img['caption']) : trim($item['title'] ?? '');
 
@@ -358,6 +357,48 @@ class DomainController extends BaseController
                 }
             }
 
+            // ==========================================
+            // 2. 🟢 LES PLUGINS DYNAMIQUES
+            // ==========================================
+            foreach ($installedPlugins as $pluginName => $pluginData) {
+                // On vérifie si le plugin a créé une classe exprès pour le sitemap
+                $sitemapClass = "\\Plugins\\{$pluginName}\\src\\SitemapProvider";
+
+                if (class_exists($sitemapClass) && method_exists($sitemapClass, 'getUrls')) {
+
+                    $provider = new $sitemapClass();
+                    // Le plugin nous renvoie un tableau propre de ses URLs
+                    $pluginUrls = $provider->getUrls($idLang, $iso, $baseUrl);
+
+                    if (is_array($pluginUrls)) {
+                        foreach ($pluginUrls as $pUrl) {
+                            // On sécurise l'URL finale
+                            $fullUrl = str_starts_with($pUrl['loc'], 'http') ? $pUrl['loc'] : rtrim($baseUrl, '/') . '/' . ltrim($pUrl['loc'], '/');
+
+                            $pageSitemap->addUrl(
+                                $fullUrl,
+                                $pUrl['date'] ?? 'now',
+                                $pUrl['changefreq'] ?? 'weekly',
+                                $pUrl['priority'] ?? 0.5
+                            );
+
+                            // --- AJOUT DES IMAGES DU PLUGIN SI PRÉSENTES ---
+                            if (!empty($pUrl['images']) && is_array($pUrl['images'])) {
+                                if (!$hasImages) {
+                                    $imgSitemap = new Sitemap();
+                                    $imgSitemap->init(ROOT_DIR . '/' . $imgSitemapName, false, true);
+                                    $hasImages = true;
+                                }
+                                $imgSitemap->addUrl($fullUrl, $pUrl['date'] ?? 'now', 'monthly', 0.5, $pUrl['images']);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ==========================================
+            // SAUVEGARDE FINALE
+            // ==========================================
             $pageSitemap->save();
             $sitemapIndex->addSitemap("{$baseUrl}/{$pageSitemapName}", 'now');
 

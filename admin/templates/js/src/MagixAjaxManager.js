@@ -109,7 +109,7 @@ class MagixAjaxManager {
 
         document.getElementById(`${this.prefix}_id_${this.suffix}`).value = item[`id_${this.suffix}`];
 
-        // 🟢 NOUVEAU : On peuple les champs pour CHAQUE langue
+        // On peuple les champs pour CHAQUE langue
         if (item.content) {
             for (const [idLang, translation] of Object.entries(item.content)) {
 
@@ -117,11 +117,19 @@ class MagixAjaxManager {
                 const titleInput = document.querySelector(`input[name="title_${this.suffix}[${idLang}]"]`);
                 if (titleInput) titleInput.value = translation[`title_${this.suffix}`] || '';
 
-                // 2. Statut
+                // 🟢 2. NOUVEAU : URL du lien
+                const urlInput = document.querySelector(`input[name="url_${this.suffix}[${idLang}]"]`);
+                if (urlInput) urlInput.value = translation[`url_${this.suffix}`] || '';
+
+                // 3. Statut (En ligne)
                 const pubInput = document.querySelector(`input[type="checkbox"][name="published_${this.suffix}[${idLang}]"]`);
                 if (pubInput) pubInput.checked = (translation[`published_${this.suffix}`] == 1);
 
-                // 3. Description (TinyMCE ou Textarea)
+                // 🟢 4. NOUVEAU : Ouverture du lien (Nouvel onglet)
+                const blankInput = document.querySelector(`input[type="checkbox"][name="blank_${this.suffix}[${idLang}]"]`);
+                if (blankInput) blankInput.checked = (translation[`blank_${this.suffix}`] == 1);
+
+                // 5. Description (TinyMCE ou Textarea)
                 const descContent = translation[`desc_${this.suffix}`] || '';
                 const editorId = `${this.prefix}_desc_${idLang}`;
 
