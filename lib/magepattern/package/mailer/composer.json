@@ -1,6 +1,5 @@
-{
+{"config": {"platform": {"php": "8.2.0"}},
     "require": {
-        "symfony/mailer": "^8.0",
-        "symfony/mime": "^8.0"
+        "symfony/mailer": "^7.4"
     }
 }
