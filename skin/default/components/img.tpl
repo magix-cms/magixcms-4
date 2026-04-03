@@ -89,6 +89,7 @@
         alt="{$img.alt|default:''}"
         title="{$img.title|default:''}"
         class="{if $responsiveC}img-fluid{/if}{if $lazy && isset($browser) && in_array($browser,['Safari','Opera'])}{if isset($lazyClass)} {$lazyClass}{else} lazyload{/if}{/if}"
-        {if $lazy}loading="lazy"{/if}/>
+        {if $lazy}loading="lazy"{/if}
+        {if isset($fetchpriority) && $fetchpriority}fetchpriority="{$fetchpriority}"{/if} />
     </picture>
 {/strip}
