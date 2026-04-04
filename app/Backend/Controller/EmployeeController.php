@@ -119,8 +119,8 @@ class EmployeeController extends BaseController
         $data = [
             'keyuniqid_admin' => RSATool::uniqID(32),
             'title_admin'     => in_array($_POST['title_admin'] ?? 'm', ['m', 'w']) ? $_POST['title_admin'] : 'm',
-            'firstname_admin' => FormTool::simpleClean($_POST['firstname_admin'] ?? ''),
-            'lastname_admin'  => FormTool::simpleClean($_POST['lastname_admin'] ?? ''),
+            'firstname_admin' => ($_POST['firstname_admin'] ?? ''),
+            'lastname_admin'  => ($_POST['lastname_admin'] ?? ''),
             'pseudo_admin'    => FormTool::simpleClean($_POST['pseudo_admin'] ?? ''),
             'email_admin'     => $email,
             'phone_admin'     => FormTool::simpleClean($_POST['phone_admin'] ?? ''),
@@ -186,8 +186,8 @@ class EmployeeController extends BaseController
         // On NE MET PAS 'keyuniqid_admin' ici pour ne pas casser la session en cours
         $data = [
             'title_admin'     => in_array($_POST['title_admin'] ?? 'm', ['m', 'w']) ? $_POST['title_admin'] : 'm',
-            'firstname_admin' => FormTool::simpleClean($_POST['firstname_admin'] ?? ''),
-            'lastname_admin'  => FormTool::simpleClean($_POST['lastname_admin'] ?? ''),
+            'firstname_admin' => ($_POST['firstname_admin'] ?? ''),
+            'lastname_admin'  => ($_POST['lastname_admin'] ?? ''),
             'pseudo_admin'    => FormTool::simpleClean($_POST['pseudo_admin'] ?? ''),
             'email_admin'     => $email,
             'phone_admin'     => FormTool::simpleClean($_POST['phone_admin'] ?? ''),
