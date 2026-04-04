@@ -7,16 +7,11 @@
 
 {* --- 1. CHARGEMENT DES FICHIERS CSS SPLIDE --- *}
 {block name="styleSheet" append nocache}
-    {$page_css = ["home","splide.min","magixslideshow","advmulti"] scope="parent"}
+    {$page_css = ["home","splide.min"] scope="parent"}
 {/block}
 {* 🟢 INJECTION DU JSON-LD DE LA LISTE *}
 {block name="head:structured_data"}
     {$website_json_ld|default:'' nofilter}
-{/block}
-
-{* On injecte les variables CSS dans le bloc prévu en haut *}
-{block name="styleSheet" append nocache}
-    {$page_css = ["home"] scope="parent"}
 {/block}
 
 {block name="main:before"}
@@ -55,5 +50,5 @@
 {/block}*}
 {* --- 3. CHARGEMENT ET INITIALISATION DU JS --- *}
 {block name="javascript_data" nocache}
-    {$page_js = ['defer' => ['vendor/splide','MagixHeroSlider']] scope="parent"}
+    {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
 {/block}
