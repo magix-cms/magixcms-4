@@ -150,12 +150,14 @@ class PluginDb extends BaseDb
     }
 
     /**
-     * 🟢 NOUVEAU : Supprime le plugin des zones d'affichage (Frontend Layout)
+     * Supprime toutes les instances d'un plugin dans le layout frontend (mc_layout_item)
      */
     public function removePluginFromFrontendLayout(string $pluginName): bool
     {
         $qb = new QueryBuilder();
-        $qb->delete('mc_hook_item')->where('module_name = :module_name', ['module_name' => $pluginName]);
+        $qb->delete('mc_layout_item')
+            ->where('module_name = :plugin', ['plugin' => $pluginName]);
+
         return $this->executeDelete($qb);
     }
 }

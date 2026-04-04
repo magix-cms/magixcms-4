@@ -24701,6 +24701,9 @@ h6, .h6 {
 #footer .news-footer-link:hover p {
   color: rgba(255, 255, 255, 0.7) !important;
 }
+#footer .widget-footer-news .news-date {
+  color: rgba(255, 255, 255, 0.7);
+}
 
 #footbar {
   transition: opacity 0.3s ease, visibility 0.3s ease;

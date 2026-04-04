@@ -194,7 +194,7 @@ class PluginController extends BaseController
 
         $db = new PluginDb();
 
-        // 2. Exécution du SQL de désinstallation
+        // 1. Exécution du SQL de désinstallation (Suppression des tables propres au plugin)
         if (file_exists($sqlPath)) {
             $sqlContent = file_get_contents($sqlPath);
             if (!empty(trim($sqlContent))) {
@@ -204,25 +204,24 @@ class PluginController extends BaseController
             }
         }
 
-        // 3. Nettoyage des tables du CMS
-        $success = $db->deletePlugin($pluginName);
-
-        $db->unlinkPluginFromAllModules($pluginName);
-        $db->unregisterModuleRBAC($pluginName);
+        // 2. Nettoyage des tables Core du CMS
+        $success = $db->deletePlugin($pluginName); // Supprime de mc_plugins
 
         if ($success) {
-            // Nettoyage du Dashboard Backend
+            // A. Nettoyage des liaisons Modules & Permissions
+            $db->unlinkPluginFromAllModules($pluginName); // Supprime de mc_plugins_module
+            $db->unregisterModuleRBAC($pluginName);       // Nettoie les droits d'accès
+
+            // B. Nettoyage du Dashboard Backend
             $dashDb = new DashboardDb();
             $dashDb->removeWidgetGlobally($pluginName);
 
-            // APPEL PROPRE AU MODÈLE
+            // C. Nettoyage du Layout Frontend
             $db->removePluginFromFrontendLayout($pluginName);
 
-            // On s'assure de ne cibler QUE le dossier /upload/nomduplugin/ en minuscules
+            // D. Nettoyage du dossier Upload associé (Ex: /upload/contact/)
             $uploadDir = ROOT_DIR . 'upload' . DS . strtolower($pluginName);
-
             if (is_dir($uploadDir)) {
-                // FileTool::remove va détruire le dossier d'upload et tout son contenu
                 FileTool::remove($uploadDir);
             }
 
