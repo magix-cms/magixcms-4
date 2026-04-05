@@ -1,7 +1,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8mb4 COLLATE 'utf8mb4_general_ci' */;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS = 0;
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mc_about` (
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_about`),
     KEY `fk_about_parent` (`id_parent`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_about_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `mc_about_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_about_lang` (`id_about`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_about_img` (
     `id_img` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `mc_about_img` (
     `order_img` smallint UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_img`),
     KEY `fk_img_about` (`id_about`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_about_img_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `mc_about_img_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_img_lang` (`id_img`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_about_op` (
     `id_day` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `mc_about_op` (
     `noon_start` varchar(5) DEFAULT NULL,
     `noon_end` varchar(5) DEFAULT NULL,
     PRIMARY KEY (`id_day`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_about_op` (`id_day`, `day_abbr`, `open_day`, `noon_time`, `open_time`, `close_time`, `noon_start`, `noon_end`) VALUES
 (1, 'Mo', 1, 1, NULL, NULL, NULL, NULL),
@@ -97,13 +97,13 @@ CREATE TABLE IF NOT EXISTS `mc_about_op_content` (
     `text_su` text,
     PRIMARY KEY (`id_content`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_module` (
     `id_module` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`id_module`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_module` (`id_module`, `name`) VALUES
 (1, 'dashboard'),(2, 'employee'),(3, 'role'),(4, 'lang'),(5, 'country'),
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_access` (
     PRIMARY KEY (`id_access`),
     KEY `fk_admin_access_role` (`id_role`),
     KEY `fk_admin_access_module` (`id_module`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_admin_access` (`id_role`, `id_module`, `view`, `append`, `edit`, `del`, `action`) VALUES
 (1, 1, 1, 1, 1, 1, 1), (1, 2, 1, 1, 1, 1, 1), (1, 3, 1, 1, 1, 1, 1),
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_role_user` (
     `id_role` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
     `role_name` varchar(50) NOT NULL,
     PRIMARY KEY (`id_role`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_admin_role_user` (`id_role`, `role_name`) VALUES (1, 'administrator');
 
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_employee` (
     `active_admin` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_admin`),
     UNIQUE KEY `idx_email_admin` (`email_admin`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `mc_admin_access_rel` (
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_access_rel` (
     PRIMARY KEY (`id_access_rel`),
     KEY `id_admin` (`id_admin`),
     KEY `id_role` (`id_role`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `mc_admin_dashboard` (
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_dashboard` (
     `widget_name` varchar(50) NOT NULL,
     `position` int NOT NULL,
     PRIMARY KEY (`id_admin`,`widget_name`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_admin_session` (
     `id_admin_session` varchar(150) NOT NULL,
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `mc_admin_session` (
     `expires` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id_admin_session`),
     KEY `id_admin` (`id_admin`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog` (
     `id_catalog` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog` (
     UNIQUE KEY `idx_catalog_product_cat` (`id_product`,`id_cat`),
     KEY `id_cat` (`id_cat`),
     KEY `idx_catalog_cat` (`id_cat`,`default_c`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_cat` (
     `id_cat` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_cat` (
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_cat`),
     KEY `id_parent` (`id_parent`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_cat_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_cat_content` (
     UNIQUE KEY `idx_cat_lang` (`id_cat`,`id_lang`),
     KEY `id_lang` (`id_lang`),
     KEY `url_cat` (`url_cat`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_cat_img` (
@@ -251,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_cat_img` (
     PRIMARY KEY (`id_img`),
     KEY `id_cat` (`id_cat`),
     KEY `idx_cat_default` (`id_cat`,`default_img`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_cat_img_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -263,13 +263,13 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_cat_img_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_img_lang` (`id_img`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_home` (
     `id_catalog_home` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_catalog_home`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_home_content` (
     `id_content` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_home_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_home_lang` (`id_catalog_home`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product` (
     `id_product` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -301,7 +301,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product` (
     KEY `idx_reference_p` (`reference_p`),
     KEY `idx_availability_p` (`availability_p`),
     KEY `ean_p` (`ean_p`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -322,7 +322,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product_content` (
     UNIQUE KEY `idx_product_lang` (`id_product`,`id_lang`),
     KEY `id_lang` (`id_lang`),
     KEY `idx_url_p` (`url_p`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product_img` (
     `id_img` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -333,7 +333,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product_img` (
     PRIMARY KEY (`id_img`),
     KEY `id_product` (`id_product`),
     KEY `idx_product_img_default` (`id_product`,`default_img`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product_img_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -345,7 +345,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product_img_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_img_lang` (`id_img`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product_rel` (
     `id_rel` int NOT NULL AUTO_INCREMENT,
@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product_rel` (
     PRIMARY KEY (`id_rel`),
     KEY `idx_product_source` (`id_product`),
     KEY `idx_product_target` (`id_product_2`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_cms_page` (
     `id_pages` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -364,7 +364,7 @@ CREATE TABLE IF NOT EXISTS `mc_cms_page` (
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_pages`),
     KEY `id_parent` (`id_parent`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_cms_page_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -385,7 +385,7 @@ CREATE TABLE IF NOT EXISTS `mc_cms_page_content` (
     UNIQUE KEY `idx_cms_page_lang` (`id_pages`,`id_lang`),
     KEY `id_lang` (`id_lang`),
     KEY `idx_url_pages` (`url_pages`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_cms_page_img` (
     `id_img` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -396,7 +396,7 @@ CREATE TABLE IF NOT EXISTS `mc_cms_page_img` (
     PRIMARY KEY (`id_img`),
     KEY `id_pages` (`id_pages`),
     KEY `idx_cms_page_img_default` (`id_pages`,`default_img`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_cms_page_img_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -408,7 +408,7 @@ CREATE TABLE IF NOT EXISTS `mc_cms_page_img_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_img_lang` (`id_img`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_company_info` (
     `id_info` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -416,7 +416,7 @@ CREATE TABLE IF NOT EXISTS `mc_company_info` (
     `value_info` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id_info`),
     UNIQUE KEY `name_info` (`name_info`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_company_info` (`id_info`, `name_info`, `value_info`) VALUES
 (1, 'name', NULL), (2, 'type', 'org'), (3, 'eshop', '0'),
@@ -433,7 +433,7 @@ CREATE TABLE IF NOT EXISTS `mc_config` (
     `attr_name` varchar(20) NOT NULL,
     `status` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`idconfig`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_config` (`idconfig`, `attr_name`, `status`) VALUES
 (1, 'pages', 1), (2, 'news', 1), (3, 'catalog', 1), (4, 'about', 1);
@@ -448,7 +448,7 @@ CREATE TABLE IF NOT EXISTS `mc_config_img` (
     `prefix_img` varchar(50) NOT NULL,
     `resize_img` enum('basic','adaptive') NOT NULL,
     PRIMARY KEY (`id_config_img`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_config_img` (`module_img`, `attribute_img`, `width_img`, `height_img`, `type_img`, `prefix_img`, `resize_img`) VALUES
 ('pages', 'pages', '340', '210', 'small', 's', 'adaptive'),
@@ -476,7 +476,7 @@ CREATE TABLE IF NOT EXISTS `mc_country` (
     `name_country` varchar(125) NOT NULL,
     `order_country` int UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_country`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_domain` (
     `id_domain` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -485,7 +485,7 @@ CREATE TABLE IF NOT EXISTS `mc_domain` (
     `default_domain` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     `canonical_domain` tinyint(1) NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_domain`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_domain_language` (
     `id_domain_lg` int NOT NULL AUTO_INCREMENT,
@@ -495,13 +495,13 @@ CREATE TABLE IF NOT EXISTS `mc_domain_language` (
     PRIMARY KEY (`id_domain_lg`),
     UNIQUE KEY `idx_domain_lang` (`id_domain`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_home_page` (
     `id_page` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_page`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_home_page_content` (
     `id_content` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -515,17 +515,17 @@ CREATE TABLE IF NOT EXISTS `mc_home_page_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_home_lang` (`id_page`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_hook` (
-                                         `id_hook` int UNSIGNED NOT NULL AUTO_INCREMENT,
-                                         `name` varchar(64) NOT NULL,
+    `id_hook` int UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` varchar(64) NOT NULL,
     `title` varchar(128) NOT NULL,
     `description` text,
     `position` int UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_hook`),
     UNIQUE KEY `idx_hook_name` (`name`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`, `position`) VALUES
 (1, 'displayHomeTop', 'Haut de page (Accueil)', 'Zone située juste sous le slider ou le header', 1),
@@ -548,7 +548,7 @@ CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `active` tinyint(1) NOT NULL DEFAULT '1',
     PRIMARY KEY (`id_item`),
     KEY `idx_hook` (`id_hook`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_lang` (
     `id_lang` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -558,7 +558,7 @@ CREATE TABLE IF NOT EXISTS `mc_lang` (
     `active_lang` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_lang`),
     UNIQUE KEY `idx_iso_lang` (`iso_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_lang` (`id_lang`, `iso_lang`, `name_lang`, `default_lang`, `active_lang`) VALUES
     (1, 'fr', 'French', 1, 1);
@@ -570,7 +570,7 @@ CREATE TABLE IF NOT EXISTS `mc_logo` (
     `active_footer` tinyint(1) NOT NULL DEFAULT '0',
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_logo`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_logo_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -582,7 +582,7 @@ CREATE TABLE IF NOT EXISTS `mc_logo_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_logo_lang` (`id_logo`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_menu` (
     `id_link` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -593,7 +593,7 @@ CREATE TABLE IF NOT EXISTS `mc_menu` (
     `order_link` int UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_link`),
     KEY `id_parent` (`id_parent`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_menu_content` (
     `id_link_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -605,7 +605,7 @@ CREATE TABLE IF NOT EXISTS `mc_menu_content` (
     PRIMARY KEY (`id_link_content`),
     UNIQUE KEY `idx_menu_lang` (`id_link`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news` (
     `id_news` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -616,7 +616,7 @@ CREATE TABLE IF NOT EXISTS `mc_news` (
     PRIMARY KEY (`id_news`),
     KEY `idx_news_dates` (`date_publish`,`date_event_start`,`date_event_end`),
     KEY `idx_date_publish` (`date_publish`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -640,7 +640,7 @@ CREATE TABLE IF NOT EXISTS `mc_news_content` (
     UNIQUE KEY `idx_news_lang` (`id_news`,`id_lang`),
     KEY `id_lang` (`id_lang`),
     KEY `idx_url_news` (`url_news`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news_img` (
     `id_img` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -651,7 +651,7 @@ CREATE TABLE IF NOT EXISTS `mc_news_img` (
     PRIMARY KEY (`id_img`),
     KEY `id_news` (`id_news`),
     KEY `idx_news_img_default` (`id_news`,`default_img`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news_img_content` (
     `id_content` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -663,7 +663,7 @@ CREATE TABLE IF NOT EXISTS `mc_news_img_content` (
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_img_lang` (`id_img`,`id_lang`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news_tag` (
     `id_tag` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -671,7 +671,7 @@ CREATE TABLE IF NOT EXISTS `mc_news_tag` (
     `name_tag` varchar(50) NOT NULL,
     PRIMARY KEY (`id_tag`),
     KEY `id_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_news_tag_rel` (
     `id_rel` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -680,13 +680,13 @@ CREATE TABLE IF NOT EXISTS `mc_news_tag_rel` (
     PRIMARY KEY (`id_rel`),
     UNIQUE KEY `idx_news_tag_rel_lookup` (`id_news`,`id_tag`),
     KEY `id_tag` (`id_tag`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_plugins` (
     `id_plugins` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(200) NOT NULL,
     `version` varchar(10) NOT NULL,
-    `has_config` tinyint(1) NOT NULL DEFAULT '1', -- 🟢 LA LIGNE À NE PAS OUBLIER
+    `has_config` tinyint(1) NOT NULL DEFAULT '1',
     `home` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     `about` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     `pages` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
@@ -697,7 +697,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins` (
     `seo` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_plugins`),
     UNIQUE KEY `name` (`name`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_plugins_module` (
     `id_module` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -705,7 +705,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_module` (
     `module_name` varchar(200) NOT NULL,
     `active` tinyint(1) NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_module`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_revisions_editor` (
     `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -719,7 +719,7 @@ CREATE TABLE IF NOT EXISTS `mc_revisions_editor` (
     KEY `idx_lookup` (`item_type`,`item_id`,`id_lang`,`editor_id`),
     KEY `idx_date_register` (`date_register`),
     KEY `fk_revisions_lang` (`id_lang`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_setting` (
     `id_setting` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -730,7 +730,7 @@ CREATE TABLE IF NOT EXISTS `mc_setting` (
     `category` varchar(20) NOT NULL,
     PRIMARY KEY (`id_setting`),
     UNIQUE KEY `idx_setting_name` (`name`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_setting` (`name`, `value`, `type`, `label`, `category`) VALUES
 ('theme', 'default', 'string', 'site theme', 'theme'),
@@ -770,7 +770,7 @@ CREATE TABLE IF NOT EXISTS `mc_share_network` (
     `is_active` tinyint(1) UNSIGNED NOT NULL DEFAULT '1',
     `order_share` smallint UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_share`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `mc_share_network` (`id_share`, `name`, `url_share`, `icon`, `is_active`, `order_share`) VALUES
 (1, 'facebook', 'https://www.facebook.com/sharer/sharer.php?u=%URL%', 'bi-facebook', 1, 1),
@@ -824,7 +824,7 @@ CREATE TABLE IF NOT EXISTS `mc_webservice` (
     `key_ws` varchar(125) DEFAULT NULL,
     `status_ws` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_ws`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 -- CONTRAINTES DES TABLES (CLÉS ÉTRANGÈRES)
