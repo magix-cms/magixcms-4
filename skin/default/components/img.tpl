@@ -86,8 +86,10 @@
         itemprop="image"
         width="{$visual_node.w|default:''}"
         height="{$visual_node.h|default:''}"
-        alt="{$img.alt|default:''}"
-        title="{$img.title|default:''}"
+
+        alt="{if isset($alt)}{$alt|escape}{else}{$img.alt|default:''|escape}{/if}"
+        title="{if isset($title)}{$title|escape}{else}{$img.title|default:''|escape}{/if}"
+
         class="{if $responsiveC}img-fluid{/if}{if $lazy && isset($browser) && in_array($browser,['Safari','Opera'])}{if isset($lazyClass)} {$lazyClass}{else} lazyload{/if}{/if}"
         {if $lazy}loading="lazy"{/if}
         {if isset($fetchpriority) && $fetchpriority}fetchpriority="{$fetchpriority}"{/if} />

@@ -3,30 +3,54 @@ declare(strict_types=1);
 
 namespace Plugins\GoogleRecaptcha\src;
 
+use Magepattern\Component\Tool\SmartyTool;
 use Plugins\GoogleRecaptcha\db\FrontendDb;
 
 class FrontendController
 {
     /**
-     * @param string $moduleName Le nom du module appelant (ex: 'contact')
+     * Méthode appelée par le hook 'displayHead' pour injecter le JS
+     */
+    public static function injectScript(array $params = []): string
+    {
+        $currentModule = strtolower($_GET['controller'] ?? 'home');
+        $db = new FrontendDb();
+
+        if (!$db->isLinkedToModule($currentModule)) {
+            return '';
+        }
+
+        $keys = $db->getKeys();
+        if (empty($keys['site_key'])) {
+            return '';
+        }
+
+        $smarty = SmartyTool::getInstance('front');
+        $file = ROOT_DIR . 'plugins' . DS . 'GoogleRecaptcha' . DS . 'views' . DS . 'front' . DS . 'hooks' . DS . 'script.tpl';
+
+        return $smarty->fetch($file, ['recaptcha_site_key' => $keys['site_key']]);
+    }
+
+    /**
+     * Méthode métier appelée par d'autres plugins (ex: Contact)
      */
     public function verify(string $moduleName): bool
     {
         $db = new FrontendDb();
 
         if (!$db->isLinkedToModule($moduleName)) {
-            return true; // Non lié, on laisse passer
+            return true;
         }
 
         $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
         if (empty($recaptchaResponse)) {
-            return false; // Lié mais pas de jeton, on bloque
+            return false;
         }
 
         $keys = $db->getKeys();
         $secretKey = $keys['secret_key'] ?? '';
         if (empty($secretKey)) {
-            return true; // Mal configuré en admin, on ne pénalise pas le visiteur
+            return true;
         }
 
         $url = 'https://www.google.com/recaptcha/api/siteverify';
@@ -41,16 +65,10 @@ class FrontendController
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        // Délai d'attente maximum strict (3 secondes)
         curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        // 🟢 ON NE MET PLUS curl_close($ch) ICI ! PHP 8 s'en charge tout seul.
 
         if ($result === false || $httpCode !== 200) {
             return true;
