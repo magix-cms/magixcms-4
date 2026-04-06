@@ -71,20 +71,30 @@
                             </select>
                         </div>
 
-                        {* --- BLOCS D'ARBORESCENCES (Cachés par défaut) --- *}
-                        <div id="box_pages" class="mb-4 d-none p-2 bg-light border rounded" style="max-height: 250px; overflow-y: auto;">
+                        {* --- BLOCS D'ARBORESCENCES --- *}
+
+                        <div id="box_pages" class="mb-4 d-none p-2 bg-light border rounded">
                             <span class="d-block small fw-bold text-muted mb-2 border-bottom pb-1">Sélectionnez la page :</span>
-                            {call name=renderTree items=$pages_tree inputName="target_pages"}
+                            <input type="text" class="form-control form-control-sm mb-2 tree-search" placeholder="Rechercher une page...">
+                            <div class="tree-container" style="max-height: 200px; overflow-y: auto;">
+                                {call name=renderTree items=$pages_tree inputName="target_pages"}
+                            </div>
                         </div>
 
-                        <div id="box_about" class="mb-4 d-none p-2 bg-light border rounded" style="max-height: 250px; overflow-y: auto;">
+                        <div id="box_about" class="mb-4 d-none p-2 bg-light border rounded">
                             <span class="d-block small fw-bold text-muted mb-2 border-bottom pb-1">Sélectionnez la page :</span>
-                            {call name=renderTree items=$about_tree inputName="target_about"}
+                            <input type="text" class="form-control form-control-sm mb-2 tree-search" placeholder="Rechercher une page...">
+                            <div class="tree-container" style="max-height: 200px; overflow-y: auto;">
+                                {call name=renderTree items=$about_tree inputName="target_about"}
+                            </div>
                         </div>
 
-                        <div id="box_cat" class="mb-4 d-none p-2 bg-light border rounded" style="max-height: 250px; overflow-y: auto;">
+                        <div id="box_cat" class="mb-4 d-none p-2 bg-light border rounded">
                             <span class="d-block small fw-bold text-muted mb-2 border-bottom pb-1">Sélectionnez la catégorie :</span>
-                            {call name=renderTree items=$cat_tree inputName="target_category"}
+                            <input type="text" class="form-control form-control-sm mb-2 tree-search" placeholder="Rechercher une catégorie...">
+                            <div class="tree-container" style="max-height: 200px; overflow-y: auto;">
+                                {call name=renderTree items=$cat_tree inputName="target_category"}
+                            </div>
                         </div>
 
                         {* 🟢 AJOUT DU BLOC PLUGIN ICI 🟢 *}
@@ -210,4 +220,47 @@
 
 {block name='javascripts' append}
     <script src="templates/js/MenuManager.min.js?v={$smarty.now}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sélectionne toutes les barres de recherche des arbres
+            const searchInputs = document.querySelectorAll('.tree-search');
+
+            searchInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const term = this.value.toLowerCase().trim();
+                    // Trouve le conteneur de la liste qui se trouve juste après l'input
+                    const treeContainer = this.nextElementSibling;
+                    const items = treeContainer.querySelectorAll('li');
+
+                    // Si le champ est vide, on réaffiche tout
+                    if (term === '') {
+                        items.forEach(li => li.style.display = '');
+                        return;
+                    }
+
+                    // On masque tout par défaut
+                    items.forEach(li => li.style.display = 'none');
+
+                    // On parcourt chaque élément pour voir s'il correspond à la recherche
+                    items.forEach(li => {
+                        const label = li.querySelector('label');
+                        if (label && label.textContent.toLowerCase().includes(term)) {
+                            // On affiche l'élément qui correspond
+                            li.style.display = '';
+
+                            // On remonte l'arbre pour s'assurer que ses parents <li> sont visibles aussi
+                            let parent = li.parentElement;
+                            while (parent && parent !== treeContainer) {
+                                if (parent.tagName === 'LI') {
+                                    parent.style.display = '';
+                                }
+                                parent = parent.parentElement;
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 {/block}
