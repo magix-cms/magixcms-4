@@ -124,10 +124,12 @@
         {assign var="show_mail" value=($is_admin || !empty($menu_perms.mailsetting))}
         {assign var="show_transl" value=($is_admin || !empty($menu_perms.translation))}
         {assign var="show_rev" value=($is_admin || !empty($menu_perms.revisions))}
+        {assign var="show_seoredirect" value=($is_admin || !empty($menu_perms.seoredirect))} {* 🟢 AJOUT : Perm pour SeoRedirect *}
 
-        {if $show_company || $show_setting || $show_domain || $show_lang || $show_mail || $show_transl || $show_rev}
+        {if $show_company || $show_setting || $show_domain || $show_lang || $show_mail || $show_transl || $show_rev || $show_seoredirect}
             <li class="mb-1">
-                {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'translation' || $current_c == 'revisions')}
+                {* 🟢 AJOUT : On inclut seoredirect pour garder le menu ouvert *}
+                {assign var="is_config" value=($current_c == 'company' || $current_c == 'setting' || $current_c == 'mailsetting' || $current_c == 'domain' || $current_c == 'lang' || $current_c == 'translation' || $current_c == 'revisions' || $current_c == 'seoredirect')}
                 <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_config}collapsed{/if}"
                         data-bs-toggle="collapse" data-bs-target="#menu-config" aria-expanded="{if $is_config}true{else}false{/if}">
                     <i class="bi bi-gear fs-5 me-3"></i><span class="menu-text">Configuration</span>
@@ -141,6 +143,9 @@
                         {if $show_mail}<li><a href="index.php?controller=MailSetting" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'mailsetting' || $current_c == 'mail'}active-sub{/if}"><i class="bi bi-send me-2 opacity-75"></i> E-mails (SMTP)</a></li>{/if}
                         {if $show_transl}<li><a href="index.php?controller=Translation" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'translation'}active-sub{/if}"><i class="bi bi-translate me-2 opacity-75"></i> Traductions</a></li>{/if}
                         {if $show_rev}<li><a href="index.php?controller=Revisions" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'revisions'}active-sub{/if}"><i class="bi bi-clock-history me-2 opacity-75"></i> Historique</a></li>{/if}
+
+                        {* 🟢 AJOUT : Le lien vers SeoRedirect *}
+                        {if $show_seoredirect}<li><a href="index.php?controller=SeoRedirect" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'seoredirect'}active-sub{/if}"><i class="bi bi-sign-turn-right me-2 opacity-75"></i> Redirections SEO</a></li>{/if}
                     </ul>
                 </div>
             </li>
