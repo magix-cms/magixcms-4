@@ -54,7 +54,7 @@ class UrlTool
             }
         }
 
-        // 🟢 AJOUT : Le Fallback "Anti-Doublon" pour les liens inconnus
+        // AJOUT : Le Fallback "Anti-Doublon" pour les liens inconnus
         $urlFallback = '';
         if (!empty($data['url'])) {
             $urlStr = (string)$data['url'];

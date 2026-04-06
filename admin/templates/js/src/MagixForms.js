@@ -91,14 +91,20 @@ class MagixForms {
 
         if (!data.status) return;
 
-        // 🟢 NOUVEAU : Interception du traitement par lots (Batch)
+        // Interception du traitement par lots (Batch)
         if (data.action === 'start_batch') {
             this.runBatchProcess(data.module, data.attribute);
-            return; // On arrête l'exécution classique ici
+            return;
         }
 
         if (data.reload) {
             setTimeout(() => { window.location.reload(); }, 1500);
+            return;
+        }
+
+        // 🟢 AJOUT IMPORTANT : Si le PHP ordonne explicitement une redirection !
+        if (data.url || data.redirect) {
+            setTimeout(() => { window.location.href = data.redirect || data.url; }, 1500);
             return;
         }
         // --- MISE À JOUR DES URLS PUBLIQUES ---

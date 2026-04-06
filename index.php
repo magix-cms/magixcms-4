@@ -31,6 +31,11 @@ $autoloader->addNamespace('App\\Frontend\\', APP_PATH . 'Frontend' . DS);
 $autoloader->addNamespace('App\\Component\\', APP_PATH . 'Component' . DS);
 $autoloader->addNamespace('Plugins\\', ROOT_DIR . 'plugins' . DS);
 
+// 🟢 4. INTERCEPTION DES REDIRECTIONS SEO (À placer ici !)
+// On le fait avant même de configurer Smarty ou de lire les contrôleurs.
+$redirectTool = new \App\Component\Routing\RedirectTool();
+$redirectTool->checkAndRedirect();
+
 // 4. Configuration de Smarty (Vue Front-end)
 // On utilise le contexte 'front' pour ne pas interférer avec 'admin'
 SmartyTool::registerContext('front', [
@@ -56,16 +61,19 @@ $pluginClassName = "Plugins\\" . $cleanName . "\\src\\FrontendController";
 // 7. Exécution
 try {
     if (class_exists($coreClassName)) {
-        // CAS 1 : C'est un contrôleur natif du Front-end (ex: HomeController, NewsController)
+        // CAS 1 : C'est un contrôleur natif du Front-end
         $app = new $coreClassName();
         $app->run();
 
     } elseif (class_exists($pluginClassName)) {
         // CAS 2 : C'est un Plugin qui possède une partie publique
-
         $pluginRootDir = ROOT_DIR . 'plugins' . DS . $cleanName;
+
         if (!is_dir($pluginRootDir)) {
-            throw new \Exception("Le dossier du plugin '{$cleanName}' est introuvable.");
+            // Si le dossier n'existe pas, c'est une 404, on passe à l'ErrorController
+            $app = new \App\Frontend\Controller\ErrorController();
+            $app->run();
+            exit;
         }
 
         $app = new $pluginClassName();
@@ -74,27 +82,24 @@ try {
             throw new \Exception("Le contrôleur public du plugin '{$cleanName}' est invalide (méthode run manquante).");
         }
 
-        // On définit le chemin des vues publiques du plugin
         $pluginViewDir = $pluginRootDir . DS . 'views' . DS . 'front';
-
-        // On injecte le dossier de vue du plugin dans le contexte 'front' de Smarty
         if (is_dir($pluginViewDir)) {
             SmartyTool::addTemplateDir('front', $pluginViewDir);
         }
 
-        // Lancement du plugin
         $app->run();
 
     } else {
-        // Page 404 si la classe n'existe pas
-        // Idéalement, on instanciera ici un ErrorController pour afficher une belle vue 404
-        throw new \Exception("Erreur 404 : La page '{$cleanName}' est introuvable.");
+        // 🟢 CAS 3 : CONTRÔLEUR INTROUVABLE -> VRAIE ERREUR 404
+        $app = new \App\Frontend\Controller\ErrorController();
+        $app->run();
     }
-} catch (\Exception $e) {
-    // Affichage des erreurs (À masquer en production plus tard)
-    header("HTTP/1.0 404 Not Found");
-    echo "<div style='font-family: sans-serif; padding: 20px; border: 1px solid #ff9800; background: #fff3e0; color: #e65100;'>";
-    echo "<h3>Magix CMS 4 - Erreur Front-end</h3>";
+
+} catch (\Throwable $e) {
+    // 🔴 Le catch ne sert plus aux 404, mais aux ERREURS FATALES (500)
+    header("HTTP/1.0 500 Internal Server Error");
+    echo "<div style='font-family: sans-serif; padding: 20px; border: 1px solid #d32f2f; background: #ffebee; color: #b71c1c;'>";
+    echo "<h3>Erreur 500 - Problème critique sur le site</h3>";
     echo "<p>" . $e->getMessage() . "</p>";
     echo "</div>";
 }
