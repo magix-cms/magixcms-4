@@ -127,10 +127,15 @@ class SeoRedirectController extends BaseController
     /**
      * Traitement unitaire : Édition ou Création d'une seule redirection
      */
+    /**
+     * Traitement unitaire : Édition ou Création d'une seule redirection
+     */
     public function edit(): void
     {
         $db = new SeoRedirectDb();
-        $id = isset($_REQUEST['id_redirect']) ? (int)$_REQUEST['id_redirect'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
+
+        // 🟢 CORRECTION ICI : On récupère $_REQUEST['edit'] envoyé par le tableau Magix CMS
+        $id = (int)($_REQUEST['edit'] ?? $_POST['id_redirect'] ?? 0);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -146,7 +151,6 @@ class SeoRedirectController extends BaseController
             if ($id > 0) {
                 // Mise à jour
                 if ($db->updateRedirect($id, $data)) {
-                    // 🟢 Correction JS : Ajout de 'redirect'
                     $this->jsonResponse(true, 'La redirection a été mise à jour avec succès.', [
                         'type' => 'redirect',
                         'redirect' => 'index.php?controller=SeoRedirect',
@@ -157,7 +161,6 @@ class SeoRedirectController extends BaseController
                 // Création unitaire
                 $data['active'] = 1;
                 if ($db->insertRedirect($data)) {
-                    // 🟢 Correction JS : Ajout de 'redirect'
                     $this->jsonResponse(true, 'La redirection a été ajoutée avec succès.', [
                         'type' => 'redirect',
                         'redirect' => 'index.php?controller=SeoRedirect',
