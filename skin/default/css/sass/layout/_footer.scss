@@ -99,7 +99,10 @@
     p {
       transition: color 0.3s ease;
     }
-
+    .news-date{
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
     // 2. État au survol du bloc complet
     &:hover {
       .news-title {
@@ -111,11 +114,10 @@
       p {
         color: rgba(255, 255, 255, 0.7) !important; // On force l'éclaircissement face au text-white-50 de Bootstrap
       }
-    }
-  }
-  .widget-footer-news{
-    .news-date{
-      color: rgba(255, 255, 255, 0.7);
+
+      .news-date{
+        color: var(--white-color);
+      }
     }
   }
 }

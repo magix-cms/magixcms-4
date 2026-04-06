@@ -19,7 +19,7 @@
                                 {$news.content|strip_tags|truncate:70:"..."}
                             {/if}
                         </p>
-                        <small class="text-muted" style="font-size: 0.75rem;">
+                        <small class="news-date" style="font-size: 0.75rem;">
                             <i class="bi bi-calendar3 me-1"></i>
                             {if !empty($news.date_start)}
                                 {$news.date_start|date_format:"%d/%m/%Y"}
