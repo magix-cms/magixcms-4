@@ -34,8 +34,7 @@ class SeoRedirectController extends BaseController
             'id_redirect'   => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
             'old_url'       => ['title' => 'Ancienne URL', 'type' => 'text', 'class' => 'fw-bold'],
             'new_url'       => ['title' => 'Nouvelle URL', 'type' => 'text', 'class' => 'text-success'],
-            'type_redirect' => ['title' => 'Type', 'type' => 'badge', 'class' => 'text-center'],
-            'active'        => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center']
+            'type_redirect' => ['title' => 'Type', 'type' => 'badge', 'class' => 'text-center']
         ];
 
         // 2. Initialisation du Helper pour formater les données correctement

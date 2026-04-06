@@ -10,7 +10,7 @@ use Magepattern\Component\Tool\DateTool;
 class AboutDb extends BaseDb
 {
     /**
-     * Récupère la liste paginée (Listing principal)
+     * Récupère la liste paginée (Listing principal) avec moteur de recherche
      */
     public function fetchAllAbout(int $page = 1, int $limit = 25, array $search = [], int $idLang = 1): array|false
     {
@@ -31,11 +31,47 @@ class AboutDb extends BaseDb
             ->leftJoin('mc_about_content', 'pa_c', 'pa.id_about = pa_c.id_about AND pa_c.id_lang = :id_lang')
             ->where('c.id_lang = :id_lang', ['id_lang' => $idLang]);
 
+        // 🟢 GESTION DE LA RECHERCHE (Adaptée de PagesDb)
         if (!empty($search)) {
+            // Lors d'une recherche, on trie par ID décroissant plutôt que par parent
             $qb->orderBy('a.id_about', 'DESC');
-            // Ajoutez ici vos filtres de recherche si nécessaire (LIKE...)
+
+            $nbc = 1;
+            foreach ($search as $key => $q) {
+                if ($q !== '') {
+                    $paramName = 'p' . $nbc;
+                    $binds = [];
+                    switch ($key) {
+                        case 'id_about':
+                        case 'menu_about':
+                            $binds[$paramName] = $q;
+                            $qb->where("a.{$key} = :{$paramName}", $binds);
+                            break;
+                        case 'published_about':
+                            $binds[$paramName] = $q;
+                            $qb->where("c.{$key} = :{$paramName}", $binds);
+                            break;
+                        case 'name_about':
+                            $binds[$paramName] = '%' . $q . '%';
+                            $qb->where("c.{$key} LIKE :{$paramName}", $binds);
+                            break;
+                        case 'parent_about':
+                            // pa_c correspond au contenu du parent
+                            $binds[$paramName] = '%' . $q . '%';
+                            $qb->where("pa_c.name_about LIKE :{$paramName}", $binds);
+                            break;
+                        case 'date_register':
+                            // Nécessite l'import de DateTool : use Magepattern\Component\Tool\DateTool;
+                            $formattedDate = DateTool::toSql((string)$q);
+                            $binds[$paramName] = '%' . $formattedDate . '%';
+                            $qb->where("a.{$key} LIKE :{$paramName}", $binds);
+                            break;
+                    }
+                    $nbc++;
+                }
+            }
         } else {
-            // Tri par parent puis par ordre (pour visualiser la hiérarchie)
+            // Tri par défaut (Hiérarchique)
             $qb->orderBy('a.id_parent', 'ASC')
                 ->orderBy('a.order_about', 'ASC');
         }
