@@ -43,11 +43,14 @@ class UrlTool
         $basePath = "/{$iso}{$ampPath}";
 
         // Formatage de la date (News / Archives)
+        // Formatage de la date (News / Archives)
         $formattedDate = '';
         if (!empty($data['date'])) {
-            $sqlDate = DateTool::toSql((string)$data['date']);
-            if ($sqlDate) {
-                $formattedDate = str_replace('-', '/', substr($sqlDate, 0, 10));
+            // strtotime comprendra n'importe quelle date valide (ex: "2026-03-23 14:30:00")
+            $timestamp = strtotime((string)$data['date']);
+            if ($timestamp !== false) {
+                // On la convertit directement au format requis pour l'URL : Y/m/d
+                $formattedDate = date('Y/m/d', $timestamp);
             }
         }
 

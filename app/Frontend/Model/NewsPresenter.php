@@ -17,13 +17,16 @@ class NewsPresenter
         $iso = $langContext['iso_lang'] ?? 'fr';
         $idNews = (int)($row['id_news'] ?? 0);
 
+        // 🟢 1. On stocke la date brute
+        $rawDatePublish = $row['date_publish'] ?? null;
+
         $data = [
             'id'           => $idNews,
             'name'         => $row['name_news'] ?? '',
             'longname'     => $row['longname_news'] ?? '',
             'resume'       => $row['resume_news'] ?? '',
             'content'      => $row['content_news'] ?? '',
-            'date_publish' => $row['date_publish'] ?? null,
+            'date_publish' => $rawDatePublish, // On la garde ici pour le template Smarty (date_format)
             'date_start'   => $row['date_event_start'] ?? null,
             'date_end'     => $row['date_event_end'] ?? null,
             'link'         => [
@@ -32,13 +35,19 @@ class NewsPresenter
             ]
         ];
 
+        // 🟢 2. On formate la date spécifiquement pour l'URL
+        $urlDate = null;
+        if (!empty($rawDatePublish)) {
+            $urlDate = date('Y-m-d', strtotime($rawDatePublish));
+        }
+
         $urlTool = new UrlTool();
         $data['url'] = $urlTool->buildUrl([
             'type' => 'news',
             'id'   => $idNews,
             'url'  => $row['url_news'] ?? '',
             'iso'  => $iso,
-            'date' => $data['date_publish']
+            'date' => $urlDate // 🟢 ICI : On passe la date formatée Y-m-d
         ]);
 
         // 🟢 Transmission de $skinFolder

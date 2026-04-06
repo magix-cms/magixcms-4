@@ -68,12 +68,19 @@ class NewsController extends BaseController
                 $translatedNews = $this->db->getNewsPage($id, $lId);
 
                 if ($translatedNews && !empty($translatedNews['url_news'])) {
+
+                    // 🟢 CORRECTION : Formatage de la date pour le hreflang
+                    $translatedDate = null;
+                    if (!empty($translatedNews['date_publish'])) {
+                        $translatedDate = date('Y-m-d', strtotime($translatedNews['date_publish']));
+                    }
+
                     $hreflangUrls[$lId] = $urlTool->buildUrl([
                         'type' => 'news',
                         'id'   => $id,
                         'url'  => $translatedNews['url_news'],
                         'iso'  => $lIso,
-                        'date' => $translatedNews['date_publish'] ?? null // Important pour le slug News
+                        'date' => $translatedDate // On utilise la date formatée
                     ]);
 
                     if (isset($l['is_default']) && $l['is_default'] == 1) {
