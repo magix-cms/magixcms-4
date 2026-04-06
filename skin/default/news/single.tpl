@@ -48,47 +48,45 @@
         </div>
     </header>
 
-    <section class="page-body mb-5">
-        <div class="row">
-            <div class="col-lg-{$news.gallery|count > 0 ? '6' : '12'} mb-4">
-                <div class="content-formatted">
-                    {$news.content|default:'' nofilter}
+    <section class="page-body mb-5 clearfix">
+
+        {if isset($news.gallery) && $news.gallery|count > 0}
+            <div class="col-12 col-lg-5 float-lg-end ms-lg-4 mb-4">
+                <div class="c-gallery c-gallery--page">
+                    <div class="c-gallery__main shadow-sm rounded mb-3">
+                        {foreach $news.gallery as $index => $image}
+                            <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
+                                {$zoom_url = $image.original.src|default:$image.default.src}
+                                <a href="{$zoom_url}" class="glightbox" data-gallery="news-gallery" data-title="{$image.title}">
+                                    {include file="components/img.tpl" img=$image class="img-fluid w-100"}
+                                </a>
+                            </div>
+                        {/foreach}
+                    </div>
+
+                    {if $news.gallery|count > 1}
+                        <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
+                            <div class="splide__track">
+                                <ul class="splide__list">
+                                    {foreach $news.gallery as $index => $image}
+                                        <li class="splide__slide">
+                                            <div class="thumb-wrapper p-1">
+                                                {include file="components/img.tpl" img=$image class="img-fluid rounded" size="small"}
+                                            </div>
+                                        </li>
+                                    {/foreach}
+                                </ul>
+                            </div>
+                        </div>
+                    {/if}
                 </div>
             </div>
+        {/if}
 
-            {if isset($news.gallery) && $news.gallery|count > 0}
-                <div class="col-lg-6">
-                    <div class="c-gallery c-gallery--page">
-                        <div class="c-gallery__main shadow-sm rounded mb-3">
-                            {foreach $news.gallery as $index => $image}
-                                <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
-                                    {$zoom_url = $image.original.src|default:$image.default.src}
-                                    <a href="{$zoom_url}" class="glightbox" data-gallery="news-gallery" data-title="{$image.title}">
-                                        {include file="components/img.tpl" img=$image class="img-fluid w-100"}
-                                    </a>
-                                </div>
-                            {/foreach}
-                        </div>
-
-                        {if $news.gallery|count > 1}
-                            <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
-                                <div class="splide__track">
-                                    <ul class="splide__list">
-                                        {foreach $news.gallery as $index => $image}
-                                            <li class="splide__slide">
-                                                <div class="thumb-wrapper p-1">
-                                                    {include file="components/img.tpl" img=$image class="img-fluid rounded" size="small"}
-                                                </div>
-                                            </li>
-                                        {/foreach}
-                                    </ul>
-                                </div>
-                            </div>
-                        {/if}
-                    </div>
-                </div>
-            {/if}
+        <div class="content-formatted">
+            {$news.content|default:'' nofilter}
         </div>
+
     </section>
 
     <section class="page-body mb-5">
