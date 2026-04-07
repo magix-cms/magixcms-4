@@ -90,10 +90,18 @@
                             </li>
                         {/if}
 
-                        {if !empty($companyData.email)}
+                        {if !empty($companyData.mail)}
                             <li class="mb-3">
                                 <i class="bi bi-envelope text-primary me-2"></i>
-                                <a href="mailto:{$companyData.email}" class="text-decoration-none text-dark">{$companyData.email}</a>
+                                {if $companyData.click_to_mail}
+                                    {mailto address=$companyData.mail encode="javascript_charcode" extra='class="text-decoration-none text-dark"'}
+                                {else}
+                                    {if $companyData.crypt_mail}
+                                        <span>{$companyData.mail|replace:'@':'<span class="fas ico ico-at"></span>' nofilter}</span>
+                                    {else}
+                                        <span>{$companyData.mail}</span>
+                                    {/if}
+                                {/if}
                             </li>
                         {/if}
 

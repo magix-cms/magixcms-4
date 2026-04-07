@@ -19,11 +19,8 @@
         'Montserrat' => '700,900'
         ]}
     {/if}
-    {* 1. ON DÉFINIT LES CSS GLOBAUX (chargés sur toutes les pages) *}
     {$global_css = ["global"]}
 
-    {* 2. ON APPELLE LE BLOC POUR L'ENFANT *}
-    {* On change le nom de la variable de l'enfant pour éviter les conflits *}
     {block name="styleSheet" nocache}{/block}
     {include file="components/css.tpl"}
     {if isset($consentedCookies.analyticCookies) && $consentedCookies.analyticCookies == true}
@@ -34,7 +31,6 @@
 </head>
 <body class="bg-body-tertiary">
 {include file="layout/header.tpl"}
-{* 3. LE CORPS : C'est ici que le contenu de la page enfant va s'insérer *}
 {block name="main:before"}{/block}
 {block name="main"}
     <main class="flex-grow-1">
@@ -51,25 +47,20 @@
 {include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
 {include file="components/cookies.tpl"}
-{* 1. On définit les JS globaux du parent *}
 {$global_js = [
 'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd', 'CookieConsent'],
 'async' => [],
 'normal' => []
 ]}
 
-{* 2. On exécute un bloc MUET (sans affichage) pour que l'enfant puisse définir $page_js *}
 {block name="javascript_data" nocache}{/block}
 
-{* 3. MAINTENANT on génère les balises <script src="..."> (Parent + Enfant) *}
 {include file="components/js.tpl"}
 
-{* 4. ENFIN on exécute les scripts inline de l'enfant *}
 {block name="javascript" nocache}{/block}
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- 1. Gestion du Header ---
         const header = document.getElementById('header');
         if (header) {
             window.addEventListener('scroll', function() {
@@ -81,7 +72,6 @@
             });
         }
 
-        // --- 1. Gestion de la Footbar ---
         const footbar = document.getElementById('footbar');
         if (footbar) {
             window.addEventListener('scroll', function() {
@@ -93,19 +83,15 @@
             });
         }
 
-        // --- 2. Initialisation de Masonry (Footer) ---
-        const footerGrid = document.querySelector('#footer-masonry');
+        /*const footerGrid = document.querySelector('#footer-masonry');
         if (footerGrid) {
-            // On attend que le logo (et autres images) soient chargés
             imagesLoaded(footerGrid, function() {
                 new Masonry(footerGrid, {
-                    // Cible bien vos classes de widget (col-lg-4, ou col-12, etc.)
-                    // L'astuce c'est de cibler un préfixe commun ou juste de prendre les enfants directs
                     itemSelector: '#footer-masonry > div',
                     percentPosition: true
                 });
             });
-        }
+        }*/
         document.addEventListener('click', function(e) {
 
             const toggleBtn = e.target.closest('.js-mobile-toggle');
@@ -114,13 +100,17 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                // 🟢 LA CORRECTION EST ICI
-                // On remonte au lien parent (<a>) car c'est lui le vrai "voisin" du <ul>
                 const parentLink = toggleBtn.closest('a');
 
-                // On demande à Bootstrap d'ouvrir le menu associé à ce lien
                 bootstrap.Dropdown.getOrCreateInstance(parentLink).toggle();
             }
+        });
+        document.querySelectorAll('a.targetblank').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = link.href;
+                window.open(url, '_blank', 'noopener,noreferrer');
+            });
         });
     });
 </script>

@@ -2,24 +2,24 @@
     {* 1. INITIALISATION DES VARIABLES PAR DÉFAUT *}
     {$meta = []}
 
-    {* Données de base (issues de vos contrôleurs) *}
+    {* Données de base *}
     {$meta['og:site_name']   = $companyInfo.name|default:'Magix CMS'}
     {$meta['og:title']       = $seo_title|default:''}
     {$meta['og:description'] = $seo_desc|default:''}
     {$meta['og:url']         = "{$site_url|default:''}{$smarty.server.REQUEST_URI|default:''}"}
     {$meta['og:type']        = 'website'}
 
-    {* Twitter Cards (summary_large_image est aujourd'hui recommandé pour un meilleur taux de clic) *}
+    {* Twitter Cards *}
     {$meta['twitter:card']   = 'summary_large_image'}
     {if !empty($companyInfo.twitter)}
         {$meta['twitter:site'] = $companyInfo.twitter}
     {/if}
 
-    {* Image par défaut (Logo ou image de partage globale) *}
-    {$default_img = "{$site_url|default:''}/skin/default/images/logo.png"}
+    {* 🟢 CHANGEMENT ICI : On pointe vers notre nouvelle image Social *}
+    {$default_img = "{$site_url|default:''}/img/social/social_default.jpg"}
     {$meta['og:image'] = $default_img}
 
-    {* 2. SURCHARGES CONTEXTUELLES (La magie de Magix 4) *}
+    {* 2. SURCHARGES CONTEXTUELLES *}
 
     {* --- PRODUIT --- *}
     {if isset($product) && isset($product.id)}
@@ -42,7 +42,6 @@
             {$meta['og:image'] = $news.img.default.src}
         {/if}
         {if !empty($news.date)}
-            {* Formatage ISO 8601 requis par Facebook/LinkedIn *}
             {$meta['article:published_time'] = $news.date|date_format:"%Y-%m-%dT%H:%M:%S%z"}
         {/if}
         {$meta['article:author'] = $companyInfo.name|default:''}
@@ -70,7 +69,6 @@
 {* 3. GÉNÉRATION DES BALISES HTML *}
 {foreach $meta as $k => $v}
     {if !empty($v)}
-        {* Twitter utilise l'attribut "name", OpenGraph et les autres utilisent "property" *}
         {if $k|strpos:'twitter:' === 0}
             <meta name="{$k}" content="{$v|escape:'html'}" />
         {else}

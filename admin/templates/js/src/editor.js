@@ -194,6 +194,7 @@
         codesample_languages: [
             {text: 'HTML/XML', value: 'markup'},
             {text: 'JavaScript', value: 'javascript'},
+            {text: 'json', value: 'json'},
             {text: 'CSS', value: 'css'},
             {text: 'PHP', value: 'php'},
             {text: 'Smarty', value: 'smarty'},
