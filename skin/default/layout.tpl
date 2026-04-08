@@ -48,7 +48,7 @@
 {include file="layout/footbar.tpl"}
 {include file="components/cookies.tpl"}
 {$global_js = [
-'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd', 'CookieConsent'],
+'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd', 'CookieConsent', 'MagixCore'],
 'async' => [],
 'normal' => []
 ]}

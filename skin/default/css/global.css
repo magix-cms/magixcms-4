@@ -23928,6 +23928,63 @@ h6, .h6 {
     transform: translateY(0);
   }
 }
+/* --- Magix CMS 4 : Composant YouTube --- */
+.magix-ytb-container {
+  width: 100%;
+  aspect-ratio: 16/9; /* Ratio par défaut */
+  background-color: #000;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  position: relative;
+  display: block;
+}
+
+/* Si l'utilisateur choisit 4:3 */
+.magix-ytb-container[data-ratio="4 / 3"] {
+  aspect-ratio: 4/3;
+}
+
+/* Le bouton Play virtuel par dessus l'image */
+.magix-ytb-container::after {
+  content: "▶";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  width: 80px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Laisse passer le clic */
+  transition: background 0.3s ease;
+}
+
+.magix-ytb-container:hover::after {
+  background: #ff0000; /* Rouge YouTube au survol */
+  color: #fff;
+}
+
+/* Images et Iframe à 100% du conteneur */
+.ytb-video-preview,
+.magix-ytb-cover,
+.magix-ytb-container iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border: none;
+  cursor: pointer;
+}
+
+.magix-ytb-container.is-playing::after {
+  display: none;
+}
+
 .grid, .list-grid {
   display: grid;
   gap: var(--grid-gutter, 1.5rem);
