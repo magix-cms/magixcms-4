@@ -118,16 +118,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-
-      // Assure que le texte reste lisible sur mobile, peu importe le header
       color: var(--bs-body-color);
+
+      // 🟢 CORRECTION 1 : On force le texte à revenir à la ligne
+      white-space: normal;
+      word-break: break-word;
+
+      // 🟢 CORRECTION 2 : Gestion de l'espace Flexbox
+      > span:first-child {
+        flex: 1;             // Le texte prend tout l'espace disponible
+        padding-right: 15px; // Garde une marge avec la flèche
+      }
+
+      .js-mobile-toggle {
+        flex-shrink: 0;      // Interdit à la flèche de s'écraser si le texte est long
+      }
     }
 
-    // 🟢 FUSION MOBILE : On garde vos flèches Bootstrap Icons
+    // FUSION MOBILE : Flèches Bootstrap Icons
     .dropdown-toggle::after {
       display: inline-block;
-      font-family: "bootstrap-icons"; // On utilise bien votre police Bootstrap
-      content: "\F4FE"; // Code pour bi-plus-lg
+      font-family: "bootstrap-icons";
+      content: "\F4FE"; // bi-plus-lg
       border: none;
       font-size: 1rem;
       transition: transform 0.3s ease;
@@ -135,24 +147,38 @@
     }
 
     // Quand l'accordéon est ouvert
-    // Quand l'accordéon est ouvert (Bootstrap met l'attribut sur le <a> parent)
     a[aria-expanded="true"] .dropdown-toggle::after {
-      content: "\F2EA"; // Code pour bi-dash-lg
+      content: "\F2EA"; // bi-dash-lg
       transform: rotate(180deg);
     }
 
     // Esthétique des sous-menus mobiles
     .dropdown-menu {
       border: none;
-      background-color: #f8f9fa; // Légèrement grisé pour différencier
-      padding-left: 1.5rem; // Indentation
+      background-color: #f8f9fa;
+      padding-left: 1.5rem;
       margin-top: 0;
 
       .dropdown-item {
         padding: 0.5rem 1rem;
         font-size: 0.95rem;
+
+        // 🟢 CORRECTION 3 : Annule le nowrap par défaut de Bootstrap
+        white-space: normal;
+        word-break: break-word;
+
+        // 🟢 CORRECTION 4 : Même logique Flexbox pour les sous-menus
+        > span:first-child {
+          flex: 1;
+          padding-right: 15px;
+        }
+
+        .js-mobile-toggle {
+          flex-shrink: 0;
+        }
       }
     }
+
     // Animation d'ouverture douce pour le menu mobile
     .dropdown-menu.show {
       animation: slideMobileMenu 0.3s ease-out forwards;

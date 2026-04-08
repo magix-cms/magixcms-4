@@ -23862,6 +23862,15 @@ h6, .h6 {
     justify-content: space-between;
     align-items: center;
     color: var(--bs-body-color);
+    white-space: normal;
+    word-break: break-word;
+  }
+  .navbar-nav .nav-link > span:first-child {
+    flex: 1;
+    padding-right: 15px;
+  }
+  .navbar-nav .nav-link .js-mobile-toggle {
+    flex-shrink: 0;
   }
   .navbar-nav .dropdown-toggle::after {
     display: inline-block;
@@ -23885,6 +23894,15 @@ h6, .h6 {
   .navbar-nav .dropdown-menu .dropdown-item {
     padding: 0.5rem 1rem;
     font-size: 0.95rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .navbar-nav .dropdown-menu .dropdown-item > span:first-child {
+    flex: 1;
+    padding-right: 15px;
+  }
+  .navbar-nav .dropdown-menu .dropdown-item .js-mobile-toggle {
+    flex-shrink: 0;
   }
   .navbar-nav .dropdown-menu.show {
     animation: slideMobileMenu 0.3s ease-out forwards;

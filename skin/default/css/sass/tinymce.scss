@@ -7,7 +7,7 @@ $bootstrap-icons-font-dir: "../fonts";
 
 // 2. VENDORS (Bootstrap & Icônes)
 @import "bootstrap-bundles/bootstrap-full"; // Moteur principal
-@import "icofont/icofont";
+@import "icofont/icofont"; 
 
 // 3. BASE ET RACINE (Le CSS commence à être généré ici)
 @import "base/root";           // On génère vos variables CSS natives en premier
