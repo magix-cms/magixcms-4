@@ -13,6 +13,7 @@ class MagixCore {
     init() {
         this.initScrollEvents();
         this.initGlobalClicks();
+        this.initScrollAnimations(); // 🟢 NOUVEAU : Initialisation des animations
     }
 
     /**
@@ -31,6 +32,39 @@ class MagixCore {
                 isScrolled ? this.footbar.classList.remove('at-top') : this.footbar.classList.add('at-top');
             }
         }, { passive: true }); // passive:true optimise les performances de scroll
+    }
+
+    /**
+     * 🟢 NOUVEAU : Gestion des animations CSS au défilement (Scroll-Driven Animations)
+     * Utilise l'IntersectionObserver pour de hautes performances
+     */
+    initScrollAnimations() {
+        const animatedElements = document.querySelectorAll('.animate-on-scroll');
+
+        // S'il n'y a pas d'éléments à animer sur cette page, on ne fait rien
+        if (animatedElements.length === 0) return;
+
+        const observerOptions = {
+            root: null,
+            rootMargin: "0px 0px -10% 0px", // L'animation démarre quand l'élément est à 10% du bas de l'écran
+            threshold: 0
+        };
+
+        const animationObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Ajoute la classe pour déclencher la transition CSS
+                    entry.target.classList.add('is-visible');
+                    // On cesse d'observer cet élément pour qu'il reste visible si on remonte la page
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // On attache l'observateur à tous les éléments trouvés
+        animatedElements.forEach(element => {
+            animationObserver.observe(element);
+        });
     }
 
     /**

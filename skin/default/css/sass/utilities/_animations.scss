@@ -1,0 +1,41 @@
+// Variables globales pour l'animation
+$anim-duration: 0.6s;
+$anim-easing: cubic-bezier(0.25, 0.8, 0.25, 1); // Un effet d'élasticité très fluide
+
+.animate-on-scroll {
+  opacity: 0;
+  // On prépare la transition
+  transition: opacity $anim-duration $anim-easing,
+  transform $anim-duration $anim-easing;
+
+  /* --- VARIANTES DE DIRECTION --- */
+  &.fade-up    { transform: translateY(50px); }
+  &.fade-down  { transform: translateY(-50px); }
+  &.fade-left  { transform: translateX(50px); }
+  &.fade-right { transform: translateX(-50px); }
+  &.zoom-in    { transform: scale(0.9); }
+
+  /* --- ÉTAT VISIBLE --- */
+  &.is-visible {
+    opacity: 1;
+    transform: translate(0) scale(1);
+  }
+}
+
+/* --- BOUCLE SCSS POUR LES DÉLAIS (Effet Cascade) --- */
+// Crée les classes .delay-1, .delay-2, jusqu'à .delay-5
+@for $i from 1 through 5 {
+  .delay-#{$i} {
+    transition-delay: #{$i * 0.15}s; // 0.15s, 0.30s, 0.45s...
+  }
+}
+
+/* --- OPTIMISATION ACCESSIBILITÉ --- */
+// Désactive les animations pour les utilisateurs qui préfèrent les mouvements réduits
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

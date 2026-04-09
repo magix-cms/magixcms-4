@@ -48,7 +48,7 @@
 {include file="layout/footbar.tpl"}
 {include file="components/cookies.tpl"}
 {$global_js = [
-'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/masonry.pkgd', 'vendor/imagesloaded.pkgd', 'CookieConsent', 'MagixCore'],
+'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/imagesloaded.pkgd', 'CookieConsent', 'MagixCore'],
 'async' => [],
 'normal' => []
 ]}
@@ -59,61 +59,6 @@
 
 {block name="javascript" nocache}{/block}
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const header = document.getElementById('header');
-        if (header) {
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 100) {
-                    header.classList.remove('at-top');
-                } else {
-                    header.classList.add('at-top');
-                }
-            });
-        }
-
-        const footbar = document.getElementById('footbar');
-        if (footbar) {
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 100) {
-                    footbar.classList.remove('at-top');
-                } else {
-                    footbar.classList.add('at-top');
-                }
-            });
-        }
-
-        /*const footerGrid = document.querySelector('#footer-masonry');
-        if (footerGrid) {
-            imagesLoaded(footerGrid, function() {
-                new Masonry(footerGrid, {
-                    itemSelector: '#footer-masonry > div',
-                    percentPosition: true
-                });
-            });
-        }*/
-        document.addEventListener('click', function(e) {
-
-            const toggleBtn = e.target.closest('.js-mobile-toggle');
-
-            if (toggleBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const parentLink = toggleBtn.closest('a');
-
-                bootstrap.Dropdown.getOrCreateInstance(parentLink).toggle();
-            }
-        });
-        document.querySelectorAll('a.targetblank').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const url = link.href;
-                window.open(url, '_blank', 'noopener,noreferrer');
-            });
-        });
-    });
-</script>
 {if isset($admin_maintenance_warning) && $admin_maintenance_warning}
     <div class="position-fixed start-0 bottom-0 p-3" style="z-index: 1090; margin-bottom: 80px;">
         <div class="alert alert-warning alert-dismissible fade show shadow-lg mb-0 py-2 pe-5" role="alert" style="border-radius: 50rem;">
