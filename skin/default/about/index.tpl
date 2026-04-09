@@ -31,54 +31,51 @@
             </div>
         </header>
 
-        <section class="page-body mb-5">
-            <div class="row">
-                <div class="col-lg-{$about.gallery|count > 0 ? '6' : '12'} mb-4">
-                    <div class="content-formatted">
-                        {$about.content nofilter}
+        <section class="page-body mb-5 clearfix">
+
+            {if $about.gallery && $about.gallery|count > 0}
+                <div class="col-12 col-lg-5 float-lg-end ms-lg-4 mb-4">
+                    <div class="c-gallery c-gallery--about">
+
+                        <div class="c-gallery__main shadow-sm rounded mb-3">
+                            {foreach $about.gallery as $index => $image}
+                                <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
+                                    {$zoom_url = $image.original.src|default:$image.default.src}
+                                    <a href="{$zoom_url}" class="glightbox" data-gallery="about" data-title="{$image.title}">
+                                        {include file="components/img.tpl" img=$image class="img-fluid w-100"}
+                                    </a>
+                                </div>
+                            {/foreach}
+                        </div>
+
+                        {if $about.gallery|count > 1}
+                            <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
+                                <div class="splide__track">
+                                    <ul class="splide__list">
+                                        {foreach $about.gallery as $index => $image}
+                                            <li class="splide__slide">
+                                                {include file="components/img.tpl" img=$image class="img-fluid" size="small"}
+                                            </li>
+                                        {/foreach}
+                                    </ul>
+                                </div>
+                            </div>
+                        {/if}
+
                     </div>
                 </div>
+            {/if}
 
-                {if $about.gallery && $about.gallery|count > 0}
-                    <div class="col-lg-6">
-                        <div class="c-gallery c-gallery--about">
-
-                            <div class="c-gallery__main shadow-sm rounded mb-3">
-                                {foreach $about.gallery as $index => $image}
-                                    <div class="gallery-main-item {if $index == 0}is-active{/if}" id="main-image-{$index}">
-                                        {$zoom_url = $image.original.src|default:$image.default.src}
-                                        <a href="{$zoom_url}" class="glightbox" data-gallery="about" data-title="{$image.title}">
-                                            {include file="components/img.tpl" img=$image class="img-fluid w-100"}
-                                        </a>
-                                    </div>
-                                {/foreach}
-                            </div>
-
-                            {if $about.gallery|count > 1}
-                                <div id="thumbnail-slider" class="splide c-gallery__thumbs">
-                                    <div class="splide__track">
-                                        <ul class="splide__list">
-                                            {foreach $about.gallery as $index => $image}
-                                                <li class="splide__slide">
-                                                    {include file="components/img.tpl" img=$image class="img-fluid" size="small"}
-                                                </li>
-                                            {/foreach}
-                                        </ul>
-                                    </div>
-                                </div>
-                            {/if}
-
-                        </div>
-                    </div>
-                {/if}
+            <div class="content-formatted">
+                {$about.content nofilter}
             </div>
+
         </section>
 
         {if isset($about.subdata) && $about.subdata|count > 0}
             <section class="page-children mt-5 pt-4 border-top">
                 <div class="row">
                     <div class="col-12 mb-4">
-                        {* 🟢 Titre de section traduit *}
                         <h3 class="fw-bold text-primary">
                             {#about_learn_more_title#}
                         </h3>
