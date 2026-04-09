@@ -5,48 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$seo_title}</title>
     <meta name="description" content="{$seo_desc}">
+
     {block name="head:structured_data"}{/block}
     {include file="components/lang_head.tpl"}
     {include file="components/opengraph.tpl"}
+
     {if isset($canonical_url) && $canonical_url}
         <link rel="canonical" href="{$canonical_url}" />
     {/if}
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
+    </noscript>
+
     {if isset($consentedCookies.ggWebfontCookies) && $consentedCookies.ggWebfontCookies == true}
         {include file="components/google_fonts.tpl" fonts=[
         'Roboto' => '300,400,400italic,700',
         'Montserrat' => '700,900'
         ]}
     {/if}
+
     {$global_css = ["global"]}
 
     {block name="styleSheet" nocache}{/block}
     {include file="components/css.tpl"}
+
     {if isset($consentedCookies.analyticCookies) && $consentedCookies.analyticCookies == true}
         {include file="components/analytics.tpl"}
     {/if}
+
     {include file="components/favicon.tpl"}
     {event name="displayHead"}
 </head>
 <body class="bg-body-tertiary">
+
 {include file="layout/header.tpl"}
+
 {block name="main:before"}{/block}
 {block name="main"}
     <main class="flex-grow-1">
         <div class="container py-2">
-        {block name='article'}
-            <article>
-                {block name='article:content'}{/block}
-            </article>
-        {/block}
+            {block name='article'}
+                <article>
+                    {block name='article:content'}{/block}
+                </article>
+            {/block}
         </div>
     </main>
 {/block}
 {block name="main:after"}{/block}
+
 {include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
 {include file="components/cookies.tpl"}
+
 {$global_js = [
 'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/imagesloaded.pkgd', 'CookieConsent', 'MagixCore'],
 'async' => [],
