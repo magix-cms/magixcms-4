@@ -1,7 +1,9 @@
 {extends file="layout.tpl"}
 
 {block name='head:title'}{#edit_page#}{/block}
-
+{block name="stylesheets" append nocache}
+    <link href="{$site_url}/{$baseadmin}/templates/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+{/block}
 {block name='article'}
     {* En-tête simple (comme à l'origine) *}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -66,13 +68,17 @@
                                 <select class="form-select selectpicker" data-live-search="true" id="parent_select" name="id_parent" onchange="document.getElementById('parent_id').value = this.value;">
                                     <option value="0">-- {#root_level#} (Aucun parent) --</option>
                                     {if isset($pagesSelect)}
-                                        {$incorrectParents = [$page_data.id_pages|default:0]}
+                                        {$incorrectParents = [(int)$page_data.id_pages]}
+
                                         {foreach $pagesSelect as $item}
-                                            {if in_array($item.parent_pages, $incorrectParents)}
-                                                {if !in_array($item.id_pages, $incorrectParents)}{$incorrectParents[] = $item.id_pages}{/if}
-                                            {elseif $item.id_pages != ($page_data.id_pages|default:0)}
-                                                <option value="{$item.id_pages}" {if ($page_data.id_parent|default:0) == $item.id_pages}selected{/if}>
-                                                    {$item.name_pages|default:'Page sans nom'} (ID: {$item.id_pages})
+                                            {$i_parent = (int)$item.id_parent}
+                                            {$i_pages  = (int)$item.id_pages}
+
+                                            {if in_array($i_parent, $incorrectParents)}
+                                                {if !in_array($i_pages, $incorrectParents)}{$incorrectParents[] = $i_pages}{/if}
+                                            {elseif $i_pages != (int)$page_data.id_pages}
+                                                <option value="{$i_pages}" {if ((int)$page_data.id_parent) == $i_pages}selected{/if}>
+                                                    {$item.name_pages|default:'Page sans nom'} (ID: {$i_pages})
                                                 </option>
                                             {/if}
                                         {/foreach}
@@ -333,14 +339,9 @@
 {/block}
 
 {block name="javascripts" append}
-    {* Librairie SortableJS pour le Drag&Drop *}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
-    {* 1. CORRECTION DES CHEMINS
-       Vérifiez si vos fichiers sont dans 'templates/js/' ou 'skin/admin/js/'
-    *}
-    <script src="templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
-    <script src="templates/js/MagixGallery.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/tom-select.complete.min.js"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixGallery.min.js?v={$smarty.now}"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -361,6 +362,22 @@
 
                 massDeleteBtnId: 'btn-delete-selection'
             });
+            const parentSelect = document.getElementById('parent_select');
+            if (parentSelect) {
+                new TomSelect(parentSelect, {
+                    plugins: ['dropdown_input'], // Le plugin pour la barre de recherche dans la liste
+                    create: false,
+                    sortField: false,
+                    maxOptions: null,
+                    searchField: ['text'],
+                    placeholder: "Rechercher une page...",
+                    render: {
+                        no_results: function(data, escape) {
+                            return '<div class="no-results p-2 text-muted small">Aucune page trouvée pour "'+escape(data.input)+'"</div>';
+                        }
+                    }
+                });
+            }
         });
     </script>
 {/block}

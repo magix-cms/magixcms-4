@@ -1,7 +1,9 @@
 {extends file="layout.tpl"}
 
 {block name='head:title'}Ajouter une catégorie{/block}
-
+{block name="stylesheets" append nocache}
+    <link href="{$site_url}/{$baseadmin}/templates/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+{/block}
 {block name='article'}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
@@ -182,10 +184,27 @@
 {/block}
 
 {block name="javascripts" append}
-    <script src="templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             new MagixFormTools();
+            const parentSelect = document.getElementById('parent_select');
+            if (parentSelect) {
+                new TomSelect(parentSelect, {
+                    plugins: ['dropdown_input'],
+                    create: false,
+                    sortField: false,
+                    maxOptions: null,
+                    searchField: ['text'],
+                    placeholder: "Rechercher une catégorie...",
+                    render: {
+                        no_results: function(data, escape) {
+                            return '<div class="no-results p-2 text-muted small">Aucune catégorie trouvée pour "'+escape(data.input)+'"</div>';
+                        }
+                    }
+                });
+            }
         });
     </script>
 {/block}

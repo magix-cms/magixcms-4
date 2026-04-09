@@ -2,6 +2,10 @@
 
 {block name='head:title'}{#add_page#}{/block}
 
+{block name="stylesheets" append nocache}
+    <link href="{$site_url}/{$baseadmin}/templates/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+{/block}
+
 {block name='article'}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
@@ -205,9 +209,29 @@
 {/block}
 
 {block name="javascripts" append}
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Script de verrouillage/déverrouillage de l'URL (Identique à l'édition)
+
+            // 1. INITIALISATION DE TOM SELECT
+            const parentSelect = document.getElementById('parent_select');
+            if (parentSelect) {
+                new TomSelect(parentSelect, {
+                    plugins: ['dropdown_input'], // 🟢 LE PLUGIN MAGIQUE EST ICI
+                    create: false,
+                    sortField: false,
+                    maxOptions: null,
+                    searchField: ['text'],
+                    placeholder: "Rechercher une page...",
+                    render: {
+                        no_results: function(data, escape) {
+                            return '<div class="no-results p-2 text-muted small">Aucune page trouvée pour "'+escape(data.input)+'"</div>';
+                        }
+                    }
+                });
+            }
+
+            // 2. ÉCOUTEUR DE CLIC POUR LE VERROUILLAGE DE L'URL
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.toggle-url-lock');
 
@@ -235,6 +259,7 @@
                     }
                 }
             });
+
         });
     </script>
 {/block}

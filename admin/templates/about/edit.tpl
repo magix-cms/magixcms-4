@@ -1,7 +1,9 @@
 {extends file="layout.tpl"}
 
 {block name='head:title'}Édition About{/block}
-
+{block name="stylesheets" append nocache}
+    <link href="{$site_url}/{$baseadmin}/templates/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+{/block}
 {block name='article'}
     {* En-tête *}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -65,13 +67,17 @@
                                 <select class="form-select selectpicker" data-live-search="true" id="parent_select" name="id_parent" onchange="document.getElementById('parent_id').value = this.value;">
                                     <option value="0">-- Racine (Aucun parent) --</option>
                                     {if isset($aboutSelect)}
-                                        {$incorrectParents = [$page_data.id_about|default:0]}
+                                        {$incorrectParents = [(int)$page_data.id_about]}
+
                                         {foreach $aboutSelect as $item}
-                                            {if in_array($item.id_parent, $incorrectParents)}
-                                                {if !in_array($item.id_about, $incorrectParents)}{$incorrectParents[] = $item.id_about}{/if}
-                                            {elseif $item.id_about != ($page_data.id_about|default:0)}
-                                                <option value="{$item.id_about}" {if ($page_data.id_parent|default:0) == $item.id_about}selected{/if}>
-                                                    {$item.name_about|default:'Page sans nom'} (ID: {$item.id_about})
+                                            {$i_parent = (int)$item.id_parent}
+                                            {$i_about  = (int)$item.id_about}
+
+                                            {if in_array($i_parent, $incorrectParents)}
+                                                {if !in_array($i_about, $incorrectParents)}{$incorrectParents[] = $i_about}{/if}
+                                            {elseif $i_about != (int)$page_data.id_about}
+                                                <option value="{$i_about}" {if ((int)$page_data.id_parent) == $i_about}selected{/if}>
+                                                    {$item.name_about|default:'Page sans nom'} (ID: {$i_about})
                                                 </option>
                                             {/if}
                                         {/foreach}
@@ -324,9 +330,9 @@
 {/block}
 
 {block name="javascripts" append}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
-    <script src="templates/js/MagixGallery.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixFormTools.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixGallery.min.js?v={$smarty.now}"></script>
+    <script src="{$site_url}/{$baseadmin}/templates/js/vendor/tom-select.complete.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -337,6 +343,23 @@
                 containerId: 'block-img',
                 massDeleteBtnId: 'btn-delete-selection'
             });
+
+            const parentSelect = document.getElementById('parent_select');
+            if (parentSelect) {
+                new TomSelect(parentSelect, {
+                    plugins: ['dropdown_input'], // Le plugin pour la barre de recherche dans la liste
+                    create: false,
+                    sortField: false,
+                    maxOptions: null,
+                    searchField: ['text'],
+                    placeholder: "Rechercher une page...",
+                    render: {
+                        no_results: function(data, escape) {
+                            return '<div class="no-results p-2 text-muted small">Aucune page trouvée pour "'+escape(data.input)+'"</div>';
+                        }
+                    }
+                });
+            }
         });
     </script>
 {/block}
