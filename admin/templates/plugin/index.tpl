@@ -83,9 +83,12 @@
                             <td class="text-end pe-4">
                                 {if $plugin.is_installed}
                                     <div class="btn-group btn-group-sm">
-                                        <a href="index.php?controller={$plugin.name}" class="btn btn-outline-secondary" title="Configurer">
-                                            <i class="bi bi-gear"></i>
-                                        </a>
+                                        {if !isset($plugin.has_config) || $plugin.has_config == 1}
+                                            <a href="index.php?controller={$plugin.name}" class="btn btn-outline-secondary" title="Configurer">
+                                                <i class="bi bi-gear"></i>
+                                            </a>
+                                        {/if}
+
                                         <button type="button" class="btn btn-outline-danger btn-uninstall-plugin" data-plugin="{$plugin.name}" title="Désinstaller">
                                             <i class="bi bi-trash"></i>
                                         </button>
