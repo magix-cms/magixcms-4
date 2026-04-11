@@ -24003,6 +24003,10 @@ h6, .h6 {
   display: none;
 }
 
+.no-play-btn.magix-ytb-container::after {
+  display: none !important;
+}
+
 .grid, .list-grid {
   display: grid;
   gap: var(--grid-gutter, 1.5rem);

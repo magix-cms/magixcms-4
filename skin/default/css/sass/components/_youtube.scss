@@ -53,3 +53,6 @@
 .magix-ytb-container.is-playing::after {
   display: none;
 }
+.no-play-btn.magix-ytb-container::after {
+  display: none !important;
+}
