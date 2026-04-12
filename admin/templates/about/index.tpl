@@ -26,8 +26,6 @@
             sortable=$sortable
             controller="About"
             change_offset=true
-            edit=true
-            dlt=true
             }
         </div>
     </div>

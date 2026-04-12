@@ -75,7 +75,7 @@ class AboutController extends BaseController
             'hashtoken'  => $this->session->getToken(),
             'url_token'  => urlencode($this->session->getToken()),
             'get_search' => $search,
-            'sortable'   => empty($search),
+            'sortable'   => false,//empty($search),
             'checkbox'   => true,
             'edit'       => true,
             'dlt'        => true,
