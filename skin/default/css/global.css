@@ -22265,12 +22265,17 @@ h6, .h6 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: #3c62aa;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
 }
-.btn-main-glass:hover {
+.btn-main-glass:hover, .btn-main-glass:focus {
   background-color: #3c62aa !important;
   border-color: #3c62aa;
   color: #fff !important;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+.btn-main-glass:active {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
 }
 @media (prefers-color-scheme: dark) {
   .btn-main-glass {
@@ -22278,8 +22283,9 @@ h6, .h6 {
     border-color: rgba(255, 255, 255, 0.1);
     color: #3c62aa;
   }
-  .btn-main-glass:hover {
+  .btn-main-glass:hover, .btn-main-glass:focus {
     background-color: #3c62aa !important;
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }
@@ -22611,12 +22617,17 @@ h6, .h6 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: #808285;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
 }
-.btn-sd-glass:hover {
+.btn-sd-glass:hover, .btn-sd-glass:focus {
   background-color: #808285 !important;
   border-color: #808285;
   color: #fff !important;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+.btn-sd-glass:active {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
 }
 @media (prefers-color-scheme: dark) {
   .btn-sd-glass {
@@ -22624,8 +22635,9 @@ h6, .h6 {
     border-color: rgba(255, 255, 255, 0.1);
     color: #808285;
   }
-  .btn-sd-glass:hover {
+  .btn-sd-glass:hover, .btn-sd-glass:focus {
     background-color: #808285 !important;
+    border-color: #808285;
     color: #fff !important;
   }
 }
@@ -22957,12 +22969,17 @@ h6, .h6 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: #333333;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
 }
-.btn-dark-glass:hover {
+.btn-dark-glass:hover, .btn-dark-glass:focus {
   background-color: #333333 !important;
   border-color: #333333;
   color: #fff !important;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+.btn-dark-glass:active {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
 }
 @media (prefers-color-scheme: dark) {
   .btn-dark-glass {
@@ -22970,8 +22987,9 @@ h6, .h6 {
     border-color: rgba(255, 255, 255, 0.1);
     color: #333333;
   }
-  .btn-dark-glass:hover {
+  .btn-dark-glass:hover, .btn-dark-glass:focus {
     background-color: #333333 !important;
+    border-color: #333333;
     color: #fff !important;
   }
 }
@@ -23303,12 +23321,17 @@ h6, .h6 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: #5cb75c;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
 }
-.btn-green-glass:hover {
+.btn-green-glass:hover, .btn-green-glass:focus {
   background-color: #5cb75c !important;
   border-color: #5cb75c;
   color: #fff !important;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+.btn-green-glass:active {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
 }
 @media (prefers-color-scheme: dark) {
   .btn-green-glass {
@@ -23316,8 +23339,9 @@ h6, .h6 {
     border-color: rgba(255, 255, 255, 0.1);
     color: #5cb75c;
   }
-  .btn-green-glass:hover {
+  .btn-green-glass:hover, .btn-green-glass:focus {
     background-color: #5cb75c !important;
+    border-color: #5cb75c;
     color: #fff !important;
   }
 }
@@ -23649,12 +23673,17 @@ h6, .h6 {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: #ffffff;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
 }
-.btn-white-glass:hover {
+.btn-white-glass:hover, .btn-white-glass:focus {
   background-color: #ffffff !important;
   border-color: #ffffff;
   color: #000 !important;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+.btn-white-glass:active {
+  transform: translateY(1px);
+  transition: transform 0.1s ease;
 }
 @media (prefers-color-scheme: dark) {
   .btn-white-glass {
@@ -23662,8 +23691,9 @@ h6, .h6 {
     border-color: rgba(255, 255, 255, 0.1);
     color: #ffffff;
   }
-  .btn-white-glass:hover {
+  .btn-white-glass:hover, .btn-white-glass:focus {
     background-color: #ffffff !important;
+    border-color: #ffffff;
     color: #000 !important;
   }
 }

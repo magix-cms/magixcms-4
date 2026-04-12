@@ -144,19 +144,35 @@
   -webkit-backdrop-filter: blur(5px);
   color: $color;
 
-  &:hover {
+  // 🟢 LA CORRECTION EST ICI : On ajoute une transition douce sur le transform et les couleurs
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+  background-color 0.3s ease,
+  border-color 0.3s ease,
+  color 0.3s ease !important;
+
+  &:hover, &:focus { // Ajout de :focus pour l'accessibilité au clavier
     background-color: $color !important;
     border-color: $color;
     color: get-contrast-txt($color) !important;
-    transform: translateY(-2px);
+    // La "montée" se fera maintenant en douceur grâce au transition ci-dessus
+    transform: translateY(-3px);
   }
+
+  // 🟢 AJOUT OPTIONNEL MAIS RECOMMANDÉ : Effet d'enfoncement au clic
+  &:active {
+    transform: translateY(1px);
+    transition: transform 0.1s ease; // Très rapide pour l'impression de clic
+  }
+
   @include color-mode(dark) {
     background-color: rgba(0, 0, 0, 0.5) !important;
     border-color: rgba(255, 255, 255, 0.1);
     $dark-color: if(lightness($color) < 20, lighten($color, 40%), $color);
     color: $dark-color;
-    &:hover {
+
+    &:hover, &:focus {
       background-color: $color !important;
+      border-color: $color;
       color: get-contrast-txt($color) !important;
     }
   }
