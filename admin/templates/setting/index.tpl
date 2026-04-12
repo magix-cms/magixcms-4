@@ -171,7 +171,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label" for="mode">
                                         {#mode_setting#}
-                                        <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#mode_warning#|default:'Mode dev affiche les erreurs détaillées'}" data-bs-html="true"></i>
+                                        <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#mode_warning#|default:'Mode dev affiche les erreurs détaillées'|escape:'html'}" data-bs-html="true"></i>
                                     </label>
                                     <select name="settings[mode]" id="mode" class="form-select" required>
                                         {foreach $collectionformMode as $key => $val}
@@ -182,7 +182,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label" for="cache">
                                         {#cache_setting#}
-                                        <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#cache_warning#|default:'Mise en cache des données et requêtes'}" data-bs-html="true"></i>
+                                        <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#cache_warning#|default:'Mise en cache des données et requêtes'|escape:'html'}" data-bs-html="true"></i>
                                     </label>
                                     <select name="settings[cache]" id="cache" class="form-select" required>
                                         {foreach $collectionformCache as $key => $val}
