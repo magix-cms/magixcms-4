@@ -1,0 +1,88 @@
+/* =========================================================
+   Thème Flat & Moderne pour elFinder (MagixCMS 4)
+   ========================================================= */
+
+/* 1. Typographie et suppression des bordures vieillottes */
+.elfinder {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 2. Barre d'outils (Toolbar) épurée */
+.elfinder-toolbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 10px !important;
+}
+
+/* 3. Boutons de la barre d'outils (Flat design) */
+.elfinder-button {
+    background-image: none !important; /* Casse les vieux dégradés */
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.elfinder-button:hover {
+    background-color: #f1f5f9 !important; /* Gris très léger au survol */
+}
+
+.elfinder-button.ui-state-active {
+    background-color: #e2e8f0 !important;
+}
+
+/* 4. Barre latérale (Arborescence des dossiers) */
+.elfinder-navbar {
+    background: #f8fafc !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+.elfinder-navbar-wrapper {
+    padding: 10px 0;
+}
+
+/* 5. Zone principale des fichiers (CWD) */
+.elfinder-cwd-wrapper {
+    background: #ffffff !important;
+}
+
+/* 6. Fichiers et dossiers (Vue icônes) */
+.elfinder-cwd-view-icons .elfinder-cwd-file {
+    border-radius: 8px !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s;
+}
+
+.elfinder-cwd-view-icons .elfinder-cwd-file:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.elfinder-cwd-view-icons .elfinder-cwd-file.ui-selected {
+    background-color: #e0f2fe !important; /* Bleu clair Bootstrap/Tailwind */
+    border: 1px solid #bae6fd !important;
+}
+
+/* 7. Barre de statut en bas */
+.elfinder-statusbar {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    color: #64748b !important;
+    font-weight: 500;
+}
+
+/* 8. Fenêtres modales internes (Prévisualisation, infos) */
+.elfinder-dialog {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #fff !important;
+}
+
+.elfinder-dialog .ui-widget-header {
+    background: #fff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
