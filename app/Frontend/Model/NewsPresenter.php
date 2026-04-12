@@ -59,7 +59,10 @@ class NewsPresenter
         ];
 
         // 🟢 JSON-LD mis à jour avec $companyInfo
-        $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
+        // 🟢 JSON-LD mis à jour avec $companyInfo
+        $jsonLdData = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
+        $data['json_ld']    = $jsonLdData['html']; // Le code <script> pour la page Single
+        $data['schema_raw'] = $jsonLdData['raw'];  // Le tableau PHP brut pour le listing
 
         $knownKeys = array_flip([
             'id_news', 'date_publish', 'date_event_start', 'date_event_end', 'date_register',
@@ -131,11 +134,11 @@ class NewsPresenter
         return $imgData;
     }
 
-    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
+    // 🟢 CORRECTION : Le type de retour passe de "string" à "array"
+    private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): array
     {
         $imageUrl = $imgData['default']['src'] ?? '';
 
-        // 🟢 1. On prépare l'objet Image proprement
         $imageNode = null;
         if (!empty($imageUrl)) {
             $imageNode = [
@@ -144,7 +147,6 @@ class NewsPresenter
             ];
         }
 
-        // Éditeur (Important pour les NewsArticles SEO)
         $publisher = [];
         if (!empty($companyInfo['name'])) {
             $typesMap = ['org' => 'Organization', 'locb' => 'LocalBusiness', 'corp' => 'Corporation'];
@@ -154,8 +156,7 @@ class NewsPresenter
                 '@type' => $publisherType,
                 'name'  => $companyInfo['name'],
             ];
-            // Google requiert un logo pour l'éditeur d'un article
-            $logoSrc = "{$siteUrl}/skin/default/images/logo.png"; // Fallback générique
+            $logoSrc = "{$siteUrl}/skin/default/images/logo.png";
             if (file_exists(ROOT_DIR . 'img/logo/logo.png')) {
                 $logoSrc = "{$siteUrl}/img/logo/logo.png";
             }
@@ -173,7 +174,6 @@ class NewsPresenter
                 'url'         => $siteUrl . $data['url']
             ];
 
-            // 🟢 2. On injecte l'objet image seulement s'il existe
             if ($imageNode) {
                 $schema['image'] = $imageNode;
             }
@@ -192,7 +192,6 @@ class NewsPresenter
                 'url'           => $siteUrl . $data['url']
             ];
 
-            // 🟢 3. On injecte l'objet image seulement s'il existe
             if ($imageNode) {
                 $schema['image'] = $imageNode;
             }
@@ -200,7 +199,12 @@ class NewsPresenter
             if (!empty($publisher)) $schema['publisher'] = $publisher;
         }
 
-        // 🟢 4. Et on n'oublie pas les sauts de ligne (\n) pour un code HTML propre !
-        return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
+        // 🟢 CORRECTION : On renvoie un tableau contenant les DEUX formats
+        $htmlCode = '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
+
+        return [
+            'html' => $htmlCode,
+            'raw'  => $schema
+        ];
     }
 }

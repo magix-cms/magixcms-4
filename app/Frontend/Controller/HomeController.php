@@ -45,7 +45,7 @@ class HomeController extends BaseController
             'seo_desc'        => $seoDesc,
             'home_data'       => $homeData ?: [],
             'current_c'       => 'home',
-            'website_json_ld' => $jsonLdScript // 🟢 Le template "home.tpl" l'attend ici !
+            'website_json_ld' => $jsonLdScript
         ]);
 
         // 5. Affichage du template

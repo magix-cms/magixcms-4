@@ -14,71 +14,89 @@ class ProductController extends BaseController
     public function run(): void
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
-        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
-        $siteUrl = $this->view->getTemplateVars('site_url');
 
-        $db = new ProductDb();
-        $rawProduct = $db->getProductPage($id, $idLang);
+        // 🟢 Cache Smarty
+        $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        if (!$rawProduct) {
-            $this->render404();
-            return;
-        }
+        if (!$this->view->isCached('catalog/product.tpl', $cacheId)) {
 
-        $companyDb = new CompanyDb();
-        $companyInfo = $companyDb->getCompanyInfo();
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
+            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+            $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/'); // Correction slash de fin
 
-        // 1. Formatage du produit
-        $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
+            $db = new ProductDb();
+            $rawProduct = $db->getProductPage($id, $idLang);
 
-        // 2. Galerie
-        $product['gallery'] = [];
-        $images = $db->getProductImages($id, $idLang);
+            if (!$rawProduct) {
+                $this->render404();
+                return;
+            }
 
-        foreach ($images as $imgRow) {
-            $tempRow = array_merge($rawProduct, $imgRow);
-            $formattedTemp = ProductPresenter::format($tempRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
-            $formattedTemp['img']['is_default'] = (int)$imgRow['default_img'] === 1;
-            $product['gallery'][] = $formattedTemp['img'];
-        }
+            // 🟢 Sécurité SEO "Anti-vide"
+            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
 
-        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Product)
-        $allLangs = $this->view->getTemplateVars('langs');
-        $hreflangUrls = [];
-        $urlTool = new \App\Component\Routing\UrlTool();
+            $seoTitle = !empty($rawProduct['seo_title_p'])
+                ? $rawProduct['seo_title_p']
+                : ($rawProduct['name_p'] ?? 'Produit') . ' - ' . $siteName;
 
-        if ($allLangs && is_array($allLangs)) {
-            foreach ($allLangs as $l) {
-                $lId = (int)$l['id_lang'];
-                $lIso = strtolower($l['iso_lang']);
+            $seoDesc = !empty($rawProduct['seo_desc_p'])
+                ? $rawProduct['seo_desc_p']
+                : ($rawProduct['resume_p'] ?? '');
 
-                // Requête spécifique aux Produits
-                $translatedProduct = $db->getProductPage($id, $lId);
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo();
+            $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-                if ($translatedProduct && !empty($translatedProduct['url_product'])) {
-                    // Attention au type pour ProductTool, ça peut être 'catalog' ou 'product' selon votre config
-                    $hreflangUrls[$lId] = $urlTool->buildUrl([
-                        'type' => 'product',
-                        'id'   => $id,
-                        'url'  => $translatedProduct['url_product'],
-                        'iso'  => $lIso
-                    ]);
+            // 1. Formatage du produit
+            $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
 
-                    if (isset($l['is_default']) && $l['is_default'] == 1) {
-                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+            // 2. Galerie
+            $product['gallery'] = [];
+            $images = $db->getProductImages($id, $idLang);
+
+            foreach ($images as $imgRow) {
+                $tempRow = array_merge($rawProduct, $imgRow);
+                $formattedTemp = ProductPresenter::format($tempRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
+                $formattedTemp['img']['is_default'] = (int)$imgRow['default_img'] === 1;
+                $product['gallery'][] = $formattedTemp['img'];
+            }
+
+            // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Product)
+            $allLangs = $this->view->getTemplateVars('langs');
+            $hreflangUrls = [];
+            $urlTool = new \App\Component\Routing\UrlTool();
+
+            if ($allLangs && is_array($allLangs)) {
+                foreach ($allLangs as $l) {
+                    $lId = (int)$l['id_lang'];
+                    $lIso = strtolower($l['iso_lang']);
+
+                    // Requête spécifique aux Produits
+                    $translatedProduct = $db->getProductPage($id, $lId);
+
+                    if ($translatedProduct && !empty($translatedProduct['url_p'])) {
+                        // Attention au type pour ProductTool, ça peut être 'catalog' ou 'product' selon votre config
+                        $hreflangUrls[$lId] = $urlTool->buildUrl([
+                            'type' => 'product',
+                            'id'   => $id,
+                            'url'  => $translatedProduct['url_p'],
+                            'iso'  => $lIso
+                        ]);
+
+                        if (isset($l['is_default']) && $l['is_default'] == 1) {
+                            $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                        }
                     }
                 }
             }
+
+            $this->view->assign([
+                'product'   => $product,
+                'hreflang'  => $hreflangUrls,
+                'seo_title' => $seoTitle,
+                'seo_desc'  => $seoDesc
+            ]);
         }
 
-        $this->view->assign([
-            'product'   => $product,
-            'hreflang' => $hreflangUrls,
-            'seo_title' => $product['seo_title'] ?? $product['name'],
-            'seo_desc'  => $product['resume'] ?? ''
-        ]);
-
-        $this->view->display('catalog/product.tpl');
+        $this->view->display('catalog/product.tpl', $cacheId);
     }
 }

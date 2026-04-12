@@ -19,11 +19,9 @@ abstract class BaseDb
      */
     protected function getSqlCache(): CacheTool
     {
-        // Utilisation de la constante définie dans l'index.php public (var/cache/)
-        $cacheDir = SQLCACHEDIR . 'sql';
+        $cacheDir = ROOT_DIR . 'var' . DS . 'caches' . DS . 'sql';
 
         $securePath = FileTool::createSecureCacheDir($cacheDir);
-
         return new CacheTool($securePath);
     }
 

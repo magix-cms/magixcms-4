@@ -16,6 +16,7 @@ use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\ProductDb;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager;
 
 
 class CategoryController extends BaseController
@@ -232,7 +233,6 @@ class CategoryController extends BaseController
         }
 
         $db = new CategoryDb();
-
         $idParent = (int)($_POST['id_parent'] ?? 0);
 
         $structureData = [
@@ -243,8 +243,10 @@ class CategoryController extends BaseController
         $newId = $db->insertCategoryStructure($structureData);
 
         if ($newId) {
-            // On appelle la fonction, mais on se fiche du tableau retourné puisqu'on va rediriger
             $this->saveTranslations($db, $newId);
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, 'La catégorie a été créée avec succès.', ['type' => 'add', 'id' => $newId]);
         } else {
@@ -271,13 +273,14 @@ class CategoryController extends BaseController
         ];
 
         if ($db->updateCategoryStructure($id, $structureData)) {
-
-            // On récupère les URLs générées pour mettre à jour la vue dynamiquement
             $publicUrls = $this->saveTranslations($db, $id);
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, 'La catégorie a été mise à jour.', [
                 'type'        => 'update',
-                'public_urls' => $publicUrls // <-- MagixForms utilisera ça pour rafraîchir les champs !
+                'public_urls' => $publicUrls
             ]);
         } else {
             $this->jsonResponse(false, 'Erreur lors de la mise à jour de la catégorie.');
@@ -385,6 +388,9 @@ class CategoryController extends BaseController
         }
 
         if ($uploadedCount > 0) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('category');
+
             $this->jsonResponse(true, "$uploadedCount image(s) ajoutée(s).", ['uploaded' => $uploadedCount]);
         } else {
             $msg = !empty($errors) ? implode(', ', $errors) : 'Erreur lors du traitement.';
@@ -436,6 +442,9 @@ class CategoryController extends BaseController
             }
 
             if ($deletedCount > 0) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('category');
+
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
             }
         }
@@ -508,6 +517,11 @@ class CategoryController extends BaseController
             $success = false;
         }
 
+        if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('category');
+        }
+
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');
     }
     /**
@@ -521,6 +535,10 @@ class CategoryController extends BaseController
         if ($idCat > 0 && !empty($ids)) {
             $productDb = new ProductDb();
             if ($productDb->unlinkProductsFromCategory($idCat, $ids)) {
+                // 🟢 PURGE DU CACHE (Impact croisé Cat/Prod)
+                CacheManager::clearFrontend('category');
+                CacheManager::clearFrontend('product');
+
                 $this->jsonResponse(true, 'Les produits ont été retirés de la catégorie.', ['type' => 'delete_success']);
             }
         }
@@ -538,6 +556,10 @@ class CategoryController extends BaseController
         if ($idCat > 0 && !empty($ids)) {
             $productDb = new ProductDb();
             if ($productDb->reorderProductsInCategory($idCat, $ids)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('category');
+                CacheManager::clearFrontend('product');
+
                 $this->jsonResponse(true, 'L\'ordre d\'affichage a été sauvegardé.', ['type' => 'order_success']);
             }
         }

@@ -23,16 +23,22 @@ class BackendController extends BaseController
 
     private function index(): void
     {
+        // 🟢 FORCAGE DU CACHE STAT : Garantit que les tailles affichées sont réelles
+        clearstatcache();
+
         // On récupère la taille des dossiers pour information
         $sizes = [
-            'front_tpl'   => $this->getDirSize(ROOT_DIR . 'var/templates_c'),
-            'front_cache' => $this->getDirSize(ROOT_DIR . 'var/caches'),
-            'front_log'   => $this->getDirSize(ROOT_DIR . 'var/log'),
-            'front_sql'   => $this->getDirSize(ROOT_DIR . 'var/sql'),
-            'back_tpl'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/templates_c'),
-            'back_cache'  => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches'),
-            'back_log'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/log'),
-            'back_sql'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/sql'),
+            'front_tpl'         => $this->getDirSize(ROOT_DIR . 'var/templates_c'),
+            'front_tpl_cache'   => $this->getDirSize(ROOT_DIR . 'var/tpl_caches'), // 🟢 NOUVEAU
+            'front_cache'       => $this->getDirSize(ROOT_DIR . 'var/caches'),
+            'front_sql'         => $this->getDirSize(ROOT_DIR . 'var/caches/sql'), // 🟢 CORRIGÉ
+            'front_log'         => $this->getDirSize(ROOT_DIR . 'var/log'),
+
+            'back_tpl'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/templates_c'),
+            'back_tpl_cache'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/tpl_caches'), // 🟢 NOUVEAU
+            'back_cache'        => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches'),
+            'back_sql'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches/sql'), // 🟢 CORRIGÉ
+            'back_log'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/log'),
         ];
 
         $this->view->assign([
@@ -59,25 +65,39 @@ class BackendController extends BaseController
 
         // Mapping des identifiants du formulaire vers les chemins réels
         $pathsMapping = [
-            'front_tpl'   => ROOT_DIR . 'var/templates_c',
-            'front_cache' => ROOT_DIR . 'var/caches',
-            'front_log'   => ROOT_DIR . 'var/log',
-            'front_sql'   => ROOT_DIR . 'var/sql',
-            'back_tpl'    => ROOT_DIR . BASEADMIN . '/var/templates_c',
-            'back_cache'  => ROOT_DIR . BASEADMIN . '/var/caches',
-            'back_log'    => ROOT_DIR . BASEADMIN . '/var/log',
-            'back_sql'    => ROOT_DIR . BASEADMIN . '/var/sql',
+            'front_tpl'         => ROOT_DIR . 'var/templates_c',
+            'front_tpl_cache'   => ROOT_DIR . 'var/tpl_caches', // 🟢 NOUVEAU
+            'front_cache'       => ROOT_DIR . 'var/caches',
+            'front_sql'         => ROOT_DIR . 'var/caches/sql', // 🟢 CORRIGÉ
+            'front_log'         => ROOT_DIR . 'var/log',
+
+            'back_tpl'          => ROOT_DIR . BASEADMIN . '/var/templates_c',
+            'back_tpl_cache'    => ROOT_DIR . BASEADMIN . '/var/tpl_caches', // 🟢 NOUVEAU
+            'back_cache'        => ROOT_DIR . BASEADMIN . '/var/caches',
+            'back_sql'          => ROOT_DIR . BASEADMIN . '/var/caches/sql', // 🟢 CORRIGÉ
+            'back_log'          => ROOT_DIR . BASEADMIN . '/var/log',
         ];
 
         $clearedCount = 0;
+        $hasCacheCleared = false;
 
         foreach ($targets as $target) {
             if (array_key_exists($target, $pathsMapping)) {
                 $dirPath = $pathsMapping[$target];
                 if ($this->emptyDirectorySafe($dirPath)) {
                     $clearedCount++;
+
+                    // On détecte si on vient de vider un dossier lié au cache ou SQL
+                    if (str_contains($target, 'tpl') || str_contains($target, 'cache') || str_contains($target, 'sql')) {
+                        $hasCacheCleared = true;
+                    }
                 }
             }
+        }
+
+        // 🟢 PURGE OPCACHE : Indispensable après avoir supprimé physiquement des fichiers de cache/template
+        if ($hasCacheCleared && function_exists('opcache_reset')) {
+            @opcache_reset();
         }
 
         if ($clearedCount > 0) {
@@ -97,31 +117,34 @@ class BackendController extends BaseController
             return false;
         }
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
+        try {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
 
-        $protectedFiles = ['.htaccess', 'index.html', 'index.php', '.gitignore'];
-        $success = true;
+            $protectedFiles = ['.htaccess', 'index.html', 'index.php', '.gitignore'];
 
-        foreach ($files as $fileinfo) {
-            $realPath = $fileinfo->getRealPath();
+            foreach ($files as $fileinfo) {
+                $realPath = $fileinfo->getRealPath();
 
-            // Protection des fichiers vitaux
-            if ($fileinfo->isFile() && in_array($fileinfo->getFilename(), $protectedFiles)) {
-                continue;
+                // Protection des fichiers vitaux
+                if ($fileinfo->isFile() && in_array($fileinfo->getFilename(), $protectedFiles)) {
+                    continue;
+                }
+
+                if ($fileinfo->isDir()) {
+                    @rmdir($realPath); // Suppression des sous-dossiers
+                } else {
+                    @unlink($realPath); // Suppression des fichiers
+                }
             }
+            return true;
 
-            if ($fileinfo->isDir()) {
-                // Échouera silencieusement si le dossier contient un fichier protégé (ex: racine templates_c)
-                @rmdir($realPath);
-            } else {
-                @unlink($realPath);
-            }
+        } catch (\Exception $e) {
+            // 🟢 ANTI-CRASH : Si un fichier de log est verrouillé par le serveur en écriture
+            return false;
         }
-
-        return $success;
     }
 
     /**
@@ -132,13 +155,20 @@ class BackendController extends BaseController
         if (!is_dir($dir)) return '0 B';
 
         $size = 0;
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)) as $file) {
-            $size += $file->getSize();
+        try {
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)) as $file) {
+                $size += $file->getSize();
+            }
+        } catch (\Exception $e) {
+            // Ignorer silencieusement les fichiers inaccessibles
         }
 
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        for ($i = 0; $size >= 1024 && $i < 4; $i++) {
+        $i = 0;
+
+        while ($size >= 1024 && $i < 4) {
             $size /= 1024;
+            $i++;
         }
 
         return round($size, 2) . ' ' . $units[$i];

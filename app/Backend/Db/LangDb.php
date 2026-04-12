@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Backend\Db;
 
 use Magepattern\Component\Database\QueryBuilder;
-use Magepattern\Component\File\CacheTool;
+// Plus besoin d'importer CacheTool ici, BaseDb s'en charge !
 
 class LangDb extends BaseDb
 {
     /**
      * Récupère la langue par défaut du système.
-     * @return array|false Retourne ['id_lang' => X, 'iso_lang' => 'XX'] ou false
      */
     public function getDefaultLanguage(): array|false
     {
@@ -56,10 +55,9 @@ class LangDb extends BaseDb
         $success = $this->executeUpdate($qbSet);
 
         if ($success) {
-            // Nettoyage du cache
-            $cacheDir = SQLCACHEADMIN . 'var/sql';
-            $cache = new CacheTool($cacheDir);
-            $cache->clearByTag('lang');
+            // 🟢 CORRECTION : On nettoie proprement l'Admin ET le Front !
+            $this->clearAdminSqlCache('lang');
+            $this->clearPublicSqlCache('lang');
         }
 
         return $success;
@@ -120,15 +118,11 @@ class LangDb extends BaseDb
 
     // --- PARTIE CRUD POUR L'ADMINISTRATION (LangController) ---
 
-    /**
-     * Récupère la liste paginée des langues pour le tableau de bord
-     */
     public function fetchAllAdminLanguages(int $page = 1, int $limit = 25, array $search = []): array|false
     {
         $qb = new QueryBuilder();
         $qb->select('*')->from('mc_lang');
 
-        // Tri par défaut : les langues par défaut en premier, puis actives, puis ordre alphabétique
         $qb->orderBy('default_lang', 'DESC')
             ->orderBy('active_lang', 'DESC')
             ->orderBy('name_lang', 'ASC');
@@ -136,9 +130,6 @@ class LangDb extends BaseDb
         return $this->executePaginatedQuery($qb, $page, $limit);
     }
 
-    /**
-     * Récupère une langue par son ID
-     */
     public function fetchLanguageById(int $id): array|false
     {
         $qb = new QueryBuilder();
@@ -146,23 +137,18 @@ class LangDb extends BaseDb
         return $this->executeRow($qb);
     }
 
-    /**
-     * Ajoute une nouvelle langue
-     */
     public function insertLanguage(array $data): int|false
     {
         $qb = new QueryBuilder();
         $qb->insert('mc_lang', $data);
         if ($this->executeInsert($qb)) {
-            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+            $this->clearAdminSqlCache('lang');
+            $this->clearPublicSqlCache('lang');
             return $this->getLastInsertId();
         }
         return false;
     }
 
-    /**
-     * Met à jour une langue existante
-     */
     public function updateLanguage(int $id, array $data): bool
     {
         $qb = new QueryBuilder();
@@ -170,14 +156,12 @@ class LangDb extends BaseDb
 
         $success = $this->executeUpdate($qb);
         if ($success) {
-            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+            $this->clearAdminSqlCache('lang');
+            $this->clearPublicSqlCache('lang');
         }
         return $success;
     }
 
-    /**
-     * Supprime une ou plusieurs langues
-     */
     public function deleteLanguage(array $ids): bool
     {
         if (empty($ids)) return false;
@@ -187,7 +171,8 @@ class LangDb extends BaseDb
 
         $success = $this->executeDelete($qb);
         if ($success) {
-            $this->getSqlCache()->clearByTag('lang'); // Nettoyage du cache
+            $this->clearAdminSqlCache('lang');
+            $this->clearPublicSqlCache('lang');
         }
         return $success;
     }

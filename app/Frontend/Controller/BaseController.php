@@ -36,14 +36,30 @@ abstract class BaseController
     /**
      * @throws \Smarty\Exception
      */
+    /**
+     * @throws \Smarty\Exception
+     */
     public function __construct()
     {
         $this->view = SmartyTool::getInstance('front');
         $this->logger = Logger::getInstance();
         $this->json = new JSON();
 
+        // 1. On charge les configurations depuis la BDD
         $this->initSettings();
 
+        $cacheSetting = $this->siteSettings['cache']['value'] ?? 'none';
+
+        if ($cacheSetting !== 'none') {
+            // Le cache est activé dans l'admin
+            $this->view->setCaching(Smarty::CACHING_LIFETIME_CURRENT);
+            $this->view->setCacheLifetime(3600); // 1 heure de cache
+        } else {
+            // Le cache est désactivé
+            $this->view->setCaching(Smarty::CACHING_OFF);
+        }
+
+        // 3. Suite de vos initialisations habituelles...
         $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
         $isSslActive = ($isSsl === 1);
 

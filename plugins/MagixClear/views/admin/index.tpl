@@ -24,7 +24,7 @@
                         <div class="list-group">
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-primary border-4">
                                 <div>
-                                    <div class="fw-bold">Cache Smarty (templates_c)</div>
+                                    <div class="fw-bold">Compilation Smarty (templates_c)</div>
                                     <small class="text-muted">Fichiers pré-compilés du thème (Recommandé après modif. HTML/CSS)</small>
                                 </div>
                                 <div class="d-flex align-items-center">
@@ -37,13 +37,39 @@
 
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-primary border-4">
                                 <div>
+                                    <div class="fw-bold text-primary-emphasis"><i class="bi bi-filetype-html me-1"></i> Pages statiques (tpl_caches)</div>
+                                    <small class="text-muted">Cache des vues entières générées par la "Double Barrière"</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-3">{$sizes.front_tpl_cache}</span>
+                                    <div class="form-check form-switch fs-4 m-0">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_tpl_cache" checked>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-primary border-4">
+                                <div>
                                     <div class="fw-bold">Données en cache (caches)</div>
-                                    <small class="text-muted">Résultats de requêtes SQL ou variables mises en cache</small>
+                                    <small class="text-muted">Variables, résultats Smarty et divers fichiers temporaires</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.front_cache}</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_cache" checked>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-warning border-4">
+                                <div>
+                                    <div class="fw-bold text-warning-emphasis"><i class="bi bi-database-exclamation me-1"></i> Cache SQL (caches/sql)</div>
+                                    <small class="text-muted">Requêtes de la BDD (Catalogue, Pages, etc.) mises en cache</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-3">{$sizes.front_sql}</span>
+                                    <div class="form-check form-switch fs-4 m-0">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_sql" checked>
                                     </div>
                                 </div>
                             </label>
@@ -57,19 +83,6 @@
                                     <span class="badge bg-secondary me-3">{$sizes.front_log}</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="front_log">
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-warning border-4">
-                                <div>
-                                    <div class="fw-bold text-warning-emphasis"><i class="bi bi-database-exclamation me-1"></i> Cache SQL (sql)</div>
-                                    <small class="text-muted">Requêtes mises en cache (À vider en dernier recours)</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_sql}</span>
-                                    <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="front_sql">
                                     </div>
                                 </div>
                             </label>
@@ -88,28 +101,54 @@
                     <div class="card-body bg-light rounded-bottom">
 
                         <div class="list-group">
-                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3">
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-dark border-4">
                                 <div>
-                                    <div class="fw-bold">Cache Smarty Admin (templates_c)</div>
+                                    <div class="fw-bold">Compilation Smarty (templates_c)</div>
                                     <small class="text-muted">Fichiers pré-compilés de l'interface d'administration</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_tpl}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_tpl">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_tpl" checked>
                                     </div>
                                 </div>
                             </label>
 
-                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3">
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-dark border-4">
+                                <div>
+                                    <div class="fw-bold text-dark-emphasis"><i class="bi bi-filetype-html me-1"></i> Pages statiques Admin (tpl_caches)</div>
+                                    <small class="text-muted">Cache des vues entières générées par l'administration</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-3">{$sizes.back_tpl_cache}</span>
+                                    <div class="form-check form-switch fs-4 m-0">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_tpl_cache" checked>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-dark border-4">
                                 <div>
                                     <div class="fw-bold">Données en cache (caches)</div>
-                                    <small class="text-muted">Statistiques et données d'administration</small>
+                                    <small class="text-muted">Statistiques et données d'administration temporaires</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_cache}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_cache">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_cache" checked>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-warning border-4">
+                                <div>
+                                    <div class="fw-bold text-warning-emphasis"><i class="bi bi-database-exclamation me-1"></i> Cache SQL Admin (caches/sql)</div>
+                                    <small class="text-muted">Requêtes backend optimisées en cache</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-3">{$sizes.back_sql}</span>
+                                    <div class="form-check form-switch fs-4 m-0">
+                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_sql" checked>
                                     </div>
                                 </div>
                             </label>
@@ -127,18 +166,6 @@
                                 </div>
                             </label>
 
-                            <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-warning border-4">
-                                <div>
-                                    <div class="fw-bold text-warning-emphasis"><i class="bi bi-database-exclamation me-1"></i> Cache SQL Admin (sql)</div>
-                                    <small class="text-muted">Requêtes backend (À vider en dernier recours)</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_sql}</span>
-                                    <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_sql">
-                                    </div>
-                                </div>
-                            </label>
                         </div>
 
                     </div>

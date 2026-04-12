@@ -63,7 +63,6 @@
                             </div>
                         {/foreach}
                     </div>
-
                     {if $news.gallery|count > 1}
                         <div id="thumbnail-slider" class="splide c-gallery__thumbs mt-3">
                             <div class="splide__track">
@@ -104,13 +103,13 @@
 
 {/block}
 
-{block name="javascript_data"}
+{block name="javascript_data" nocache}
     {$page_js = [
     'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
 {/block}
 
-{block name="javascript" append}
+{block name="javascript" append nocache}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof GalleryManager !== 'undefined') {

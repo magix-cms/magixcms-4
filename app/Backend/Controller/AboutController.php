@@ -15,6 +15,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager; // 🟢 Import du CacheManager
 
 class AboutController extends BaseController
 {
@@ -42,10 +43,10 @@ class AboutController extends BaseController
             $db->getTableScheme('mc_about'),
             $db->getTableScheme('mc_about_content')
         );
-        // Ajout manuel de la colonne virtuelle "parent_about" (créée par le JOIN dans AboutDb)
+        // Ajout manuel de la colonne virtuelle "parent_about"
         $rawScheme[] = ['column' => 'parent_about', 'type' => 'varchar(255)'];
 
-        // 3. Configuration de l'affichage (Titres, Types, Classes)
+        // 3. Configuration de l'affichage
         $associations = [
             'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
             'parent_about' => ['title' => 'Parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
@@ -54,10 +55,8 @@ class AboutController extends BaseController
             'date_register' => ['title' => 'Date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
         ];
 
-        // 4. Génération du schéma pour la vue
         $this->getScheme($rawScheme, $targetColumns, $associations);
 
-        // 5. Récupération des données
         $page   = Request::isGet('page') ? (int)$_GET['page'] : 1;
         $limit  = Request::isGet('offset') ? (int)$_GET['offset'] : 25;
         $search = $_GET['search'] ?? [];
@@ -68,7 +67,7 @@ class AboutController extends BaseController
 
         if ($result !== false) {
             $this->getItems('about_list', $result['data'], true, $result['meta']);
-            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
+            $meta = $result['meta'];
         }
 
         $this->view->assign([
@@ -76,7 +75,7 @@ class AboutController extends BaseController
             'hashtoken'  => $this->session->getToken(),
             'url_token'  => urlencode($this->session->getToken()),
             'get_search' => $search,
-            'sortable'   => empty($search), // Le tri manuel n'est possible que si on ne cherche pas
+            'sortable'   => empty($search),
             'checkbox'   => true,
             'edit'       => true,
             'dlt'        => true,
@@ -85,8 +84,6 @@ class AboutController extends BaseController
 
         $this->view->display('about/index.tpl');
     }
-
-    // --- AJOUT ---
 
     public function add(): void
     {
@@ -99,7 +96,6 @@ class AboutController extends BaseController
             return;
         }
 
-        // Récupération de la liste pour le select parent (C'est ici que ça plantait avant)
         $aboutSelect = $db->fetchAllAboutForSelect($idLangue);
 
         $this->view->assign([
@@ -118,7 +114,6 @@ class AboutController extends BaseController
             $this->jsonResponse(false, 'Session expirée.');
         }
 
-        // 1. Structure
         $idParent = (int)($_POST['id_parent'] ?? 0);
         $structureData = [
             'id_parent'   => ($idParent > 0) ? $idParent : null,
@@ -131,7 +126,6 @@ class AboutController extends BaseController
             $this->jsonResponse(false, 'Erreur création structure.');
         }
 
-        // 2. Contenus
         $activeLangs = $db->fetchLanguages();
         $success = true;
 
@@ -139,7 +133,6 @@ class AboutController extends BaseController
             foreach ($_POST['content'] as $idLang => $values) {
                 if (!isset($activeLangs[(int)$idLang])) continue;
 
-                // Gestion URL
                 $url = trim($values['url_about'] ?? '');
                 if (empty($url)) {
                     $url = Url::clean($values['name_about'] ?? '');
@@ -152,7 +145,7 @@ class AboutController extends BaseController
                     'longname_about'   => FormTool::simpleClean($values['longname_about'] ?? ''),
                     'url_about'        => $url,
                     'resume_about'     => FormTool::simpleClean($values['resume_about'] ?? ''),
-                    'content_about'    => $values['content_about'] ?? '', // HTML allowed
+                    'content_about'    => $values['content_about'] ?? '',
                     'link_label_about' => FormTool::simpleClean($values['link_label_about'] ?? ''),
                     'link_title_about' => FormTool::simpleClean($values['link_title_about'] ?? ''),
                     'seo_title_about'  => FormTool::simpleClean($values['seo_title_about'] ?? ''),
@@ -168,7 +161,9 @@ class AboutController extends BaseController
         }
 
         if ($success) {
-            // CORRECTION : Format strict attendu par MagixForms pour la création
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('about');
+
             $this->jsonResponse(true, 'La fiche a été créée avec succès.', [
                 'success' => true,
                 'type'    => 'add',
@@ -178,8 +173,6 @@ class AboutController extends BaseController
             $this->jsonResponse(false, 'Erreur lors de la sauvegarde des contenus.', ['success' => false]);
         }
     }
-
-    // --- ÉDITION ---
 
     public function edit(): void
     {
@@ -198,9 +191,6 @@ class AboutController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
         $aboutSelect = $db->fetchAllAboutForSelect($idLangue);
 
-        // ------------------------------------------------------------------
-        // 🟢 NOUVEAU : On génère le schéma pour le tableau des sous-pages
-        // ------------------------------------------------------------------
         $targetColumns = ['id_about', 'name_about', 'published_about', 'date_register'];
 
         $rawScheme = array_merge(
@@ -217,20 +207,14 @@ class AboutController extends BaseController
 
         $this->getScheme($rawScheme, $targetColumns, $associations);
 
-        // ------------------------------------------------------------------
-        // 🟢 NOUVEAU : Récupération et formatage des données
-        // ------------------------------------------------------------------
         $children = $db->fetchAboutByParent($id, $idLangue);
 
-        // On formate les données (pour que les switchs on/off et les dates s'affichent bien)
         if (!empty($children)) {
-            // Cela crée automatiquement la variable Smarty $subpages
             $this->getItems('subpages', $children, true);
         } else {
             $this->view->assign('subpages', []);
         }
 
-        // URL Preview
         $controller = StringTool::strtolower($_GET['controller'] ?? 'about');
         foreach ($activeLangs as $langId => $iso) {
             $slug = $aboutData['content'][$langId]['url_about'] ?? '';
@@ -238,10 +222,9 @@ class AboutController extends BaseController
         }
 
         $this->view->assign([
-            'idcolumn'    => 'id_about', // <-- REQUIS pour les boutons "Supprimer" et "Editer" du tableau
+            'idcolumn'    => 'id_about',
             'page_data'   => $aboutData,
             'aboutSelect' => $aboutSelect,
-            // 'subpages' => déjà assigné par getItems() juste au-dessus
             'langs'       => $activeLangs,
             'hashtoken'   => $this->session->getToken()
         ]);
@@ -297,17 +280,19 @@ class AboutController extends BaseController
                 if (!$db->saveAboutContent($idAbout, (int)$idLang, $data)) {
                     $success = false;
                 } else {
-                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                     if (!empty($data['content_about'])) {
                         $revDb = new RevisionsDb();
-                        // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
                         $revDb->saveRevision('about', $idAbout, (int)$idLang, 'content_about', $data['content_about']);
                     }
                 }
             }
         }
 
-        // CORRECTION : On ajoute le 'type' et l''id' attendus par MagixForms
+        // 🟢 PURGE DU CACHE
+        if ($success) {
+            CacheManager::clearFrontend('about');
+        }
+
         $this->jsonResponse($success, $success ? 'Mise à jour réussie' : 'Erreur SQL', [
             'success'     => $success,
             'type'        => 'update',
@@ -315,8 +300,6 @@ class AboutController extends BaseController
             'public_urls' => $publicUrls
         ]);
     }
-
-    // --- IMAGES ---
 
     public function processUploadImages(): void
     {
@@ -339,6 +322,12 @@ class AboutController extends BaseController
                 if ($db->insertImage($id, $res['file'])) $count++;
             }
         }
+
+        // 🟢 PURGE DU CACHE
+        if ($count > 0) {
+            CacheManager::clearFrontend('about');
+        }
+
         $this->jsonResponse(true, "$count images.", ['uploaded' => $count]);
     }
 
@@ -355,7 +344,7 @@ class AboutController extends BaseController
         $this->view->assign([
             'images'    => $formatted,
             'id_about'  => $id,
-            'current_c' => 'About' // <--- LA CORRECTION EST ICI
+            'current_c' => 'About'
         ]);
 
         $html = $this->view->fetch('components/gallery.tpl');
@@ -388,16 +377,22 @@ class AboutController extends BaseController
                     FileTool::remove($files);
                 }
             }
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('about');
+
             $this->jsonResponse(true, 'Supprimé');
         }
         $this->jsonResponse(false, 'Erreur');
     }
 
-    // --- AUTRES ACTIONS ---
-
     public function processOrderImages(): void {
         $imageIds = $_POST['image'] ?? [];
-        if (!empty($imageIds)) (new AboutDb())->reorderImages($imageIds);
+        if (!empty($imageIds)) {
+            (new AboutDb())->reorderImages($imageIds);
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('about');
+        }
         $this->jsonResponse(true, 'Ordre sauvegardé');
     }
 
@@ -405,6 +400,10 @@ class AboutController extends BaseController
         $id = (int)$_POST['edit'];
         $img = (int)$_POST['id_img'];
         (new AboutDb())->setDefaultImage($id, $img);
+
+        // 🟢 PURGE DU CACHE
+        CacheManager::clearFrontend('about');
+
         $this->jsonResponse(true, 'Défaut mis à jour');
     }
 
@@ -414,16 +413,16 @@ class AboutController extends BaseController
 
         if (!empty($cleanIds)) {
             if ((new AboutDb())->deleteAbout($cleanIds)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('about');
+
                 $this->jsonResponse(true, 'Supprimé');
             }
         }
         $this->jsonResponse(false, 'Erreur');
     }
 
-    // Pour le tri des éléments dans la liste (Drag and drop des lignes)
     public function reorder(): void {
-        // Logique similaire à PagesController::reorder
-        // Récupérer le JSON, parser, et appeler updateOrderAbout
         $input = file_get_contents('php://input');
         $data = $this->json->decode($input);
         if (isset($data['order']) && is_array($data['order'])) {
@@ -432,37 +431,32 @@ class AboutController extends BaseController
             foreach ($data['order'] as $id) {
                 $db->updateOrderAbout((int)$id, $pos++);
             }
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('about');
+
             $this->jsonResponse(true, 'Ordre mis à jour');
         }
         $this->jsonResponse(false, 'Erreur');
     }
-    /**
-     * AJAX : Récupère la modale d'édition des métadonnées d'une image
-     */
-    /**
-     * AJAX : Récupère la modale d'édition des métadonnées d'une image
-     */
+
     public function getImgMeta(): void
     {
         if (ob_get_length()) ob_clean();
 
         $idImg = (int)($_GET['id_img'] ?? 0);
-
-        // ATTENTION : Laissez PagesDb() dans PagesController, et AboutDb() dans AboutController
         $db = new AboutDb();
 
         $langs = $db->fetchLanguages();
         $meta = $db->fetchImageMeta($idImg);
 
-        // NOUVEAU : On récupère dynamiquement le nom du contrôleur depuis l'URL (GET)
-        // ex: Si on est sur l'URL index.php?controller=About, ça vaudra 'About'
         $currentController = ucfirst($_GET['controller'] ?? 'About');
 
         $this->view->assign([
             'img_id'          => $idImg,
             'langs'           => $langs,
             'meta'            => $meta,
-            'controller_name' => $currentController // <-- La variable est maintenant dynamique !
+            'controller_name' => $currentController
         ]);
 
         $html = $this->view->fetch('components/modal-img-meta.tpl');
@@ -470,9 +464,6 @@ class AboutController extends BaseController
         $this->jsonResponse(true, 'OK', ['html' => $html]);
     }
 
-    /**
-     * AJAX : Sauvegarde les métadonnées de l'image
-     */
     public function processSaveImgMeta(): void
     {
         if (ob_get_length()) ob_clean();
@@ -495,6 +486,11 @@ class AboutController extends BaseController
             }
         } else {
             $success = false;
+        }
+
+        if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('about');
         }
 
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');

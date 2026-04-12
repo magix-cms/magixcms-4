@@ -4,36 +4,38 @@ declare(strict_types=1);
 
 namespace App\Backend\Controller;
 
-use App\Backend\Db\CatalogDb;
+use App\Backend\Db\NewsHomeDb;
+use App\Backend\Db\LangDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use App\Backend\Db\RevisionsDb;
 use App\Component\Cache\CacheManager;
 
-class CatalogController extends BaseController
+class NewsHomeController extends BaseController
 {
     public function run(): void
     {
-        $catalogDb = new CatalogDb();
+        $db = new NewsHomeDb();
+        $activeLangs = (new LangDb())->fetchLanguages();
 
-        // On utilise la même logique que Homepage : l'action 'edit' déclenche la sauvegarde
         if (Request::isMethod('POST') && Request::isGet('action') && $_GET['action'] === 'edit') {
-            $this->processSave($catalogDb);
+            $this->processSave($db);
             return;
         }
 
-        // Chargement des données au format unifié ['id_page' => X, 'content' => [...]]
-        $pageData = $catalogDb->getCatalogHomeData();
+        $pageData = $db->getHomeData();
 
         $this->view->assign([
             'page'      => $pageData,
+            'langs'     => $activeLangs,
             'hashtoken' => $this->session->getToken()
         ]);
 
-        $this->view->display('catalog/index.tpl');
+        // Vous pourrez créer un template `news/home.tpl` basé sur celui de `homepage/index.tpl`
+        $this->view->display('news/home.tpl');
     }
 
-    private function processSave(CatalogDb $db): void
+    private function processSave(NewsHomeDb $db): void
     {
         $token = Request::isPost('hashtoken') ? $_POST['hashtoken'] : '';
 
@@ -42,16 +44,15 @@ class CatalogController extends BaseController
         }
 
         if (isset($_POST['content']) && is_array($_POST['content'])) {
-            $idPage = $db->getOrInsertCatalogHomeId();
+            $idPage = $db->getOrInsertHomeId();
 
             if ($idPage === 0) {
-                $this->jsonResponse(false, 'Erreur critique : Impossible de créer la page racine du catalogue.');
+                $this->jsonResponse(false, 'Erreur critique : Impossible de créer la page d\'accueil des actualités.');
             }
 
             $success = true;
 
             foreach ($_POST['content'] as $idLang => $values) {
-                // Utilisation de ?? '' pour éviter les erreurs PHP 8
                 $title     = $values['title_page'] ?? '';
                 $content   = $values['content_page'] ?? '';
                 $seoTitle  = $values['seo_title_page'] ?? '';
@@ -66,23 +67,22 @@ class CatalogController extends BaseController
                     'published'      => $published
                 ];
 
-                if (!$db->saveCatalogContent($idPage, (int)$idLang, $data)) {
+                if (!$db->saveContent($idPage, (int)$idLang, $data)) {
                     $success = false;
                 } else {
-                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                     if (!empty($content)) {
                         $revDb = new RevisionsDb();
-                        // Paramètres : item_type ('catalog'), item_id, id_lang, nom_du_champ, contenu
-                        $revDb->saveRevision('catalog', $idPage, (int)$idLang, 'content_page', $content);
+                        // Enregistrement de la révision pour l'historique
+                        $revDb->saveRevision('news_home', $idPage, (int)$idLang, 'content_page', $content);
                     }
                 }
             }
 
             if ($success) {
-                // 🟢 PURGE DU CACHE
-                CacheManager::clearFrontend('catalog');
+                // 🟢 Appel au manager global pour vider les caches de la liste des news
+                CacheManager::clearFrontend('news_list');
 
-                $this->jsonResponse(true, 'La page racine du catalogue a été mise à jour avec succès.', [
+                $this->jsonResponse(true, 'Configuration de la page d\'accueil mise à jour.', [
                     'type' => 'update',
                     'id'   => $idPage
                 ]);

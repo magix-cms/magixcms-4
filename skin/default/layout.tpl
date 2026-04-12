@@ -21,28 +21,33 @@
         <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">
     </noscript>
 
-    {if isset($consentedCookies.ggWebfontCookies) && $consentedCookies.ggWebfontCookies == true}
-        {include file="components/google_fonts.tpl" fonts=[
-        'Roboto' => '300,400,400italic,700',
-        'Montserrat' => '700,900'
-        ]}
-    {/if}
+    {nocache}
+        {if isset($consentedCookies.ggWebfontCookies) && $consentedCookies.ggWebfontCookies == true}
+            {include file="components/google_fonts.tpl" fonts=[
+            'Roboto' => '300,400,400italic,700',
+            'Montserrat' => '700,900'
+            ]}
+        {/if}
+    {/nocache}
 
     {$global_css = ["global"]}
 
-    {block name="styleSheet" nocache}{/block}
+    {block name="styleSheet"}{/block}
     {include file="components/css.tpl"}
 
-    {if isset($consentedCookies.analyticCookies) && $consentedCookies.analyticCookies == true}
-        {include file="components/analytics.tpl"}
-    {/if}
+    {nocache}
+        {if isset($consentedCookies.analyticCookies) && $consentedCookies.analyticCookies == true}
+            {include file="components/analytics.tpl"}
+        {/if}
+    {/nocache}
 
     {include file="components/favicon.tpl"}
-    {event name="displayHead"}
+
+    {event name="displayHead" nocache}
 </head>
 <body class="bg-body-tertiary">
 
-{include file="layout/header.tpl"}
+{include file="layout/header.tpl" nocache}
 
 {block name="main:before"}{/block}
 {block name="main"}
@@ -60,6 +65,7 @@
 
 {include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
+
 {include file="components/cookies.tpl"}
 
 {$global_js = [
@@ -68,21 +74,24 @@
 'normal' => []
 ]}
 
-{block name="javascript_data" nocache}{/block}
+{block name="javascript_data"}{/block}
 
 {include file="components/js.tpl"}
 
 {block name="javascript" nocache}{/block}
 
-{if isset($admin_maintenance_warning) && $admin_maintenance_warning}
-    <div class="position-fixed start-0 bottom-0 p-3" style="z-index: 1090; margin-bottom: 80px;">
-        <div class="alert alert-warning alert-dismissible fade show shadow-lg mb-0 py-2 pe-5" role="alert" style="border-radius: 50rem;">
-            <i class="bi bi-exclamation-triangle-fill text-danger me-2 align-middle"></i>
-            <span class="fw-bold small align-middle">Mode Maintenance</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer" style="top: 50%; transform: translateY(-50%); padding: 0.75rem; right: 0.5rem;"></button>
+{nocache}
+    {if isset($admin_maintenance_warning) && $admin_maintenance_warning}
+        <div class="position-fixed start-0 bottom-0 p-3" style="z-index: 1090; margin-bottom: 80px;">
+            <div class="alert alert-warning alert-dismissible fade show shadow-lg mb-0 py-2 pe-5" role="alert" style="border-radius: 50rem;">
+                <i class="bi bi-exclamation-triangle-fill text-danger me-2 align-middle"></i>
+                <span class="fw-bold small align-middle">Mode Maintenance</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer" style="top: 50%; transform: translateY(-50%); padding: 0.75rem; right: 0.5rem;"></button>
+            </div>
         </div>
-    </div>
-{/if}
+    {/if}
+{/nocache}
+
 <div id="magix-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 </body>
 </html>

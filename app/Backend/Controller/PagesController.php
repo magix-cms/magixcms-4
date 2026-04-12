@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace App\Backend\Controller;
 
 use App\Backend\Db\PagesDb;
-use App\Component\Db\ConfigDb;       // Nécesaire pour connaître les tailles (s, m, l)
-use App\Component\Routing\UrlTool;   // Nécessaire pour le chemin absolu
+use App\Component\Db\ConfigDb;
+use App\Component\Routing\UrlTool;
 use App\Component\File\UploadTool;
 use App\Component\File\ImageTool;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
-use Magepattern\Component\File\FileTool; // Nécessaire pour la suppression physique
+use Magepattern\Component\File\FileTool;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager; // 🟢 Import du gestionnaire de cache
 
 class PagesController extends BaseController
 {
@@ -25,7 +26,6 @@ class PagesController extends BaseController
 
     public function run(): void
     {
-        // ... (Code identique au vôtre) ...
         // --- 1. MINI-ROUTEUR D'ACTION ---
         $action = $_GET['action'] ?? null;
 
@@ -72,7 +72,7 @@ class PagesController extends BaseController
 
         if ($result !== false) {
             $this->getItems('pages', $result['data'], true, $result['meta']);
-            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
+            $meta = $result['meta'];
         }
 
         $token = $this->session->getToken();
@@ -92,7 +92,6 @@ class PagesController extends BaseController
         $this->view->display('pages/index.tpl');
     }
 
-    // ... (Méthodes add, processAdd, edit, processSave, reorder, delete inchangées) ...
     public function add(): void
     {
         $db = new PagesDb();
@@ -175,6 +174,9 @@ class PagesController extends BaseController
         }
 
         if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('pages');
+
             $this->jsonResponse(true, 'La page a été créée avec succès.', [
                 'success' => true,
                 'type'    => 'add',
@@ -314,16 +316,17 @@ class PagesController extends BaseController
             if (!$db->savePageContent($idPage, (int)$idLang, $data)) {
                 $success = false;
             } else {
-                // 🟢 LA MAGIE OPÈRE ICI : On sauvegarde l'historique UNIQUEMENT si le contenu HTML n'est pas vide
                 if (!empty($data['content_pages'])) {
                     $revDb = new RevisionsDb();
-                    // Paramètres : type (pages), item_id, id_lang, nom du champ (content_pages), contenu
                     $revDb->saveRevision('pages', $idPage, (int)$idLang, 'content_pages', $data['content_pages']);
                 }
             }
         }
 
         if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('pages');
+
             $this->jsonResponse(true, 'La page a été mise à jour avec succès.', [
                 'success'     => true,
                 'type'        => 'update',
@@ -357,6 +360,10 @@ class PagesController extends BaseController
                     $db->updateOrderPages((int)$id, $position);
                     $position++;
                 }
+
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('pages');
+
                 $this->sendJsonResponse(['success' => true, 'message' => 'Ordre mis à jour']);
             } catch (\Exception $e) {
                 $this->sendJsonResponse(['success' => false, 'message' => $e->getMessage()]);
@@ -381,6 +388,9 @@ class PagesController extends BaseController
         if (!empty($cleanIds)) {
             $db = new PagesDb();
             if ($db->deletePages($cleanIds)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('pages');
+
                 $this->sendJsonResponse([
                     'success' => true,
                     'message' => count($cleanIds) > 1 ? 'Les pages ont été supprimées.' : 'La page a été supprimée.',
@@ -392,24 +402,15 @@ class PagesController extends BaseController
         $this->sendJsonResponse(['success' => false, 'message' => 'Aucune page sélectionnée.']);
     }
 
-    /**
-     * Traite l'upload multiple et renvoie une réponse JSON standardisée
-     */
-    /**
-     * @return void
-     */
     public function processUploadImages(): void
     {
         $idPage = (int)($_POST['id'] ?? 0);
 
-        // 1. Vérification de base
         if ($idPage <= 0 || empty($_FILES['img_multiple']['name'][0])) {
             $this->sendJsonResponse(['success' => false, 'message' => 'Aucun fichier reçu.']);
         }
 
         $db = new PagesDb();
-
-        // 2. Préparation
         $pageData = $db->fetchPageById($idPage);
         $idLangue = (int)$this->defaultLang['id_lang'];
         $slug = !empty($pageData['content'][$idLangue]['url_pages']) ? $pageData['content'][$idLangue]['url_pages'] : 'page';
@@ -417,7 +418,6 @@ class PagesController extends BaseController
         $uploadTool = new UploadTool();
         $lastImageId = $db->getLastImageId($idPage);
 
-        // 3. Exécution Upload
         $results = $uploadTool->multipleImageUpload(
             'pages', 'pages', 'upload/pages', [(string)$idPage],
             [
@@ -428,7 +428,6 @@ class PagesController extends BaseController
             ]
         );
 
-        // 4. Insertion BDD
         $uploadedCount = 0;
         $errors = [];
 
@@ -442,10 +441,12 @@ class PagesController extends BaseController
             }
         }
 
-        // 5. Réponse JSON explicite pour le JS
         if ($uploadedCount > 0) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('pages');
+
             $this->sendJsonResponse([
-                'success' => true, // C'est la clé que le JS attend !
+                'success' => true,
                 'message' => "$uploadedCount image(s) ajoutée(s).",
                 'uploaded' => $uploadedCount
             ]);
@@ -463,6 +464,9 @@ class PagesController extends BaseController
             $db = new PagesDb();
 
             if ($db->reorderImages($imageIds)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('pages');
+
                 $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
             } else {
                 $this->jsonResponse(false, 'Une erreur est survenue lors de la sauvegarde de l\'ordre.');
@@ -481,6 +485,9 @@ class PagesController extends BaseController
             $db = new PagesDb();
 
             if ($db->setDefaultImage($idPage, $idImg)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('pages');
+
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
             } else {
                 $this->jsonResponse(false, 'Erreur lors de la mise à jour de l\'image par défaut.');
@@ -490,12 +497,8 @@ class PagesController extends BaseController
         }
     }
 
-    /**
-     * Supprime une ou plusieurs images (Base de données + Fichiers Physiques)
-     */
     public function processDeleteImage(): void
     {
-        // 1. Récupération des IDs
         $ids = $_POST['ids'] ?? [];
         if (empty($ids) && isset($_POST['id_img'])) {
             $ids = [$_POST['id_img']];
@@ -508,49 +511,39 @@ class PagesController extends BaseController
             $configDb = new ConfigDb();
             $urlTool = new UrlTool();
 
-            // 2. Récupération de la config des tailles (pour savoir quels fichiers supprimer)
             $configs = $configDb->fetchImageSizes('pages', 'pages');
-
-            // 3. Définition du chemin physique absolu
-            // ex: /var/www/html/upload/pages/20/
             $uploadDir = $urlTool->dirUpload('upload/pages/' . $idPage, true);
 
             $deletedCount = 0;
 
             foreach ($ids as $idImg) {
-                // Suppression BDD + Récupération des infos (nom du fichier)
                 $imgData = $db->deleteImage((int)$idImg);
 
                 if ($imgData && !empty($imgData['name_img'])) {
-                    // Liste des fichiers à supprimer
                     $filesToDelete = [];
                     $filename = $imgData['name_img'];
                     $nameNoExt = pathinfo($filename, PATHINFO_FILENAME);
-                    $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
-                    // A. Fichiers Maîtres (Original + WebP)
                     $filesToDelete[] = $uploadDir . $filename;
                     $filesToDelete[] = $uploadDir . $nameNoExt . '.webp';
 
-                    // B. Fichiers Variantes (Préfixes + Original/WebP)
                     if (!empty($configs)) {
                         foreach ($configs as $conf) {
                             $prefix = $conf['prefix'] . '_';
-                            // Format origine (ex: s_page.jpg)
                             $filesToDelete[] = $uploadDir . $prefix . $filename;
-                            // Format WebP (ex: s_page.webp)
                             $filesToDelete[] = $uploadDir . $prefix . $nameNoExt . '.webp';
                         }
                     }
 
-                    // 4. Suppression physique réelle via FileTool
                     FileTool::remove($filesToDelete);
-
                     $deletedCount++;
                 }
             }
 
             if ($deletedCount > 0) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('pages');
+
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
             }
         }
@@ -558,13 +551,6 @@ class PagesController extends BaseController
         $this->jsonResponse(false, 'Erreur lors de la suppression.');
     }
 
-    /**
-     * Renvoie le HTML de la galerie mise à jour via AJAX
-     */
-    /**
-     * Renvoie le HTML de la galerie pour MagixForms (JSON)
-     * RMPLACE reloadGallery()
-     */
     public function getImages(): void
     {
         if (ob_get_length()) ob_clean();
@@ -578,37 +564,30 @@ class PagesController extends BaseController
         $this->view->assign([
             'images'    => $formatted,
             'id_pages'  => $id,
-            'current_c' => 'Pages' // <--- LA CORRECTION EST ICI AUSSI
+            'current_c' => 'Pages'
         ]);
 
         $html = $this->view->fetch('components/gallery.tpl');
         $this->jsonResponse(true, 'OK', ['result' => $html]);
     }
 
-    /**
-     * AJAX : Récupère la modale d'édition des métadonnées d'une image
-     */
     public function getImgMeta(): void
     {
         if (ob_get_length()) ob_clean();
 
         $idImg = (int)($_GET['id_img'] ?? 0);
-
-        // ATTENTION : Laissez PagesDb() dans PagesController, et AboutDb() dans AboutController
         $db = new PagesDb();
 
         $langs = $db->fetchLanguages();
         $meta = $db->fetchImageMeta($idImg);
 
-        // NOUVEAU : On récupère dynamiquement le nom du contrôleur depuis l'URL (GET)
-        // ex: Si on est sur l'URL index.php?controller=About, ça vaudra 'About'
         $currentController = ucfirst($_GET['controller'] ?? 'Pages');
 
         $this->view->assign([
             'img_id'          => $idImg,
             'langs'           => $langs,
             'meta'            => $meta,
-            'controller_name' => $currentController // <-- La variable est maintenant dynamique !
+            'controller_name' => $currentController
         ]);
 
         $html = $this->view->fetch('components/modal-img-meta.tpl');
@@ -616,15 +595,12 @@ class PagesController extends BaseController
         $this->jsonResponse(true, 'OK', ['html' => $html]);
     }
 
-    /**
-     * AJAX : Sauvegarde les métadonnées de l'image
-     */
     public function processSaveImgMeta(): void
     {
         if (ob_get_length()) ob_clean();
 
         $idImg = (int)($_POST['id_img'] ?? 0);
-        $db = new PagesDb(); // Mettre AboutDb() dans AboutController
+        $db = new PagesDb();
         $success = true;
 
         if ($idImg > 0 && isset($_POST['meta']) && is_array($_POST['meta'])) {
@@ -643,23 +619,25 @@ class PagesController extends BaseController
             $success = false;
         }
 
+        if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('pages');
+        }
+
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');
     }
-    /**
-     * Affiche la liste des pages dans une fenêtre modale allégée pour TinyMCE
-     */
+
     public function tinymcePopup(): void
     {
         $db = new PagesDb();
 
         $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
-        $activeLangs = $db->fetchLanguages(); // Récupère [1 => 'fr', 2 => 'en', ...]
+        $activeLangs = $db->fetchLanguages();
         $iso = $activeLangs[$requestedLangId] ?? 'fr';
 
         $controllerSlug = StringTool::strtolower('pages');
         $rawPages = $db->getPagesForTinymce($requestedLangId);
 
-        // 1. Indexation pour recréer l'arbre (Parent -> Enfants)
         $pagesById = [];
         foreach ($rawPages as $p) {
             $pagesById[$p['id_pages']] = $p;
@@ -675,21 +653,19 @@ class PagesController extends BaseController
             }
         }
 
-        // 2. Aplatissement de l'arbre avec calcul de la profondeur (Depth) pour le design
         $flatList = [];
         $flatten = function($nodes, $depth = 0) use (&$flatten, &$flatList, $iso, $controllerSlug) {
             foreach ($nodes as $node) {
                 $title = !empty($node['name_pages']) ? $node['name_pages'] : '⚠️ (Non traduit)';
                 $slug = !empty($node['url_pages']) ? $node['url_pages'] : Url::clean($title);
 
-                // Formatage de l'URL comme dans votre méthode processSave
                 $publicUrl = '/' . $iso . '/' . $controllerSlug . '/' . $node['id_pages'] . '-' . $slug . '/';
 
                 $flatList[] = [
                     'id'    => $node['id_pages'],
                     'title' => $title,
                     'url'   => $publicUrl,
-                    'depth' => $depth // Niveau de profondeur (0 = Parent, 1 = Enfant, 2 = Petit-enfant)
+                    'depth' => $depth
                 ];
 
                 if (!empty($node['children'])) {
@@ -708,6 +684,7 @@ class PagesController extends BaseController
 
         $this->view->display('pages/tinymce_popup.tpl');
     }
+
     private function sendJsonResponse(array $data): void
     {
         header('Content-Type: application/json');

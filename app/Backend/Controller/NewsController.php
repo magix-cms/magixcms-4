@@ -17,6 +17,7 @@ use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use Magepattern\Component\Tool\DateTool;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager; // 🟢 L'import centralisé
 
 class NewsController extends BaseController
 {
@@ -50,11 +51,11 @@ class NewsController extends BaseController
         );
 
         $associations = [
-            'id_news' => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
-            'name_news' => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
+            'id_news'        => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'name_news'      => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_news' => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
-            'date_publish' => ['title' => 'Publication', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small'],
-            'date_register' => ['title' => 'date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
+            'date_publish'   => ['title' => 'Publication', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small'],
+            'date_register'  => ['title' => 'date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
         ];
 
         $this->getScheme($rawScheme, $targetColumns, $associations);
@@ -69,7 +70,7 @@ class NewsController extends BaseController
 
         if ($result !== false) {
             $this->getItems('news_list', $result['data'], true, $result['meta']);
-            $meta = $result['meta']; // <-- ON RÉCUPÈRE LE META ICI
+            $meta = $result['meta'];
         }
 
         $token = $this->session->getToken();
@@ -79,7 +80,7 @@ class NewsController extends BaseController
             'hashtoken'  => $token,
             'url_token'  => urlencode($token),
             'get_search' => $search,
-            'sortable'   => false, // Tri par date côté News, pas de Drag&Drop
+            'sortable'   => false,
             'checkbox'   => true,
             'edit'       => true,
             'dlt'        => true,
@@ -102,7 +103,7 @@ class NewsController extends BaseController
 
         $this->view->assign([
             'langs'       => $activeLangs,
-            'all_tags'        => $db->fetchAllTagsForLang($idLangue), // Tags pour la langue par défaut
+            'all_tags'    => $db->fetchAllTagsForLang($idLangue),
             'hashtoken'   => $this->session->getToken(),
             'url_token'   => urlencode($this->session->getToken())
         ]);
@@ -130,7 +131,6 @@ class NewsController extends BaseController
         }
 
         $success = true;
-        $activeLangs = (new LangDb())->getFrontendLanguages();
 
         if (isset($_POST['content']) && is_array($_POST['content'])) {
             foreach ($_POST['content'] as $idLang => $values) {
@@ -161,11 +161,13 @@ class NewsController extends BaseController
             }
         }
 
-        // Enregistrement des tags
         $selectedTags = $_POST['tags'] ?? [];
         $db->syncNewsTags($newId, $selectedTags);
 
         if ($success) {
+            // 🟢 Appel au manager global
+            CacheManager::clearFrontend('news_list');
+
             $this->jsonResponse(true, 'Actualité créée avec succès.', [
                 'success' => true,
                 'type'    => 'add',
@@ -193,8 +195,6 @@ class NewsController extends BaseController
 
         $controller = StringTool::strtolower($_GET['controller'] ?? 'news');
 
-        // --- UTILISATION DE DateTool ICI ---
-        // Si la date est vide, on prend "now", sinon on prend la date de la BDD. On formatte en SQL (Y-m-d).
         $rawDate = !empty($newsData['date_publish']) ? $newsData['date_publish'] : 'now';
         $datePublish = DateTool::getDate($rawDate, 'sql');
 
@@ -211,7 +211,7 @@ class NewsController extends BaseController
         $this->view->assign([
             'news_data'     => $newsData,
             'langs'         => $activeLangs,
-            'all_tags'          => $db->fetchAllTagsForLang($idLangue),
+            'all_tags'      => $db->fetchAllTagsForLang($idLangue),
             'selected_tags' => $db->fetchNewsTagsIds($id),
             'idcolumn'      => 'id_news',
             'hashtoken'     => $this->session->getToken(),
@@ -243,7 +243,6 @@ class NewsController extends BaseController
             'date_event_end'   => !empty($_POST['date_event_end']) ? $_POST['date_event_end'] : null,
         ];
 
-        // --- UTILISATION DE DateTool ICI AUSSI ---
         $rawDate = $mainData['date_publish'] ?: 'now';
         $datePublish = DateTool::getDate($rawDate, 'sql');
 
@@ -283,10 +282,8 @@ class NewsController extends BaseController
                 if (!$db->saveNewsContent($idNews, (int)$idLang, $data)) {
                     $success = false;
                 } else {
-                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                     if (!empty($data['content_news'])) {
                         $revDb = new RevisionsDb();
-                        // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
                         $revDb->saveRevision('news', $idNews, (int)$idLang, 'content_news', $data['content_news']);
                     }
                 }
@@ -297,6 +294,9 @@ class NewsController extends BaseController
         $db->syncNewsTags($idNews, $selectedTags);
 
         if ($success) {
+            // 🟢 Appel au manager global
+            CacheManager::clearFrontend('news_list');
+
             $this->jsonResponse(true, 'Actualité mise à jour avec succès.', [
                 'success'     => true,
                 'type'        => 'update',
@@ -323,6 +323,9 @@ class NewsController extends BaseController
         if (!empty($cleanIds)) {
             $db = new NewsDb();
             if ($db->deleteNews($cleanIds)) {
+                // 🟢 Appel au manager global
+                CacheManager::clearFrontend('news_list');
+
                 $this->sendJsonResponse([
                     'success' => true,
                     'message' => count($cleanIds) > 1 ? 'Actualités supprimées.' : 'Actualité supprimée.',
@@ -334,7 +337,7 @@ class NewsController extends BaseController
     }
 
     // ==========================================================
-    // GESTION GALERIE (Identique à PagesController)
+    // GESTION GALERIE
     // ==========================================================
 
     public function processUploadImages(): void
@@ -375,6 +378,9 @@ class NewsController extends BaseController
         }
 
         if ($uploadedCount > 0) {
+            // 🟢 Appel au manager global
+            CacheManager::clearFrontend('news_list');
+
             $this->sendJsonResponse(['success' => true, 'message' => "$uploadedCount image(s) ajoutée(s).", 'uploaded' => $uploadedCount]);
         } else {
             $msg = !empty($errors) ? implode(', ', $errors) : 'Erreur upload.';
@@ -388,6 +394,9 @@ class NewsController extends BaseController
         if (!empty($imageIds) && is_array($imageIds)) {
             $db = new NewsDb();
             if ($db->reorderImages($imageIds)) {
+                // 🟢 Appel au manager global
+                CacheManager::clearFrontend('news_list');
+
                 $this->jsonResponse(true, 'Ordre sauvegardé.', ['type' => 'order_success']);
             }
         }
@@ -402,6 +411,9 @@ class NewsController extends BaseController
         if ($idNews > 0 && $idImg > 0) {
             $db = new NewsDb();
             if ($db->setDefaultImage($idNews, $idImg)) {
+                // 🟢 Appel au manager global
+                CacheManager::clearFrontend('news_list');
+
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
             }
         }
@@ -447,6 +459,9 @@ class NewsController extends BaseController
             }
 
             if ($deletedCount > 0) {
+                // 🟢 Appel au manager global
+                CacheManager::clearFrontend('news_list');
+
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
             }
         }
@@ -514,28 +529,24 @@ class NewsController extends BaseController
             $success = false;
         }
 
+        if ($success) {
+            // 🟢 Appel au manager global
+            CacheManager::clearFrontend('news_list');
+        }
+
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées.' : 'Erreur sauvegarde.');
     }
-    /**
-     * Affiche la liste des actualités dans une fenêtre modale allégée pour TinyMCE
-     */
+
     public function tinymcePopup(): void
     {
         $db = new NewsDb();
 
-        // 🟢 1. LECTURE DE LA LANGUE DEMANDÉE PAR TINYMCE
-        // Si TinyMCE n'envoie rien (cas rare), on retombe sur la langue par défaut
         $requestedLangId = (int)($_GET['lang_id'] ?? $this->defaultLang['id_lang']);
 
         $activeLangs = (new LangDb())->getFrontendLanguages();
-
-        // On s'assure que l'ISO correspond bien à la langue demandée (ex: 'en', 'fr')
         $iso = $activeLangs[$requestedLangId] ?? 'fr';
+        $controllerSlug = StringTool::strtolower('news');
 
-        // Base de l'URL frontend
-        $controllerSlug = \Magepattern\Component\Tool\StringTool::strtolower('news');
-
-        // 🟢 2. REQUÊTE CIBLÉE SUR LA BONNE LANGUE
         $result = $db->fetchAllNews(1, 100, [], $requestedLangId);
 
         $newsList = [];
@@ -543,14 +554,11 @@ class NewsController extends BaseController
             foreach ($result['data'] as $news) {
 
                 $rawDate = !empty($news['date_publish']) ? $news['date_publish'] : 'now';
-                $datePublish = \Magepattern\Component\Tool\DateTool::getDate($rawDate, 'sql');
+                $datePublish = DateTool::getDate($rawDate, 'sql');
 
-                // Fallback de sécurité : si le nom est vide (car l'actu n'est pas encore traduite dans cette langue)
-                // on affiche un marqueur visuel pour alerter le rédacteur
                 $title = !empty($news['name_news']) ? $news['name_news'] : '⚠️ (Non traduit)';
-                $slug = !empty($news['url_news']) ? $news['url_news'] : \Magepattern\Component\HTTP\Url::clean($title);
+                $slug = !empty($news['url_news']) ? $news['url_news'] : Url::clean($title);
 
-                // L'URL publique sera générée avec le bon /iso/ (ex: /en/news/...)
                 $publicUrl = '/' . $iso . '/' . $controllerSlug . '/' . $datePublish . '/' . $news['id_news'] . '-' . $slug . '/';
 
                 $newsList[] = [
@@ -564,12 +572,13 @@ class NewsController extends BaseController
 
         $this->view->assign([
             'newsList'  => $newsList,
-            'iso_lang'  => strtoupper($iso), // Pour l'afficher dans le titre de la popup
+            'iso_lang'  => strtoupper($iso),
             'hashtoken' => $this->session->getToken()
         ]);
 
         $this->view->display('news/tinymce_popup.tpl');
     }
+
     private function sendJsonResponse(array $data): void
     {
         header('Content-Type: application/json');

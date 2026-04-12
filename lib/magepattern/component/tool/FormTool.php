@@ -48,15 +48,26 @@ use ValueError;
 class FormTool
 {
     /**
-     * Nettoyage simple : Trim + Escape HTML basique.
-     */
-    /**
-     * @param string $str
-     * @return string
+     * Nettoyage par défaut (utilisé partout pour les titres, descriptions...).
+     * Protège contre les failles XSS en échappant les balises (<, >) et les guillemets doubles (").
+     * LAISSE les apostrophes (') intactes pour éviter les bugs d'affichage.
      */
     public static function simpleClean(string $str): string
     {
-        return trim(HTMLTool::escapeHTML($str));
+        // Utilisation de ENT_COMPAT (échappe les " mais ignore les ')
+        // Le false à la fin empêche le double encodage
+        return trim(htmlspecialchars($str, ENT_COMPAT | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', false));
+    }
+
+    /**
+     * Échappe ABSOLUMENT TOUT (y compris les apostrophes).
+     * À utiliser pour les attributs de données cachés (data-attributes),
+     * les identifiants techniques, ou si des attributs HTML utilisent des quotes simples.
+     */
+    public static function strictClean(string $str): string
+    {
+        // Utilisation de ENT_QUOTES (échappe les " ET les ')
+        return trim(htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', false));
     }
 
     /**

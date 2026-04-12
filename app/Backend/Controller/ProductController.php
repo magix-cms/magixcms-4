@@ -16,6 +16,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager;
 
 class ProductController extends BaseController
 {
@@ -221,6 +222,10 @@ class ProductController extends BaseController
             // Gestion des traductions (qui utilisera maintenant le bon $defaultCat)
             $this->saveTranslations($db, $newId, $defaultCat);
 
+            // 🟢 PURGE DU CACHE (Impact croisé)
+            CacheManager::clearFrontend('product');
+            CacheManager::clearFrontend('category');
+
             $this->jsonResponse(true, 'Produit créé avec succès.', ['type' => 'add', 'id' => $newId]);
         } else {
             $this->jsonResponse(false, 'Erreur lors de la création du produit.');
@@ -259,6 +264,10 @@ class ProductController extends BaseController
             $db->saveProductCategories($id, $categories, $defaultCat);
 
             $publicUrls = $this->saveTranslations($db, $id, $defaultCat);
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('product');
+            CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, 'Produit mis à jour.', [
                 'type'        => 'update',
@@ -369,6 +378,9 @@ class ProductController extends BaseController
         }
 
         if ($uploadedCount > 0) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('product');
+
             $this->jsonResponse(true, "$uploadedCount image(s) ajoutée(s).", ['uploaded' => $uploadedCount]);
         } else {
             $msg = !empty($errors) ? implode(', ', $errors) : 'Erreur lors du traitement.';
@@ -420,6 +432,9 @@ class ProductController extends BaseController
             }
 
             if ($deletedCount > 0) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('product');
+
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
             }
         }
@@ -434,6 +449,9 @@ class ProductController extends BaseController
         if (!empty($imageIds) && is_array($imageIds)) {
             $db = new ProductDb();
             if ($db->reorderImages($imageIds)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('product');
+
                 $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
             }
         }
@@ -448,6 +466,9 @@ class ProductController extends BaseController
         if ($idProduct > 0 && $idImg > 0) {
             $db = new ProductDb();
             if ($db->setDefaultImage($idProduct, $idImg)) {
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('product');
+
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
             }
         }
@@ -517,6 +538,11 @@ class ProductController extends BaseController
             }
         } else {
             $success = false;
+        }
+
+        if ($success) {
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('product');
         }
 
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');

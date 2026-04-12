@@ -16,7 +16,7 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white p-0 border-bottom-0">
-            <ul class="nav nav-tabs nav-fill" id="catTab" role="tablist">
+            <ul class="nav nav-tabs" id="catTab" role="tablist">
                 {* Onglet 1 : Contenu *}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active py-3 fw-bold" id="content-tab" data-bs-toggle="tab" data-bs-target="#content_pane" type="button" role="tab">

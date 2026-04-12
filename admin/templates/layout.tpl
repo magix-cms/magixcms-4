@@ -10,7 +10,7 @@
     <!--[if IE]>
     <link rel="shortcut icon" type="image/x-icon" href="{$site_url}/{$baseadmin}/templates/img/favicon.ico" />
     <![endif]-->
-    <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/global.css">
+    <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/global.css?v={$smarty.now}">
     <link rel="stylesheet" href="{$site_url}/{$baseadmin}/templates/css/glightbox.min.css">
     {*<link rel="stylesheet" href="templates/css/elfinder-flat.css">*}
     {block name="stylesheets"}{/block}
@@ -21,7 +21,7 @@
     {include file='section/menu/sidebar.tpl'}
 {/block}
 
-<div class="d-flex flex-column flex-grow-1 w-100" style="height: 100vh;">
+<div class="d-flex flex-column flex-grow-1 w-100" style="height: 100vh; min-width: 0;">
 
     {block name="header"}
         {include file='section/menu/header.tpl'}
@@ -94,19 +94,28 @@
     <script src="{$site_url}/{$baseadmin}/templates/js/editor.min.js"></script>
     {/block}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             // On récupère le contrôleur actuel depuis Smarty ou l'URL
             const currentController = '{$smarty.get.controller|default:"dashboard"}';
 
             // Instanciation de la classe magique
             window.MagixAppForms = new MagixForms(currentController);
-        });
-        document.addEventListener('DOMContentLoaded', function() {
             // 1. On cible tous les éléments qui ont l'attribut data-bs-toggle="tooltip"
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 
             // 2. On les initialise un par un avec la classe native de Bootstrap
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            // Dans layout.tpl
+            const tabWrappers = document.querySelectorAll('.nav-tabs-wrapper');
+            tabWrappers.forEach(wrapper => {
+                wrapper.addEventListener('wheel', (evt) => {
+                    if (evt.deltaY !== 0) {
+                        evt.preventDefault();
+                        wrapper.scrollBy({ left: evt.deltaY, behavior: 'auto' });
+                    }
+                }, { passive: false });
+            });
         });
     </script>
 {/block}

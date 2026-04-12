@@ -15,12 +15,14 @@
 
     {$news_label = {#news_breadcrumb_label#}}
 
-    {if $seo_title != $news_label}
+    {* 🟢 CORRECTION : On vérifie s'il y a un filtre actif (Tag ou Archive) pour ajouter le 2ème niveau *}
+    {if !empty($current_tag) || !empty($current_year)}
         {$breadcrumbs = [
         ['url' => $reset_url, 'label' => $news_label],
         ['label' => $seo_title|replace:"{$news_label} - ":'' ]
         ]}
     {else}
+        {* Sur la racine (Page 1 ou pagination), on reste à 1 seul niveau *}
         {$breadcrumbs = [
         ['label' => $news_label]
         ]}
@@ -30,7 +32,15 @@
 
     <header class="news-header mb-5">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-            <h1 class="display-5 fw-bold mb-3 mb-md-0">{$seo_title}</h1>
+
+            {* 🟢 MODIFICATION : Affichage du titre H1 *}
+            <h1 class="display-5 fw-bold mb-3 mb-md-0">
+                {if $is_root && !empty($news_home.title_page)}
+                    {$news_home.title_page}
+                {else}
+                    {$seo_title}
+                {/if}
+            </h1>
 
             <div class="d-flex gap-2">
                 {if !empty($all_tags)}
@@ -56,6 +66,13 @@
                 {/if}
             </div>
         </div>
+
+        {* 🟢 AJOUT : Le texte de référencement (affiché uniquement sur la racine) *}
+        {if $is_root && !empty($news_home.content_page)}
+            <div class="news-intro mt-4 content-formatted text-muted">
+                {$news_home.content_page nofilter}
+            </div>
+        {/if}
     </header>
 
     <section id="news-list">

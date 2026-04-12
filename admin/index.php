@@ -8,7 +8,7 @@ define('ROOT_DIR', dirname(__DIR__) . DS);
 define('APP_PATH', ROOT_DIR . 'app' . DS);
 define('BASEADMIN', 'admin');
 define('MP_LOG_DIR',ROOT_DIR.BASEADMIN.DS.'var'.DS. 'log' .DS);
-define('SQLCACHEADMIN', ROOT_DIR.BASEADMIN . DS);
+//define('SQLCACHEADMIN', ROOT_DIR.BASEADMIN . DS);
 define('EDITOR', '7.6.1');
 
 $config = APP_PATH.'init'.DS.'config.php';

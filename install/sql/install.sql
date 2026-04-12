@@ -682,6 +682,26 @@ CREATE TABLE IF NOT EXISTS `mc_news_tag_rel` (
     KEY `id_tag` (`id_tag`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE IF NOT EXISTS `mc_news_home` (
+    `id_news_home` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
+    `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id_news_home`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `mc_news_home_content` (
+    `id_content` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_news_home` smallint UNSIGNED NOT NULL,
+    `id_lang` smallint UNSIGNED NOT NULL,
+    `title_page` varchar(150) NOT NULL,
+    `content_page` text,
+    `seo_title_page` varchar(180) DEFAULT NULL,
+    `seo_desc_page` text,
+    `published` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id_content`),
+    UNIQUE KEY `idx_news_home_lang` (`id_news_home`,`id_lang`),
+    KEY `id_lang` (`id_lang`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE IF NOT EXISTS `mc_plugins` (
     `id_plugins` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(200) NOT NULL,

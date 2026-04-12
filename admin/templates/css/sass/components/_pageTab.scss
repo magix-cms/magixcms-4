@@ -7,82 +7,87 @@ $tabs-border-color: #adb5bd;
 $tabs-active-color: var(--bs-primary);
 $tabs-active-bg: #ffffff;
 
-// On cible .nav-tabs ET les IDs pour une spécificité maximale
-// components/_pageTabs.scss
-
-.nav-tabs {
-  // AJOUT DE &#catTab ICI
-  &#pageTab, &#aboutTab, &#productTab, &#catTab, &#configTab, &#settingTab, &#domainTab, &#newsTab {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-
-    border-bottom: 2px solid $tabs-border-color;
-    background-color: $tabs-bg-main;
-    padding: 0;
-    list-style: none;
-
-    scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
-
-    .nav-item {
-      flex: 0 0 auto !important;
-      margin-bottom: 0;
-    }
-
-    .nav-link {
-      display: block;
-      padding: 1rem 1.2rem;
-      font-weight: 600;
-      white-space: nowrap !important; // Garde les "Produits associés" sur une ligne
-
-      color: #495057 !important;
-      background-color: $tabs-bg-inactive !important;
-      border: 1px solid $tabs-border-color !important;
-      border-bottom: none !important;
-      margin-right: 2px;
-      border-radius: 0;
-
-      &:hover:not(.active) {
-        background-color: darken($tabs-bg-inactive, 5%) !important;
-        color: #000 !important;
-      }
-
-      &.active {
-        color: $tabs-active-color !important;
-        background-color: $tabs-active-bg !important;
-        border-top: 4px solid $tabs-active-color !important;
-        border-left: 1px solid $tabs-border-color !important;
-        border-right: 1px solid $tabs-border-color !important;
-        border-bottom: 2px solid $tabs-active-bg !important;
-        margin-bottom: -2px;
-        position: relative;
-        z-index: 2;
-      }
-    }
-  }
+// 1. LE MUR DE BRIQUES : On interdit aux cartes de déborder de l'écran !
+.card {
+  min-width: 0 !important;
+  max-width: 100% !important; // Empêche l'étirement infini
+}
+.card-header {
+  min-width: 0 !important;
+  max-width: 100% !important; // Empêche l'étirement infini
 }
 
-// Optionnel : Utilisation de :has() si tu veux changer le style du header
-// quand un onglet spécifique est survolé
-#pageTab:has(.nav-link:hover:not(.active)) {
-  // border-bottom-color: darken($tabs-border-color, 5%);
-}
-/*.nav-tabs {
-  // Empêche le passage à la ligne si trop d'onglets
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
+// 2. LE CIBLAGE DES ONGLETS
+#pageTab, #aboutTab, #productTab, #catTab, #configTab, #settingTab, #domainTab, #newsTab {
+
+  display: flex !important;
+  flex-wrap: nowrap !important;
+
+  // Le moteur du défilement
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch;
 
-  // Cache la scrollbar mais garde le défilement (optionnel)
+  width: 100% !important;
+  border-bottom: 2px solid $tabs-border-color;
+  background-color: $tabs-bg-main;
+
+  // On donne 5px de marge en bas pour être SÛR que la barre de scroll Windows ait la place de s'afficher
+  padding: 0 0 5px 0 !important;
+  margin-bottom: -5px; // Compense visuellement le padding
+
+  list-style: none;
+
+  // Design de la scrollbar (Firefox)
+  scrollbar-width: thin;
+  scrollbar-color: $tabs-border-color $tabs-bg-main;
+
+  // Design de la scrollbar (Chrome/Edge/Safari)
   &::-webkit-scrollbar {
-    height: 3px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $tabs-bg-main;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $tabs-border-color;
+    border-radius: 10px;
   }
 
+  // 3. LES ENFANTS
   .nav-item {
-    white-space: nowrap; // Empêche le texte de l'onglet de se couper
+    flex: 0 0 auto !important; // Les onglets gardent leur taille d'origine
+    margin-bottom: 0;
   }
-}*/
+
+  .nav-link {
+    display: block;
+    padding: 1rem 1.2rem;
+    font-weight: 600;
+    white-space: nowrap !important; // Interdit le retour à la ligne du texte
+
+    color: #495057 !important;
+    background-color: $tabs-bg-inactive !important;
+    border: 1px solid $tabs-border-color !important;
+    border-bottom: none !important;
+    margin-right: 2px;
+    border-radius: 0;
+
+    &:hover:not(.active) {
+      background-color: darken($tabs-bg-inactive, 5%) !important;
+      color: #000 !important;
+    }
+
+    &.active {
+      color: $tabs-active-color !important;
+      background-color: $tabs-active-bg !important;
+      border-top: 4px solid $tabs-active-color !important;
+      border-left: 1px solid $tabs-border-color !important;
+      border-right: 1px solid $tabs-border-color !important;
+      border-bottom: 2px solid $tabs-active-bg !important;
+      margin-bottom: -2px;
+      position: relative;
+      z-index: 2;
+    }
+  }
+}

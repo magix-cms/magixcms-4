@@ -22705,26 +22705,46 @@ textarea.form-control-lg {
   transition: all 0.4s ease-in-out;
 }
 
-.nav-tabs#pageTab, .nav-tabs#aboutTab, .nav-tabs#productTab, .nav-tabs#catTab, .nav-tabs#configTab, .nav-tabs#settingTab, .nav-tabs#domainTab, .nav-tabs#newsTab {
+.card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.card-header {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+#pageTab, #aboutTab, #productTab, #catTab, #configTab, #settingTab, #domainTab, #newsTab {
   display: flex !important;
   flex-wrap: nowrap !important;
   overflow-x: auto !important;
-  overflow-y: hidden;
+  overflow-y: hidden !important;
   -webkit-overflow-scrolling: touch;
+  width: 100% !important;
   border-bottom: 2px solid #adb5bd;
   background-color: #f8f9fa;
-  padding: 0;
+  padding: 0 0 5px 0 !important;
+  margin-bottom: -5px;
   list-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: #adb5bd #f8f9fa;
 }
-.nav-tabs#pageTab::-webkit-scrollbar, .nav-tabs#aboutTab::-webkit-scrollbar, .nav-tabs#productTab::-webkit-scrollbar, .nav-tabs#catTab::-webkit-scrollbar, .nav-tabs#configTab::-webkit-scrollbar, .nav-tabs#settingTab::-webkit-scrollbar, .nav-tabs#domainTab::-webkit-scrollbar, .nav-tabs#newsTab::-webkit-scrollbar {
-  display: none;
+#pageTab::-webkit-scrollbar, #aboutTab::-webkit-scrollbar, #productTab::-webkit-scrollbar, #catTab::-webkit-scrollbar, #configTab::-webkit-scrollbar, #settingTab::-webkit-scrollbar, #domainTab::-webkit-scrollbar, #newsTab::-webkit-scrollbar {
+  height: 6px;
 }
-.nav-tabs#pageTab .nav-item, .nav-tabs#aboutTab .nav-item, .nav-tabs#productTab .nav-item, .nav-tabs#catTab .nav-item, .nav-tabs#configTab .nav-item, .nav-tabs#settingTab .nav-item, .nav-tabs#domainTab .nav-item, .nav-tabs#newsTab .nav-item {
+#pageTab::-webkit-scrollbar-track, #aboutTab::-webkit-scrollbar-track, #productTab::-webkit-scrollbar-track, #catTab::-webkit-scrollbar-track, #configTab::-webkit-scrollbar-track, #settingTab::-webkit-scrollbar-track, #domainTab::-webkit-scrollbar-track, #newsTab::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+#pageTab::-webkit-scrollbar-thumb, #aboutTab::-webkit-scrollbar-thumb, #productTab::-webkit-scrollbar-thumb, #catTab::-webkit-scrollbar-thumb, #configTab::-webkit-scrollbar-thumb, #settingTab::-webkit-scrollbar-thumb, #domainTab::-webkit-scrollbar-thumb, #newsTab::-webkit-scrollbar-thumb {
+  background-color: #adb5bd;
+  border-radius: 10px;
+}
+#pageTab .nav-item, #aboutTab .nav-item, #productTab .nav-item, #catTab .nav-item, #configTab .nav-item, #settingTab .nav-item, #domainTab .nav-item, #newsTab .nav-item {
   flex: 0 0 auto !important;
   margin-bottom: 0;
 }
-.nav-tabs#pageTab .nav-link, .nav-tabs#aboutTab .nav-link, .nav-tabs#productTab .nav-link, .nav-tabs#catTab .nav-link, .nav-tabs#configTab .nav-link, .nav-tabs#settingTab .nav-link, .nav-tabs#domainTab .nav-link, .nav-tabs#newsTab .nav-link {
+#pageTab .nav-link, #aboutTab .nav-link, #productTab .nav-link, #catTab .nav-link, #configTab .nav-link, #settingTab .nav-link, #domainTab .nav-link, #newsTab .nav-link {
   display: block;
   padding: 1rem 1.2rem;
   font-weight: 600;
@@ -22736,11 +22756,11 @@ textarea.form-control-lg {
   margin-right: 2px;
   border-radius: 0;
 }
-.nav-tabs#pageTab .nav-link:hover:not(.active), .nav-tabs#aboutTab .nav-link:hover:not(.active), .nav-tabs#productTab .nav-link:hover:not(.active), .nav-tabs#catTab .nav-link:hover:not(.active), .nav-tabs#configTab .nav-link:hover:not(.active), .nav-tabs#settingTab .nav-link:hover:not(.active), .nav-tabs#domainTab .nav-link:hover:not(.active), .nav-tabs#newsTab .nav-link:hover:not(.active) {
+#pageTab .nav-link:hover:not(.active), #aboutTab .nav-link:hover:not(.active), #productTab .nav-link:hover:not(.active), #catTab .nav-link:hover:not(.active), #configTab .nav-link:hover:not(.active), #settingTab .nav-link:hover:not(.active), #domainTab .nav-link:hover:not(.active), #newsTab .nav-link:hover:not(.active) {
   background-color: rgb(211.21, 217.25, 223.29) !important;
   color: #000 !important;
 }
-.nav-tabs#pageTab .nav-link.active, .nav-tabs#aboutTab .nav-link.active, .nav-tabs#productTab .nav-link.active, .nav-tabs#catTab .nav-link.active, .nav-tabs#configTab .nav-link.active, .nav-tabs#settingTab .nav-link.active, .nav-tabs#domainTab .nav-link.active, .nav-tabs#newsTab .nav-link.active {
+#pageTab .nav-link.active, #aboutTab .nav-link.active, #productTab .nav-link.active, #catTab .nav-link.active, #configTab .nav-link.active, #settingTab .nav-link.active, #domainTab .nav-link.active, #newsTab .nav-link.active {
   color: var(--bs-primary) !important;
   background-color: #ffffff !important;
   border-top: 4px solid var(--bs-primary) !important;
@@ -22752,22 +22772,6 @@ textarea.form-control-lg {
   z-index: 2;
 }
 
-/*.nav-tabs {
-  // Empêche le passage à la ligne si trop d'onglets
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-
-  // Cache la scrollbar mais garde le défilement (optionnel)
-  &::-webkit-scrollbar {
-    height: 3px;
-  }
-
-  .nav-item {
-    white-space: nowrap; // Empêche le texte de l'onglet de se couper
-  }
-}*/
 .sortable-list .sortable-ghost {
   opacity: 0.5;
   background-color: #f8f9fa !important;

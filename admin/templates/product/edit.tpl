@@ -15,7 +15,7 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white p-0 border-bottom-0">
-            <ul class="nav nav-tabs nav-fill" id="productTab" role="tablist">
+            <ul class="nav nav-tabs" id="productTab" role="tablist">
 
                 {* Onglet 1 : Infos & Textes *}
                 <li class="nav-item" role="presentation">

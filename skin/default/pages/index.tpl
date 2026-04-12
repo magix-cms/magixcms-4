@@ -17,7 +17,6 @@
     <article>
 
         <header class="page-header mb-5">
-
             {$breadcrumbs = [['label' => $pages.name]]}
             {include file="components/breadcrumbs.tpl" breadcrumbs=$breadcrumbs}
 
@@ -33,9 +32,7 @@
 
         <section class="page-body mb-5 clearfix">
 
-            {* 1. LA GALERIE D'ABORD (Flottante à droite) *}
             {if $pages.gallery && $pages.gallery|count > 0}
-                {* col-12 sur mobile, col-lg-5 sur bureau, on flotte à droite, avec une marge à gauche (ms-lg-4) et en bas (mb-4) *}
                 <div class="col-12 col-lg-5 float-lg-end ms-lg-4 mb-4">
                     <div class="c-gallery c-gallery--page">
 
@@ -69,15 +66,13 @@
                 </div>
             {/if}
 
-            {* 2. LE TEXTE ENSUITE *}
-            {* Le texte n'est plus enfermé dans une colonne, il va donc s'étaler et contourner la galerie *}
             <div class="content-formatted">
                 {$pages.content|default:'' nofilter}
             </div>
 
         </section>
 
-        {hook name='displayPageBottom' id_pages=$pages.id}
+        {hook name='displayPageBottom' id_pages=$pages.id nocache}
 
         {if isset($pages.subdata) && $pages.subdata|count > 0}
             <section class="page-children mt-5 pt-4 border-top">
@@ -94,13 +89,13 @@
 
 {/block}
 
-{block name="javascript_data"}
+{block name="javascript_data" nocache}
     {$page_js = [
     'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
 {/block}
 
-{block name="javascript" append}
+{block name="javascript" append nocache}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof GalleryManager !== 'undefined') {

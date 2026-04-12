@@ -14,20 +14,6 @@ use Magepattern\Component\File\FileTool;
 abstract class BaseDb
 {
     /**
-     * Fournit une instance configurée de CacheTool pour le SQL,
-     * et s'assure que le dossier de destination existe via FileTool.
-     */
-    protected function getSqlCache(): CacheTool
-    {
-        $cacheDir = SQLCACHEADMIN . 'var/sql';
-
-        // Utilisation de la méthode spécifique au cache de ton FileTool.
-        // Elle va faire le mkdir() ET créer le .htaccess de sécurité.
-        $securePath = FileTool::createSecureCacheDir($cacheDir);
-
-        return new CacheTool($securePath);
-    }
-    /**
      * Exécute n'importe quel QueryBuilder, le pagine, et gère les erreurs.
      */
     protected function executePaginatedQuery(QueryBuilder $qb, int $page = 1, int $limit = 25): array|false
@@ -218,5 +204,39 @@ abstract class BaseDb
             Logger::getInstance()->log($e, "critical", "database_errors", Logger::LOG_YEAR, Logger::LOG_LEVEL_ERROR);
             return false;
         }
+    }
+    /**
+     * Fournit une instance configurée de CacheTool pour le SQL de l'Administration
+     */
+    protected function getSqlCache(): CacheTool
+    {
+        // 🟢 On utilise ROOT_DIR et BASEADMIN pour être sûr à 100%
+        // Chemin final : /chemin/absolu/magix/admin/var/caches/sql
+        $cacheDir = ROOT_DIR . BASEADMIN . DS . 'var' . DS . 'caches' . DS . 'sql';
+
+        $securePath = FileTool::createSecureCacheDir($cacheDir);
+        return new CacheTool($securePath);
+    }
+
+    /**
+     * Purge le cache SQL interne de l'Administration par tag
+     */
+    public function clearAdminSqlCache(string $tag): void
+    {
+        $this->getSqlCache()->clearByTag($tag);
+    }
+
+    /**
+     * Purge le cache SQL du site Public (Frontend) par tag.
+     */
+    public function clearPublicSqlCache(string $tag): void
+    {
+        // Chemin final : /chemin/absolu/magix/var/caches/sql
+        $publicCacheDir = ROOT_DIR . 'var' . DS . 'caches' . DS . 'sql';
+
+        $securePath = FileTool::createSecureCacheDir($publicCacheDir);
+        $cache = new CacheTool($securePath);
+
+        $cache->clearByTag($tag);
     }
 }

@@ -15,7 +15,9 @@ class CategoryDb extends BaseDb
      */
     public function getCategoryPage(int $idCat, int $idLang): array|false
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select(['c.*', 'cc.*', 'i.name_img', 'ic.alt_img', 'ic.title_img'])
             ->from('mc_catalog_cat', 'c')
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
@@ -24,7 +26,7 @@ class CategoryDb extends BaseDb
             ->where('c.id_cat = :id', ['id' => $idCat])
             ->where('cc.published_cat = 1');
 
-        // 🟢 OVERRIDE : Un plugin peut ajouter des champs (ex: c.is_mega_menu, cc.custom_badge)
+        // 🟢 OVERRIDE : Un plugin peut ajouter des champs
         $overrides = HookManager::triggerFilter('extendCategoryData', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -34,7 +36,20 @@ class CategoryDb extends BaseDb
             }
         }
 
-        return $this->executeRow($qb);
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'category');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeRow($qb);
+
+        if ($res !== false) {
+            $cache->set($cacheKey, $res, 3600);
+        }
+
+        return $res;
     }
 
     /**
@@ -42,14 +57,26 @@ class CategoryDb extends BaseDb
      */
     public function getCategoryImages(int $idCat, int $idLang): array
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select(['i.name_img', 'ic.alt_img', 'ic.title_img', 'ic.caption_img'])
             ->from('mc_catalog_cat_img', 'i')
             ->leftJoin('mc_catalog_cat_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
             ->where('i.id_cat = :id', ['id' => $idCat])
             ->orderBy('i.order_img', 'ASC');
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'category');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
 
     /**
@@ -57,7 +84,9 @@ class CategoryDb extends BaseDb
      */
     public function getCategoryChildren(int $parentId, int $idLang): array
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select(['c.id_cat', 'c.id_parent', 'cc.name_cat', 'cc.resume_cat', 'cc.content_cat', 'cc.url_cat', 'i.name_img', 'ic.alt_img', 'ic.title_img'])
             ->from('mc_catalog_cat', 'c')
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
@@ -67,7 +96,7 @@ class CategoryDb extends BaseDb
             ->where('cc.published_cat = 1')
             ->orderBy('c.order_cat', 'ASC');
 
-        // 🟢 OVERRIDE : Même système pour les listes de catégories
+        // 🟢 OVERRIDE
         $overrides = HookManager::triggerFilter('extendCategoryList', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -77,11 +106,21 @@ class CategoryDb extends BaseDb
             }
         }
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'category');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
+
     /**
      * Récupère une liste de catégories par leurs IDs (ex: pour MagixFeaturedCategory)
-     * Conserve l'ordre du tableau d'IDs fourni.
      */
     public function getCategoriesByIds(array $catIds, int $idLang): array
     {
@@ -89,7 +128,9 @@ class CategoryDb extends BaseDb
             return [];
         }
 
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select(['c.*', 'cc.*', 'i.name_img', 'ic.alt_img', 'ic.title_img'])
             ->from('mc_catalog_cat', 'c')
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
@@ -98,7 +139,6 @@ class CategoryDb extends BaseDb
             ->where('c.id_cat IN (' . implode(',', array_map('intval', $catIds)) . ')')
             ->where('cc.published_cat = 1');
 
-        // Conservation de l'ordre exact
         $qb->orderBy('FIELD(c.id_cat, ' . implode(',', array_map('intval', $catIds)) . ')');
 
         $overrides = HookManager::triggerFilter('extendCategoryList', []);
@@ -110,6 +150,16 @@ class CategoryDb extends BaseDb
             }
         }
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'category');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
 }

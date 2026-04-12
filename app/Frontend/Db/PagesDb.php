@@ -6,7 +6,7 @@ namespace App\Frontend\Db;
 
 use Magepattern\Component\Database\QueryBuilder;
 use Magepattern\Component\Database\QueryHelper;
-use App\Component\Hook\HookManager; // 🟢 Import indispensable pour l'override
+use App\Component\Hook\HookManager;
 
 class PagesDb extends BaseDb
 {
@@ -15,7 +15,9 @@ class PagesDb extends BaseDb
      */
     public function getPagesPage(int $idPages, int $idLang): array|false
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select([
             'p.*',
             'c.*',
@@ -40,7 +42,22 @@ class PagesDb extends BaseDb
             }
         }
 
-        return $this->executeRow($qb);
+        // 🟢 CACHE SQL
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'pages');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeRow($qb);
+
+        if ($res) {
+            $cache->set($cacheKey, $res, 3600);
+            return $res;
+        }
+
+        return false;
     }
 
     /**
@@ -48,7 +65,9 @@ class PagesDb extends BaseDb
      */
     public function getPagesImages(int $idPages, int $idLang): array
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select([
             'i.name_img',
             'ic.alt_img',
@@ -60,22 +79,35 @@ class PagesDb extends BaseDb
             ->where('i.id_pages = :id', ['id' => $idPages])
             ->orderBy('i.order_img', 'ASC');
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'pages');
+        $data = $cache->get($cacheKey);
+
+        if ($data !== null) {
+            return $data;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
 
     /**
      * Récupère les pages enfants avec Override
      */
+    /**
+     * Récupère les pages enfants avec Override
+     */
     public function getPagesChildren(int $parentId, int $idLang): array
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
+        // 🟢 CORRECTION : On sélectionne TOUTES les colonnes (p.*, c.*)
+        // pour que PagesPresenter ne génère pas de tableaux "null"
         $qb->select([
-            'p.id_pages',
-            'p.id_parent',
-            'c.name_pages',
-            'c.resume_pages',
-            'c.content_pages',
-            'c.url_pages',
+            'p.*',
+            'c.*',
             'i.name_img',
             'ic.alt_img',
             'ic.title_img'
@@ -88,7 +120,7 @@ class PagesDb extends BaseDb
             ->where('c.published_pages = 1')
             ->orderBy('p.order_pages', 'ASC');
 
-        // 🟢 OVERRIDE : Pour les listes de pages (widgets, menus enfants...)
+        // 🟢 OVERRIDE
         $overrides = HookManager::triggerFilter('extendPagesList', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -98,11 +130,21 @@ class PagesDb extends BaseDb
             }
         }
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'pages');
+        $data = $cache->get($cacheKey);
+
+        if ($data !== null) {
+            return $data;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
+
     /**
      * Récupère une liste de pages par leurs IDs (ex: pour le plugin MagixFeaturedPages)
-     * Conserve l'ordre du tableau d'IDs fourni.
      */
     public function getPagesByIds(array $pageIds, int $idLang): array
     {
@@ -110,7 +152,9 @@ class PagesDb extends BaseDb
             return [];
         }
 
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select([
             'p.*',
             'c.*',
@@ -125,10 +169,8 @@ class PagesDb extends BaseDb
             ->where('p.id_pages IN (' . implode(',', array_map('intval', $pageIds)) . ')')
             ->where('c.published_pages = 1');
 
-        // 🟢 ASTUCE SQL : ORDER BY FIELD permet de respecter scrupuleusement l'ordre des IDs
         $qb->orderBy('FIELD(p.id_pages, ' . implode(',', array_map('intval', $pageIds)) . ')');
 
-        // 🟢 OVERRIDE : On garde le même hook que pour les autres listes
         $overrides = HookManager::triggerFilter('extendPagesList', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -138,6 +180,16 @@ class PagesDb extends BaseDb
             }
         }
 
-        return $this->executeAll($qb) ?: [];
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'pages');
+        $data = $cache->get($cacheKey);
+
+        if ($data !== null) {
+            return $data;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
     }
 }

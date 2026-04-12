@@ -8,6 +8,7 @@ use App\Backend\Db\HomepageDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use App\Backend\Db\RevisionsDb;
+use App\Component\Cache\CacheManager;
 
 class HomepageController extends BaseController
 {
@@ -50,7 +51,6 @@ class HomepageController extends BaseController
             $success = true;
 
             foreach ($_POST['content'] as $idLang => $values) {
-                // 🟢 CORRECTION : Utilisation de ?? '' pour éviter les erreurs "Undefined array key" en PHP 8
                 $title     = $values['title_page'] ?? '';
                 $content   = $values['content_page'] ?? '';
                 $seoTitle  = $values['seo_title_page'] ?? '';
@@ -68,16 +68,16 @@ class HomepageController extends BaseController
                 if (!$db->saveContent($idPage, (int)$idLang, $data)) {
                     $success = false;
                 } else {
-                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                     if (!empty($content)) {
                         $revDb = new RevisionsDb();
-                        // Paramètres : item_type ('homepage'), item_id (souvent 1), id_lang, nom_du_champ, contenu
                         $revDb->saveRevision('homepage', $idPage, (int)$idLang, 'content_page', $content);
                     }
                 }
             }
 
             if ($success) {
+                $db->clearPublicSqlCache('homepage');
+
                 $this->jsonResponse(true, 'Mise à jour réussie.', [
                     'type' => 'update',
                     'id'   => $idPage

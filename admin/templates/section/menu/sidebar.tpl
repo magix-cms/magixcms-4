@@ -68,15 +68,21 @@
         {* --- BLOC ACTUALITÉS --- *}
         {assign var="show_news" value=($is_admin || !empty($menu_perms.news))}
         {assign var="show_newstag" value=($is_admin || !empty($menu_perms.newstag))}
-        {if isset($mc_config.news) && $mc_config.news == 1 && ($show_news || $show_newstag)}
+        {assign var="show_newshome" value=($is_admin || !empty($menu_perms.newshome))} {* 🟢 AJOUT : Permission pour NewsHome *}
+
+        {if isset($mc_config.news) && $mc_config.news == 1 && ($show_news || $show_newstag || $show_newshome)}
             <li class="mb-1">
-                {assign var="is_news_active" value=($current_c == 'news' || $current_c == 'newstag')}
+                {assign var="is_news_active" value=($current_c == 'news' || $current_c == 'newstag' || $current_c == 'newshome')}
                 <button class="btn btn-toggle w-100 text-start d-flex align-items-center rounded border-0 {if !$is_news_active}collapsed{/if}"
                         data-bs-toggle="collapse" data-bs-target="#menu-news" aria-expanded="{if $is_news_active}true{else}false{/if}">
                     <i class="bi bi-newspaper fs-5 me-3"></i><span class="menu-text">Actualités</span>
                 </button>
                 <div class="collapse {if $is_news_active}show{/if}" id="menu-news">
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ps-4">
+                        {if $show_newshome}
+                            <li><a href="index.php?controller=NewsHome" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'newshome'}active-sub{/if}"><i class="bi bi-house-gear me-2 opacity-75"></i> Accueil Actualités</a></li>
+                        {/if}
+
                         {if $show_news}
                             <li><a href="index.php?controller=News" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a != 'add'}active-sub{/if}"><i class="bi bi-list-ul me-2 opacity-75"></i> Liste des actualités</a></li>
                             <li><a href="index.php?controller=News&action=add" class="text-decoration-none rounded d-flex align-items-center mt-1 {if $current_c == 'news' && $current_a == 'add'}active-sub{/if}"><i class="bi bi-plus-circle me-2 opacity-75"></i> Ajouter une actualité</a></li>

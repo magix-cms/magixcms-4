@@ -29,58 +29,57 @@ class NewsController extends BaseController
 
     private function renderSingle(int $id): void
     {
-        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
-        $siteUrl = $this->view->getTemplateVars('site_url');
+        $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        $rawNews = $this->db->getNewsPage($id, $idLang);
+        if (!$this->view->isCached('news/single.tpl', $cacheId)) {
 
-        if (!$rawNews) {
-            $this->render404();
-            return;
-        }
+            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+            $siteUrl = $this->view->getTemplateVars('site_url');
 
-        // 🟢 Ajout pour Single
-        $companyDb = new CompanyDb();
-        $companyInfo = $companyDb->getCompanyInfo();
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
+            $rawNews = $this->db->getNewsPage($id, $idLang);
 
-        $news = NewsPresenter::format($rawNews, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
+            if (!$rawNews) {
+                $this->render404();
+                return;
+            }
 
-        $news['gallery'] = [];
-        $images = $this->db->getNewsImages($id, $idLang);
-        foreach ($images as $imgRow) {
-            $news['gallery'][] = NewsPresenter::format(array_merge($rawNews, $imgRow), $this->currentLang, $siteUrl, $companyInfo, $skinFolder)['img'];
-        }
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+            $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-        $news['tags'] = $this->db->getNewsTags($id, $idLang);
+            $news = NewsPresenter::format($rawNews, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
-        // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Single News)
-        $allLangs = $this->view->getTemplateVars('langs');
-        $hreflangUrls = [];
-        $urlTool = new UrlTool();
+            $news['gallery'] = [];
+            if (!empty($rawNews['name_img']) && !empty($news['img'])) {
+                $news['gallery'][] = $news['img'];
+            }
 
-        if ($allLangs && is_array($allLangs)) {
-            foreach ($allLangs as $l) {
-                $lId = (int)$l['id_lang'];
-                $lIso = strtolower($l['iso_lang']);
-
-                // Requête spécifique aux News
-                $translatedNews = $this->db->getNewsPage($id, $lId);
-
-                if ($translatedNews && !empty($translatedNews['url_news'])) {
-
-                    // 🟢 CORRECTION : Formatage de la date pour le hreflang
-                    $translatedDate = null;
-                    if (!empty($translatedNews['date_publish'])) {
-                        $translatedDate = date('Y-m-d', strtotime($translatedNews['date_publish']));
+            $images = $this->db->getNewsImages($id, $idLang);
+            if ($images) {
+                foreach ($images as $imgRow) {
+                    $formattedImg = NewsPresenter::format(array_merge($rawNews, $imgRow), $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
+                    if (!empty($formattedImg['img'])) {
+                        $news['gallery'][] = $formattedImg['img'];
                     }
+                }
+            }
+
+            $news['tags'] = $this->db->getNewsTags($id, $idLang);
+
+            $urlTool = new UrlTool();
+            $allLangs = $this->view->getTemplateVars('langs');
+            $hreflangUrls = [];
+
+            if ($allLangs && is_array($allLangs)) {
+                foreach ($allLangs as $l) {
+                    $lId = (int)$l['id_lang'];
+                    $lIso = strtolower($l['iso_lang']);
 
                     $hreflangUrls[$lId] = $urlTool->buildUrl([
-                        'type' => 'news',
+                        'type' => 'news_single',
                         'id'   => $id,
-                        'url'  => $translatedNews['url_news'],
-                        'iso'  => $lIso,
-                        'date' => $translatedDate // On utilise la date formatée
+                        'url'  => $rawNews['url_news'] ?? '',
+                        'iso'  => $lIso
                     ]);
 
                     if (isset($l['is_default']) && $l['is_default'] == 1) {
@@ -88,122 +87,146 @@ class NewsController extends BaseController
                     }
                 }
             }
+
+            $this->view->assign([
+                'news'      => $news,
+                'seo_title' => $news['seo']['title'] ?? '',
+                'seo_desc'  => $news['seo']['description'] ?? '',
+                'hreflang'  => $hreflangUrls
+            ]);
         }
 
-        $this->view->assign([
-            'news'      => $news,
-            'seo_title' => $news['seo']['title'],
-            'seo_desc'  => $news['seo']['description'],
-            'hreflang' => $hreflangUrls
-        ]);
-
-        $this->view->display('news/single.tpl');
+        $this->view->display('news/single.tpl', $cacheId);
     }
 
     private function renderList(): void
     {
-        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
-        $siteUrl = $this->view->getTemplateVars('site_url');
-        $urlTool = new UrlTool();
+        $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        $filters = [];
-        $idTag = Request::isGet('tag') ? (int)$_GET['tag'] : 0;
-        $year  = Request::isGet('year') ? (int)$_GET['year'] : 0;
-        $month = Request::isGet('month') ? (int)$_GET['month'] : 0;
-        $page  = Request::isGet('p') ? (int)$_GET['p'] : 1;
+        if (!$this->view->isCached('news/index.tpl', $cacheId)) {
 
-        if ($idTag > 0) $filters['id_tag'] = $idTag;
-        if ($year > 0)  $filters['year']   = $year;
-        if ($month > 0) $filters['month']  = $month;
-        $filters['page'] = $page;
+            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+            $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/');
+            $iso = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+            $baseNewsUrl = $siteUrl . '/' . $iso . '/news/';
 
-        $dbResult = $this->db->getNewsList($idLang, $filters);
-        $rawNewsList = $dbResult['items'] ?? [];
-        $paginationData = $dbResult['pagination'] ?? [];
+            $page  = Request::isGet('p') ? (int)$_GET['p'] : 1;
+            $idTag = Request::isGet('tag') ? (int)$_GET['tag'] : null;
+            $year  = Request::isGet('year') ? (int)$_GET['year'] : null;
+            $month = Request::isGet('month') ? (int)$_GET['month'] : null;
 
-        $companyDb = new CompanyDb();
-        $companyInfo = $companyDb->getCompanyInfo();
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default'; // 🟢 Ajout du skin
+            $data = $this->db->getNewsList($idLang, ['page' => $page, 'limit' => 12, 'tag' => $idTag, 'year' => $year, 'month' => $month]);
+            $rawList = $data['items'] ?? [];
+            $pagination = $data['pagination'] ?? [];
 
-        $newsList = [];
-        foreach ($rawNewsList as $newsRow) {
-            $formatted = NewsPresenter::format($newsRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
-            $formatted['tags'] = $this->db->getNewsTags((int)$formatted['id'], $idLang);
-            $newsList[] = $formatted;
-        }
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+            $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-        $jsonLd = SeoHelper::generateItemListJsonLd($newsList);
+            $newsList = [];
+            $itemListElements = [];
+            $position = 1;
 
-        $allTags = $this->db->getAllTags($idLang);
-        foreach ($allTags as &$t) {
-            $t['url'] = $urlTool->buildUrl([
-                'type' => 'tag', 'id' => $t['id_tag'],
-                'url' => $t['name_tag'], 'iso' => $this->currentLang['iso_lang']
-            ]);
-        }
-        unset($t);
-
-        $archives = $this->db->getArchives();
-        foreach ($archives as &$a) {
-            $a['url'] = $urlTool->buildUrl([
-                'type' => 'date', 'year' => $a['year'], 'month' => $a['month'],
-                'iso' => $this->currentLang['iso_lang']
-            ]);
-            $a['dummy_date'] = sprintf('%04d-%02d-01', $a['year'], $a['month']);
-        }
-        unset($a);
-
-        $seoTitle = 'Actualités';
-        $tagName = '';
-        if ($idTag > 0) {
-            $tagName = $this->db->getTagName($idTag, $idLang);
-            $seoTitle .= ' - Tag : ' . $tagName;
-        }
-        if ($year > 0)  $seoTitle .= " - Archives {$year}";
-        if ($month > 0) $seoTitle .= "/" . str_pad((string)$month, 2, '0', STR_PAD_LEFT);
-
-        $resetUrl = $urlTool->buildUrl(['type' => 'news', 'iso' => $this->currentLang['iso_lang']]);
-
-        $currentUrl = $_SERVER['REQUEST_URI'] ?? '/';
-        $currentUrl = preg_replace('/([?&])p=[0-9]+&?/', '$1', $currentUrl);
-        $currentUrl = rtrim($currentUrl, '?&');
-        $sep = str_contains($currentUrl, '?') ? '&' : '?';
-        $pageUrlBase = $currentUrl . $sep . 'p=';
-
-        $allLangs = $this->view->getTemplateVars('langs');
-        $hreflangUrls = [];
-
-        if ($allLangs && is_array($allLangs)) {
-            foreach ($allLangs as $l) {
-                $lId = (int)$l['id_lang'];
-                $lIso = strtolower($l['iso_lang']);
-
-                $hreflangUrls[$lId] = $urlTool->buildUrl([
-                    'type' => 'news', // Pas d'ID ni d'URL spécifique nécessaires ici
-                    'iso'  => $lIso
-                ]);
-
-                if (isset($l['is_default']) && $l['is_default'] == 1) {
-                    $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+            foreach ($rawList as $raw) {
+                $formatted = NewsPresenter::format($raw, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
+                $newsList[] = $formatted;
+                if (!empty($formatted['schema_raw'])) {
+                    $itemListElements[] = ['@type' => 'ListItem', 'position' => $position++, 'item' => $formatted['schema_raw']];
                 }
             }
+
+            $jsonLd = '';
+            if (!empty($itemListElements)) {
+                $itemListSchema = ['@context' => 'https://schema.org', '@type' => 'ItemList', 'itemListElement' => $itemListElements];
+                $jsonLd = '<script type="application/ld+json">' . "\n" . json_encode($itemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
+            }
+
+            // URLs des filtres
+            $allTags = $this->db->getAllTags($idLang);
+            if ($allTags) {
+                foreach ($allTags as &$t) {
+                    $slug = strtolower(str_replace(' ', '-', $t['name_tag']));
+                    $t['url'] = $baseNewsUrl . 'tag/' . $t['id_tag'] . '-' . $slug . '/';
+                }
+                unset($t);
+            }
+
+            $archives = $this->db->getArchives();
+            if ($archives) {
+                foreach ($archives as &$a) {
+                    $monthPad = str_pad((string)$a['month'], 2, '0', STR_PAD_LEFT);
+                    $a['dummy_date'] = $a['year'] . '-' . $monthPad . '-01';
+                    $a['url'] = $baseNewsUrl . $a['year'] . '/' . $monthPad . '/';
+                }
+                unset($a);
+            }
+
+            // 🟢 GESTION SEO ROBUSTE (Anti-vide)
+            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $siteDesc = $this->siteSettings['site_description']['value'] ?? '';
+            $newsHome = $this->db->getNewsHomeConfig($idLang);
+
+            // Initialisation des bases par défaut (NewsHome ou Site)
+            $baseTitle = !empty($newsHome['seo_title_page']) ? $newsHome['seo_title_page'] : (!empty($newsHome['title_page']) ? $newsHome['title_page'] . ' - ' . $siteName : 'Actualités - ' . $siteName);
+            $baseDesc = !empty($newsHome['seo_desc_page']) ? $newsHome['seo_desc_page'] : $siteDesc;
+
+            $seoTitle = $baseTitle;
+            $seoDesc = $baseDesc;
+            $isRootNews = false;
+
+            if ($idTag) {
+                $tagName = $this->db->getTagName($idTag, $idLang);
+                if ($tagName) {
+                    $seoTitle = 'Tag : ' . $tagName . ' - ' . $baseTitle;
+                    $seoDesc = 'Découvrez toutes nos actualités liées au tag ' . $tagName . '. ' . $baseDesc;
+                }
+            } elseif ($year && $month) {
+                $monthName = date("F", mktime(0, 0, 0, (int)$month, 10));
+                $seoTitle = 'Archives ' . $monthName . ' ' . $year . ' - ' . $baseTitle;
+                $seoDesc = 'Retrouvez tous nos articles publiés en ' . $monthName . ' ' . $year . '. ' . $baseDesc;
+            } else {
+                if ($page === 1) {
+                    $isRootNews = true;
+                } else {
+                    $seoTitle = $baseTitle . ' - Page ' . $page;
+                }
+            }
+
+            // Pagination URL
+            $currentUrl = $_SERVER['REQUEST_URI'];
+            $currentUrl = preg_replace('/([?&])p=[0-9]+&?/', '$1', $currentUrl);
+            $currentUrl = rtrim($currentUrl, '?&');
+            $sep = str_contains($currentUrl, '?') ? '&' : '?';
+            $pageUrlBase = $currentUrl . $sep . 'p=';
+
+            $urlTool = new UrlTool();
+            $allLangs = $this->view->getTemplateVars('langs');
+            $hreflangUrls = [];
+            if ($allLangs && is_array($allLangs)) {
+                foreach ($allLangs as $l) {
+                    $hreflangUrls[(int)$l['id_lang']] = $urlTool->buildUrl(['type' => 'news', 'iso' => strtolower($l['iso_lang'])]);
+                }
+            }
+
+            $this->view->assign([
+                'news_list'     => $newsList,
+                'json_ld'       => $jsonLd,
+                'all_tags'      => $allTags,
+                'archives'      => $archives,
+                'current_tag'   => $idTag,
+                'current_year'  => $year,
+                'current_month' => $month,
+                'reset_url'     => $baseNewsUrl,
+                'seo_title'     => $seoTitle,
+                'seo_desc'      => $seoDesc,
+                'news_home'     => $newsHome,
+                'is_root'       => $isRootNews,
+                'pagination'    => $pagination,
+                'page_url_base' => $pageUrlBase,
+                'hreflang'      => $hreflangUrls
+            ]);
         }
 
-        $this->view->assign([
-            'news_list'     => $newsList,
-            'json_ld'       => $jsonLd,
-            'all_tags'      => $allTags,
-            'archives'      => $archives,
-            'current_tag'   => $idTag,
-            'current_year'  => $year,
-            'current_month' => $month,
-            'reset_url'     => $resetUrl,
-            'seo_title'     => $seoTitle,
-            'seo_desc'      => 'Découvrez toutes nos actualités et événements.',
-            'pagination'    => $paginationData,
-            'page_url_base' => $pageUrlBase
-        ]);
-
-        $this->view->display('news/index.tpl');
+        $this->view->display('news/index.tpl', $cacheId);
     }
 }
