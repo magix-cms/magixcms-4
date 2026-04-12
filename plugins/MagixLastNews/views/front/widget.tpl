@@ -8,6 +8,6 @@
                 {#news_view_all_btn#}
             </a>
         </div>
-        {include file="news/loop/news-grid.tpl" data=$last_news classType="normal"}
+        {include file="news/loop/news-grid.tpl" data=$last_news classType="normal" nocache}
     </div>
 </section>
