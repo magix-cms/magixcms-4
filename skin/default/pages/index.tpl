@@ -9,7 +9,7 @@
     {$website_json_ld|default:'' nofilter}
 {/block}
 
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["pages","splide.min", "gallery"] scope="parent"}
 {/block}
 
@@ -72,7 +72,7 @@
 
         </section>
 
-        {hook name='displayPageBottom' id_pages=$pages.id nocache}
+        {hook name='displayPageBottom' id_pages=$pages.id}
 
         {if isset($pages.subdata) && $pages.subdata|count > 0}
             <section class="page-children mt-5 pt-4 border-top">
@@ -89,13 +89,13 @@
 
 {/block}
 
-{block name="javascript_data" nocache}
+{block name="javascript_data"}
     {$page_js = [
     'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
 {/block}
 
-{block name="javascript" append nocache}
+{block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof GalleryManager !== 'undefined') {

@@ -47,7 +47,7 @@
 </head>
 <body class="bg-body-tertiary">
 
-{include file="layout/header.tpl" nocache}
+{include file="layout/header.tpl"}
 
 {block name="main:before"}{/block}
 {block name="main"}
@@ -66,7 +66,7 @@
 {include file="layout/footer.tpl"}
 {include file="layout/footbar.tpl"}
 
-{include file="components/cookies.tpl"}
+{include file="components/cookies.tpl" nocache}
 
 {$global_js = [
 'defer' => ['vendor/bootstrap.bundle','vendor/glightbox', 'vendor/imagesloaded.pkgd', 'CookieConsent', 'MagixCore'],
@@ -78,7 +78,7 @@
 
 {include file="components/js.tpl"}
 
-{block name="javascript" nocache}{/block}
+{block name="javascript"}{/block}
 
 {nocache}
     {if isset($admin_maintenance_warning) && $admin_maintenance_warning}

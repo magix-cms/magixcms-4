@@ -9,7 +9,7 @@
     {$website_json_ld|default:'' nofilter}
 {/block}
 
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["about","splide.min", "gallery"] scope="parent"}
 {/block}
 

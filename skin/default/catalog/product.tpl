@@ -7,7 +7,7 @@
     {$product.json_ld|default:'' nofilter}
 {/block}
 {* --- CSS --- *}
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["splide.min", "gallery"] scope="parent"}
 {/block}
 

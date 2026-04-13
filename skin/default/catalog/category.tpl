@@ -3,7 +3,7 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["catalog","vendor/splide", "gallery"] scope="parent"}
 {/block}
 

@@ -8,7 +8,7 @@
     {$website_json_ld|default:'' nofilter}
 {/block}
 
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["splide.min", "gallery"] scope="parent"}
 {/block}
 
@@ -103,13 +103,13 @@
 
 {/block}
 
-{block name="javascript_data" nocache}
+{block name="javascript_data"}
     {$page_js = [
     'defer' => ['vendor/splide', 'GalleryManager']
     ] scope="parent"}
 {/block}
 
-{block name="javascript" append nocache}
+{block name="javascript" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof GalleryManager !== 'undefined') {

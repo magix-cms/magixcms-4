@@ -3,7 +3,7 @@
 {block name='head:title'}{$seo_title}{/block}
 {block name='head:description'}{$seo_desc}{/block}
 
-{block name="styleSheet" append nocache}
+{block name="styleSheet" append}
     {$page_css = ["home","splide.min"] scope="parent"}
 {/block}
 
@@ -13,7 +13,7 @@
 
 {block name="main:before"}
     <section class="home-hook-top">
-        {hook name="displayHomeTop" nocache}
+        {hook name="displayHomeTop"}
     </section>
 {/block}
 
@@ -36,10 +36,10 @@
 
 {block name="main:after"}
     <section class="home-hook-bottom">
-        {hook name="displayHomeBottom" nocache}
+        {hook name="displayHomeBottom"}
     </section>
 {/block}
 
-{block name="javascript_data" nocache}
+{block name="javascript_data"}
     {$page_js = ['defer' => ['vendor/splide']] scope="parent"}
 {/block}

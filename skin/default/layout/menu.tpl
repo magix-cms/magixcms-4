@@ -15,7 +15,6 @@
                     <span>{$link_name}</span>
 
                     {if $has_children}
-                        {* 🟢 NOUVEAU : Zone de clic dédiée à la flèche mobile *}
                         <span class="dropdown-toggle js-mobile-toggle d-lg-none px-3 py-1"
                               aria-expanded="false"
                               role="button">
@@ -31,12 +30,10 @@
             </li>
         {else}
             <li class="{if $has_children}dropend dropdown-hover{/if}">
-                {* 🟢 On force le display flex sur l'item enfant pour aligner la flèche à droite *}
                 <a class="dropdown-item {$is_active} {if $has_children}d-flex justify-content-between align-items-center{/if}" href="{$link_url}" {$target_blank}>
                     <span>{$link_name}</span>
 
                     {if $has_children}
-                        {* 🟢 La classe js-mobile-toggle servira de point d'accroche pour notre script *}
                         <span class="dropdown-toggle js-mobile-toggle d-lg-none px-3 py-1"
                               aria-expanded="false"
                               role="button">
