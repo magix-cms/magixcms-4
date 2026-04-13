@@ -23,19 +23,21 @@
             {
               "@type": "ListItem",
               "position": 1,
-              "name": "{#breadcrumb_home#|escape:'javascript'}",
+        {* 🟢 CORRECTION : json_encode rajoute les guillemets tout seul et gère l'échappement *}
+        "name": {#breadcrumb_home#|json_encode nofilter},
               "item": "{$base_url}"
             }
         {foreach $breadcrumbs as $index => $item}
             ,{
               "@type": "ListItem",
               "position": {$index + 2},
-              "name": "{$item.label|escape:'javascript'}"
-              {if !$item@last && !empty($item.url)}
+              {* 🟢 CORRECTION : Même chose ici, pas de guillemets manuels ! *}
+              "name": {$item.label|json_encode nofilter}
+            {if !$item@last && !empty($item.url)}
               ,"item": "{$item.url}"
               {/if}
             }
-            {/foreach}
+        {/foreach}
         ]
       }
     </script>

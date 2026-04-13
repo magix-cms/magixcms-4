@@ -10,7 +10,12 @@ use App\Component\Routing\UrlTool;
 class PagesPresenter
 {
     /**
-     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $skinFolder
+     * @param array $row
+     * @param array $langContext
+     * @param string $siteUrl
+     * @param array $companyInfo
+     * @param string $skinFolder
+     * @return array
      */
     public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
@@ -20,14 +25,14 @@ class PagesPresenter
         $data = [
             'id'        => $idPages,
             'id_parent' => (int)($row['id_parent'] ?? 0),
-            'name'      => $row['name_pages'] ?? '',
-            'longname'  => $row['longname_pages'] ?? '',
-            'resume'    => $row['resume_pages'] ?? '',
-            'content'   => $row['content_pages'] ?? '',
+            'name'      => html_entity_decode(stripslashes($row['name_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            'longname'  => html_entity_decode(stripslashes($row['longname_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            'resume'    => stripslashes($row['resume_pages'] ?? ''),
+            'content'   => stripslashes($row['content_pages'] ?? ''),
             'date'      => $row['last_update'] ?? $row['date_register'] ?? null,
             'link'      => [
-                'label' => $row['link_label_pages'] ?? '',
-                'title' => $row['link_title_pages'] ?? ''
+                'label' => html_entity_decode(stripslashes($row['link_label_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),
+                'title' => html_entity_decode(stripslashes($row['link_title_pages'] ?? ''), ENT_QUOTES, 'UTF-8')
             ]
         ];
 
@@ -66,13 +71,19 @@ class PagesPresenter
         return $data;
     }
 
+    /**
+     * @param array $row
+     * @param int $idPages
+     * @param string $siteUrl
+     * @param string $skinFolder
+     * @return array
+     */
     private static function processImages(array $row, int $idPages, string $siteUrl, string $skinFolder): array
     {
         $imageTool = new ImageTool();
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_pages'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_pages'] ?? '');
 
-        // 🟢 AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
             static $fallbackData = [];
 
@@ -120,6 +131,13 @@ class PagesPresenter
         return $imgData;
     }
 
+    /**
+     * @param array $data
+     * @param array $imgData
+     * @param string $siteUrl
+     * @param array $companyInfo
+     * @return string
+     */
     private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
     {
         // ... (votre code JSON-LD reste inchangé) ...
@@ -159,7 +177,7 @@ class PagesPresenter
             '@context'    => 'https://schema.org',
             '@type'       => 'WebPage',
             'name'        => $data['name'],
-            'description' => trim(strip_tags($data['resume'] ?: $data['content'])),
+            'description' => trim(preg_replace('/\s+/', ' ', strip_tags($data['resume'] ?: $data['content']))),
             'url'         => $siteUrl . $data['url'],
             'publisher'   => $publisher
         ];
