@@ -29,7 +29,8 @@ class NewsController extends BaseController
 
     private function renderSingle(int $id): void
     {
-        $cacheId = md5($_SERVER['REQUEST_URI']);
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $cacheId = md5('news_single_' . $idLang . '_' . $_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('news/single.tpl', $cacheId)) {
 
@@ -101,7 +102,8 @@ class NewsController extends BaseController
 
     private function renderList(): void
     {
-        $cacheId = md5($_SERVER['REQUEST_URI']);
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $cacheId = md5('news_list_' . $idLang . '_' . $_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('news/index.tpl', $cacheId)) {
 
@@ -161,10 +163,22 @@ class NewsController extends BaseController
                 unset($a);
             }
 
-            // 🟢 GESTION SEO ROBUSTE (Anti-vide)
             $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
             $siteDesc = $this->siteSettings['site_description']['value'] ?? '';
+
+            // 1. On récupère les données
             $newsHome = $this->db->getNewsHomeConfig($idLang);
+
+            // 2. SÉCURITÉ : Si la DB ne retourne rien (site en ligne tout neuf), on force un tableau
+            if (!is_array($newsHome)) {
+                $newsHome = [];
+            }
+
+            // 3. On garantit que les clés critiques existent pour Smarty
+            $newsHome['content_page'] = $newsHome['content_page'] ?? '';
+            $newsHome['title_page']   = $newsHome['title_page'] ?? 'Actualités';
+            $newsHome['seo_title_page'] = $newsHome['seo_title_page'] ?? '';
+            $newsHome['seo_desc_page']  = $newsHome['seo_desc_page'] ?? '';
 
             // Initialisation des bases par défaut (NewsHome ou Site)
             $baseTitle = !empty($newsHome['seo_title_page']) ? $newsHome['seo_title_page'] : (!empty($newsHome['title_page']) ? $newsHome['title_page'] . ' - ' . $siteName : 'Actualités - ' . $siteName);

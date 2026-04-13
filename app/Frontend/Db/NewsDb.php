@@ -155,9 +155,9 @@ class NewsDb extends BaseDb
             ->where('n.date_publish <= NOW()');
 
         // Filtrage par TAG
-        if (!empty($filters['id_tag'])) {
+        if (!empty($filters['tag'])) {
             $qb->join('mc_news_tag_rel', 'tr', 'n.id_news = tr.id_news');
-            $qb->where('tr.id_tag = :id_tag', ['id_tag' => $filters['id_tag']]);
+            $qb->where('tr.id_tag = :id_tag', ['id_tag' => $filters['tag']]);
         }
         // Filtrage par ANNÉE
         if (!empty($filters['year'])) {
