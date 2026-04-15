@@ -8,7 +8,14 @@
             {/if}
             <a href="{$home_url}" title="{$logo.title_logo|default:$companyData.name}" class="text-decoration-none">
                 {if isset($logo) && !empty($logo.img)}
-                    {include file="components/img.tpl" img=$logo.img size="medium" responsiveC=true alt=$logo.alt_logo|default:$companyData.name}
+                    {include file="components/img.tpl"
+                    img=$logo.img
+                    size="medium"
+                    responsiveC=true
+                    alt=$logo.alt_logo|default:$companyData.name
+                    lazy=false
+                    fetchpriority="high"
+                    html_sizes="220px"}
                 {else}
                     <span class="h3 mb-0 text-primary fw-bold">{$companyData.name|default:'Magix CMS'}</span>
                 {/if}

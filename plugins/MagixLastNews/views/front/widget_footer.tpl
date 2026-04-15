@@ -1,17 +1,17 @@
 {* Fichier : plugins/MagixLastNews/views/front/widget_footer.tpl *}
-<div class="widget-footer-news mb-4">
-    <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">
+<div class="widget-footer-news mb-4"> {* 🟢 Suppression de col-12, ajout de mb-4 *}
+    <p class="h5 text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">
         {#footer_news_title#|default:'Dernières actualités'}
-    </h5>
+    </p>
 
     <div class="d-flex flex-column gap-3">
         {if isset($footer_news) && $footer_news|count > 0}
             {foreach $footer_news as $news}
                 <article>
                     <a href="{$base_url}{$news.url|escape}" class="news-footer-link text-decoration-none d-block">
-                        <h6 class="news-title mb-1 fw-bold">
+                        <p class="h6 news-title mb-1 fw-bold">
                             {$news.name|escape}
-                        </h6>
+                        </p>
                         <p class="text-white-50 small mb-1 text-truncate" style="max-width: 100%;">
                             {if !empty($news.resume)}
                                 {$news.resume|strip_tags|truncate:70:"..."}

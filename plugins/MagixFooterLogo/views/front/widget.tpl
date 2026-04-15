@@ -2,11 +2,15 @@
 <div class="widget-footerlogo mb-4">
     {if !empty($logoFooter)}
         <a href="{$base_url}" class="d-inline-block mb-4">
-            <img src="{$logoFooter.img.adaptive.src|default:$logoFooter.img.original.src}"
-                 alt="{$logoFooter.alt_logo|default:$companyData.name|escape}"
-                 title="{$logoFooter.title_logo|default:''|escape}"
-                 class="img-fluid"
-                 style="max-width: 220px; height: auto;">
+            {include file="components/img.tpl"
+                img=$logoFooter.img
+                size="medium"
+                responsiveC=true
+                alt=$logoFooter.alt_logo|default:$companyData.name
+                title=$logoFooter.title_logo|default:''
+                lazy=true
+                html_sizes="220px"
+            }
         </a>
     {/if}
 

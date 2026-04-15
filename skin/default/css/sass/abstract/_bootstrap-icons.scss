@@ -12,7 +12,7 @@ $bootstrap-icons-font-src: url("#{$bootstrap-icons-font-file}.woff2?#{$bootstrap
                            url("#{$bootstrap-icons-font-file}.woff?#{$bootstrap-icons-font-hash}") format("woff") !default;
 
 @font-face {
-  font-display: block;
+  font-display: swap;
   font-family: $bootstrap-icons-font;
   src: $bootstrap-icons-font-src;
 }

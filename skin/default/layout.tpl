@@ -16,6 +16,7 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css" media="print" onload="this.media='all'">
+    <link rel="preload" href="{$skin_url}/fonts/bootstrap-icons.woff2?24e3eb84d0bcaf83d77f904c78ac1f47" as="font" type="font/woff2" crossorigin>
     <noscript>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{$skin_url}/css/glightbox.min.css">

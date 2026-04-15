@@ -1,5 +1,5 @@
 <div class="widget-social mb-4">
-    <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Suivez-nous</h5>
+    <p class="h5 text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Suivez-nous</p>
 
     <div class="d-flex flex-wrap gap-3">
         {if !empty($companyData.facebook)}
