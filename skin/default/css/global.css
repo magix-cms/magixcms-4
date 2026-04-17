@@ -24817,7 +24817,7 @@ h6, .h6 {
 #footer .news-footer-link:hover .news-date {
   color: var(--white-color);
 }
-#footer .widget-footerlogo {
+#footer .widget-footerlogo a {
   max-width: 220px;
   height: auto;
   /* Optionnel : aspect-ratio pour tuer le CLS ici aussi */

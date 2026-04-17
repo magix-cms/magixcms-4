@@ -121,9 +121,11 @@
     }
   }
   .widget-footerlogo{
-    max-width: 220px;
-    height: auto;
-    /* Optionnel : aspect-ratio pour tuer le CLS ici aussi */
-    aspect-ratio: 480 / 105;
+    a{
+      max-width: 220px;
+      height: auto;
+      /* Optionnel : aspect-ratio pour tuer le CLS ici aussi */
+      aspect-ratio: 480 / 105;
+    }
   }
 }
