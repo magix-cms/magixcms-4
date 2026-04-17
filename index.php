@@ -36,14 +36,17 @@ $autoloader->addNamespace('Plugins\\', ROOT_DIR . 'plugins' . DS);
 $redirectTool = new \App\Component\Routing\RedirectTool();
 $redirectTool->checkAndRedirect();
 
+use App\Frontend\Model\ThemeManager;
+// 1. On récupère le chemin dynamique du thème courant
+$skinPath = ThemeManager::getThemePath();
 // 4. Configuration de Smarty (Vue Front-end)
 // On utilise le contexte 'front' pour ne pas interférer avec 'admin'
 SmartyTool::registerContext('front', [
-    'template_dir' => ROOT_DIR . 'templates',          // Dossier de votre thème (public)
-    'compile_dir'  => ROOT_DIR . 'var' . DS . 'templates_c',
-    'cache_dir'    => ROOT_DIR . 'var' . DS . 'tpl_caches',
-    'plugins_dir'  => ROOT_DIR . 'templates' . DS . 'widgets',
-    'config_dir'   => ROOT_DIR . 'templates' . DS . 'i18n',
+    'template_dir' => $skinPath,                                  // Dossier racine du thème (ex: skin/default)
+    'compile_dir'  => ROOT_DIR . 'var' . DIRECTORY_SEPARATOR . 'templates_c',
+    'cache_dir'    => ROOT_DIR . 'var' . DIRECTORY_SEPARATOR . 'tpl_caches',
+    'plugins_dir'  => $skinPath . DIRECTORY_SEPARATOR . 'widgets', // Widgets spécifiques au thème
+    'config_dir'   => $skinPath . DIRECTORY_SEPARATOR . 'i18n',    // Traductions spécifiques au thème
 ]);
 
 // 5. Logique de Routage (Préparé pour le .htaccess)

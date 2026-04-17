@@ -60,6 +60,9 @@
                                                         <span class="fw-bold text-truncate {if !$item.active}text-muted text-decoration-line-through{/if}" style="font-size: 0.9rem;" title="{$item.module_name}">
                                                             {$item.module_name}
                                                         </span>
+                                                        {if !empty($item.item_slug)}
+                                                            <span class="badge bg-secondary ms-2 opacity-75 fw-normal" style="font-size: 0.65rem;">{$item.item_slug}</span>
+                                                        {/if}
                                                     </div>
 
                                                     <div class="btn-group btn-group-sm flex-shrink-0">
@@ -120,6 +123,17 @@
                                     <option value="{$zone.id_hook}">{$zone.title}</option>
                                 {/foreach}
                             </select>
+                        </div>
+
+                        {* 🟢 NOUVEAU : Le champ pour le Slug (Identifiant unique) *}
+                        <div class="mb-4">
+                            <label for="item_slug" class="form-label fw-bold small text-muted text-uppercase">
+                                3. Identifiant unique <span class="fw-normal text-lowercase">(Optionnel)</span>
+                            </label>
+                            <input type="text" name="item_slug" id="item_slug" class="form-control form-control-lg" placeholder="ex: bloc-services, promo-noel...">
+                            <div class="form-text small text-muted mt-2">
+                                <i class="bi bi-info-circle"></i> Utile uniquement si vous greffez plusieurs fois le même plugin. Laissez vide pour un usage classique.
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm mt-2">

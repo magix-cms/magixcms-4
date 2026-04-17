@@ -35,7 +35,7 @@
                         </p>
                     {else}
                         <span class="text-muted">
-                            <i class="bi bi-clock"></i> {#news_single_published_on#} {$news.date_publish|date_format:"%d %B %Y"}
+                            <i class="bi bi-clock"></i> {#news_single_published_on#} {$news.date_publish|format_date:"dd MMMM yyyy":$current_lang.iso_lang|lower}
                         </span>
                     {/if}
                 </div>

@@ -545,6 +545,7 @@ CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `id_item` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_hook` int UNSIGNED NOT NULL,
     `module_name` varchar(64) NOT NULL,
+    `item_slug` varchar(64) DEFAULT NULL,
     `position` int UNSIGNED NOT NULL DEFAULT '0',
     `active` tinyint(1) NOT NULL DEFAULT '1',
     PRIMARY KEY (`id_item`),

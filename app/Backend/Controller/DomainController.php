@@ -6,11 +6,12 @@ namespace App\Backend\Controller;
 
 use App\Backend\Db\DomainDb;
 use App\Backend\Db\LangDb;
-use App\Component\Routing\UrlTool; // IMPORTANT POUR LE SITEMAP
+use App\Component\Routing\UrlTool;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
-use Magepattern\Component\XML\Sitemap; // IMPORTANT POUR LE SITEMAP
-use App\Backend\Db\PluginDb; // 🟢 NOUVEAU : Import pour scanner les plugins
+use Magepattern\Component\XML\Sitemap;
+use App\Backend\Db\PluginDb;
+use App\Component\Cache\CacheManager;
 
 class DomainController extends BaseController
 {
@@ -113,12 +114,13 @@ class DomainController extends BaseController
         $newId = $db->insertDomain($data);
 
         if ($newId) {
+            // 🟢 PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
+            CacheManager::clearFrontend('domain');
+
             $this->jsonResponse(true, 'Le domaine a été ajouté avec succès.', [
                 'type' => 'add',
                 'id'   => $newId
             ]);
-        } else {
-            $this->jsonResponse(false, 'Erreur lors de la création du domaine.');
         }
     }
 
@@ -193,6 +195,9 @@ class DomainController extends BaseController
         ];
 
         if ($db->updateDomain($id, $data)) {
+            // 🟢 PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
+            CacheManager::clearFrontend('domain');
+
             $this->jsonResponse(true, 'Le domaine a été mis à jour.', ['type' => 'update']);
         } else {
             $this->jsonResponse(false, 'Erreur lors de la mise à jour.');
@@ -208,7 +213,11 @@ class DomainController extends BaseController
         $cleanIds = array_filter(array_map('intval', (array)$ids));
 
         if (!empty($cleanIds)) {
-            if ((new DomainDb())->deleteDomain($cleanIds)) {
+            $db = new DomainDb();
+
+            if ($db->deleteDomain($cleanIds)) {
+                CacheManager::clearFrontend('domain');
+
                 $this->jsonResponse(true, 'Domaine(s) supprimé(s).');
             }
         }

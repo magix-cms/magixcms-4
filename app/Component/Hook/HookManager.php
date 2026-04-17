@@ -6,6 +6,7 @@ namespace App\Component\Hook;
 
 use Magepattern\Component\Database\QueryBuilder;
 use Magepattern\Component\Debug\Logger;
+use App\Component\Cache\CacheManager;
 
 class HookManager
 {
@@ -14,6 +15,9 @@ class HookManager
 
     /** @var array<string, array<string, callable>> Liste indexée par [NomHook][NomPlugin] */
     private static array $hooks = [];
+
+    /** @var array Cache mémoire interne pour la durée de l'exécution de la page */
+    private static array $dbCache = [];
 
     /**
      * Un plugin appelle cette méthode pour s'accrocher à un événement
@@ -24,7 +28,7 @@ class HookManager
     }
 
     /**
-     * 1. MÉTHODE POUR SMARTY (Ancienne version / Interne)
+     * MÉTHODE POUR SMARTY / INTERNE
      */
     public static function exec(array $params): string
     {
@@ -36,14 +40,14 @@ class HookManager
 
         $output = '';
         foreach (self::$hooks[$hookName] as $pluginName => $callback) {
-            $output .= call_user_func($callback, $params);
+            $output .= (string)call_user_func($callback, $params);
         }
 
         return $output;
     }
 
     /**
-     * 2. MÉTHODE POUR LES CONTRÔLEURS (Ex: Dashboard)
+     * MÉTHODE POUR LES CONTRÔLEURS (Ex: Dashboard)
      */
     public static function execToArray(string $hookName, array $params = []): array
     {
@@ -60,16 +64,8 @@ class HookManager
     }
 
     /**
-     * NOUVEAU : 3. MÉTHODE SPÉCIFIQUE FRONTEND (Pilotée par la base de données)
-     * Récupère les plugins assignés à un hook précis et exécute leur rendu.
-     * @param string $hookName
-     * @param array $params Variables globales envoyées par Smarty (Langue, URL...)
-     */
-    /**
-     * NOUVEAU : 3. MÉTHODE SPÉCIFIQUE FRONTEND (Pilotée par la base de données)
-     * Récupère les plugins assignés à un hook précis et exécute leur rendu.
-     * @param string $hookName
-     * @param array $params Variables globales envoyées par Smarty (Langue, URL...)
+     * MÉTHODE SPÉCIFIQUE FRONTEND
+     * Gère le cache (mémoire + SQL) et la transmission du slug d'instance.
      */
     public static function execFront(string $hookName, array $params = []): string
     {
@@ -78,61 +74,82 @@ class HookManager
         }
 
         $output = '';
-        $executedPlugins = []; // Liste des plugins gérés par la BDD (actifs ou non)
+        $executedPlugins = [];
 
         try {
-            // --- 1. RÉCUPÉRATION DE LA CONFIGURATION (Base de données) ---
-            $qb = new QueryBuilder();
-            // 🟢 MODIFICATION 1 : On demande aussi la colonne "active"
-            $qb->select(['hi.module_name', 'hi.active'])
-                ->from('mc_hook_item', 'hi')
-                ->join('mc_hook', 'h', 'h.id_hook = hi.id_hook')
-                ->where('h.name = :hook_name', ['hook_name' => $hookName])
-                // 🟢 MODIFICATION 2 : On supprime la ligne `where('hi.active = 1')`
-                // On veut TOUT récupérer pour dire à l'étape 3 de ne pas les forcer
-                ->orderBy('hi.position', 'ASC');
+            // 1. GESTION DU CACHE
+            if (!isset(self::$dbCache[$hookName])) {
+                $cacheKey = 'layout_hook_' . $hookName;
+                $cache = CacheManager::get();
+                $plugins = null;
 
-            $db = new class extends \App\Frontend\Db\BaseDb {
-                public function fetchHookModules(QueryBuilder $qb) {
-                    return $this->executeAll($qb);
+                // Tentative de lecture du cache persistant (SQL/Files)
+                if ($cache) {
+                    $plugins = $cache->get($cacheKey);
                 }
-            };
 
-            $plugins = $db->fetchHookModules($qb);
+                // Si pas de cache, on interroge la base de données
+                if ($plugins === null || !is_array($plugins)) {
+                    $qb = new QueryBuilder();
+                    $qb->select(['hi.module_name', 'hi.active', 'hi.item_slug'])
+                        ->from('mc_hook_item', 'hi')
+                        ->join('mc_hook', 'h', 'h.id_hook = hi.id_hook')
+                        ->where('h.name = :hook_name', ['hook_name' => $hookName])
+                        ->orderBy('hi.position', 'ASC');
 
-            // --- 2. EXÉCUTION DES PLUGINS EN BASE DE DONNÉES ---
+                    // Utilisation d'une classe anonyme pour l'exécution DB isolée
+                    $db = new class extends \App\Frontend\Db\BaseDb {
+                        public function fetchHookModules(QueryBuilder $qb) {
+                            return $this->executeAll($qb);
+                        }
+                    };
+
+                    $plugins = $db->fetchHookModules($qb) ?: [];
+
+                    // Mise en cache persistant pour les prochains visiteurs
+                    if ($cache) {
+                        $cache->set($cacheKey, $plugins);
+                    }
+                }
+
+                // Stockage dans le cache mémoire (durée de vie du script PHP actuel)
+                self::$dbCache[$hookName] = $plugins;
+            }
+
+            $plugins = self::$dbCache[$hookName];
+
+            // 2. EXÉCUTION DES MODULES
             if (!empty($plugins)) {
                 foreach ($plugins as $plugin) {
                     $moduleName = $plugin['module_name'];
-
-                    // 🟢 MODIFICATION 3 : On marque le plugin comme "traité par la BDD"
-                    // Qu'il soit actif ou inactif, cela empêchera l'étape 3 de le ressusciter !
                     $executedPlugins[] = $moduleName;
 
-                    // 🟢 MODIFICATION 4 : On génère l'affichage UNIQUEMENT s'il est actif
                     if ((int)$plugin['active'] === 1) {
-                        // PRIORITÉ A : Le plugin a un callback enregistré via register()
+                        // On prépare les paramètres avec le slug d'instance
+                        $pluginParams = array_merge($params, [
+                            'instance_slug' => !empty($plugin['item_slug']) ? $plugin['item_slug'] : 'default'
+                        ]);
+
+                        // A. Priorité au callback enregistré (Boot.php)
                         if (isset(self::$hooks[$hookName][$moduleName])) {
-                            $output .= call_user_func(self::$hooks[$hookName][$moduleName], $params);
+                            $output .= (string)call_user_func(self::$hooks[$hookName][$moduleName], $pluginParams);
                         }
-                        // PRIORITÉ B : LE RETOUR DU "ELSE" (Convention de nommage automatique)
+                        // B. Sinon, appel automatique au Controller du plugin
                         else {
                             $className = "\\Plugins\\" . $moduleName . "\\src\\FrontendController";
                             if (class_exists($className) && method_exists($className, 'renderWidget')) {
-                                $output .= $className::renderWidget($params);
+                                $output .= (string)$className::renderWidget($pluginParams);
                             }
                         }
                     }
                 }
             }
 
-            // --- 3. EXÉCUTION DES PLUGINS "STATIQUES" (Register() seul, pas en DB) ---
-            // 🟢 Désormais, si un plugin est inactif en BDD, il est présent dans $executedPlugins.
-            // Ce if ne le laissera plus passer !
+            // 3. EXÉCUTION DES PLUGINS STATIQUES (Non présents en DB)
             if (isset(self::$hooks[$hookName])) {
                 foreach (self::$hooks[$hookName] as $moduleName => $callback) {
                     if (!in_array($moduleName, $executedPlugins)) {
-                        $output .= call_user_func($callback, $params);
+                        $output .= (string)call_user_func($callback, $params);
                     }
                 }
             }
@@ -145,29 +162,26 @@ class HookManager
     }
 
     /**
-     * NOUVEAU : 4. LE PONT POUR SMARTY 5
-     * C'est cette fonction qui sera appelée quand Smarty lira {hook name="..."}
+     * PONT POUR SMARTY
      */
     public static function smartyHook(array $params, $template): string
     {
         $hookName = $params['name'] ?? '';
 
-        // 1. On aspire les variables globales du CMS stockées dans Smarty
         $globalVars = [
             'current_lang' => $template->getTemplateVars('current_lang'),
             'site_url'     => $template->getTemplateVars('site_url'),
-            'company'      => $template->getTemplateVars('company')
+            'company'      => $template->getTemplateVars('company'),
+            'mc_settings'  => $template->getTemplateVars('mc_settings')
         ];
 
-        // 2. On les fusionne avec les paramètres éventuels du tag {hook}
         $finalParams = array_merge($globalVars, $params);
 
-        // 3. On envoie tout à notre exécuteur de Frontend
         return self::execFront($hookName, $finalParams);
     }
+
     /**
-     * NOUVEAU : 5. ENREGISTRER UN FILTRE
-     * Un plugin appelle cette méthode pour modifier des données existantes (ex: Override SQL)
+     * ENREGISTRER UN FILTRE (Hooks de données)
      */
     public static function addFilter(string $filterName, callable $callback): void
     {
@@ -175,21 +189,14 @@ class HookManager
     }
 
     /**
-     * NOUVEAU : 6. DÉCLENCHER UN FILTRE
-     * Fait passer une valeur (ex: un tableau vide) à travers tous les plugins accrochés.
-     * Chaque plugin modifie la valeur et la retourne pour le plugin suivant.
-     * * @param string $filterName Le nom du hook/filtre (ex: 'extendProductList')
-     * @param mixed $value La valeur initiale à modifier
-     * @param array $params Variables contextuelles éventuelles
-     * @return mixed La valeur modifiée par tous les plugins
+     * DÉCLENCHER UN FILTRE
      */
     public static function triggerFilter(string $filterName, mixed $value, array $params = []): mixed
     {
         if (empty($filterName) || !isset(self::$filters[$filterName])) {
-            return $value; // Si aucun plugin n'est accroché, on renvoie la valeur intacte
+            return $value;
         }
 
-        // On fait passer la donnée "à la chaîne" dans chaque plugin
         foreach (self::$filters[$filterName] as $callback) {
             $value = call_user_func($callback, $value, $params);
         }

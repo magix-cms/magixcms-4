@@ -10,6 +10,7 @@ use Magepattern\Component\Tool\FormTool;
 // Si vous avez un composant Url pour récupérer l'URL de base, incluez-le
 use Magepattern\Component\HTTP\Url;
 use App\Backend\Db\DomainDb;
+use App\Component\Cache\CacheManager;
 
 class SettingController extends BaseController
 {
@@ -85,6 +86,8 @@ class SettingController extends BaseController
         }
 
         if ($success) {
+            CacheManager::clearFrontend('settings');
+
             $this->jsonResponse(true, 'La configuration a été mise à jour avec succès.', [
                 'type' => 'update'
             ]);

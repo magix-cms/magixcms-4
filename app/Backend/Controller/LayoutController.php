@@ -8,6 +8,7 @@ use App\Backend\Db\LayoutDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\Tool\SmartyTool;
+use App\Component\Cache\CacheManager; // 🟢 Import du gestionnaire de cache
 
 class LayoutController extends BaseController
 {
@@ -34,7 +35,6 @@ class LayoutController extends BaseController
         $view = SmartyTool::getInstance('admin');
         $hooks = $this->layoutDb->getAllHooks() ?: [];
 
-        // 🟢 NOUVEAU : On prépare nos catégories
         $groupedLayout = [
             'Accueil'               => [],
             'Général & Pages'       => [],
@@ -48,7 +48,6 @@ class LayoutController extends BaseController
                 'items' => $this->layoutDb->getItemsByHook((int)$hook['id_hook']) ?: []
             ];
 
-            // 🟢 AIGUILLAGE PAR CATÉGORIE
             if (str_contains($hookName, 'Home')) {
                 $groupedLayout['Accueil'][] = $zoneData;
             } elseif (str_contains($hookName, 'Footer')) {
@@ -61,8 +60,8 @@ class LayoutController extends BaseController
         $availablePlugins = $this->getAvailablePlugins();
 
         $view->assign([
-            'layout_groups'    => $groupedLayout, // 🟢 Nouvelle variable
-            'layout'           => $hooks,         // On garde ça pour le select "Zone de destination"
+            'layout_groups'    => $groupedLayout,
+            'layout'           => $hooks,
             'availablePlugins' => $availablePlugins,
             'hashtoken'        => $this->session->getToken()
         ]);
@@ -70,10 +69,6 @@ class LayoutController extends BaseController
         $view->display('layout/index.tpl');
     }
 
-    /**
-     * Scanne le dossier 'plugins', lit les manifest.json
-     * et retourne uniquement les plugins capables d'être greffés.
-     */
     private function getAvailablePlugins(): array
     {
         $pluginsDir = ROOT_DIR . 'plugins';
@@ -93,14 +88,12 @@ class LayoutController extends BaseController
                     $manifest = json_decode($jsonContent, true);
 
                     if (is_array($manifest)) {
-                        // RÈGLE : Le plugin est greffable s'il possède des hooks par défaut
-                        // OU s'il déclare explicitement être "hookable" (optionnel pour le futur)
                         $hasDefaultHooks = !empty($manifest['default_hooks']) && is_array($manifest['default_hooks']);
                         $isExplicitlyHookable = isset($manifest['hookable']) && $manifest['hookable'] === true;
 
                         if ($hasDefaultHooks || $isExplicitlyHookable) {
                             $plugins[] = [
-                                'technical_name' => $folder, // Le vrai nom du dossier (Ex: Contact)
+                                'technical_name' => $folder,
                                 'display_name'   => $manifest['name'] ?? $folder,
                                 'description'    => $manifest['description'] ?? ''
                             ];
@@ -110,7 +103,6 @@ class LayoutController extends BaseController
             }
         }
 
-        // On trie le tableau par ordre alphabétique sur le nom d'affichage
         usort($plugins, function ($a, $b) {
             return strcmp($a['display_name'], $b['display_name']);
         });
@@ -128,8 +120,18 @@ class LayoutController extends BaseController
         $idHook = (int)($_POST['id_hook'] ?? 0);
         $moduleName = FormTool::simpleClean($_POST['module_name'] ?? '');
 
+        $rawSlug = $_POST['item_slug'] ?? '';
+        $itemSlug = null;
+        if (!empty(trim($rawSlug))) {
+            $itemSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $rawSlug), '-'));
+        }
+
         if ($idHook > 0 && !empty($moduleName)) {
-            if ($this->layoutDb->addItem($idHook, $moduleName)) {
+            if ($this->layoutDb->addItem($idHook, $moduleName, $itemSlug)) {
+
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('layout');
+
                 $this->jsonResponse(true, 'Widget greffé avec succès.');
             }
         }
@@ -143,6 +145,10 @@ class LayoutController extends BaseController
 
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0 && $this->layoutDb->deleteItem($id)) {
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('layout');
+
             $this->jsonResponse(true, 'Widget retiré.');
         }
         $this->jsonResponse(false, 'Erreur de suppression.');
@@ -155,6 +161,10 @@ class LayoutController extends BaseController
 
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0 && $this->layoutDb->toggleActive($id)) {
+
+            // 🟢 PURGE DU CACHE
+            CacheManager::clearFrontend('layout');
+
             $this->jsonResponse(true, 'Statut mis à jour.');
         }
         $this->jsonResponse(false, 'Erreur de mise à jour.');
@@ -172,10 +182,12 @@ class LayoutController extends BaseController
 
         if ($id > 0 && in_array($dir, ['up', 'down'])) {
             if ($this->layoutDb->moveItem($id, $dir)) {
+
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('layout');
+
                 $this->jsonResponse(true, "Déplacement $dir effectué !");
             } else {
-                // MODIFICATION ICI : On renvoie "true" pour que la page se recharge en silence,
-                // sans afficher d'alerte d'erreur frustrante.
                 $this->jsonResponse(true, "L'élément est déjà à cette extrémité.");
             }
         }
@@ -193,13 +205,15 @@ class LayoutController extends BaseController
         $ids = $_POST['order'] ?? [];
 
         if ($idHook > 0 && is_array($ids) && !empty($ids)) {
-            // NOUVEAU : On passe l'ID de la zone à reorder pour qu'il mette à jour le hook
             if ($this->layoutDb->reorder($ids, $idHook)) {
+
+                // 🟢 PURGE DU CACHE
+                CacheManager::clearFrontend('layout');
+
                 $this->jsonResponse(true, "L'ordre et les zones ont été mis à jour.");
             }
         }
 
         $this->jsonResponse(false, "Données invalides ou aucun changement.");
     }
-
 }

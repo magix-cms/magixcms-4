@@ -13,31 +13,68 @@ class SettingDb extends BaseDb
      */
     public function fetchAllSettings(): array
     {
+        // 1. On appelle l'outil de cache SQL
+        $cache = $this->getSqlCache();
+
         $qb = new QueryBuilder();
         $qb->select('*')->from('mc_setting');
-        $results = $this->executeAll($qb);
 
-        $settings = [];
-        if ($results) {
-            foreach ($results as $row) {
-                $settings[$row['name']] = $row;
+        // 2. On génère la clé de cache avec le tag "settings"
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'settings');
+
+        // 3. On regarde si notre tableau formaté est déjà en cache
+        $settings = $cache->get($cacheKey);
+
+        if ($settings === null) {
+            // Le cache est vide : on interroge la BDD
+            $results = $this->executeAll($qb);
+            $settings = [];
+
+            if ($results) {
+                // On formate le tableau (indexé par le nom du paramètre)
+                foreach ($results as $row) {
+                    $settings[$row['name']] = $row;
+                }
             }
+
+            // 4. On met en cache le tableau DÉJÀ FORMATÉ pour 24 heures (86400s)
+            // C'est un gain de CPU énorme car on évite le foreach aux prochains visiteurs
+            $cache->set($cacheKey, $settings, 86400);
         }
+
         return $settings;
     }
+
     /**
      * Récupère l'URL du domaine marqué comme canonique
      */
     public function getCanonicalDomain(): ?string
     {
+        $cache = $this->getSqlCache();
+
         $qb = new QueryBuilder();
         $qb->select(['url_domain'])
             ->from('mc_domain')
             ->where('canonical_domain = 1')
             ->limit(1);
 
-        $result = $this->executeRow($qb);
+        // Clé de cache avec le tag "domain"
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'domain');
 
-        return $result ? $result['url_domain'] : null;
+        $domain = $cache->get($cacheKey);
+
+        if ($domain === null) {
+            $result = $this->executeRow($qb);
+
+            // On extrait juste la chaîne de caractères
+            $domain = $result ? $result['url_domain'] : null;
+
+            // On met en cache si on a bien trouvé un domaine canonique
+            if ($domain !== null) {
+                $cache->set($cacheKey, $domain, 86400);
+            }
+        }
+
+        return $domain;
     }
 }

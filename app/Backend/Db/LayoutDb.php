@@ -73,7 +73,8 @@ class LayoutDb extends BaseDb
         return $success;
     }
 
-    public function addItem(int $idHook, string $moduleName): bool
+    // 🟢 NOUVEAU : Ajout du paramètre optionnel $itemSlug
+    public function addItem(int $idHook, string $moduleName, ?string $itemSlug = null): bool
     {
         $qbMax = new QueryBuilder();
         $qbMax->select(['MAX(position) as max_pos'])
@@ -85,10 +86,11 @@ class LayoutDb extends BaseDb
 
         $qb = new QueryBuilder();
         $qb->insert('mc_hook_item', [
-            'id_hook' => $idHook,
+            'id_hook'     => $idHook,
             'module_name' => $moduleName,
-            'position' => $newPos,
-            'active' => 1
+            'item_slug'   => $itemSlug,
+            'position'    => $newPos,
+            'active'      => 1
         ]);
         return $this->executeInsert($qb);
     }

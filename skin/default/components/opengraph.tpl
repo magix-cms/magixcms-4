@@ -15,7 +15,6 @@
         {$meta['twitter:site'] = $companyInfo.twitter}
     {/if}
 
-    {* 🟢 CHANGEMENT ICI : On pointe vers notre nouvelle image Social *}
     {$default_img = "{$site_url|default:''}/img/social/social_default.jpg"}
     {$meta['og:image'] = $default_img}
 

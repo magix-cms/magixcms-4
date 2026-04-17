@@ -24,7 +24,7 @@
                             {if !empty($item.date_start)}
                                 <i class="bi bi-calendar-event me-2"></i> {#news_loop_date_from#} {$item.date_start|date_format:"%d/%m"}
                             {else}
-                                {$item.date_publish|date_format:"%d %b %Y"}
+                                {$item.date_publish|format_date:"dd MMM yyyy":$current_lang.iso_lang|lower}
                             {/if}
                         </div>
                     </a>
