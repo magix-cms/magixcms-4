@@ -274,4 +274,43 @@ class DomainDb extends BaseDb
 
         return [];
     }
+    // ==========================================
+    // SÉCURITÉ (HOST HEADER VALIDATION)
+    // ==========================================
+
+    /**
+     * Récupère la liste de tous les domaines autorisés pour protéger l'accès Admin.
+     * Nettoie les valeurs pour ne garder que l'hôte (ex: mon-site.com).
+     */
+    public function getAllowedHosts(): array
+    {
+        // On utilise le cache SQL pour ne pas ralentir le backend
+        $cache = $this->getSqlCache();
+
+        $qb = new QueryBuilder();
+        $qb->select(['url_domain'])->from('mc_domain');
+
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'admin_domains_whitelist');
+        $domains = $cache->get($cacheKey);
+
+        if ($domains === null) {
+            $results = $this->executeAll($qb);
+            $domains = [];
+
+            if ($results) {
+                foreach ($results as $row) {
+                    // On nettoie : on retire http://, https:// et le / final
+                    $cleanHost = preg_replace('#^https?://#', '', rtrim($row['url_domain'], '/'));
+                    // On retire l'éventuel sous-dossier pour ne garder que le domaine pur
+                    $cleanHost = explode('/', $cleanHost)[0];
+
+                    $domains[] = strtolower($cleanHost);
+                }
+            }
+
+            $cache->set($cacheKey, $domains, 86400); // Cache de 24h
+        }
+
+        return $domains;
+    }
 }

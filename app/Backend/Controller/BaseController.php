@@ -53,78 +53,88 @@ abstract class BaseController
         $this->view = SmartyTool::getInstance('admin');
         $this->logger = Logger::getInstance();
 
-        // --- NOUVEAU : Enregistrement dynamique de la balise {hook} ---
         if (class_exists('\App\Component\Hook\HookManager')) {
             $this->view->registerPlugin('function', 'hook', ['\App\Component\Hook\HookManager', 'exec']);
         }
 
-        // --- Définition du contrôleur actif pour les menus Smarty ---
         $currentController = $_GET['controller'] ?? 'Dashboard';
         $cleanController = ucfirst(strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $currentController)));
         $this->view->assign('controller', $cleanController);
 
-        // 1. On charge la langue par défaut
+        // 1. Langue par défaut
         $this->initDefaultLanguage();
 
-        // 2. On charge la configuration globale de l'entreprise (mc_company_info)
+        // 2. Configuration globale de l'entreprise
         $this->initCompanyData();
 
-        // 3. On charge la configuration globale du site (Feature Toggles)
+        // 3. Configuration globale du site
         $this->initGlobalConfig();
 
         // ==========================================================
-        // 4. CHARGEMENT GLOBAL DES PARAMÈTRES (mc_setting) & SSL
+        // 4. CHARGEMENT GLOBAL DES PARAMÈTRES (mc_setting)
         // ==========================================================
         $settingDb = new SettingDb();
         $this->siteSettings = $settingDb->fetchAllSettings();
         $this->view->assign('mc_settings', $this->siteSettings);
 
-        // Détection du SSL depuis les paramètres
+        // ==========================================================
+        // 🛡️ BOUCLIER DE SÉCURITÉ ADMIN (Host Header Validation)
+        // ==========================================================
+        $isDevMode = false;
+
+        // A. Vérification du mode dev en BDD
+        if (isset($this->siteSettings['dev_mode']['value']) && (int)$this->siteSettings['dev_mode']['value'] === 1) {
+            $isDevMode = true;
+        }
+        // B. Fallback : si on est en local, on autorise d'office
+        elseif (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', '::1'])) {
+            $isDevMode = true;
+        }
+
+        // Si on est en production, on vérifie strictement le nom de domaine
+        if (!$isDevMode) {
+            $currentHost = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
+            $domainDb = new \App\Backend\Db\DomainDb();
+            $allowedDomains = $domainDb->getAllowedHosts();
+
+            if (!empty($allowedDomains) && !in_array($currentHost, $allowedDomains, true)) {
+                $this->logger->log("ALERTE SÉCURITÉ ADMIN: Tentative d'accès via un domaine non autorisé : {$currentHost}", "security");
+                header('HTTP/1.1 403 Forbidden');
+                die("<h1>Accès Interdit</h1><p>L'administration n'est pas autorisée sur ce domaine pour des raisons de sécurité.</p>");
+            }
+        }
+
+        // ==========================================================
+        // 5. INITIALISATION DE LA SESSION & AUTHENTIFICATION
+        // ==========================================================
         $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
         $isSslActive = ($isSsl === 1);
 
-        // 5. Initialisation de la session Magepattern AVEC la détection SSL
         $this->session = new Session($isSslActive);
 
-        // 6. Le Guard : On vérifie l'accès ET les permissions
         if ($this->requireAuth) {
             $this->checkAuthentication($this->session);
-
-            // --- Vérification stricte des droits du rôle (RBAC) ---
             $this->checkPermissions($cleanController);
-
             $this->initCurrentUser();
             $this->initMenuPermissions();
-
-            // --- On initialise les plugins ET la sidebar ---
             $this->initPlugins();
         }
 
-        // 7. Initialisation des traductions (i18n)
         $this->initTranslations($this->session);
 
         $this->json = new JSON();
         $this->view->assign('installed_plugins', $this->getValidatedPluginsForMenu());
 
         // ==========================================================
-        // URL DU SITE GLOBALE POUR SMARTY
+        // 6. URL DU SITE GLOBALE POUR SMARTY
         // ==========================================================
-
-        // 1. On récupère l'URL de base dynamique (qui inclut le dossier admin)
-        // Ex: https://mon-site.com/dossier/admin
         $adminBaseUrl = rtrim(Url::resolve(''), '/');
-
-        // 2. On retire proprement le dossier d'administration (BASEADMIN) de la fin de l'URL
-        // On utilise une regex pour s'assurer de ne retirer BASEADMIN qu'à la toute fin
-        // Ex: https://mon-site.com/dossier
         $siteUrl = preg_replace('#/' . preg_quote(BASEADMIN, '#') . '$#', '', $adminBaseUrl);
 
-        // 3. Fallback SSL (Optionnel, au cas où la détection serveur échoue mais que la BDD l'exige)
         if ($isSslActive && str_starts_with($siteUrl, 'http://')) {
             $siteUrl = str_replace('http://', 'https://', $siteUrl);
         }
 
-        // 4. Assignation globale à Smarty
         $this->view->assign('site_url', $siteUrl);
         $this->view->assign('baseadmin', BASEADMIN);
     }
