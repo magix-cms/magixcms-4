@@ -109,7 +109,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_tpl}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_tpl" checked>
+                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_tpl">
                                     </div>
                                 </div>
                             </label>
@@ -122,7 +122,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_tpl_cache}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_tpl_cache" checked>
+                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_tpl_cache">
                                     </div>
                                 </div>
                             </label>
@@ -135,7 +135,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_cache}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_cache" checked>
+                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_cache">
                                     </div>
                                 </div>
                             </label>
@@ -148,7 +148,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3">{$sizes.back_sql}</span>
                                     <div class="form-check form-switch fs-4 m-0">
-                                        <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="back_sql" checked>
+                                        <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_sql">
                                     </div>
                                 </div>
                             </label>
@@ -203,8 +203,8 @@
             });
 
             document.getElementById('btn-default-all').addEventListener('click', function() {
-                checkboxes.forEach(cb => cb.checked = false);
-                defaultCheckboxes.forEach(cb => cb.checked = true);
+                checkboxes.forEach(cb => cb.checked = false); // Décoche tout d'abord
+                defaultCheckboxes.forEach(cb => cb.checked = true); // Ne recoche que les "default-checked" (Frontend)
             });
         });
     </script>

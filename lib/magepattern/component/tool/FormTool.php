@@ -50,13 +50,15 @@ class FormTool
     /**
      * Nettoyage par défaut (utilisé partout pour les titres, descriptions...).
      * Protège contre les failles XSS en échappant les balises (<, >) et les guillemets doubles (").
-     * LAISSE les apostrophes (') intactes pour éviter les bugs d'affichage.
+     * LAISSE les apostrophes (') et les esperluettes (&) intactes pour un affichage propre.
      */
     public static function simpleClean(string $str): string
     {
-        // Utilisation de ENT_COMPAT (échappe les " mais ignore les ')
-        // Le false à la fin empêche le double encodage
-        return trim(htmlspecialchars($str, ENT_COMPAT | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', false));
+        // 1. On applique la protection standard XSS (transforme <, >, ", &)
+        $cleaned = htmlspecialchars($str, ENT_COMPAT | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', false);
+
+        // 2. On restaure UNIQUEMENT l'esperluette (&) pour éviter le vilain "&amp;" côté public
+        return trim(str_replace('&amp;', '&', $cleaned));
     }
 
     /**
