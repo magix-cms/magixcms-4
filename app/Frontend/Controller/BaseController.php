@@ -6,6 +6,7 @@ namespace App\Frontend\Controller;
 
 use Magepattern\Component\Tool\SmartyTool;
 use Magepattern\Component\HTTP\Session;
+use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Debug\Logger;
 use App\Frontend\Db\SettingDb;
 use App\Frontend\Db\LangDb;
@@ -188,7 +189,7 @@ abstract class BaseController
             $bootFile = $pluginsDir . DS . $pluginFolder . DS . 'Boot.php';
             if (file_exists($bootFile)) {
 
-                require_once $bootFile; // 🟢 CORRECTION INDISPENSABLE !
+                require_once $bootFile;
 
                 $bootClass = "\\Plugins\\" . $pluginFolder . "\\Boot";
                 if (class_exists($bootClass)) {
@@ -216,15 +217,49 @@ abstract class BaseController
      */
     private function initSiteUrl(): void
     {
-        $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
-        $protocol = ($isSsl === 1) ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'];
+        // 1. DÉTECTION DE L'ENVIRONNEMENT (DEV vs PROD)
+        $isDevMode = false;
 
-        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        $publicRoot = rtrim($scriptDir, '/');
+        // Méthode A : Si vous avez un paramètre "dev_mode" dans votre BDD (mc_setting)
+        if (isset($this->siteSettings['dev_mode']['value']) && (int)$this->siteSettings['dev_mode']['value'] === 1) {
+            $isDevMode = true;
+        }
+        // Méthode B : Fallback automatique -> Si on est en local, on force le mode Dev
+        elseif (in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', '::1'])) {
+            $isDevMode = true;
+        }
+        // (Vous pouvez aussi utiliser une constante ici ex: if(defined('APP_ENV') && APP_ENV === 'dev'))
 
-        $siteUrl = $protocol . $host . $publicRoot;
-        $this->view->assign('site_url', $siteUrl);
+        // 2. RÉCUPÉRATION DE L'URL ET DU HOST ACTUEL
+        $baseSiteUrl = rtrim(Url::resolve(''), '/');
+        // On récupère le host actuel (et on enlève le port ex: :8000 s'il y en a un)
+        $currentHost = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
+
+        // 3. BOUCLIER DE PRODUCTION (Host Header Validation)
+        if (!$isDevMode) {
+            $settingDb = new SettingDb();
+            $allowedDomains = $settingDb->getAllowedDomains();
+
+            // Si la table des domaines n'est pas vide ET que le domaine actuel n'est pas dedans
+            if (!empty($allowedDomains) && !in_array($currentHost, $allowedDomains, true)) {
+
+                // On log la tentative d'intrusion
+                $this->logger->log("Sécurité: Tentative d'accès bloquée via un domaine non autorisé ({$currentHost})", "security");
+
+                // On coupe brutalement l'accès avec une erreur 403 (Interdit)
+                header('HTTP/1.1 403 Forbidden');
+                die("Erreur 403 : L'accès via ce nom de domaine n'est pas autorisé par le CMS.");
+            }
+        }
+
+        // 4. FALLBACK SSL (Optionnel, si la BDD exige le HTTPS mais que le serveur l'a manqué)
+        $dbSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
+        if ($dbSsl === 1 && str_starts_with($baseSiteUrl, 'http://')) {
+            $baseSiteUrl = str_replace('http://', 'https://', $baseSiteUrl);
+        }
+
+        // 5. ASSIGNATION
+        $this->view->assign('site_url', $baseSiteUrl);
     }
 
     /**
@@ -404,7 +439,6 @@ abstract class BaseController
                 'is_multilang' => $isMultilang
             ]);
 
-            // 🟢 4. SEO GLOBAL (JSON-LD WebSite)
             $siteName = $companyInfo['name'] ?? 'Magix CMS';
             $websiteJsonLd = SeoHelper::generateWebSiteJsonLd($siteName, $baseUrl);
             $this->view->assign('website_json_ld', $websiteJsonLd);
@@ -417,7 +451,6 @@ abstract class BaseController
             $shareDb = new ShareDb();
             $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
 
-            // 🟢 6. FAVICON & APP ICONS
             $faviconPath = ROOT_DIR . 'img' . DS . 'favicon' . DS . 'favicon-32x32.png';
             $hasFavicon = false;
             $faviconVersion = '';

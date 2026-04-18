@@ -11,6 +11,7 @@ use App\Backend\Db\EmployeeDb; // <-- Importation de la classe Db
 use App\Backend\Db\ConfigDb;
 use Magepattern\Component\Tool\SmartyTool;
 use Magepattern\Component\File\FileTool;
+use Magepattern\Component\HTTP\Url;
 use Smarty\Smarty;
 use Magepattern\Component\Debug\Logger;
 use Magepattern\Component\HTTP\Session;
@@ -109,18 +110,21 @@ abstract class BaseController
         // URL DU SITE GLOBALE POUR SMARTY
         // ==========================================================
 
-        $protocol = $isSslActive ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'];
-        $siteUrl = $protocol . $host;
+        // 1. On récupère l'URL de base dynamique (qui inclut le dossier admin)
+        // Ex: https://mon-site.com/dossier/admin
+        $adminBaseUrl = rtrim(Url::resolve(''), '/');
 
-        // Gestion du sous-dossier éventuel
-        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        $publicRoot = str_replace('/'.BASEADMIN, '', $scriptDir);
-        $publicRoot = rtrim($publicRoot, '/');
+        // 2. On retire proprement le dossier d'administration (BASEADMIN) de la fin de l'URL
+        // On utilise une regex pour s'assurer de ne retirer BASEADMIN qu'à la toute fin
+        // Ex: https://mon-site.com/dossier
+        $siteUrl = preg_replace('#/' . preg_quote(BASEADMIN, '#') . '$#', '', $adminBaseUrl);
 
-        $siteUrl = $siteUrl . $publicRoot;
+        // 3. Fallback SSL (Optionnel, au cas où la détection serveur échoue mais que la BDD l'exige)
+        if ($isSslActive && str_starts_with($siteUrl, 'http://')) {
+            $siteUrl = str_replace('http://', 'https://', $siteUrl);
+        }
 
-        // Assignation globale à Smarty
+        // 4. Assignation globale à Smarty
         $this->view->assign('site_url', $siteUrl);
         $this->view->assign('baseadmin', BASEADMIN);
     }

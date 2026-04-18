@@ -77,4 +77,38 @@ class SettingDb extends BaseDb
 
         return $domain;
     }
+    /**
+     * Récupère la liste de tous les domaines autorisés (Whitelist)
+     * Nettoie les valeurs pour ne garder que l'hôte (ex: mon-site.com)
+     */
+    public function getAllowedDomains(): array
+    {
+        $cache = $this->getSqlCache();
+
+        $qb = new QueryBuilder();
+        $qb->select(['url_domain'])->from('mc_domain');
+
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'domains_list');
+        $domains = $cache->get($cacheKey);
+
+        if ($domains === null) {
+            $results = $this->executeAll($qb);
+            $domains = [];
+
+            if ($results) {
+                foreach ($results as $row) {
+                    // On retire http://, https:// et le / final pour avoir un Host pur
+                    $cleanHost = preg_replace('#^https?://#', '', rtrim($row['url_domain'], '/'));
+                    // On gère d'éventuels sous-dossiers en ne gardant que le domaine
+                    $cleanHost = explode('/', $cleanHost)[0];
+
+                    $domains[] = strtolower($cleanHost);
+                }
+            }
+
+            $cache->set($cacheKey, $domains, 86400); // En cache pour 24h
+        }
+
+        return $domains;
+    }
 }
