@@ -10,6 +10,7 @@ use App\Frontend\Model\NewsPresenter;
 use Magepattern\Component\HTTP\Request;
 use App\Frontend\Model\SeoHelper;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\HTTP\Url;
 
 class NewsController extends BaseController
 {
@@ -147,7 +148,7 @@ class NewsController extends BaseController
             $allTags = $this->db->getAllTags($idLang);
             if ($allTags) {
                 foreach ($allTags as &$t) {
-                    $slug = strtolower(str_replace(' ', '-', $t['name_tag']));
+                    $slug = Url::clean($t['name_tag']);
                     $t['url'] = $baseNewsUrl . 'tag/' . $t['id_tag'] . '-' . $slug . '/';
                 }
                 unset($t);
