@@ -3,7 +3,7 @@
     {$meta = []}
 
     {* Données de base *}
-    {$meta['og:site_name']   = $companyInfo.name|default:'Magix CMS'}
+    {$meta['og:site_name']   = $company.name|default:'Magix CMS'}
     {$meta['og:title']       = $seo_title|default:''}
     {$meta['og:description'] = $seo_desc|default:''}
     {$meta['og:url']         = "{$site_url|default:''}{$smarty.server.REQUEST_URI|default:''}"}
@@ -11,8 +11,8 @@
 
     {* Twitter Cards *}
     {$meta['twitter:card']   = 'summary_large_image'}
-    {if !empty($companyInfo.twitter)}
-        {$meta['twitter:site'] = $companyInfo.twitter}
+    {if !empty($company.twitter)}
+        {$meta['twitter:site'] = $company.twitter}
     {/if}
 
     {$default_img = "{$site_url|default:''}/img/social/social_default.jpg"}
@@ -43,7 +43,7 @@
         {if !empty($news.date)}
             {$meta['article:published_time'] = $news.date|date_format:"%Y-%m-%dT%H:%M:%S%z"}
         {/if}
-        {$meta['article:author'] = $companyInfo.name|default:''}
+        {$meta['article:author'] = $company.name|default:''}
 
         {* --- CATÉGORIE --- *}
     {elseif isset($category) && isset($category.id)}

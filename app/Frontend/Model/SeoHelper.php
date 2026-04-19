@@ -16,7 +16,7 @@ class SeoHelper
         $organization = [
             '@type' => 'Organization',
             '@id'   => $baseUrl . '#organization',
-            'name'  => $companyInfo['company_name'] ?? $siteName,
+            'name'  => !empty($companyInfo['name']) ? $companyInfo['name'] : $siteName,
             'url'   => $baseUrl,
             'logo'  => [
                 '@type' => 'ImageObject',
@@ -54,7 +54,7 @@ class SeoHelper
 
         // Fallback temporaire si vos champs sont vides mais que vous avez l'URL
         if (empty($sameAs)) {
-            $sameAs[] = 'https://www.facebook.com/Aurelien.Stireg';
+            $sameAs[] = 'https://www.facebook.com/magix.cms';
         }
 
         if (!empty($sameAs)) {
@@ -69,7 +69,7 @@ class SeoHelper
                     '@type'       => 'WebSite',
                     '@id'         => $baseUrl . '#website',
                     'url'         => $baseUrl,
-                    'name'        => $siteName,
+                    'name'        => !empty($companyInfo['name']) ? $companyInfo['name'] : $siteName,
                     'description' => $seoDesc,
                     'inLanguage'  => $isoLang
                 ],
