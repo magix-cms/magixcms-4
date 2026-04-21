@@ -25,6 +25,7 @@
                         <i class="bi bi-images me-2"></i>Galerie
                     </button>
                 </li>
+                {hook name='news_edit_tab' id_news=$news_data.id_news}
             </ul>
         </div>
 
@@ -285,7 +286,7 @@
                         </div>
                     </div>
                 </div>
-
+                {hook name='news_edit_content' id_news=$news_data.id_news}
             </div>
         </div>
     </div>

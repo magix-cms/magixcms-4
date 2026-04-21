@@ -116,25 +116,19 @@ class MagixFrontForms {
     }
 
     handleResponse(form, data) {
-        // Le Backend PHP renvoie "success" (booléen) et "message" (string)
         const isSuccess = data.success === true || data.status === true;
         const msg = data.message || data.notify;
 
-        // Affichage de la notification
         if (msg && typeof MagixToast !== 'undefined') {
-            if (isSuccess) {
-                MagixToast.success(msg);
-            } else {
-                MagixToast.error(msg);
-            }
+            if (isSuccess) MagixToast.success(msg);
+            else MagixToast.error(msg);
         }
 
-        // Si le message est envoyé avec succès, on nettoie le formulaire
         if (isSuccess) {
             form.reset();
             form.classList.remove('was-validated');
-            // PLUS BESOIN de rafraîchir le jeton ici !
-            // S'il clique à nouveau, le submit génèrera un nouveau jeton automatiquement.
+
+            form.dispatchEvent(new CustomEvent('magix:form:success', { detail: data }));
         }
     }
 

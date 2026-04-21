@@ -17,7 +17,7 @@ use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use Magepattern\Component\Tool\DateTool;
 use App\Backend\Db\RevisionsDb;
-use App\Component\Cache\CacheManager; // 🟢 L'import centralisé
+use App\Component\Cache\CacheManager;
 
 class NewsController extends BaseController
 {

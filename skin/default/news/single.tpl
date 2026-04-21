@@ -88,6 +88,8 @@
 
     </section>
 
+    {hook name='displayNewsBottom' id_news=$news.id}
+
     <section class="page-body mb-5">
         {if !empty($news.tags)}
             <div class="mt-5 pt-4 border-top">
