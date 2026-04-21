@@ -105,6 +105,17 @@
                                     <label class="form-label" for="news_per_page">{#news_per_page#}</label>
                                     <input type="number" min="0" id="news_per_page" name="settings[news_per_page]" class="form-control" value="{$settings.news_per_page.value|default:''}" />
                                 </div>
+
+                                {* 🟢 AJOUT : Switch pour activer/désactiver le calendrier *}
+                                <div class="col-12 mt-3">
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="calendar_enabled" name="settings[calendar_enabled]" value="1" {if ($settings.calendar_enabled.value|default:'0') eq '1'} checked{/if} />
+                                        <label class="form-check-label fs-6 text-dark" for="calendar_enabled">
+                                            {#calendar_enabled_setting#|default:'Activer l\'agenda des actualités'}
+                                            <i class="bi bi-question-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="{#calendar_enabled_warning#|default:'Active la vue calendrier et affiche le bouton de bascule dans la liste des actualités publiques.'}"></i>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </fieldset>
                         <fieldset class="mt-4">

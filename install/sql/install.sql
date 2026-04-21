@@ -763,6 +763,7 @@ INSERT INTO `mc_setting` (`name`, `value`, `type`, `label`, `category`) VALUES
 ('product_per_page', '12', 'int', 'Number of product per page in the pages of the catalog', 'catalog'),
 ('product_catalog', '0', 'int', 'Product in catalog root', 'catalog'),
 ('news_per_page', '12', 'int', 'Number of news per page in the news pages', 'news'),
+('calendar_enabled', '0', 'int', 'Enable news calendar view', 'news'),
 ('mail_sender', NULL, 'string', 'Mail sender', 'mail'),
 ('smtp_enabled', '0', 'int', 'Smtp enabled', 'mail'),
 ('set_host', NULL, 'string', 'Set host', 'mail'),

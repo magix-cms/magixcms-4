@@ -62,7 +62,7 @@ class SettingController extends BaseController
         $success = true;
 
         $booleanKeys = [
-            'ssl', 'maintenance', 'geminiai', 'product_catalog'
+            'ssl', 'maintenance', 'geminiai', 'product_catalog', 'calendar_enabled'
         ];
 
         $postedSettings = $_POST['settings'] ?? [];

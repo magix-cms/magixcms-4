@@ -33,7 +33,6 @@
     <header class="news-header mb-5">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
 
-            {* 🟢 MODIFICATION : Affichage du titre H1 *}
             <h1 class="display-5 fw-bold mb-3 mb-md-0">
                 {if $is_root && !empty($news_home.title_page)}
                     {$news_home.title_page}
@@ -42,9 +41,18 @@
                 {/if}
             </h1>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+
+                {* 🟢 LE PONT VERS LE CALENDRIER *}
+                {* 🟢 LE PONT VERS LE CALENDRIER (Conditionné par le setting) *}
+                {if isset($mc_settings.calendar_enabled) && $mc_settings.calendar_enabled.value == '1'}
+                    <a href="{$base_url}{$current_lang.iso_lang}/calendar/" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-calendar-event me-2"></i> {#news_view_calendar#}
+                    </a>
+                {/if}
+
                 {if !empty($all_tags)}
-                    <select class="form-select bg-body shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
+                    <select class="form-select bg-body shadow-sm border-0 w-auto" onchange="if(this.value) window.location.href=this.value;">
                         <option value="{$reset_url}">{#news_filter_tags_all#}</option>
                         {foreach $all_tags as $t}
                             <option value="{$t.url}" {if $current_tag == $t.id_tag}selected{/if}>
@@ -55,7 +63,7 @@
                 {/if}
 
                 {if !empty($archives)}
-                    <select class="form-select bg-body shadow-sm border-0" onchange="if(this.value) window.location.href=this.value;">
+                    <select class="form-select bg-body shadow-sm border-0 w-auto" onchange="if(this.value) window.location.href=this.value;">
                         <option value="{$reset_url}">{#news_filter_dates_all#}</option>
                         {foreach $archives as $a}
                             <option value="{$a.url}" {if $current_year == $a.year && $current_month == $a.month}selected{/if}>
@@ -67,7 +75,6 @@
             </div>
         </div>
 
-        {* 🟢 AJOUT : Le texte de référencement (affiché uniquement sur la racine) *}
         {if $is_root && !empty($news_home.content_page)}
             <div class="news-intro mt-4 content-formatted text-muted">
                 {$news_home.content_page nofilter}

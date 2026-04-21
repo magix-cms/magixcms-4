@@ -249,4 +249,46 @@ class NewsDb extends BaseDb
 
         return $data;
     }
+    /**
+     * Récupère uniquement les évènements pour le calendrier (Ultra-léger)
+     */
+    /**
+     * Récupère uniquement les évènements pour le calendrier (Ultra-léger)
+     */
+    public function getCalendarEvents(int $idLang, int $year, int $month): array
+    {
+        $cache = $this->getSqlCache();
+        $qb = new QueryBuilder();
+
+        $qb->select([
+            'n.id_news',
+            'n.date_event_start AS date_start',
+            'n.date_event_end AS date_end',
+            'n.date_publish', // 🟢 AJOUT : Nécessaire pour construire l'URL
+            'nc.name_news AS title',
+            'nc.url_news AS slug'
+        ])
+            ->from('mc_news', 'n')
+            ->join('mc_news_content', 'nc', 'n.id_news = nc.id_news AND nc.id_lang = ' . (int)$idLang)
+            ->where('nc.published_news = 1')
+            ->where('n.date_publish <= NOW()')
+            ->where('n.date_event_start IS NOT NULL')
+            ->where('YEAR(n.date_event_start) = :year', ['year' => $year])
+            ->where('MONTH(n.date_event_start) = :month', ['month' => $month])
+            ->orderBy('n.date_event_start', 'ASC');
+
+        // 🟢 Astuce : Changez en "v3" pour forcer le vidage du cache
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'calendar_events_v3');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $events = $this->executeAll($qb) ?: [];
+
+        $cache->set($cacheKey, $events, 3600);
+
+        return $events;
+    }
 }
