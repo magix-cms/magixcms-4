@@ -535,11 +535,12 @@ INSERT INTO `mc_hook` (`id_hook`, `name`, `title`, `description`, `position`) VA
 (4, 'displayPageBottom', 'Bas de page (CMS)', 'Zone située sous le contenu principal des pages', 4),
 (5, 'displayCategoryBottom', 'Bas de page (Catégorie)', 'Idéal pour le contenu SEO en bas de liste', 5),
 (6, 'displayProductExtraContent', 'Contenu supplémentaire (Produit)', 'Zone pour les blocs de texte sur la fiche produit', 6),
-(7, 'displayFooter', 'Pied de page (Global)', 'Zone pour les widgets du footer (Pleine largeur)', 7),
-(8, 'displayFooterColLeft', 'Pied de page - Gauche', 'Colonne de gauche du footer (ex: Réseaux sociaux)', 8),
-(9, 'displayFooterColCenter', 'Pied de page - Centre', 'Colonne centrale du footer (ex: Menu rapide)', 9),
-(10, 'displayFooterColRight', 'Pied de page - Droite', 'Colonne de droite du footer (ex: Dernières actualités)', 10),
-(11, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes', 11);
+(7, 'displayNewsBottom', 'Bas de page (News)', 'Zone située sous le contenu principal des news', 7),
+(8, 'displayFooter', 'Pied de page (Global)', 'Zone pour les widgets du footer (Pleine largeur)', 8),
+(9, 'displayFooterColLeft', 'Pied de page - Gauche', 'Colonne de gauche du footer (ex: Réseaux sociaux)', 9),
+(10, 'displayFooterColCenter', 'Pied de page - Centre', 'Colonne centrale du footer (ex: Menu rapide)', 10),
+(11, 'displayFooterColRight', 'Pied de page - Droite', 'Colonne de droite du footer (ex: Dernières actualités)', 11),
+(12, 'displayFooterBottom', 'Bas du pied de page', 'Zone pleine largeur sous les colonnes', 12);
 
 CREATE TABLE IF NOT EXISTS `mc_hook_item` (
     `id_item` int UNSIGNED NOT NULL AUTO_INCREMENT,
