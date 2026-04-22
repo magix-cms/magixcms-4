@@ -11,6 +11,9 @@ class SettingDb extends BaseDb
     /**
      * Récupère toutes les configurations et les indexe par la colonne `name`
      */
+    /**
+     * Récupère toutes les configurations et les indexe par la colonne `name`
+     */
     public function fetchAllSettings(): array
     {
         // 1. On appelle l'outil de cache SQL
@@ -37,9 +40,11 @@ class SettingDb extends BaseDb
                 }
             }
 
-            // 4. On met en cache le tableau DÉJÀ FORMATÉ pour 24 heures (86400s)
-            // C'est un gain de CPU énorme car on évite le foreach aux prochains visiteurs
-            $cache->set($cacheKey, $settings, 86400);
+            // 🟢 LE BOUCLIER ANTI-POISON
+            // On s'assure que la BDD a bien répondu avec les données vitales avant de cacher
+            if (!empty($settings) && isset($settings['theme'])) {
+                $cache->set($cacheKey, $settings, 86400);
+            }
         }
 
         return $settings;

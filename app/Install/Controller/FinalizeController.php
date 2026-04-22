@@ -160,6 +160,15 @@ class FinalizeController
             $lockFile = ROOT_DIR . BASEINSTALL . DS . 'install.lock';
             file_put_contents($lockFile, date('Y-m-d H:i:s') . ' - Magix CMS 4 installé avec succès par ' . $email);
 
+            // ==========================================================
+            // 🟢 LE NETTOYAGE POST-INSTALLATION (PURGE NUCLÉAIRE)
+            // On efface les caches SQL et Smarty générés pendant l'installation.
+            // Le premier visiteur ou l'administrateur aura ainsi un cache 100% frais.
+            // ==========================================================
+            if (class_exists('\App\Component\Cache\CacheManager')) {
+                \App\Component\Cache\CacheManager::clearFrontend();
+            }
+            
             $this->view->assign([
                 'step'      => 4,
                 'site_name' => $siteName,
