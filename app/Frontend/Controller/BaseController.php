@@ -364,27 +364,28 @@ abstract class BaseController
         try {
             $detect = new MobileDetect();
 
-            // MobileDetect considère les tablettes comme des mobiles (isMobile() = true).
-            // On sépare donc logiquement les 3 états pour Smarty.
             $isTablet  = $detect->isTablet();
             $isPhone   = $detect->isMobile() && !$isTablet;
             $isDesktop = !$detect->isMobile();
 
+            // 🟢 AJOUT DU 3ème PARAMÈTRE "true" POUR LE NOCACHE
             $this->view->assign([
                 'is_phone'   => $isPhone,
                 'is_tablet'  => $isTablet,
                 'is_desktop' => $isDesktop,
-                'is_mobile'  => $detect->isMobile() // True pour smartphone OU tablette
-            ]);
+                'is_mobile'  => $detect->isMobile()
+            ], null, true);
+
         } catch (\Throwable $e) {
-            // Fallback silencieux en cas de problème avec la librairie
             $this->logger->log("Erreur MobileDetect : " . $e->getMessage(), "warning");
+
+            // 🟢 IDEM ICI EN CAS D'ERREUR
             $this->view->assign([
                 'is_phone'   => false,
                 'is_tablet'  => false,
-                'is_desktop' => true, // On présume Desktop par défaut
+                'is_desktop' => true,
                 'is_mobile'  => false
-            ]);
+            ], null, true);
         }
     }
     /**
