@@ -28,7 +28,8 @@
                                     <small class="text-muted">Fichiers pré-compilés du thème (Recommandé après modif. HTML/CSS)</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_tpl}</span>
+                                    {* 🟢 CORRECTION AJAX : Remplacement de $sizes.front_tpl par un badge de chargement *}
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_tpl"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_tpl" checked>
                                     </div>
@@ -41,7 +42,7 @@
                                     <small class="text-muted">Cache des vues entières générées par la "Double Barrière"</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_tpl_cache}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_tpl_cache"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_tpl_cache" checked>
                                     </div>
@@ -54,7 +55,7 @@
                                     <small class="text-muted">Variables, résultats Smarty et divers fichiers temporaires</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_cache}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_cache"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_cache" checked>
                                     </div>
@@ -67,7 +68,7 @@
                                     <small class="text-muted">Requêtes de la BDD (Catalogue, Pages, etc.) mises en cache</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_sql}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_sql"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_sql" checked>
                                     </div>
@@ -80,7 +81,7 @@
                                     <small class="text-muted">Historique des erreurs PHP et avertissements</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.front_log}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_log"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="front_log">
                                     </div>
@@ -107,7 +108,7 @@
                                     <small class="text-muted">Fichiers pré-compilés de l'interface d'administration</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_tpl}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="back_tpl"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_tpl">
                                     </div>
@@ -120,7 +121,7 @@
                                     <small class="text-muted">Cache des vues entières générées par l'administration</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_tpl_cache}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="back_tpl_cache"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_tpl_cache">
                                     </div>
@@ -133,7 +134,7 @@
                                     <small class="text-muted">Statistiques et données d'administration temporaires</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_cache}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="back_cache"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_cache">
                                     </div>
@@ -146,7 +147,7 @@
                                     <small class="text-muted">Requêtes backend optimisées en cache</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_sql}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="back_sql"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_sql">
                                     </div>
@@ -159,7 +160,7 @@
                                     <small class="text-muted">Historique des erreurs de l'administration</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-secondary me-3">{$sizes.back_log}</span>
+                                    <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="back_log"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox" type="checkbox" name="targets[]" value="back_log">
                                     </div>
@@ -191,6 +192,7 @@
 {block name="javascripts" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Logique des boutons de sélection (inchangée)
             const checkboxes = document.querySelectorAll('.clear-checkbox');
             const defaultCheckboxes = document.querySelectorAll('.default-checked');
 
@@ -203,9 +205,46 @@
             });
 
             document.getElementById('btn-default-all').addEventListener('click', function() {
-                checkboxes.forEach(cb => cb.checked = false); // Décoche tout d'abord
-                defaultCheckboxes.forEach(cb => cb.checked = true); // Ne recoche que les "default-checked" (Frontend)
+                checkboxes.forEach(cb => cb.checked = false);
+                defaultCheckboxes.forEach(cb => cb.checked = true);
             });
+
+            // 🟢 NOUVEAU : Récupération asynchrone des tailles de dossiers
+            const formData = new FormData();
+            formData.append('hashtoken', '{$hashtoken}');
+
+            fetch('index.php?controller=MagixClear&action=getSizes', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success && data.sizes) {
+                        document.querySelectorAll('.dir-size-badge').forEach(badge => {
+                            const targetKey = badge.getAttribute('data-target');
+                            if(data.sizes[targetKey]) {
+                                // Si la taille n'est pas "0 B", on attire l'œil en passant le badge en info/bleu
+                                if(data.sizes[targetKey] !== '0 B') {
+                                    badge.classList.replace('bg-secondary', 'bg-info');
+                                }
+                                // On remplace le sablier par la valeur textuelle (ex: 12.5 MB)
+                                badge.innerHTML = data.sizes[targetKey];
+                            } else {
+                                badge.innerHTML = 'N/A';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du calcul des tailles :', error);
+                    document.querySelectorAll('.dir-size-badge').forEach(badge => {
+                        badge.classList.replace('bg-secondary', 'bg-danger');
+                        badge.innerHTML = 'Erreur';
+                    });
+                });
         });
     </script>
 {/block}
