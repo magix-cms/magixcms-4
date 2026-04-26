@@ -126,9 +126,9 @@ class MenuDb extends BaseDb
 
         $qb->select('p.id_pages, p.id_parent, c.name_pages AS name_link, c.name_pages AS title_link, c.url_pages AS url_link')
             ->from('mc_cms_page', 'p')
-            // 🟢 INNER JOIN : Filtre les enfants non traduits
             ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . $idLang)
             ->where('p.id_parent = ' . $idParentPage)
+            ->where('c.published_pages = 1')
             ->orderBy('p.id_parent, p.id_pages');
 
         $elements = $this->executeAll($qb) ?: [];
@@ -144,6 +144,7 @@ class MenuDb extends BaseDb
             // 🟢 INNER JOIN : Filtre les enfants non traduits
             ->join('mc_about_content', 'c', 'a.id_about = c.id_about AND c.id_lang = ' . (int)$idLang)
             ->where('a.id_parent = ' . (int)$idParentAbout)
+            ->where('c.published_about = 1')
             ->orderBy('a.id_parent, a.order_about');
 
         $elements = $this->executeAll($qb) ?: [];
@@ -159,6 +160,7 @@ class MenuDb extends BaseDb
             // 🟢 INNER JOIN : Filtre les enfants non traduits
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
             ->where('c.id_parent = ' . (int)$idParentCat)
+            ->where('c.published_cat = 1')
             ->orderBy('c.id_parent, c.order_cat');
 
         $elements = $this->executeAll($qb) ?: [];
