@@ -31,7 +31,7 @@ class SeoRedirectController extends BaseController
         $rawScheme = $db->getTableScheme('mc_seo_redirect');
 
         $associations = [
-            'id_redirect'   => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_redirect'   => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'old_url'       => ['title' => 'Ancienne URL', 'type' => 'text', 'class' => 'fw-bold'],
             'new_url'       => ['title' => 'Nouvelle URL', 'type' => 'text', 'class' => 'text-success'],
             'type_redirect' => ['title' => 'Type', 'type' => 'badge', 'class' => 'text-center']

@@ -39,7 +39,7 @@ class EmployeeController extends BaseController
         $rawScheme[] = ['column' => 'role_name', 'type' => 'varchar(50)'];
 
         $associations = [
-            'id_admin'        => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_admin'        => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'firstname_admin' => ['title' => 'Prénom', 'type' => 'text', 'class' => 'fw-bold'],
             'lastname_admin'  => ['title' => 'Nom', 'type' => 'text', 'class' => 'fw-bold'],
             'email_admin'     => ['title' => 'E-mail', 'type' => 'text', 'class' => 'text-muted small'],

@@ -57,7 +57,7 @@ class CategoryController extends BaseController
         $rawScheme[] = ['column' => 'parent_cat', 'type' => 'varchar(255)'];
 
         $associations = [
-            'id_cat'          => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_cat'          => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'parent_cat'      => ['title' => 'parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_cat'        => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_cat'   => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
@@ -147,7 +147,7 @@ class CategoryController extends BaseController
         $rawSchemeCat[] = ['column' => 'parent_cat', 'type' => 'varchar(255)'];
 
         $associationsCat = [
-            'id_cat'          => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_cat'          => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'parent_cat'      => ['title' => 'parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_cat'        => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_cat'   => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],

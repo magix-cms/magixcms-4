@@ -564,6 +564,13 @@ abstract class BaseController
     {
         $isMaintenance = isset($this->siteSettings['maintenance']['value']) ? (int)$this->siteSettings['maintenance']['value'] : 0;
 
+        $companyDb = new CompanyDb();
+        // S'assurer qu'on passe bien un tableau même si vide
+        $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+        // 2. Fallbacks SEO par défaut
+        $siteName = $companyInfo['name'] ?? 'MagixCMS';
+
         if ($isMaintenance === 1) {
 
             // On utilise bien 'id_admin' comme vous l'avez précisé
@@ -575,7 +582,7 @@ abstract class BaseController
                 header('Status: 503 Service Temporarily Unavailable');
                 header('Retry-After: 3600');
 
-                $this->view->assign('companyData', $this->siteSettings['site_name']['value'] ?? 'MagixCMS');
+                $this->view->assign('companyData', $siteName);
                 $this->view->assign('skin_url', $this->view->getTemplateVars('site_url') . '/skin/default');
 
                 $this->view->display('maintenance.tpl');

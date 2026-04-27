@@ -38,7 +38,7 @@ class ShareController extends BaseController
 
         // Configuration des colonnes pour la vue (getScheme)
         $associations = [
-            'id_share'    => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_share'    => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'name'        => ['title' => 'Réseau', 'type' => 'text', 'class' => 'fw-bold w-50'],
             'icon'        => ['title' => 'Icône (Bootstrap)', 'type' => 'text', 'class' => 'text-muted'],
             'is_active'   => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],

@@ -34,8 +34,10 @@ class AboutController extends BaseController
                 return;
             }
 
-            // 🟢 3. Sécurisation stricte des balises SEO (Fallback Anti-vide)
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             $seoTitle = !empty($rawPage['seo_title_about'])
                 ? $rawPage['seo_title_about']
@@ -44,10 +46,6 @@ class AboutController extends BaseController
             $seoDesc = !empty($rawPage['seo_desc_about'])
                 ? $rawPage['seo_desc_about']
                 : ($rawPage['resume_about'] ?? '');
-
-            // Récupération des infos de l'entreprise
-            $companyDb = new CompanyDb();
-            $companyInfo = $companyDb->getCompanyInfo() ?: [];
 
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 

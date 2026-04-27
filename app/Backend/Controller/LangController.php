@@ -38,7 +38,7 @@ class LangController extends BaseController
         $rawScheme = $db->getTableScheme('mc_lang');
 
         $associations = [
-            'id_lang'      => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_lang'      => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'name_lang'    => ['title' => 'Langue', 'type' => 'text', 'class' => 'fw-bold w-50'],
             'iso_lang'     => ['title' => 'Code ISO', 'type' => 'text', 'class' => 'text-center font-monospace'],
             'active_lang'  => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],

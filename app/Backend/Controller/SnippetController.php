@@ -113,7 +113,7 @@ class SnippetController extends BaseController
         $rawScheme = $db->getTableScheme('mc_snippet');
 
         $associations = [
-            'id_snippet'     => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_snippet'     => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'order_sp'       => ['title' => 'Ordre', 'type' => 'text', 'class' => 'text-muted fw-bold text-center'],
             'title_sp'       => ['title' => 'Titre du modèle', 'type' => 'text', 'class' => 'fw-bold'],
             'description_sp' => ['title' => 'Description', 'type' => 'text', 'class' => 'w-50 text-muted'],

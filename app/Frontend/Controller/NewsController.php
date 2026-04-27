@@ -124,6 +124,9 @@ class NewsController extends BaseController
 
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
+
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
             $newsList = [];
@@ -164,7 +167,6 @@ class NewsController extends BaseController
                 unset($a);
             }
 
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
             $siteDesc = $this->siteSettings['site_description']['value'] ?? '';
 
             // 1. On récupère les données

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Frontend\Controller;
 
+use App\Frontend\Db\CompanyDb;
 use App\Frontend\Db\NewsDb;
 use Magepattern\Component\HTTP\Request;
 use App\Component\Routing\UrlTool;
@@ -73,7 +74,10 @@ class CalendarController extends BaseController
 
         if (!$this->view->isCached('news/calendar.tpl', $cacheId)) {
 
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             // Nom du mois dynamique (Ex: Avril 2026)
             $formatter = new \IntlDateFormatter($this->currentLang['iso_lang'] ?? 'fr', \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, 'MMMM yyyy');

@@ -18,8 +18,12 @@ class HomeController extends BaseController
         // 1. Récupération des données (renverra false si désactivé)
         $homeData = $db->getHomeDataByLang($idLang);
 
+        $companyDb = new CompanyDb();
+        // S'assurer qu'on passe bien un tableau même si vide
+        $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
         // 2. Fallbacks SEO par défaut
-        $siteName = $this->siteSettings['site_name']['value'] ?? 'MagixCMS';
+        $siteName = $companyInfo['name'] ?? 'MagixCMS';
         $seoTitle = $siteName;
         $seoDesc  = '';
 
@@ -32,10 +36,6 @@ class HomeController extends BaseController
         // 3. Génération du Rich Snippet (WebSite + Organization) pour l'accueil
         $siteUrl = $this->view->getTemplateVars('site_url') ?? '';
         $isoLang = $this->currentLang['iso_lang'] ?? 'fr';
-
-        $companyDb = new CompanyDb();
-        // S'assurer qu'on passe bien un tableau même si vide
-        $companyInfo = $companyDb->getCompanyInfo() ?: [];
 
         $jsonLdScript = SeoHelper::generateHomeGraphJsonLd($siteName, $siteUrl, $isoLang, $seoDesc, $companyInfo);
 

@@ -48,7 +48,7 @@ class AboutController extends BaseController
 
         // 3. Configuration de l'affichage
         $associations = [
-            'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'parent_about' => ['title' => 'Parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_about' => ['title' => 'Titre', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_about' => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
@@ -199,7 +199,7 @@ class AboutController extends BaseController
         );
 
         $associations = [
-            'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_about' => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'name_about' => ['title' => 'Titre', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_about' => ['title' => 'Statut', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
             'date_register' => ['title' => 'Date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']

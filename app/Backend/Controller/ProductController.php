@@ -52,7 +52,7 @@ class ProductController extends BaseController
         $rawScheme[] = ['column' => 'default_category_name', 'type' => 'varchar(255)'];
 
         $associations = [
-            'id_product'            => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_product'            => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'reference_p'           => ['title' => 'Réf.', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_p'                => ['title' => 'Nom du produit', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'default_category_name' => ['title' => 'Catégorie', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],

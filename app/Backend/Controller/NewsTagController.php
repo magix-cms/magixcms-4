@@ -38,7 +38,7 @@ class NewsTagController extends BaseController
         $rawScheme[] = ['column' => 'iso_lang', 'type' => 'varchar(5)'];
 
         $associations = [
-            'id_tag'   => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_tag'   => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'name_tag' => ['title' => 'Nom du Tag', 'type' => 'text', 'class' => 'fw-bold w-50'],
             'iso_lang' => ['title' => 'Langue', 'type' => 'text', 'class' => 'text-center font-monospace text-uppercase']
         ];

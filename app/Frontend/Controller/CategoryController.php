@@ -34,8 +34,10 @@ class CategoryController extends BaseController
                 return;
             }
 
-            // 🟢 Sécurité SEO "Anti-vide"
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             $seoTitle = !empty($rawCategory['seo_title_cat'])
                 ? $rawCategory['seo_title_cat']
@@ -45,9 +47,7 @@ class CategoryController extends BaseController
                 ? $rawCategory['seo_desc_cat']
                 : ($rawCategory['resume_cat'] ?? '');
 
-            // 🟢 Récupération des données globales nécessaires
-            $companyDb = new CompanyDb();
-            $companyInfo = $companyDb->getCompanyInfo();
+
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
             // 1. Formatage de la catégorie courante

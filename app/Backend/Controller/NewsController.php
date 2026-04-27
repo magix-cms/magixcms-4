@@ -51,7 +51,7 @@ class NewsController extends BaseController
         );
 
         $associations = [
-            'id_news'        => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_news'        => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'name_news'      => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_news' => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
             'date_publish'   => ['title' => 'Publication', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small'],

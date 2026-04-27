@@ -43,7 +43,7 @@ class DomainController extends BaseController
         $rawScheme = $db->getTableScheme('mc_domain');
 
         $associations = [
-            'id_domain'        => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_domain'        => ['title' => 'ID', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'url_domain'       => ['title' => 'URL du Domaine', 'type' => 'text', 'class' => 'fw-bold w-50'],
             'default_domain'   => ['title' => 'Défaut', 'type' => 'bin', 'class' => 'text-center px-3'],
             'canonical_domain' => ['title' => 'Canonique', 'type' => 'bin', 'class' => 'text-center px-3']

@@ -45,8 +45,12 @@ class CatalogController extends BaseController
             $db = new CatalogDb();
             $rawHome = $db->getHomePage($idLang);
 
-            // 🟢 Sécurité SEO "Anti-vide"
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            // S'assurer qu'on passe bien un tableau même si vide
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            // 2. Fallbacks SEO par défaut
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             if (!$rawHome) {
                 $catalogHome = [
@@ -62,9 +66,6 @@ class CatalogController extends BaseController
                 $seoDesc = !empty($rawHome['seo_desc_page']) ? $rawHome['seo_desc_page'] : '';
             }
 
-            // 🟢 RÉCUPÉRATION DES INFOS GLOBALES
-            $companyDb = new CompanyDb();
-            $companyInfo = $companyDb->getCompanyInfo();
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
             // 🟢 LECTURE DU PARAMÈTRE D'AFFICHAGE (0 = Catégories seules, 1 = Produits inclus)

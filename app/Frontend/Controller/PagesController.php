@@ -34,8 +34,10 @@ class PagesController extends BaseController
                 return;
             }
 
-            // 🟢 3. Sécurité SEO : Fallback Anti-vide depuis les données brutes
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             $seoTitle = !empty($rawPage['seo_title_pages'])
                 ? $rawPage['seo_title_pages']
@@ -45,8 +47,7 @@ class PagesController extends BaseController
                 ? $rawPage['seo_desc_pages']
                 : ($rawPage['resume_pages'] ?? '');
 
-            $companyDb = new CompanyDb();
-            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
             // Formatage

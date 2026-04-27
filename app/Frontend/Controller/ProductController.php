@@ -31,8 +31,10 @@ class ProductController extends BaseController
                 return;
             }
 
-            // 🟢 Sécurité SEO "Anti-vide"
-            $siteName = $this->siteSettings['site_name']['value'] ?? 'Magix CMS';
+            $companyDb = new CompanyDb();
+            $companyInfo = $companyDb->getCompanyInfo() ?: [];
+
+            $siteName = $companyInfo['name'] ?? 'MagixCMS';
 
             $seoTitle = !empty($rawProduct['seo_title_p'])
                 ? $rawProduct['seo_title_p']
@@ -42,8 +44,6 @@ class ProductController extends BaseController
                 ? $rawProduct['seo_desc_p']
                 : ($rawProduct['resume_p'] ?? '');
 
-            $companyDb = new CompanyDb();
-            $companyInfo = $companyDb->getCompanyInfo();
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
             // 1. Formatage du produit

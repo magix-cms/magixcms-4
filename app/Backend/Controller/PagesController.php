@@ -53,7 +53,7 @@ class PagesController extends BaseController
         $rawScheme[] = ['column' => 'parent_pages', 'type' => 'varchar(255)'];
 
         $associations = [
-            'id_pages' => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_pages' => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'parent_pages' => ['title' => 'parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_pages' => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_pages' => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
@@ -216,7 +216,7 @@ class PagesController extends BaseController
         $rawScheme[] = ['column' => 'parent_pages', 'type' => 'varchar(255)'];
 
         $associations = [
-            'id_pages' => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-2'],
+            'id_pages' => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
             'parent_pages' => ['title' => 'parent', 'type' => 'text', 'class' => 'text-muted small text-nowrap'],
             'name_pages' => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
             'published_pages' => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
