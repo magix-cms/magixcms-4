@@ -6,7 +6,7 @@
     {/if}
 
     {* 4. ON GÉNÈRE LES LIENS AVEC LE TABLEAU FINAL *}
-    {$is_dev = ($mc_settings.mode.value == 'dev')}
+    {$is_dev = (isset($mc_settings.mode.value) && $mc_settings.mode.value == 'dev')}
     {$suffix = $is_dev ? '' : '.min'}
 
     {foreach $final_css as $css}
