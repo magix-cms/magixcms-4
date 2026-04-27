@@ -83,7 +83,7 @@ abstract class BaseController
         $isDevMode = false;
 
         // A. Vérification du mode dev en BDD
-        if (isset($this->siteSettings['dev_mode']['value']) && (int)$this->siteSettings['dev_mode']['value'] === 1) {
+        if (isset($this->siteSettings['mode']['value']) && (int)$this->siteSettings['mode']['value'] == "dev") {
             $isDevMode = true;
         }
         // B. Fallback : si on est en local, on autorise d'office

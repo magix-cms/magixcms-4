@@ -220,8 +220,8 @@ abstract class BaseController
         // 1. DÉTECTION DE L'ENVIRONNEMENT (DEV vs PROD)
         $isDevMode = false;
 
-        // Méthode A : Si vous avez un paramètre "dev_mode" dans votre BDD (mc_setting)
-        if (isset($this->siteSettings['dev_mode']['value']) && (int)$this->siteSettings['dev_mode']['value'] === 1) {
+        // Méthode A : Si vous avez un paramètre "mode" dans votre BDD (mc_setting)
+        if (isset($this->siteSettings['mode']['value']) && (int)$this->siteSettings['mode']['value'] == "dev") {
             $isDevMode = true;
         }
         // Méthode B : Fallback automatique -> Si on est en local, on force le mode Dev
@@ -443,10 +443,6 @@ abstract class BaseController
             $siteName = $companyInfo['name'] ?? 'Magix CMS';
             $websiteJsonLd = SeoHelper::generateWebSiteJsonLd($siteName, $baseUrl);
             $this->view->assign('website_json_ld', $websiteJsonLd);
-
-            // 5 Share
-            $shareDb = new ShareDb();
-            $this->view->assign('shareNetworks', $shareDb->getActiveNetworks());
 
             // 5 Share
             $shareDb = new ShareDb();
