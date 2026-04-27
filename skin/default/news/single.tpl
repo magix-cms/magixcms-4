@@ -41,9 +41,9 @@
                 </div>
 
                 <h1 class="display-4 fw-bold text-primary mb-3">{if !$news.longname eq ''}{$news.longname}{else}{$news.name}{/if}</h1>
-                {if $news.resume}
+                {*{if $news.resume}
                     <p class="lead text-muted">{$news.resume}</p>
-                {/if}
+                {/if}*}
             </div>
         </div>
     </header>

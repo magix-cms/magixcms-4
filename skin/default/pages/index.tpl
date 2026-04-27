@@ -23,9 +23,9 @@
             <div class="row mt-3">
                 <div class="col-12 text-center text-lg-start">
                     <h1 class="display-4 fw-bold text-primary mb-3">{if !$pages.longname eq ''}{$pages.longname}{else}{$pages.name}{/if}</h1>
-                    {if $pages.resume}
+                    {*{if $pages.resume}
                         <p class="lead text-muted">{$pages.resume}</p>
-                    {/if}
+                    {/if}*}
                 </div>
             </div>
         </header>

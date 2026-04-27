@@ -24,9 +24,9 @@
             <div class="row mt-3">
                 <div class="col-12 text-center text-lg-start">
                     <h1 class="display-4 fw-bold text-primary mb-3">{$about.name}</h1>
-                    {if $about.resume}
+                    {*{if $about.resume}
                         <p class="lead text-muted">{$about.resume}</p>
-                    {/if}
+                    {/if}*}
                 </div>
             </div>
         </header>

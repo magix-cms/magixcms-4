@@ -86,9 +86,9 @@
 
                 <h1 class="display-4 fw-bold text-dark mb-3">{$product.name}</h1>
 
-                {if !empty($product.resume)}
+                {*{if !empty($product.resume)}
                     <p class="lead text-muted">{$product.resume}</p>
-                {/if}
+                {/if}*}
             </div>
         </div>
     </header>
