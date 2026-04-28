@@ -9022,7 +9022,7 @@ progress {
   }
 }
 
-.list-unstyled {
+.list-unstyled, ul.arrow-list, ul.bullet-list, ul.circle-list, ul.square-list, ul.label-list {
   padding-left: 0;
   list-style: none;
 }
@@ -24640,6 +24640,46 @@ h6, .h6 {
 }
 #gallery-holder .img-holder img:hover {
   transform: scale(1.1);
+}
+
+ul.arrow-list > li, ul.bullet-list > li, ul.circle-list > li, ul.square-list > li, ul.label-list > li {
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+ul.arrow-list > li::before, ul.bullet-list > li::before, ul.circle-list > li::before, ul.square-list > li::before, ul.label-list > li::before {
+  position: absolute;
+  left: 0;
+  font-family: "bootstrap-icons";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  color: var(--bs-primary);
+}
+ul.bullet-list > li::before {
+  content: "\f287";
+  font-size: 0.5em;
+  top: 0.6em;
+}
+ul.circle-list > li::before {
+  content: "\f286";
+  font-size: 0.5em;
+  top: 0.6em;
+}
+ul.square-list > li::before {
+  content: "\f584";
+  font-size: 0.5em;
+  top: 0.6em;
+}
+ul.arrow-list > li::before {
+  content: "\f285";
+  font-size: 1.1em;
+  top: 0.15em;
+}
+ul.label-list > li::before {
+  content: "\f5b0";
+  font-size: 0.9em;
+  top: 0.25em;
 }
 
 @media (max-width: 991.98px) {

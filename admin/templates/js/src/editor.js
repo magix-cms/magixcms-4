@@ -23,14 +23,14 @@
     const magixCustomPlugins = [
         'youtube', 'loremipsum', 'mc_pages',
         'mc_cat', 'mc_news', 'mc_product', 'lazyloadimage', 'cryptmail',
-        'tabpanel', 'snippets', 'advreplace', 'mc_history'
+        'tabpanel', 'snippets', 'advreplace', 'mc_history', 'clists'
     ];
     magixPlugins = magixPlugins.concat(magixCustomPlugins);
 
     // 3. Toolbar
     let magixToolbar = 'undo redo | link unlink image code advreplace | blocks | '
         +'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | '
-        +'bullist numlist | blockquote | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
+        +'cbullist numlist | blockquote | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
 
     // 4. Menus
     let magixMenu = {
@@ -337,6 +337,17 @@
                             {title: "Ratio 1:1", block: "div", classes: 'ratio ratio-1x1'}
                         ]}
                 ]}
+        ],
+
+        cbullet_styles: [
+            {title: 'Default', style: 'disc'},
+            {title: 'Circle', style: 'circle'},
+            {title: 'Square', style: 'square'},
+            {title: 'Bullet List', classes: 'bullet-list'},
+            {title: 'Circle List', classes: 'circle-list'},
+            {title: 'Square List', classes: 'square-list'},
+            {title: 'Arrow List', classes: 'arrow-list'},
+            {title: 'Label List', classes: 'label-list'}
         ],
 
         // Sécurité éléments HTML

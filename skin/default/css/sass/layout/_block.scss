@@ -435,3 +435,74 @@
     }
   }
 }
+
+// --------------------------------------------------------
+// Custom lists (Bootstrap 5.3 & SCSS)
+// --------------------------------------------------------
+
+ul {
+  &.arrow-list,
+  &.bullet-list,
+  &.circle-list,
+  &.square-list,
+  &.label-list {
+    // En SCSS, on utilise @extend pour hériter d'une classe Bootstrap existante
+    @extend .list-unstyled;
+
+    > li {
+      padding-left: 1.5rem;
+      position: relative;
+      margin-bottom: 0.5rem; // Ajoute un peu d'aération entre les puces
+
+      &::before {
+        position: absolute;
+        left: 0;
+
+        // Déclaration indispensable pour utiliser Bootstrap Icons
+        font-family: "bootstrap-icons";
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1;
+
+        // Utilisation de la variable native de Bootstrap 5 pour la couleur principale
+        // (Si vous préférez votre ancienne variable, remettez var(--main-color))
+        color: var(--bs-primary);
+      }
+    }
+  }
+
+  // --------------------------------------------------------
+  // Définition des icônes via Unicode et ajustements de taille
+  // (Les valeurs 'top' en 'em' s'adaptent dynamiquement à la taille du texte)
+  // --------------------------------------------------------
+
+  &.bullet-list > li::before {
+    content: "\f287"; // bi-circle-fill
+    font-size: 0.5em;
+    top: 0.6em;       // Centrage vertical par rapport à la 1ère ligne
+  }
+
+  &.circle-list > li::before {
+    content: "\f286"; // bi-circle
+    font-size: 0.5em;
+    top: 0.6em;
+  }
+
+  &.square-list > li::before {
+    content: "\f584"; // bi-square-fill
+    font-size: 0.5em;
+    top: 0.6em;
+  }
+
+  &.arrow-list > li::before {
+    content: "\f285"; // bi-chevron-right
+    font-size: 1.1em;
+    top: 0.15em;
+  }
+
+  &.label-list > li::before {
+    content: "\f5b0"; // bi-tag-fill
+    font-size: 0.9em;
+    top: 0.25em;
+  }
+}

@@ -7,6 +7,10 @@
         {*<div id="footer-masonry" class="row">
             {hook name="displayFooter"}
         </div>*}
+        <div id="footer-top">
+            {hook name="displayFooter"}
+        </div>
+
         <div id="footer-widgets" class="row">
 
             {* Colonne Gauche *}

@@ -75,6 +75,8 @@
 'normal' => []
 ]}
 
+{block name="javascript_primary"}{/block}
+
 {block name="javascript_data"}{/block}
 
 {include file="components/js.tpl"}
