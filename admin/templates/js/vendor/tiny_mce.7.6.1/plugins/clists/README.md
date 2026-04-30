@@ -20,20 +20,19 @@ Authors
  ```html
 <script type="text/javascript">
 tinymce.init({
-	selector: "textarea",
-	plugins: ["lists clists"],
-	toolbar1: 'bullist',
-	cbullet_styles: [
-        'default',
-        {title: 'disc', style: 'disc'},
-        {title: 'circle', style: 'circle'},
-        {title: 'square', style: 'square'},
-        {title: 'Bullet List', classes: 'bullet-list'},
-        {title: 'Circle List', classes: 'circle-list'},
-        {title: 'Square List', classes: 'square-list'},
-        {title: 'Arrow List', classes: 'arrow-list'},
-        {title: 'Label List', classes: 'label-list'}
-    ]
+      selector: "textarea",
+      plugins: ["lists clists"],
+      toolbar1: 'bullist',
+      cbullet_styles: [
+         {title: 'Default', style: 'disc'},
+         {title: 'Circle', style: 'circle'},
+         {title: 'Square', style: 'square'},
+         {title: 'Bullet List', classes: 'bullet-list'},
+         {title: 'Circle List', classes: 'circle-list'},
+         {title: 'Square List', classes: 'square-list'},
+         {title: 'Arrow List', classes: 'arrow-list'},
+         {title: 'Label List', classes: 'label-list'}
+      ]
 	});
 </script>
 ```
