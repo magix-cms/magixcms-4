@@ -129,7 +129,8 @@ class MenuDb extends BaseDb
             ->join('mc_cms_page_content', 'c', 'p.id_pages = c.id_pages AND c.id_lang = ' . $idLang)
             ->where('p.id_parent = ' . $idParentPage)
             ->where('c.published_pages = 1')
-            ->orderBy('p.id_parent, p.id_pages');
+            ->orderBy('p.order_pages', 'ASC');
+            //->orderBy('p.id_parent, p.id_pages');
 
         $elements = $this->executeAll($qb) ?: [];
         return $this->buildGenericTree($elements, 'id_pages');
