@@ -46,7 +46,7 @@
                 {* 🟢 LE PONT VERS LE CALENDRIER *}
                 {* 🟢 LE PONT VERS LE CALENDRIER (Conditionné par le setting) *}
                 {if isset($mc_settings.calendar_enabled) && $mc_settings.calendar_enabled.value == '1'}
-                    <a href="{$base_url}{$current_lang.iso_lang}/calendar/" class="btn btn-primary shadow-sm">
+                    <a href="{$base_url}{$current_lang.iso_lang}/calendar/" class="btn btn-main shadow-sm">
                         <i class="bi bi-calendar-event me-2"></i> {#news_view_calendar#}
                     </a>
                 {/if}

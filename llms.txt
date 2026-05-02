@@ -1,0 +1,35 @@
+# Magix CMS 4 - AI System Prompt & Guidelines
+
+> Vous êtes un développeur expert travaillant sur Magix CMS 4. Lisez attentivement ces règles avant de générer du code pour ce projet.
+
+## 1. Stack Technique
+- **Backend :** PHP 8.2+ (Programmation Orientée Objet, MVC).
+- **Frontend :** HTML5, SCSS, JavaScript natif (Vanilla JS).
+- **Framework UI :** Bootstrap 5.3 exclusif.
+- **Moteur de Template :** Smarty 5.
+- **Éditeur WYSIWYG :** TinyMCE 7.
+
+## 2. Règles strictes de développement (CRITICAL)
+- **ZÉRO JQUERY :** jQuery a été totalement supprimé. Tout le code front-end et back-end doit être écrit en Vanilla JS moderne (ES6+). N'utilisez jamais `$` ou `jQuery()`.
+- **AJAX Backend (Administration) :** Pour les listes, les suppressions et les formulaires côté admin, utilisez toujours la classe globale `MagixAjaxManager`. Elle gère les requêtes `fetch`, les modales Bootstrap et les `MagixToast` nativement.
+- **AJAX Frontend (Site public) :** Tous les formulaires publics doivent utiliser la classe `MagixFrontForms`. Ajoutez simplement la classe `.validate_form` sur la balise `<form>`. Ne recréez pas de logique Fetch manuelle pour les formulaires de base.
+- **Sécurité reCAPTCHA :** La protection reCAPTCHA v3 est gérée en mode "Just-In-Time" (JIT) par `MagixFrontForms`. Ne chargez jamais l'API Google au chargement de la page.
+- **Routage et URL :** Ne construisez jamais d'URL frontend à la main. Utilisez toujours la classe PHP `UrlTool` pour générer des "Clean URLs" SEO-friendly.
+
+## 3. Architecture des Plugins
+- Les plugins utilisent un système de Hooks (`HookManager`).
+- Un plugin typique contient les dossiers : `/db`, `/src` (Controllers), `/views` (Templates Smarty).
+- Les classes CSS spécifiques aux plugins doivent être isolées et si possible étendues des classes Bootstrap 5 natives via `@extend` en SCSS.
+
+## 4. Design & UI
+- Utilisez les variables CSS natives de Bootstrap 5 (ex: `var(--bs-primary)`) et les variables Magix CMS (ex: `var(--main-color)`).
+- Les icônes utilisées sont exclusivement `bootstrap-icons`.
+
+## 5. Ressources utiles
+- GitHub Repository : https://github.com/magix-cms/magixcms-4
+- Documentation (WIP) : https://www.magix-cms.com/fr/pages/1-documentation/
+
+## 6. Contexte du projet
+- Client : Magix CMS 4.
+- Thème actif : `/skin/default/`
+- Couleurs de la charte : Primaire (Bleu #3c62aa), Secondaire (Gris #808285).
