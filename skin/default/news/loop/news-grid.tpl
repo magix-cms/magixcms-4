@@ -3,18 +3,20 @@
         {$data = [$data]}
     {/if}
     {$lazy = $lazy|default:true}
+
+    {* Suffixe dynamique *}
     {$class = ""}
-    {if isset($classType)}
-        {if $classType == "large"}
-            {$class = "-large"}
-        {elseif $classType == "normal"}
-            {$class = ""}
-        {/if}
+    {if isset($classType) && $classType != "normal" && $classType != ""}
+        {$class = "-$classType"}
     {/if}
+
+    {* Classes supplémentaires et troncature *}
+    {$extraClass = $extraClass|default:""}
+    {$truncate = $truncate|default:200}
 {/strip}
 
 {if isset($data) && $data|count > 0}
-    <ul class="news-list{$class} list-grid mb-0">
+    <ul class="news-list{$class} list-grid mb-0 {$extraClass}">
         {foreach $data as $item}
             <li class="news-card{$class}">
                 <div class="figure transition-hover">
@@ -34,9 +36,9 @@
                         </h3>
                         <p class="mb-0 mt-2">
                             {if !empty($item.resume)}
-                                {$item.resume|strip_tags|truncate:120:"..."}
+                                {$item.resume|strip_tags|truncate:$truncate:"..."}
                             {else}
-                                {$item.content|strip_tags|truncate:120:"..."}
+                                {$item.content|strip_tags|truncate:$truncate:"..."}
                             {/if}
                         </p>
                     </div>

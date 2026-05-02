@@ -2,15 +2,23 @@
     {if isset($data.id)}
         {$data = [$data]}
     {/if}
-    {if !isset($lazy)}
-        {$lazy = true}
+    {$lazy = $lazy|default:true}
+
+    {* Suffixe dynamique *}
+    {$class = ""}
+    {if isset($classType) && $classType != "normal" && $classType != ""}
+        {$class = "-$classType"}
     {/if}
+
+    {* Classes supplémentaires et troncature *}
+    {$extraClass = $extraClass|default:""}
+    {$truncate = $truncate|default:200}
 {/strip}
 
 {if isset($data) && $data|count > 0}
-    <ul class="about-list list-grid mb-0">
+    <ul class="about-list{$class} list-grid mb-0 {$extraClass}">
         {foreach $data as $item}
-            <li class="about-card">
+            <li class="about-card{$class}">
                 <div class="figure transition-hover">
                     <a href="{$item.url}" class="time-figure rounded-top">
                         {include file="components/img.tpl" img=$item.img responsiveC=true lazy=$lazy}
@@ -21,9 +29,9 @@
                         </h3>
                         <p class="mb-0 mt-2">
                             {if !empty($item.resume)}
-                                {$item.resume|strip_tags|truncate:120:"..."}
+                                {$item.resume|strip_tags|truncate:$truncate:"..."}
                             {else}
-                                {$item.content|strip_tags|truncate:120:"..."}
+                                {$item.content|strip_tags|truncate:$truncate:"..."}
                             {/if}
                         </p>
                     </div>
