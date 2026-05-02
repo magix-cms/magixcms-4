@@ -8,14 +8,31 @@ class SeoHelper
     /**
      * Génère le JSON-LD global de la page d'accueil (WebSite + Organization via @graph)
      */
+    /**
+     * Génère le JSON-LD global de la page d'accueil (WebSite + Entité dynamique via @graph)
+     */
     public static function generateHomeGraphJsonLd(string $siteName, string $siteUrl, string $isoLang, string $seoDesc, array $companyInfo): string
     {
         $baseUrl = rtrim($siteUrl, '/') . '/';
 
-        // 1. Définition de l'organisation
+        // 1. Le mapping exact de votre administration
+        $typesMap = [
+            'org'    => 'Organization',
+            'locb'   => 'LocalBusiness',
+            'corp'   => 'Corporation',
+            'store'  => 'Store',
+            'food'   => 'FoodEstablishment',
+            'place'  => 'Place',
+            'person' => 'Person'
+        ];
+
+        // Détection du type (LocalBusiness par exemple), sinon Organization par défaut
+        $companyType = $typesMap[$companyInfo['type'] ?? 'org'] ?? 'Organization';
+
+        // 2. Construction de l'entité (Entreprise locale, Personne, etc.)
         $organization = [
-            '@type' => 'Organization',
-            '@id'   => $baseUrl . '#organization',
+            '@type' => $companyType,
+            '@id'   => $baseUrl . '#' . strtolower($companyType),
             'name'  => !empty($companyInfo['name']) ? $companyInfo['name'] : $siteName,
             'url'   => $baseUrl,
             'logo'  => [
@@ -24,44 +41,60 @@ class SeoHelper
             ]
         ];
 
-        // Ajout de l'adresse si disponible
-        if (!empty($companyInfo['address']) || !empty($companyInfo['city'])) {
+        // 3. Traitement de l'adresse (Basé sur vos clés DB: street, postcode, city)
+        if (!empty($companyInfo['street']) || !empty($companyInfo['city'])) {
             $organization['address'] = [
                 '@type'           => 'PostalAddress',
                 'streetAddress'   => $companyInfo['street'] ?? '',
                 'postalCode'      => $companyInfo['postcode'] ?? '',
                 'addressLocality' => $companyInfo['city'] ?? '',
-                'addressCountry'  => $companyInfo['country'] ?? 'BE'
+                'addressCountry'  => 'BE' // Belgique par défaut (à adapter si le pays est en DB un jour)
             ];
         }
 
-        // Ajout du téléphone de contact si disponible
+        // 4. Traitement des Contacts directs (Fortement recommandé pour le SEO Local)
         if (!empty($companyInfo['phone'])) {
+            $organization['telephone'] = $companyInfo['phone'];
+        } elseif (!empty($companyInfo['mobile'])) {
+            $organization['telephone'] = $companyInfo['mobile']; // Fallback sur le mobile
+        }
+
+        if (!empty($companyInfo['mail'])) {
+            $organization['email'] = $companyInfo['mail'];
+        }
+
+        // 5. Point de contact formel (Service client)
+        if (!empty($organization['telephone'])) {
             $organization['contactPoint'] = [
                 [
                     '@type'       => 'ContactPoint',
-                    'telephone'   => $companyInfo['phone'],
-                    'contactType' => 'customer service'
+                    'telephone'   => $organization['telephone'],
+                    'contactType' => 'customer service',
+                    'email'       => $organization['email'] ?? ''
                 ]
             ];
         }
 
-        // Ajout des réseaux sociaux (adaptez les clés selon vos colonnes en DB)
-        $sameAs = [];
-        if (!empty($companyInfo['facebook'])) $sameAs[] = $companyInfo['facebook'];
-        if (!empty($companyInfo['twitter'])) $sameAs[] = $companyInfo['twitter'];
-        if (!empty($companyInfo['linkedin'])) $sameAs[] = $companyInfo['linkedin'];
+        // 6. Informations Légales (TVA)
+        if (!empty($companyInfo['tva'])) {
+            $organization['vatID'] = $companyInfo['tva'];
+        }
 
-        // Fallback temporaire si vos champs sont vides mais que vous avez l'URL
-        if (empty($sameAs)) {
-            $sameAs[] = 'https://www.facebook.com/magix.cms';
+        // 7. Réseaux Sociaux (Boucle dynamique sur les clés de votre DB)
+        $sameAs = [];
+        $socialKeys = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'github'];
+
+        foreach ($socialKeys as $key) {
+            if (!empty($companyInfo[$key])) {
+                $sameAs[] = $companyInfo[$key];
+            }
         }
 
         if (!empty($sameAs)) {
             $organization['sameAs'] = $sameAs;
         }
 
-        // 2. Assemblage avec WebSite via @graph
+        // 8. Assemblage final (WebSite + Entité dynamique)
         $schema = [
             '@context' => 'https://schema.org',
             '@graph'   => [
