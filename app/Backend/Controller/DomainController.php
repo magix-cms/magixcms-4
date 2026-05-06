@@ -290,7 +290,7 @@ class DomainController extends BaseController
         $sitemapIndex = new Sitemap();
         $sitemapIndex->init(ROOT_DIR . '/' . $indexFileName, true);
 
-        $activeModules = ['pages', 'news', 'catalog_cat', 'catalog_pro'];
+        $activeModules = ['pages', 'news', 'catalog_cat', 'catalog_pro', 'about'];
 
         // 🟢 NOUVEAU : On récupère tous les plugins installés
         $pluginDb = new PluginDb();
@@ -329,6 +329,8 @@ class DomainController extends BaseController
                         $uri = '/' . $iso . '/news/' . $datePublish . '/' . $item['id'] . '-' . $item['url'] . '/';
                     } elseif ($module === 'pages') {
                         $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'pages', 'id' => $item['id'], 'url' => $item['url']]);
+                    } elseif ($module === 'about') {
+                        $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'about', 'id' => $item['id'], 'url' => $item['url']]);
                     }
 
                     $fullUrl = str_starts_with($uri, 'http') ? $uri : $baseUrl . '/' . ltrim($uri, '/');
@@ -348,7 +350,8 @@ class DomainController extends BaseController
                                 'catalog_pro' => 'product',
                                 'catalog_cat' => 'category',
                                 'news'        => 'news',
-                                'pages'       => 'pages'
+                                'pages'       => 'pages',
+                                'about'       => 'about'
                             ];
                             $folderName = $folderMap[$module] ?? $module;
                             $imgTitle = !empty(trim($img['title'] ?? '')) ? trim($img['title']) : trim($item['title'] ?? '');

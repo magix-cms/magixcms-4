@@ -70,7 +70,7 @@
         menu: magixMenu,
         menubar: 'view edit insert format table tools',
         toolbar_mode: 'sliding',
-
+        image_title: true,
         // Fichiers et médias
         file_picker_types: 'file image media',
         file_picker_callback: function (callback, value, meta) {
@@ -126,7 +126,7 @@
         },
 
         // LISTES DE CLASSES POUR LES DIALOGUES NATIFS
-        image_dimensions: false,
+        image_dimensions: true,
         image_advtab: true,
         image_class_list: [
             {title: 'None', value: ''},

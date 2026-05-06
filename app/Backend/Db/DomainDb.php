@@ -208,6 +208,13 @@ class DomainDb extends BaseDb
                     ->where('c.id_lang = ' . $idLang . ' AND c.published_p = 1 AND c.url_p != "" AND c.name_p != ""');
                 break;
 
+            case 'about':
+                $qb->select(['a.id_about as id', 'c.url_about as url', 'a.date_register as date', 'c.name_about as title'])
+                    ->from('mc_about', 'a')
+                    ->join('mc_about_content', 'c', 'a.id_about = c.id_about')
+                    ->where('c.id_lang = ' . $idLang . ' AND c.published_about = 1 AND c.url_about != "" AND c.name_about != ""');
+                break;
+
             default:
                 return [];
         }
@@ -267,6 +274,17 @@ class DomainDb extends BaseDb
                 ->from('mc_cms_page_img', 'i')
                 ->leftJoin('mc_cms_page_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . $idLang)
                 ->where('i.id_pages = :id', ['id' => $idTarget])
+                ->orderBy('i.order_img', 'ASC');
+
+            return $this->executeAll($qb) ?: [];
+        }
+
+        // --- IMAGES DES PAGES ABOUT ---
+        if ($module === 'about') {
+            $qb->select(['i.name_img as loc', 'ic.title_img as title', 'ic.alt_img as caption'])
+                ->from('mc_about_img', 'i')
+                ->leftJoin('mc_about_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . $idLang)
+                ->where('i.id_about = :id', ['id' => $idTarget])
                 ->orderBy('i.order_img', 'ASC');
 
             return $this->executeAll($qb) ?: [];
