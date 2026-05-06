@@ -811,37 +811,18 @@ CREATE TABLE IF NOT EXISTS `mc_snippet` (
     `order_sp` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_snippet`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `mc_snippet` (`title_sp`, `description_sp`, `content_sp`, `order_sp`, `date_register`) VALUES
-(
-'Image et texte',
-'Image à gauche et texte a droite',
-'<div class="row align-items-center my-4">
-<div class="col-md-5 text-center mb-4 mb-md-0"><img class="img-fluid rounded shadow-sm" src="https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Image+a+Gauche" alt="Description"></div>
-<div class="col-md-7 text-start">
-<h2 class="fw-bold mb-3">Votre titre d''introduction</h2>
-<p class="lead text-muted">Le texte est ici à droite, mais toujours centré verticalement par rapport à l''image.</p>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>
-<a class="btn btn-primary mt-2" href="#">Découvrir la suite</a></div>
-</div>',
-1,
-NOW()
-),
-(
-'texte et image',
-'Text à gauche et image à droite',
-'<div class="row align-items-center my-4">
-<div class="col-md-7 mb-4 mb-md-0 text-start">
-<h2 class="fw-bold mb-3">Votre titre d''introduction</h2>
-<p class="lead text-muted">Une courte phrase d''accroche pour résumer l''idée principale de ce bloc.</p>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>
-<a class="btn btn-primary mt-2" href="#">En savoir plus</a></div>
-<div class="col-md-5 text-center"><img class="img-fluid rounded shadow-sm" src="https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Votre+Image+Ici" alt="Description de l''image"></div>
-</div>',
-2,
-NOW()
-);
+INSERT INTO `mc_snippet` (`id_snippet`, `title_sp`, `description_sp`, `content_sp`, `order_sp`, `date_register`) VALUES
+(1, 'Image et texte', 'Image à gauche et texte a droite', '<div class=\"row align-items-center my-4\">\r\n<div class=\"col-md-5 text-center mb-4 mb-md-0\"><img class=\"img-fluid\" src=\"https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Image+a+Gauche\" alt=\"Description\" width=\"600\" height=\"400\"></div>\r\n<div class=\"col-md-7 text-start\">\r\n<h2 class=\"fw-bold mb-3\">Votre titre d\'introduction</h2>\r\n<p class=\"lead text-muted\">Le texte est ici à droite, mais toujours centré verticalement par rapport à l\'image.</p>\r\n<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>\r\n<a class=\"btn btn-primary mt-2\" href=\"#\">Découvrir la suite</a></div>\r\n</div>\r\n<p> </p>', 1, '2026-04-22 20:51:21'),
+(2, 'texte et image', 'Texte à gauche et image à droite', '<div class=\"row align-items-center my-4\">\r\n<div class=\"col-md-7 mb-4 mb-md-0 text-start\">\r\n<h2 class=\"fw-bold mb-3\">Votre titre d\'introduction</h2>\r\n<p class=\"lead text-muted\">Une courte phrase d\'accroche pour résumer l\'idée principale de ce bloc.</p>\r\n<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean congue enim eleifend hendrerit consectetur. Nam a leo lorem. Mauris non metus sit amet libero tincidunt lacinia.</p>\r\n<a class=\"btn btn-primary mt-2\" href=\"#\">En savoir plus</a></div>\r\n<div class=\"col-md-5 text-center\"><img class=\"img-fluid\" src=\"https://dummyimage.com/600x400/dee2e6/6c757d.jpg&amp;text=Votre+Image+Ici\" alt=\"Description de l\'image\" width=\"600\" height=\"400\"></div>\r\n</div>\r\n<p> </p>', 2, '2026-04-22 20:51:21'),
+(3, 'Deux colonnes textes', 'Deux colonnes textes', '<div class=\"row\"><!-- Colonne 1 -->\r\n<div class=\"col-md-6\">\r\n<h2>Titre Colonne 1</h2>\r\n<p>Texte de la première colonne...</p>\r\n</div>\r\n<!-- Colonne 2 -->\r\n<div class=\"col-md-6\">\r\n<h2>Titre Colonne 2</h2>\r\n<p>Texte de la deuxième colonne...</p>\r\n</div>\r\n</div>', 3, '2026-05-02 19:08:36'),
+(4, '3 blocks icônes', 'Les 3 blocks avec icônes', '<div class=\"row g-4 my-3\">\r\n<div class=\"col-md-4\">\r\n<div class=\"card h-100 shadow-sm border-0 bg-body-tertiary rounded-4\">\r\n<div class=\"card-body text-center p-4\"><i class=\"bi bi-star fs-1 text-primary mb-3\"></i>\r\n<h4 class=\"card-title fw-bold\">Service 1</h4>\r\n<p class=\"card-text text-muted\">Description courte et percutante de votre premier avantage ou service.</p>\r\n</div>\r\n</div>\r\n</div>\r\n<div class=\"col-md-4\">\r\n<div class=\"card h-100 shadow-sm border-0 bg-body-tertiary rounded-4\">\r\n<div class=\"card-body text-center p-4\"><i class=\"bi bi-lightning fs-1 text-primary mb-3\"></i>\r\n<h4 class=\"card-title fw-bold\">Service 2</h4>\r\n<p class=\"card-text text-muted\">Mettez en avant votre rapidité ou une autre qualité essentielle.</p>\r\n</div>\r\n</div>\r\n</div>\r\n<div class=\"col-md-4\">\r\n<div class=\"card h-100 shadow-sm border-0 bg-body-tertiary rounded-4\">\r\n<div class=\"card-body text-center p-4\"><i class=\"bi bi-shield-check fs-1 text-primary mb-3\"></i>\r\n<h4 class=\"card-title fw-bold\">Service 3</h4>\r\n<p class=\"card-text text-muted\">Rassurez le client avec un élément de garantie ou de sécurité.</p>\r\n</div>\r\n</div>\r\n</div>\r\n</div>', 4, '2026-05-02 20:14:50'),
+(5, 'Citation', 'Témoignage Client', '<figure class=\"p-4 bg-body-tertiary rounded-4 border-start border-primary border-5 shadow-sm my-4\">\r\n<blockquote class=\"blockquote\">\r\n<p class=\"mb-3 fst-italic text-dark\">\"L\'accompagnement a été exceptionnel et les résultats ont largement dépassé nos attentes. Je recommande vivement !\"</p>\r\n</blockquote>\r\n<figcaption class=\"blockquote-footer mb-0 mt-2 fs-6\">Mr Charles, <cite class=\"fw-bold text-primary\" title=\"Source Title\">Directeur Marketing</cite></figcaption>\r\n</figure>', 5, '2026-05-04 15:23:54'),
+(6, 'Bloc d\'Alerte', 'Le Bloc d\'Alerte / Information Importante', '<div class=\"alert alert-info border-0 shadow-sm d-flex align-items-center rounded-4 my-4\" role=\"alert\"><i class=\"bi bi-info-circle-fill fs-2 me-3 text-info\"></i>\r\n<div>\r\n<h5 class=\"alert-heading fw-bold mb-1\">Information importante</h5>\r\n<p class=\"mb-0 text-dark\">Voici un bloc idéal pour mettre en évidence une note, une astuce technique ou un détail à ne pas manquer pour vos visiteurs.</p>\r\n</div>\r\n</div>', 6, '2026-05-04 15:31:22'),
+(7, 'Section FAQ simple', 'Section FAQ simple (Questions / Réponses)', '<div class=\"bg-body-tertiary p-4 rounded-4 my-4 shadow-sm\">\r\n<h3 class=\"fw-bold mb-4 text-center\">Questions fréquentes</h3>\r\n<div class=\"mb-4\">\r\n<h5 class=\"fw-bold text-primary\"><i class=\"bi bi-question-circle me-2\"></i> Comment fonctionne votre service ?</h5>\r\n<p class=\"text-muted ms-4 mb-0\">Nous commençons par un audit, puis nous établissons une stratégie sur-mesure avant de passer à l\'implémentation technique.</p>\r\n</div>\r\n<div class=\"mb-2\">\r\n<h5 class=\"fw-bold text-primary\"><i class=\"bi bi-question-circle me-2\"></i> Quels sont vos délais d\'intervention ?</h5>\r\n<p class=\"text-muted ms-4 mb-0\">En général, nous sommes capables d\'initier un nouveau projet dans les 48 à 72 heures suivant la signature du devis.</p>\r\n</div>\r\n</div>', 7, '2026-05-04 15:32:06'),
+(8, 'Appel à l\'action (CTA)', 'Bloc d\'appel à l\'action centré', '<div class=\"p-5 mb-4 bg-primary text-white rounded-4 text-center shadow-sm\">\r\n<h2 class=\"fw-bold mb-3\">Prêt à démarrer votre projet ?</h2>\r\n<p class=\"fs-5 mb-4 text-white-50\">Contactez-nous dès aujourd\'hui pour obtenir une analyse gratuite et personnalisée de vos besoins.</p>\r\n<a class=\"btn btn-light btn-lg px-4 fw-bold text-primary\" href=\"#\">Nous contacter</a>\r\n</div>\r\n<p> </p>', 8, '2026-05-07 12:00:00');
+
 
 CREATE TABLE IF NOT EXISTS `mc_webservice` (
     `id_ws` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
