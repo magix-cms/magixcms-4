@@ -26,7 +26,7 @@ class HolderController extends BaseController
     private function index(): void
     {
         $holderDir = ROOT_DIR . 'img/default/';
-        $socialDir = ROOT_DIR . 'img/social/'; // 🟢 Ajout du dossier Social
+        $socialDir = ROOT_DIR . 'img/social/'; //  Ajout du dossier Social
         $holders = [];
 
         $allowedModules = ['product', 'category', 'news', 'pages', 'about'];
@@ -43,7 +43,7 @@ class HolderController extends BaseController
             }
         }
 
-        // 🟢 Récupération de l'image sociale pour l'afficher si elle existe
+        //  Récupération de l'image sociale pour l'afficher si elle existe
         if (file_exists($socialDir . 'social_default.jpg')) {
             $holders[] = '../social/social_default.jpg'; // Chemin relatif depuis img/default/
         }
@@ -77,7 +77,7 @@ class HolderController extends BaseController
 
         $logoPercent = (int)($settings['logo_percent'] ?? 50);
         $outputDir   = ROOT_DIR . 'img/default/';
-        $socialDir   = ROOT_DIR . 'img/social/'; // 🟢 Nouveau dossier
+        $socialDir   = ROOT_DIR . 'img/social/'; //  Nouveau dossier
 
         $logoPath    = $logoName ? ROOT_DIR . 'img/logo/' . $logoName : null;
         $hasLogo     = $logoPath && file_exists($logoPath);

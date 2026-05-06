@@ -10,7 +10,7 @@ use App\Component\Routing\UrlTool;
 class CategoryPresenter
 {
     /**
-     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $skinFolder
+     *  NOUVELLE SIGNATURE : Ajout du paramètre $skinFolder
      */
     public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
@@ -40,7 +40,7 @@ class CategoryPresenter
             'date' => $data['date']
         ]);
 
-        // 🟢 Transmission de $skinFolder
+        //  Transmission de $skinFolder
         $data['img'] = self::processImages($row, $idCat, $siteUrl, $skinFolder);
 
         $data['seo'] = [
@@ -72,7 +72,7 @@ class CategoryPresenter
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_cat'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_cat'] ?? '');
 
-        // 🟢 AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
+        //  AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
             static $fallbackData = [];
 

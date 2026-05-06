@@ -57,14 +57,14 @@ class MenuDb extends BaseDb
             ->orderBy('m.id_parent, m.order_link');
 
         $elements = $this->executeAll($qb) ?: [];
-        $filteredElements = []; // 🟢 Nouveau tableau pour stocker les liens valides
+        $filteredElements = []; //  Nouveau tableau pour stocker les liens valides
 
         // 3. Traitement dynamique des URLs ET Filtrage
         foreach ($elements as $el) {
             $type = $el['type_link'] ?? '';
             $idPage = (int)($el['id_page'] ?? 0);
 
-            // 🟢 LE FILTRE EST ICI : Si la cible est une page mais qu'elle n'a pas d'URL (non traduite), on ignore ce lien !
+            //  LE FILTRE EST ICI : Si la cible est une page mais qu'elle n'a pas d'URL (non traduite), on ignore ce lien !
             if ($type === 'pages' && empty($el['cms_url'])) continue;
             if ($type === 'about_page' && empty($el['about_url'])) continue;
             if ($type === 'category' && empty($el['category_url'])) continue;
@@ -142,7 +142,7 @@ class MenuDb extends BaseDb
 
         $qb->select('a.id_about, a.id_parent, c.name_about AS name_link, c.name_about AS title_link, c.url_about')
             ->from('mc_about', 'a')
-            // 🟢 INNER JOIN : Filtre les enfants non traduits
+            //  INNER JOIN : Filtre les enfants non traduits
             ->join('mc_about_content', 'c', 'a.id_about = c.id_about AND c.id_lang = ' . (int)$idLang)
             ->where('a.id_parent = ' . (int)$idParentAbout)
             ->where('c.published_about = 1')
@@ -158,7 +158,7 @@ class MenuDb extends BaseDb
 
         $qb->select('c.id_cat, c.id_parent, cc.name_cat AS name_link, cc.name_cat AS title_link, cc.url_cat')
             ->from('mc_catalog_cat', 'c')
-            // 🟢 INNER JOIN : Filtre les enfants non traduits
+            //  INNER JOIN : Filtre les enfants non traduits
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat AND cc.id_lang = ' . (int)$idLang)
             ->where('c.id_parent = ' . (int)$idParentCat)
             ->where('c.published_cat = 1')

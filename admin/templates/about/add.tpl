@@ -218,7 +218,7 @@
             const parentSelect = document.getElementById('parent_select');
             if (parentSelect) {
                 new TomSelect(parentSelect, {
-                    plugins: ['dropdown_input'], // 🟢 LE PLUGIN MAGIQUE EST ICI
+                    plugins: ['dropdown_input'], //  LE PLUGIN MAGIQUE EST ICI
                     create: false,
                     sortField: false,
                     maxOptions: null,

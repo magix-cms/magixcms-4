@@ -10,7 +10,6 @@
 {block name="article"}
     <div class="container py-5" id="magix-calendar-container">
         <header class="mb-4">
-            {* 🟢 LE PONT DE RETOUR VERS LES NEWS *}
             <a href="{$base_url}{$current_lang.iso_lang}/news/" class="btn btn-sm btn-outline-secondary mb-3">
                 <i class="bi bi-arrow-left"></i> {#news_back_to_list#}
             </a>
@@ -26,7 +25,6 @@
         </header>
 
         <div class="calendar-header-days d-none d-md-grid grid-7-cols text-center fw-bold mb-2" style="display: grid; grid-template-columns: repeat(7, 1fr);">
-            {* 🟢 BOUCLE DYNAMIQUE INTL *}
             {foreach $days_of_week as $dayName}
                 <div>{$dayName|replace:'.':''}</div>
             {/foreach}

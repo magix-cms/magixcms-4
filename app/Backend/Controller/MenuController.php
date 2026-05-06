@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace App\Backend\Controller;
 
 use App\Backend\Db\MenuDb;
-use App\Backend\Db\PluginDb; // 🟢 AJOUT : On importe la DB des plugins
+use App\Backend\Db\PluginDb; //  AJOUT : On importe la DB des plugins
 use Magepattern\Component\Tool\FormTool;
 
 class MenuController extends BaseController {
@@ -28,7 +28,7 @@ class MenuController extends BaseController {
             'pages_tree'  => $db->getPagesTree($idLang),
             'about_tree'  => $db->getAboutTree($idLang),
             'cat_tree'    => $db->getCategoryTree($idLang),
-            'plugins_list'=> $this->getFrontendPlugins(), // 🟢 AJOUT : On envoie la liste des plugins
+            'plugins_list'=> $this->getFrontendPlugins(), //  AJOUT : On envoie la liste des plugins
             'langs'       => $db->fetchLanguages(),
             'token'       => $this->session->getToken()
         ]);
@@ -52,12 +52,12 @@ class MenuController extends BaseController {
 
         // L'ID cible dépend du type sélectionné par l'utilisateur
         $idPage = 0;
-        $pluginFolder = ''; // 🟢 AJOUT : Variable pour le dossier du plugin
+        $pluginFolder = ''; //  AJOUT : Variable pour le dossier du plugin
 
         if ($type === 'pages') $idPage = (int)($_POST['target_pages'] ?? 0);
         elseif ($type === 'about_page') $idPage = (int)($_POST['target_about'] ?? 0);
         elseif ($type === 'category') $idPage = (int)($_POST['target_category'] ?? 0);
-        elseif ($type === 'plugin') $pluginFolder = trim($_POST['target_plugin'] ?? ''); // 🟢 AJOUT : Récupération du plugin
+        elseif ($type === 'plugin') $pluginFolder = trim($_POST['target_plugin'] ?? ''); //  AJOUT : Récupération du plugin
 
         $idLink = $db->insertMenu([
             'type_link' => $type,
@@ -72,7 +72,7 @@ class MenuController extends BaseController {
 
                 $urlLink = ''; // Par défaut vide pour les pages internes
 
-                // 🟢 AJOUT : Logique spécifique pour les plugins
+                //  AJOUT : Logique spécifique pour les plugins
                 if ($type === 'plugin' && !empty($pluginFolder)) {
                     $cleanName = ucfirst(str_replace('Magix', '', $pluginFolder));
                     $realName  = $cleanName;
@@ -84,7 +84,7 @@ class MenuController extends BaseController {
                 $db->insertMenuContent($idLink, (int)$idLang, [
                     'name_link'  => $realName,
                     'title_link' => $realName,
-                    'url_link'   => $urlLink // 🟢 MODIFIÉ : On insère l'URL pré-générée
+                    'url_link'   => $urlLink //  MODIFIÉ : On insère l'URL pré-générée
                 ]);
             }
             $this->jsonResponse(true, "Lien ajouté au menu", ['success' => true, 'type' => 'add']);
@@ -171,7 +171,7 @@ class MenuController extends BaseController {
     }
 
     /**
-     * 🟢 NOUVELLE MÉTHODE : Scanne les plugins INSTALLÉS et filtre ceux qui ont le type "frontend_page"
+     *  NOUVELLE MÉTHODE : Scanne les plugins INSTALLÉS et filtre ceux qui ont le type "frontend_page"
      */
     /**
      * Scanne les plugins INSTALLÉS et filtre ceux qui peuvent avoir une URL dans le menu

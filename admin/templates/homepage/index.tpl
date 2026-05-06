@@ -31,7 +31,7 @@
             <div class="tab-content">
                 {if isset($langs)}
                     {foreach $langs as $id => $iso}
-                        {* 🟢 AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe, sinon on crée un tableau vide *}
+                        {*  AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe, sinon on crée un tableau vide *}
                         {$langContent = $page.content.$id|default:[]}
 
                         <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">

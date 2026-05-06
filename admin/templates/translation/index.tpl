@@ -52,7 +52,7 @@
                             <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
 
                                 {if $structure|count > 0}
-                                    {* 🟢 LES ACCORDÉONS BOOTSTRAP 5 *}
+                                    {*  LES ACCORDÉONS BOOTSTRAP 5 *}
                                     <div class="accordion shadow-sm" id="accordionLang{$iso}">
 
                                         {foreach $structure as $groupName => $keysArr}
@@ -107,7 +107,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Groupe de classement</label>
-                                    {* 🟢 MODIFICATION : On permet de choisir un groupe existant ou d'en créer un (via un datalist) *}
+                                    {*  MODIFICATION : On permet de choisir un groupe existant ou d'en créer un (via un datalist) *}
                                     <input type="text" name="new_group" class="form-control" list="groupList" placeholder="Ex: Footer" value="Général">
                                     <datalist id="groupList">
                                         {foreach $structure as $groupName => $keysArr}

@@ -20,7 +20,7 @@ class UploadTool
     protected Logger $logger;
     protected ConfigDb $imageConfig;
 
-    // 🟢 SÉCURITÉ 1 : Liste blanche stricte des extensions ET Mimes autorisés
+    //  SÉCURITÉ 1 : Liste blanche stricte des extensions ET Mimes autorisés
     private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     private array $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 

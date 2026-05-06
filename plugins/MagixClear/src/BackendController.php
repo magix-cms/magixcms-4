@@ -18,7 +18,7 @@ class BackendController extends BaseController
             return;
         }
 
-        // 🟢 NOUVELLE ROUTE AJAX : Pour charger les tailles sans bloquer la page
+        //  NOUVELLE ROUTE AJAX : Pour charger les tailles sans bloquer la page
         if ($action === 'getSizes' && Request::isMethod('POST')) {
             $this->processGetSizes();
             return;
@@ -58,21 +58,21 @@ class BackendController extends BaseController
 
     private function index(): void
     {
-        // 🟢 FORCAGE DU CACHE STAT : Garantit que les tailles affichées sont réelles
+        //  FORCAGE DU CACHE STAT : Garantit que les tailles affichées sont réelles
         clearstatcache();
 
         // On récupère la taille des dossiers pour information
         $sizes = [
             'front_tpl'         => $this->getDirSize(ROOT_DIR . 'var/templates_c'),
-            'front_tpl_cache'   => $this->getDirSize(ROOT_DIR . 'var/tpl_caches'), // 🟢 NOUVEAU
+            'front_tpl_cache'   => $this->getDirSize(ROOT_DIR . 'var/tpl_caches'), //  NOUVEAU
             'front_cache'       => $this->getDirSize(ROOT_DIR . 'var/caches'),
-            'front_sql'         => $this->getDirSize(ROOT_DIR . 'var/caches/sql'), // 🟢 CORRIGÉ
+            'front_sql'         => $this->getDirSize(ROOT_DIR . 'var/caches/sql'), //  CORRIGÉ
             'front_log'         => $this->getDirSize(ROOT_DIR . 'var/log'),
 
             'back_tpl'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/templates_c'),
-            'back_tpl_cache'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/tpl_caches'), // 🟢 NOUVEAU
+            'back_tpl_cache'    => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/tpl_caches'), //  NOUVEAU
             'back_cache'        => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches'),
-            'back_sql'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches/sql'), // 🟢 CORRIGÉ
+            'back_sql'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/caches/sql'), //  CORRIGÉ
             'back_log'          => $this->getDirSize(ROOT_DIR . BASEADMIN . '/var/log'),
         ];
 
@@ -101,15 +101,15 @@ class BackendController extends BaseController
         // Mapping des identifiants du formulaire vers les chemins réels
         $pathsMapping = [
             'front_tpl'         => ROOT_DIR . 'var/templates_c',
-            'front_tpl_cache'   => ROOT_DIR . 'var/tpl_caches', // 🟢 NOUVEAU
+            'front_tpl_cache'   => ROOT_DIR . 'var/tpl_caches', //  NOUVEAU
             'front_cache'       => ROOT_DIR . 'var/caches',
-            'front_sql'         => ROOT_DIR . 'var/caches/sql', // 🟢 CORRIGÉ
+            'front_sql'         => ROOT_DIR . 'var/caches/sql', //  CORRIGÉ
             'front_log'         => ROOT_DIR . 'var/log',
 
             'back_tpl'          => ROOT_DIR . BASEADMIN . '/var/templates_c',
-            'back_tpl_cache'    => ROOT_DIR . BASEADMIN . '/var/tpl_caches', // 🟢 NOUVEAU
+            'back_tpl_cache'    => ROOT_DIR . BASEADMIN . '/var/tpl_caches', //  NOUVEAU
             'back_cache'        => ROOT_DIR . BASEADMIN . '/var/caches',
-            'back_sql'          => ROOT_DIR . BASEADMIN . '/var/caches/sql', // 🟢 CORRIGÉ
+            'back_sql'          => ROOT_DIR . BASEADMIN . '/var/caches/sql', //  CORRIGÉ
             'back_log'          => ROOT_DIR . BASEADMIN . '/var/log',
         ];
 
@@ -130,7 +130,7 @@ class BackendController extends BaseController
             }
         }
 
-        // 🟢 PURGE OPCACHE : Indispensable après avoir supprimé physiquement des fichiers de cache/template
+        //  PURGE OPCACHE : Indispensable après avoir supprimé physiquement des fichiers de cache/template
         if ($hasCacheCleared && function_exists('opcache_reset')) {
             @opcache_reset();
         }
@@ -177,7 +177,7 @@ class BackendController extends BaseController
             return true;
 
         } catch (\Exception $e) {
-            // 🟢 ANTI-CRASH : Si un fichier de log est verrouillé par le serveur en écriture
+            //  ANTI-CRASH : Si un fichier de log est verrouillé par le serveur en écriture
             return false;
         }
     }
@@ -191,7 +191,7 @@ class BackendController extends BaseController
 
         $size = 0;
 
-        // 🟢 TURBO LINUX : Si disponible, 'du' calcule la taille 100x plus vite que PHP
+        //  TURBO LINUX : Si disponible, 'du' calcule la taille 100x plus vite que PHP
         if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && function_exists('exec') && is_callable('exec')) {
             $output = @exec('du -sb ' . escapeshellarg($dir));
             if ($output) {

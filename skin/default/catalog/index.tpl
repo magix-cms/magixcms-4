@@ -63,7 +63,6 @@
                         {/if}
 
                     {else}
-                        {* 🟢 Message d'alerte traduit *}
                         <div class="alert alert-info text-center mt-3 p-4 shadow-sm border-0">
                             <i class="bi bi-box-seam fs-3 d-block mb-3"></i>
                             {#catalog_empty_message#}

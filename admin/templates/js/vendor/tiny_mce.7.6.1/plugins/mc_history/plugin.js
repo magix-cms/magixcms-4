@@ -16,7 +16,7 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         const lang = textarea.getAttribute('data-lang') || '1';
         const field = textarea.getAttribute('data-field') || 'content';
 
-        // 🟢 CORRECTION 1 : Utilisation des backticks (`) pour l'interpolation JS
+        //  CORRECTION 1 : Utilisation des backticks (`) pour l'interpolation JS
         const apiUrl = (typeof baseadmin !== 'undefined')
             ? `/${baseadmin}/index.php?controller=Revisions&action=get_list&type=${controller}&item_id=${itemId}&id_lang=${lang}&field=${field}`
             : `/admin/index.php?controller=Revisions&action=get_list&type=${controller}&item_id=${itemId}&id_lang=${lang}&field=${field}`;
@@ -108,7 +108,7 @@ tinymce.PluginManager.add('mc_history', function(editor, url) {
         html += '</table>';
         container.innerHTML = html;
 
-        // 🟢 CORRECTION 2 : Retrait du chemin /admin/ en dur
+        //  CORRECTION 2 : Retrait du chemin /admin/ en dur
         const basePath = (typeof baseadmin !== 'undefined') ? '/' + baseadmin : '/admin';
 
         // Event : Vider l'historique

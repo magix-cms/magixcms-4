@@ -1,5 +1,5 @@
 {* Fichier : plugins/MagixLastNews/views/front/widget_footer.tpl *}
-<div class="widget-footer-news mb-4"> {* 🟢 Suppression de col-12, ajout de mb-4 *}
+<div class="widget-footer-news mb-4"> {*  Suppression de col-12, ajout de mb-4 *}
     <p class="h5 text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">
         {#footer_news_title#|default:'Dernières actualités'}
     </p>

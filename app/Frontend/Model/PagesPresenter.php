@@ -45,7 +45,7 @@ class PagesPresenter
             'date' => $data['date']
         ]);
 
-        // 🟢 Transmission de $skinFolder
+        //  Transmission de $skinFolder
         $data['img'] = self::processImages($row, $idPages, $siteUrl, $skinFolder);
 
         $data['seo'] = [

@@ -29,7 +29,7 @@ class HomepageDb extends BaseDb
         $qbInsert->insert('mc_home_page', ['date_register' => date('Y-m-d H:i:s')]);
         $this->executeInsert($qbInsert);
 
-        // 🟢 CORRECTION : Au lieu de lastInsertId(), on relance le SELECT.
+        //  CORRECTION : Au lieu de lastInsertId(), on relance le SELECT.
         // C'est 100% infaillible et ça garantit d'avoir un vrai ID et non '0'
         $res = $this->executeRow($qb);
 

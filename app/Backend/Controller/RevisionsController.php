@@ -64,7 +64,7 @@ class RevisionsController extends BaseController
         $db = new RevisionsDb();
 
         if ($db->truncateEntireHistory()) {
-            // 🟢 FIX : json_encode direct sans passer par jsonResponse (pas de session flash)
+            //  FIX : json_encode direct sans passer par jsonResponse (pas de session flash)
             echo json_encode([
                 'status' => true,
                 'notify' => 'L\'historique complet a été supprimé avec succès.',

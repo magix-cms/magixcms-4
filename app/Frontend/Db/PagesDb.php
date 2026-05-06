@@ -32,7 +32,7 @@ class PagesDb extends BaseDb
             ->where('p.id_pages = :id', ['id' => $idPages])
             ->where('c.published_pages = 1');
 
-        // 🟢 OVERRIDE : Un plugin peut ajouter des champs à la page (ex: p.is_restricted)
+        //  OVERRIDE : Un plugin peut ajouter des champs à la page (ex: p.is_restricted)
         $overrides = HookManager::triggerFilter('extendPagesData', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -42,7 +42,7 @@ class PagesDb extends BaseDb
             }
         }
 
-        // 🟢 CACHE SQL
+        //  CACHE SQL
         $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'pages');
         $cachedData = $cache->get($cacheKey);
 
@@ -103,7 +103,7 @@ class PagesDb extends BaseDb
         $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
 
-        // 🟢 CORRECTION : On sélectionne TOUTES les colonnes (p.*, c.*)
+        //  CORRECTION : On sélectionne TOUTES les colonnes (p.*, c.*)
         // pour que PagesPresenter ne génère pas de tableaux "null"
         $qb->select([
             'p.*',
@@ -120,7 +120,7 @@ class PagesDb extends BaseDb
             ->where('c.published_pages = 1')
             ->orderBy('p.order_pages', 'ASC');
 
-        // 🟢 OVERRIDE
+        //  OVERRIDE
         $overrides = HookManager::triggerFilter('extendPagesList', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {

@@ -20,13 +20,13 @@ class SnippetController extends BaseController
     {
         $action = $_GET['action'] ?? null;
 
-        // 🟢 ROUTE API JSON POUR TINYMCE (Liste les snippets)
+        //  ROUTE API JSON POUR TINYMCE (Liste les snippets)
         if ($action === 'tinymce') {
             $this->tinymce();
             return;
         }
 
-        // 🟢 ROUTE AFFICHAGE BRUT POUR TINYMCE (Charge le contenu d'un snippet)
+        //  ROUTE AFFICHAGE BRUT POUR TINYMCE (Charge le contenu d'un snippet)
         if ($action === 'display') {
             $this->display();
             return;
@@ -76,7 +76,7 @@ class SnippetController extends BaseController
     }
 
     /**
-     * 🟢 NOUVELLE ACTION : Renvoie le code HTML brut du snippet à TinyMCE
+     *  NOUVELLE ACTION : Renvoie le code HTML brut du snippet à TinyMCE
      */
     public function display(): void
     {
@@ -215,7 +215,7 @@ class SnippetController extends BaseController
         }
 
         if ($success !== false) {
-            // 🟢 AJOUT : Enregistrement dans l'historique si on a du contenu
+            //  AJOUT : Enregistrement dans l'historique si on a du contenu
             // On le fait seulement si la sauvegarde principale a réussi
             if (!empty($data['content_sp'])) {
                 // Si c'est une création ($isNew), on récupère le nouvel ID inséré,

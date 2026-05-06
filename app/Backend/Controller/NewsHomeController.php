@@ -79,7 +79,7 @@ class NewsHomeController extends BaseController
             }
 
             if ($success) {
-                // 🟢 Appel au manager global pour vider les caches de la liste des news
+                //  Appel au manager global pour vider les caches de la liste des news
                 CacheManager::clearFrontend('news_list');
 
                 $this->jsonResponse(true, 'Configuration de la page d\'accueil mise à jour.', [

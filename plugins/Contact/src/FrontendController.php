@@ -15,7 +15,7 @@ use Magepattern\Component\HTTP\Request;
 class FrontendController extends BaseController
 {
     // =================================================================
-    // 🟢 1. LE MOTEUR DE HOOKS INTELLIGENT (Priorité B)
+    //  1. LE MOTEUR DE HOOKS INTELLIGENT (Priorité B)
     // =================================================================
     public static function renderWidget(array $params = []): string
     {
@@ -47,7 +47,7 @@ class FrontendController extends BaseController
     }
 
     // =================================================================
-    // 🟢 2. LE CONTRÔLEUR CLASSIQUE DE LA PAGE DE CONTACT
+    //  2. LE CONTRÔLEUR CLASSIQUE DE LA PAGE DE CONTACT
     // (Votre code existant reste strictement inchangé ci-dessous)
     // =================================================================
     public function run(): void

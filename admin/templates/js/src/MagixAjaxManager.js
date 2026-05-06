@@ -5,7 +5,7 @@
  */
 class MagixAjaxManager {
 
-    // 🟢 AJOUT DE prefix ET suffix
+    //  AJOUT DE prefix ET suffix
     constructor(containerId, tabId, controllerName, prefix = 'mt', suffix = 'textmulti') {
         this.container = document.getElementById(containerId);
         this.tab = document.getElementById(tabId);
@@ -91,7 +91,7 @@ class MagixAjaxManager {
 
         document.getElementById(`${this.prefix}_id_${this.suffix}`).value = '0';
 
-        // 🟢 CORRECTION ICI : Utilisation d'une boucle classique au lieu de forEach
+        //  CORRECTION ICI : Utilisation d'une boucle classique au lieu de forEach
         if (typeof tinymce !== 'undefined' && tinymce.editors && tinymce.editors.length > 0) {
             for (let i = 0; i < tinymce.editors.length; i++) {
                 const editor = tinymce.editors[i];
@@ -117,7 +117,7 @@ class MagixAjaxManager {
                 const titleInput = document.querySelector(`input[name="title_${this.suffix}[${idLang}]"]`);
                 if (titleInput) titleInput.value = translation[`title_${this.suffix}`] || '';
 
-                // 🟢 2. NOUVEAU : URL du lien
+                //  2. NOUVEAU : URL du lien
                 const urlInput = document.querySelector(`input[name="url_${this.suffix}[${idLang}]"]`);
                 if (urlInput) urlInput.value = translation[`url_${this.suffix}`] || '';
 
@@ -125,7 +125,7 @@ class MagixAjaxManager {
                 const pubInput = document.querySelector(`input[type="checkbox"][name="published_${this.suffix}[${idLang}]"]`);
                 if (pubInput) pubInput.checked = (translation[`published_${this.suffix}`] == 1);
 
-                // 🟢 4. NOUVEAU : Ouverture du lien (Nouvel onglet)
+                //  4. NOUVEAU : Ouverture du lien (Nouvel onglet)
                 const blankInput = document.querySelector(`input[type="checkbox"][name="blank_${this.suffix}[${idLang}]"]`);
                 if (blankInput) blankInput.checked = (translation[`blank_${this.suffix}`] == 1);
 
@@ -155,7 +155,7 @@ class MagixAjaxManager {
             tinymce.triggerSave();
         }
 
-        // 🟢 NOUVEAU : On aspire TOUT le formulaire d'un coup (titres, checkbox, textareas de toutes les langues)
+        //  NOUVEAU : On aspire TOUT le formulaire d'un coup (titres, checkbox, textareas de toutes les langues)
         const formElement = document.getElementById(`${this.prefix}_form_element`);
         const formData = new FormData(formElement);
 
@@ -217,7 +217,7 @@ class MagixAjaxManager {
             .then(res => res.json())
             .then(data => {
                 if (this.deleteModalInstance) {
-                    // 🟢 CORRECTION ARIA : On retire le focus actif avant de fermer la modale
+                    //  CORRECTION ARIA : On retire le focus actif avant de fermer la modale
                     if (document.activeElement) {
                         document.activeElement.blur();
                     }
@@ -243,7 +243,7 @@ class MagixAjaxManager {
         formData.append('hashtoken', tokenInput.value);
 
         rows.forEach(tr => {
-            // 🟢 CHANGEMENT ICI : J'ai mis 'ids[]' pour que ce soit générique
+            //  CHANGEMENT ICI : J'ai mis 'ids[]' pour que ce soit générique
             formData.append('ids[]', tr.getAttribute('data-id'));
         });
 

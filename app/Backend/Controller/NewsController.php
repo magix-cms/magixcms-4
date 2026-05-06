@@ -165,7 +165,7 @@ class NewsController extends BaseController
         $db->syncNewsTags($newId, $selectedTags);
 
         if ($success) {
-            // 🟢 Appel au manager global
+            //  Appel au manager global
             CacheManager::clearFrontend('news_list');
 
             $this->jsonResponse(true, 'Actualité créée avec succès.', [
@@ -294,7 +294,7 @@ class NewsController extends BaseController
         $db->syncNewsTags($idNews, $selectedTags);
 
         if ($success) {
-            // 🟢 Appel au manager global
+            //  Appel au manager global
             CacheManager::clearFrontend('news_list');
 
             $this->jsonResponse(true, 'Actualité mise à jour avec succès.', [
@@ -323,7 +323,7 @@ class NewsController extends BaseController
         if (!empty($cleanIds)) {
             $db = new NewsDb();
             if ($db->deleteNews($cleanIds)) {
-                // 🟢 Appel au manager global
+                //  Appel au manager global
                 CacheManager::clearFrontend('news_list');
 
                 $this->sendJsonResponse([
@@ -378,7 +378,7 @@ class NewsController extends BaseController
         }
 
         if ($uploadedCount > 0) {
-            // 🟢 Appel au manager global
+            //  Appel au manager global
             CacheManager::clearFrontend('news_list');
 
             $this->sendJsonResponse(['success' => true, 'message' => "$uploadedCount image(s) ajoutée(s).", 'uploaded' => $uploadedCount]);
@@ -394,7 +394,7 @@ class NewsController extends BaseController
         if (!empty($imageIds) && is_array($imageIds)) {
             $db = new NewsDb();
             if ($db->reorderImages($imageIds)) {
-                // 🟢 Appel au manager global
+                //  Appel au manager global
                 CacheManager::clearFrontend('news_list');
 
                 $this->jsonResponse(true, 'Ordre sauvegardé.', ['type' => 'order_success']);
@@ -411,7 +411,7 @@ class NewsController extends BaseController
         if ($idNews > 0 && $idImg > 0) {
             $db = new NewsDb();
             if ($db->setDefaultImage($idNews, $idImg)) {
-                // 🟢 Appel au manager global
+                //  Appel au manager global
                 CacheManager::clearFrontend('news_list');
 
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
@@ -459,7 +459,7 @@ class NewsController extends BaseController
             }
 
             if ($deletedCount > 0) {
-                // 🟢 Appel au manager global
+                //  Appel au manager global
                 CacheManager::clearFrontend('news_list');
 
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
@@ -530,7 +530,7 @@ class NewsController extends BaseController
         }
 
         if ($success) {
-            // 🟢 Appel au manager global
+            //  Appel au manager global
             CacheManager::clearFrontend('news_list');
         }
 

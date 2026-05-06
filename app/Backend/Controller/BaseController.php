@@ -391,7 +391,7 @@ abstract class BaseController
 
         if (!$isSuperAdmin) {
             $db = new EmployeeDb();
-            // 🟢 Vous devrez ajouter cette méthode dans EmployeeDb (voir étape 2)
+            //  Vous devrez ajouter cette méthode dans EmployeeDb (voir étape 2)
             $allPerms = $db->getAllModuleAccess($idAdmin);
 
             $menuPerms = [];

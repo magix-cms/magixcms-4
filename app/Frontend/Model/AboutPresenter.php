@@ -10,7 +10,7 @@ use App\Component\Routing\UrlTool;
 class AboutPresenter
 {
     /**
-     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $companyInfo
+     *  NOUVELLE SIGNATURE : Ajout du paramètre $companyInfo
      */
     public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
@@ -47,11 +47,11 @@ class AboutPresenter
             'description' => !empty($row['seo_desc_about']) ? $row['seo_desc_about'] : strip_tags($data['resume'])
         ];
 
-        // 🟢 GÉNÉRATION DU JSON-LD
+        //  GÉNÉRATION DU JSON-LD
         $data['json_ld'] = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
 
         // =====================================================================
-        // 🟢 OVERRIDE : Extraction des champs de plugins
+        //  OVERRIDE : Extraction des champs de plugins
         // =====================================================================
         $knownKeys = array_flip([
             'id_about', 'id_parent', 'name_about', 'longname_about', 'resume_about', 'content_about',
@@ -75,7 +75,7 @@ class AboutPresenter
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_about'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_about'] ?? '');
 
-        // 🟢 AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
+        //  AUCUNE IMAGE EN BDD : CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
 
             // Cache statique basé sur le nom du skin
@@ -132,7 +132,7 @@ class AboutPresenter
     }
 
     /**
-     * 🟢 GÉNÉRATION DU JSON-LD
+     *  GÉNÉRATION DU JSON-LD
      */
     private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): string
     {

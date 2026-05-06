@@ -4,7 +4,7 @@
 {block name='head:title'}{if !empty($seo_title)}{$seo_title}{else}Contactez-nous{/if}{/block}
 {block name='head:description'}{$seo_desc|default:''}{/block}
 
-{* 🟢 Utilisation de "article:content" pour garder la balise <article> et le container du layout *}
+{*  Utilisation de "article:content" pour garder la balise <article> et le container du layout *}
 {block name="article:content"}
 
     {* --- FIL D'ARIANE --- *}

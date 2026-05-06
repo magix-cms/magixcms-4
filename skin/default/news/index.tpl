@@ -15,7 +15,7 @@
 
     {$news_label = {#news_breadcrumb_label#}}
 
-    {* 🟢 CORRECTION : On vérifie s'il y a un filtre actif (Tag ou Archive) pour ajouter le 2ème niveau *}
+    {* Filtre actif (Tag ou Archive) pour ajouter le 2ème niveau *}
     {if !empty($current_tag) || !empty($current_year)}
         {$breadcrumbs = [
         ['url' => $reset_url, 'label' => $news_label],
@@ -43,8 +43,6 @@
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
 
-                {* 🟢 LE PONT VERS LE CALENDRIER *}
-                {* 🟢 LE PONT VERS LE CALENDRIER (Conditionné par le setting) *}
                 {if isset($mc_settings.calendar_enabled) && $mc_settings.calendar_enabled.value == '1'}
                     <a href="{$base_url}{$current_lang.iso_lang}/calendar/" class="btn btn-main shadow-sm">
                         <i class="bi bi-calendar-event me-2"></i> {#news_view_calendar#}

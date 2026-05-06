@@ -73,7 +73,7 @@ class MagixItemManager {
     async deleteItem(id) {
         if (!confirm(this.config.msgConfirmDelete)) return;
         try {
-            // 🟢 Même logique de séparateur
+            //  Même logique de séparateur
             const separator = this.config.endpoint.includes('?') ? '&' : '?';
             const url = `${this.config.endpoint}${separator}action=${this.config.actionDelete}&${this.config.paramId}=${id}`;
 

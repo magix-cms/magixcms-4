@@ -13,7 +13,6 @@
         {if str_starts_with($css, 'http') || str_starts_with($css, '//')}
             {$css_path = $css}
         {else}
-            {* 🟢 CORRECTION : Si le fichier possède déjà ".min", on ignore le suffixe *}
             {if strpos($css, '.min') !== false}
                 {$css_path = "{$skin_url}/css/{$css}.css"}
             {else}

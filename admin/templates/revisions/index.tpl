@@ -25,7 +25,7 @@
                     </p>
 
                     {if $total_revisions > 0}
-                        {* 🟢 BOUTON QUI DÉCLENCHE LA MODALE *}
+                        {*  BOUTON QUI DÉCLENCHE LA MODALE *}
                         <button type="button" class="btn btn-danger btn-lg px-4" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
                             <i class="bi bi-trash-fill me-2"></i> Vider entièrement l'historique
                         </button>
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    {* 🟢 MODALE BOOTSTRAP DE CONFIRMATION *}
+    {*  MODALE BOOTSTRAP DE CONFIRMATION *}
     <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">

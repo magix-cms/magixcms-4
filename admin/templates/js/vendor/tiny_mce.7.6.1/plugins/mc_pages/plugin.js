@@ -25,12 +25,12 @@ tinymce.PluginManager.add('mc_pages', function(editor, url) {
 
     /* 2. Ouverture du dialogue */
     const showDialog = () => {
-        // 🟢 EXTRACTION DE L'ID DE LANGUE
+        //  EXTRACTION DE L'ID DE LANGUE
         const parts = editor.id.split('_');
         const langId = parts.length > 1 ? parts[parts.length - 1] : '';
         const langParam = langId ? '&lang_id=' + langId : '';
 
-        // 🟢 GÉNÉRATION DE L'URL AVEC PARAMÈTRE
+        //  GÉNÉRATION DE L'URL AVEC PARAMÈTRE
         const popupUrl = (typeof baseadmin !== 'undefined')
             ? '/' + baseadmin + '/index.php?controller=Pages&action=tinymcePopup' + langParam
             : '/admin/index.php?controller=Pages&action=tinymcePopup' + langParam;

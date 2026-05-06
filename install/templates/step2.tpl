@@ -46,7 +46,7 @@
     </form>
 {/block}
 
-{* 🟢 SCRIPT AJAX 🟢 *}
+{*  SCRIPT AJAX  *}
 {block name="javascripts" append}
     <script>
         {literal}

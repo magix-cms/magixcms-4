@@ -18,7 +18,7 @@
 
 <div class="container-fluid p-0">
 
-    <!-- 🟢 EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
+    <!--  EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-primary mb-0">
             <i class="bi bi-folder2-open me-2"></i> Sélectionner une catégorie
@@ -32,10 +32,10 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <!-- 🟢 DÉFILEMENT : max-height et overflow-y -->
+        <!--  DÉFILEMENT : max-height et overflow-y -->
         <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
             <table class="table table-hover align-middle mb-0" id="catTable">
-                <!-- 🟢 EN-TÊTE FIXE : position-sticky -->
+                <!--  EN-TÊTE FIXE : position-sticky -->
                 <thead class="table-light position-sticky top-0" style="z-index: 1;">
                 <tr>
                     <th class="ps-3">Arborescence du catalogue</th>
@@ -45,21 +45,21 @@
                 <tbody>
                 {if isset($categoriesList) && $categoriesList|@count > 0}
                     {foreach $categoriesList as $cat}
-                        <!-- 🟢 CIBLAGE JS : Ajout de la classe cat-row -->
+                        <!--  CIBLAGE JS : Ajout de la classe cat-row -->
                         <tr class="cat-row" onclick="insertCategory('{$cat.url|escape:'javascript'}', '{$cat.title|escape:'javascript'}')">
                             <td class="ps-3">
                                 {* Indentation dynamique *}
                                 {if $cat.depth > 0}
                                     <span style="margin-left: {$cat.depth * 20}px;" class="subpage-indicator">&#8627;</span>
-                                    <!-- 🟢 CIBLAGE JS : Ajout de la classe cat-title -->
+                                    <!--  CIBLAGE JS : Ajout de la classe cat-title -->
                                     <span class="text-dark cat-title">{$cat.title}</span>
                                 {else}
-                                    <!-- 🟢 CIBLAGE JS : Ajout de la classe cat-title -->
+                                    <!--  CIBLAGE JS : Ajout de la classe cat-title -->
                                     <span class="fw-bold text-dark cat-title">{$cat.title}</span>
                                 {/if}
                             </td>
                             <td class="text-end pe-3">
-                                <!-- 🟢 FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
+                                <!--  FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
                                 <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center text-nowrap">
                                     <i class="bi bi-link-45deg me-1"></i> Insérer
                                 </button>
@@ -73,7 +73,7 @@
                 {/if}
                 </tbody>
             </table>
-            <!-- 🟢 MESSAGE DE RECHERCHE VIDE -->
+            <!--  MESSAGE DE RECHERCHE VIDE -->
             <div id="noResultsMsg" class="text-center py-4 text-muted d-none">
                 Aucune catégorie ne correspond à votre recherche.
             </div>
@@ -95,7 +95,7 @@
         }, '*');
     }
 
-    // 2. 🟢 LOGIQUE DE RECHERCHE EN DIRECT
+    // 2.  LOGIQUE DE RECHERCHE EN DIRECT
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('.cat-row');

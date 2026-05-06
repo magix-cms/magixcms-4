@@ -55,7 +55,7 @@ class MagixTabManager {
             activeBtn.classList.add('active');
             activeBtn.insertAdjacentHTML('beforeend', '<i class="bi bi-check2 ms-2"></i>');
 
-            // 3. 🟢 On met à jour le texte du bouton UNIQUEMENT pour ce conteneur
+            // 3.  On met à jour le texte du bouton UNIQUEMENT pour ce conteneur
             const mainBtnText = dropdownContainer.querySelector('.lang-text');
             if (mainBtnText) {
                 mainBtnText.innerText = iso;

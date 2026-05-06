@@ -7,7 +7,7 @@
             <i class="bi bi-copyright"></i> 2008{if $current_year != '2008'} - {$current_year}{/if}
             <a href="https://www.magix-cms.com/" class="text-muted text-decoration-none" target="_blank">Magix CMS</a>
 
-            {* 🟢 AJOUT : Récupération directe depuis mc_settings *}
+            {*  AJOUT : Récupération directe depuis mc_settings *}
             <span class="badge bg-secondary ms-1">
                         v{$mc_settings.version.value|default:'4.0.0'}
                     </span>

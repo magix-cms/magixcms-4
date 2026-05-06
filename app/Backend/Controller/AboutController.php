@@ -15,7 +15,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\RevisionsDb;
-use App\Component\Cache\CacheManager; // 🟢 Import du CacheManager
+use App\Component\Cache\CacheManager; //  Import du CacheManager
 
 class AboutController extends BaseController
 {
@@ -161,7 +161,7 @@ class AboutController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('about');
 
             $this->jsonResponse(true, 'La fiche a été créée avec succès.', [
@@ -288,7 +288,7 @@ class AboutController extends BaseController
             }
         }
 
-        // 🟢 PURGE DU CACHE
+        //  PURGE DU CACHE
         if ($success) {
             CacheManager::clearFrontend('about');
         }
@@ -323,7 +323,7 @@ class AboutController extends BaseController
             }
         }
 
-        // 🟢 PURGE DU CACHE
+        //  PURGE DU CACHE
         if ($count > 0) {
             CacheManager::clearFrontend('about');
         }
@@ -378,7 +378,7 @@ class AboutController extends BaseController
                 }
             }
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('about');
 
             $this->jsonResponse(true, 'Supprimé');
@@ -390,7 +390,7 @@ class AboutController extends BaseController
         $imageIds = $_POST['image'] ?? [];
         if (!empty($imageIds)) {
             (new AboutDb())->reorderImages($imageIds);
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('about');
         }
         $this->jsonResponse(true, 'Ordre sauvegardé');
@@ -401,7 +401,7 @@ class AboutController extends BaseController
         $img = (int)$_POST['id_img'];
         (new AboutDb())->setDefaultImage($id, $img);
 
-        // 🟢 PURGE DU CACHE
+        //  PURGE DU CACHE
         CacheManager::clearFrontend('about');
 
         $this->jsonResponse(true, 'Défaut mis à jour');
@@ -413,7 +413,7 @@ class AboutController extends BaseController
 
         if (!empty($cleanIds)) {
             if ((new AboutDb())->deleteAbout($cleanIds)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('about');
 
                 $this->jsonResponse(true, 'Supprimé');
@@ -432,7 +432,7 @@ class AboutController extends BaseController
                 $db->updateOrderAbout((int)$id, $pos++);
             }
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('about');
 
             $this->jsonResponse(true, 'Ordre mis à jour');
@@ -489,7 +489,7 @@ class AboutController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('about');
         }
 

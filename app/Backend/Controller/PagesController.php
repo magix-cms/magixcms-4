@@ -15,7 +15,7 @@ use Magepattern\Component\HTTP\Url;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\File\FileTool;
 use App\Backend\Db\RevisionsDb;
-use App\Component\Cache\CacheManager; // 🟢 Import du gestionnaire de cache
+use App\Component\Cache\CacheManager; //  Import du gestionnaire de cache
 
 class PagesController extends BaseController
 {
@@ -174,7 +174,7 @@ class PagesController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('pages');
 
             $this->jsonResponse(true, 'La page a été créée avec succès.', [
@@ -324,7 +324,7 @@ class PagesController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('pages');
 
             $this->jsonResponse(true, 'La page a été mise à jour avec succès.', [
@@ -361,7 +361,7 @@ class PagesController extends BaseController
                     $position++;
                 }
 
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('pages');
 
                 $this->sendJsonResponse(['success' => true, 'message' => 'Ordre mis à jour']);
@@ -388,7 +388,7 @@ class PagesController extends BaseController
         if (!empty($cleanIds)) {
             $db = new PagesDb();
             if ($db->deletePages($cleanIds)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('pages');
 
                 $this->sendJsonResponse([
@@ -442,7 +442,7 @@ class PagesController extends BaseController
         }
 
         if ($uploadedCount > 0) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('pages');
 
             $this->sendJsonResponse([
@@ -464,7 +464,7 @@ class PagesController extends BaseController
             $db = new PagesDb();
 
             if ($db->reorderImages($imageIds)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('pages');
 
                 $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
@@ -485,7 +485,7 @@ class PagesController extends BaseController
             $db = new PagesDb();
 
             if ($db->setDefaultImage($idPage, $idImg)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('pages');
 
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
@@ -541,7 +541,7 @@ class PagesController extends BaseController
             }
 
             if ($deletedCount > 0) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('pages');
 
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
@@ -620,7 +620,7 @@ class PagesController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('pages');
         }
 

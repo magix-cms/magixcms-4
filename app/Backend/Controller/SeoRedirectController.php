@@ -113,7 +113,7 @@ class SeoRedirectController extends BaseController
             $db = new SeoRedirectDb();
             $count = $db->insertMassiveRedirects($validRedirects);
 
-            // 🟢 Correction JS : Ajout de la clé 'redirect' pour le validate_form
+            //  Correction JS : Ajout de la clé 'redirect' pour le validate_form
             $this->jsonResponse(true, "Succès ! {$count} redirection(s) importée(s) ou mise(s) à jour.", [
                 'type' => 'redirect',
                 'redirect' => 'index.php?controller=SeoRedirect',
@@ -134,7 +134,7 @@ class SeoRedirectController extends BaseController
     {
         $db = new SeoRedirectDb();
 
-        // 🟢 CORRECTION ICI : On récupère $_REQUEST['edit'] envoyé par le tableau Magix CMS
+        //  CORRECTION ICI : On récupère $_REQUEST['edit'] envoyé par le tableau Magix CMS
         $id = (int)($_REQUEST['edit'] ?? $_POST['id_redirect'] ?? 0);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

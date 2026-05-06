@@ -17,7 +17,7 @@
 
 <div class="container-fluid p-0">
 
-    <!-- 🟢 EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
+    <!--  EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-primary mb-0">
             <i class="bi bi-box-seam me-2"></i> Sélectionner un produit
@@ -31,10 +31,10 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <!-- 🟢 DÉFILEMENT : max-height et overflow-y -->
+        <!--  DÉFILEMENT : max-height et overflow-y -->
         <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
             <table class="table table-hover align-middle mb-0" id="productTable">
-                <!-- 🟢 EN-TÊTE FIXE : position-sticky -->
+                <!--  EN-TÊTE FIXE : position-sticky -->
                 <thead class="table-light position-sticky top-0" style="z-index: 1;">
                 <tr>
                     <th class="ps-3">Nom du produit</th>
@@ -45,13 +45,13 @@
                 <tbody>
                 {if isset($productList) && $productList|@count > 0}
                     {foreach $productList as $product}
-                        <!-- 🟢 CIBLAGE JS : Ajout de la classe product-row -->
+                        <!--  CIBLAGE JS : Ajout de la classe product-row -->
                         <tr class="product-row" onclick="insertProduct('{$product.url|escape:'javascript'}', '{$product.title|escape:'javascript'}')">
-                            <!-- 🟢 CIBLAGE JS : Ajout de la classe product-title -->
+                            <!--  CIBLAGE JS : Ajout de la classe product-title -->
                             <td class="ps-3 fw-bold text-dark product-title">{$product.title}</td>
                             <td class="text-muted small"><i class="bi bi-folder2 me-1"></i> {$product.category}</td>
                             <td class="text-end pe-3">
-                                <!-- 🟢 FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
+                                <!--  FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
                                 <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center text-nowrap">
                                     <i class="bi bi-link-45deg me-1"></i> Insérer
                                 </button>
@@ -65,7 +65,7 @@
                 {/if}
                 </tbody>
             </table>
-            <!-- 🟢 MESSAGE DE RECHERCHE VIDE -->
+            <!--  MESSAGE DE RECHERCHE VIDE -->
             <div id="noResultsMsg" class="text-center py-4 text-muted d-none">
                 Aucun produit ne correspond à votre recherche.
             </div>
@@ -79,7 +79,7 @@
     function insertProduct(url, title) {
         window.parent.postMessage({
             mceAction: 'insertContent',
-            // 🟢 Lien ultra-propre avec le title pour le SEO
+            //  Lien ultra-propre avec le title pour le SEO
             content: `<a href="${url}" title="${title}">${title}</a>`
         }, '*');
 
@@ -88,7 +88,7 @@
         }, '*');
     }
 
-    // 2. 🟢 LOGIQUE DE RECHERCHE EN DIRECT
+    // 2.  LOGIQUE DE RECHERCHE EN DIRECT
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('.product-row');

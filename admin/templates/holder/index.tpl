@@ -71,7 +71,7 @@
 
                             if (data.success) {
 
-                                // 🟢 CORRECTION ICI : On cherche le HTML à la racine (data.html) ou dans l'objet (data.data.html)
+                                //  CORRECTION ICI : On cherche le HTML à la racine (data.html) ou dans l'objet (data.data.html)
                                 const htmlContent = data.html || (data.data && data.data.html);
 
                                 if (htmlContent) {
@@ -91,7 +91,7 @@
                         })
                         .catch(error => {
                             console.error('Erreur Fetch:', error);
-                            // 🟢 Utilisation de MagixToast pour l'erreur HTTP (ex: 500)
+                            //  Utilisation de MagixToast pour l'erreur HTTP (ex: 500)
                             if (typeof MagixToast !== 'undefined') {
                                 MagixToast.error('Erreur serveur. Veuillez vérifier les logs.');
                             }

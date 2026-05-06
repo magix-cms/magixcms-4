@@ -26,12 +26,12 @@ tinymce.PluginManager.add('mc_cat', function(editor, url) {
 
     /* 2. Dialogue pour choisir une catégorie */
     const showDialog = () => {
-        // 🟢 EXTRACTION DE L'ID DE LANGUE
+        //  EXTRACTION DE L'ID DE LANGUE
         const parts = editor.id.split('_');
         const langId = parts.length > 1 ? parts[parts.length - 1] : '';
         const langParam = langId ? '&lang_id=' + langId : '';
 
-        // 🟢 GÉNÉRATION DE L'URL AVEC PARAMÈTRE
+        //  GÉNÉRATION DE L'URL AVEC PARAMÈTRE
         const popupUrl = (typeof baseadmin !== 'undefined')
             ? '/' + baseadmin + '/index.php?controller=Category&action=tinymcePopup' + langParam
             : '/admin/index.php?controller=Category&action=tinymcePopup' + langParam;

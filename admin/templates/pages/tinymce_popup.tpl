@@ -23,7 +23,7 @@
             <span class="badge bg-secondary ms-2">{$iso_lang}</span>
         </h5>
 
-        <!-- 🟢 NOUVEAU : La barre de recherche -->
+        <!--  NOUVEAU : La barre de recherche -->
         <div class="input-group" style="width: 250px;">
             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
             <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Filtrer les pages...">
@@ -42,16 +42,16 @@
                 <tbody>
                 {if isset($pagesList) && $pagesList|@count > 0}
                     {foreach $pagesList as $page}
-                        <!-- 🟢 AJOUT : class="page-row" pour le ciblage JS -->
+                        <!--  AJOUT : class="page-row" pour le ciblage JS -->
                         <tr class="page-row" onclick="insertPage('{$page.url|escape:'javascript'}', '{$page.title|escape:'javascript'}')">
                             <td class="ps-3">
                                 {* Indentation dynamique selon le niveau de parenté *}
                                 {if $page.depth > 0}
                                     <span style="margin-left: {$page.depth * 20}px;" class="subpage-indicator">&#8627;</span>
-                                    <!-- 🟢 AJOUT : class="page-title" pour la recherche -->
+                                    <!--  AJOUT : class="page-title" pour la recherche -->
                                     <span class="text-dark page-title">{$page.title}</span>
                                 {else}
-                                    <!-- 🟢 AJOUT : class="page-title" pour la recherche -->
+                                    <!--  AJOUT : class="page-title" pour la recherche -->
                                     <span class="fw-bold text-dark page-title">{$page.title}</span>
                                 {/if}
                             </td>
@@ -69,7 +69,7 @@
                 {/if}
                 </tbody>
             </table>
-            <!-- 🟢 NOUVEAU : Message caché si la recherche ne donne rien -->
+            <!--  NOUVEAU : Message caché si la recherche ne donne rien -->
             <div id="noResultsMsg" class="text-center py-4 text-muted d-none">
                 Aucune page ne correspond à votre recherche.
             </div>
@@ -91,7 +91,7 @@
         }, '*');
     }
 
-    // 2. 🟢 NOUVEAU : Logique de filtrage en direct
+    // 2.  NOUVEAU : Logique de filtrage en direct
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('.page-row');

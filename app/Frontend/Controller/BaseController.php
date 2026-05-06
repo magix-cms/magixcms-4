@@ -368,7 +368,7 @@ abstract class BaseController
             $isPhone   = $detect->isMobile() && !$isTablet;
             $isDesktop = !$detect->isMobile();
 
-            // 🟢 AJOUT DU 3ème PARAMÈTRE "true" POUR LE NOCACHE
+            //  AJOUT DU 3ème PARAMÈTRE "true" POUR LE NOCACHE
             $this->view->assign([
                 'is_phone'   => $isPhone,
                 'is_tablet'  => $isTablet,
@@ -379,7 +379,7 @@ abstract class BaseController
         } catch (\Throwable $e) {
             $this->logger->log("Erreur MobileDetect : " . $e->getMessage(), "warning");
 
-            // 🟢 IDEM ICI EN CAS D'ERREUR
+            //  IDEM ICI EN CAS D'ERREUR
             $this->view->assign([
                 'is_phone'   => false,
                 'is_tablet'  => false,
@@ -584,7 +584,7 @@ abstract class BaseController
                 $this->view->display('maintenance.tpl');
                 exit;
             } else {
-                // 🟢 ADMINISTRATEUR : On laisse passer, mais on prévient Smarty !
+                //  ADMINISTRATEUR : On laisse passer, mais on prévient Smarty !
                 $this->view->assign('admin_maintenance_warning', true);
             }
         } else {

@@ -69,7 +69,7 @@ class CatalogController extends BaseController
                 if (!$db->saveCatalogContent($idPage, (int)$idLang, $data)) {
                     $success = false;
                 } else {
-                    // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                    //  AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                     if (!empty($content)) {
                         $revDb = new RevisionsDb();
                         // Paramètres : item_type ('catalog'), item_id, id_lang, nom_du_champ, contenu
@@ -79,7 +79,7 @@ class CatalogController extends BaseController
             }
 
             if ($success) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('catalog');
 
                 $this->jsonResponse(true, 'La page racine du catalogue a été mise à jour avec succès.', [

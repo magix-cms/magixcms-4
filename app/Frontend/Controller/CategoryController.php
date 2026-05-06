@@ -18,7 +18,7 @@ class CategoryController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        // 🟢 Cache Smarty
+        //  Cache Smarty
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/category.tpl', $cacheId)) {
@@ -85,7 +85,7 @@ class CategoryController extends BaseController
 
             $jsonLdList = SeoHelper::generateItemListJsonLd($category['products']);
 
-            // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Category)
+            //  GÉNÉRATION DU TABLEAU HREFLANG (Category)
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
             $urlTool = new \App\Component\Routing\UrlTool();

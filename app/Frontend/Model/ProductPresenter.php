@@ -10,7 +10,7 @@ use App\Component\Routing\UrlTool;
 class ProductPresenter
 {
     /**
-     * 🟢 NOUVELLE SIGNATURE : Ajout du paramètre $siteSettings
+     *  NOUVELLE SIGNATURE : Ajout du paramètre $siteSettings
      */
     public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default', array $siteSettings = []): ?array
     {
@@ -23,7 +23,7 @@ class ProductPresenter
 
         $iso = $langContext['iso_lang'] ?? 'fr';
 
-        // 🟢 CALCUL DU PRIX ET DES PROMOTIONS (HT ou TTC)
+        //  CALCUL DU PRIX ET DES PROMOTIONS (HT ou TTC)
         $rawPrice = (float)($row['price_p'] ?? 0);
         $rawPromo = (float)($row['price_promo_p'] ?? 0);
 
@@ -52,8 +52,8 @@ class ProductPresenter
             'id'                       => $row['id_product'] ?? null,
             'name'                     => $row['name_p'] ?? '',
             'reference'                => $row['reference_p'] ?? '',
-            'ean_p'                    => $row['ean_p'] ?? '', // 🟢 Ajout de l'EAN
-            'availability_p'           => $row['availability_p'] ?? 'InStock', // 🟢 Ajout du stock
+            'ean_p'                    => $row['ean_p'] ?? '', //  Ajout de l'EAN
+            'availability_p'           => $row['availability_p'] ?? 'InStock', //  Ajout du stock
             // --- Variables de prix ---
             'price_final'              => round($effectivePriceFinal, 2), // Le vrai prix final (promo ou non)
             'price_formatted'          => number_format($effectivePriceFinal, 2, ',', ' '),
@@ -168,7 +168,7 @@ class ProductPresenter
                 '@type'         => 'Offer',
                 'url'           => $siteUrl . $data['url'],
                 'priceCurrency' => 'EUR',
-                // 🟢 On envoie à Google le prix FINAL (TTC ou HT selon le site)
+                //  On envoie à Google le prix FINAL (TTC ou HT selon le site)
                 'price'         => number_format((float)$data['price_final'], 2, '.', ''),
                 'availability'  => 'https://schema.org/InStock'
             ]

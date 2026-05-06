@@ -144,7 +144,7 @@
   -webkit-backdrop-filter: blur(5px);
   color: $color;
 
-  // 🟢 LA CORRECTION EST ICI : On ajoute une transition douce sur le transform et les couleurs
+  //  LA CORRECTION EST ICI : On ajoute une transition douce sur le transform et les couleurs
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
   background-color 0.3s ease,
   border-color 0.3s ease,
@@ -158,7 +158,7 @@
     transform: translateY(-3px);
   }
 
-  // 🟢 AJOUT OPTIONNEL MAIS RECOMMANDÉ : Effet d'enfoncement au clic
+  //  AJOUT OPTIONNEL MAIS RECOMMANDÉ : Effet d'enfoncement au clic
   &:active {
     transform: translateY(1px);
     transition: transform 0.1s ease; // Très rapide pour l'impression de clic

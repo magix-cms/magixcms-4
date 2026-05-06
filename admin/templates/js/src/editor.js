@@ -84,12 +84,12 @@
                 onMessage: function (dialogApi, details) {
                     if (details.mceAction === 'insertFile') {
 
-                        // 🟢 FIX ULTIME : Interception et suppression du dossier fantôme "/a/"
+                        //  FIX ULTIME : Interception et suppression du dossier fantôme "/a/"
                         let finalUrl = details.content;
                         // On cherche "/media/a/" et on le remplace strictement par "/media/"
                         finalUrl = finalUrl.replace(/(\/media\/)a\//i, '$1');
 
-                        // 🟢 FIX DU NaN : On force les champs à "vide"
+                        //  FIX DU NaN : On force les champs à "vide"
                         callback(finalUrl, { alt: '', width: '', height: '' });
                         dialogApi.close();
                     }
@@ -258,7 +258,7 @@
                         ]}
                 ]},
             {title: 'Image', items: [
-                    // 🟢 ADAPTATION POUR GLIGHTBOX ICI
+                    //  ADAPTATION POUR GLIGHTBOX ICI
                     {title: 'GLightbox Simple', selector: 'a', classes: 'glightbox'},
                     {title: 'GLightbox Galerie', selector: 'a', classes: 'glightbox', attributes: {'data-gallery': 'gallery'}},
                     // ----------------------------------

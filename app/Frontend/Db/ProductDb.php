@@ -119,7 +119,7 @@ class ProductDb extends BaseDb
             }
         }
 
-        // 🟢 Paramètres spécifiques pour le Hash du Cache
+        //  Paramètres spécifiques pour le Hash du Cache
         $hashParams = $qb->getParams();
         $hashParams['hash_limit'] = $filters['limit'] ?? 0;
         $hashParams['hash_offset'] = $filters['offset'] ?? 0;
@@ -180,7 +180,7 @@ class ProductDb extends BaseDb
         $page  = max(1, (int)($filters['page'] ?? 1));
         $limit = max(1, (int)($filters['limit'] ?? 20));
 
-        // 🟢 SÉCURITÉ CACHE : Injecter la page et limite
+        //  SÉCURITÉ CACHE : Injecter la page et limite
         $hashParams = $qb->getParams();
         $hashParams['hash_page'] = $page;
         $hashParams['hash_limit'] = $limit;

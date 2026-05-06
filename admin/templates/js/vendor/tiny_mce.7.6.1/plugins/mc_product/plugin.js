@@ -25,12 +25,12 @@ tinymce.PluginManager.add('mc_product', function(editor, url) {
 
     /* 2. Dialogue pour choisir un produit */
     const showDialog = () => {
-        // 🟢 EXTRACTION DE L'ID DE LANGUE
+        //  EXTRACTION DE L'ID DE LANGUE
         const parts = editor.id.split('_');
         const langId = parts.length > 1 ? parts[parts.length - 1] : '';
         const langParam = langId ? '&lang_id=' + langId : '';
 
-        // 🟢 GÉNÉRATION DE L'URL (Route API du CMS)
+        //  GÉNÉRATION DE L'URL (Route API du CMS)
         const popupUrl = (typeof baseadmin !== 'undefined')
             ? '/' + baseadmin + '/index.php?controller=Product&action=tinymcePopup' + langParam
             : '/admin/index.php?controller=Product&action=tinymcePopup' + langParam;

@@ -40,7 +40,7 @@ class SettingDb extends BaseDb
                 }
             }
 
-            // 🟢 LE BOUCLIER ANTI-POISON
+            //  LE BOUCLIER ANTI-POISON
             // On s'assure que la BDD a bien répondu avec les données vitales avant de cacher
             if (!empty($settings) && isset($settings['theme'])) {
                 $cache->set($cacheKey, $settings, 86400);

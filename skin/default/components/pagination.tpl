@@ -1,4 +1,3 @@
-{* 🟢 --- PAGINATION --- *}
 {if isset($pg) && $pg.total_pages > 1}
     <nav aria-label="Pagination" class="mt-5">
         <ul class="pagination justify-content-center">

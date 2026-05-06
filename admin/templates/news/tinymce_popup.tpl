@@ -18,7 +18,7 @@
 
 <div class="container-fluid p-0">
 
-    <!-- 🟢 EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
+    <!--  EN-TÊTE : Titre + Barre de recherche sur la même ligne -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-primary mb-0">
             <i class="bi bi-newspaper me-2"></i> Sélectionner une actualité
@@ -32,10 +32,10 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <!-- 🟢 DÉFILEMENT : max-height et overflow-y -->
+        <!--  DÉFILEMENT : max-height et overflow-y -->
         <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
             <table class="table table-hover table-striped align-middle mb-0" id="newsTable">
-                <!-- 🟢 EN-TÊTE FIXE : position-sticky -->
+                <!--  EN-TÊTE FIXE : position-sticky -->
                 <thead class="table-light position-sticky top-0" style="z-index: 1;">
                 <tr>
                     <th class="ps-3">Titre de l'actualité</th>
@@ -46,13 +46,13 @@
                 <tbody>
                 {if isset($newsList) && $newsList|@count > 0}
                     {foreach $newsList as $news}
-                        <!-- 🟢 CIBLAGE JS : Ajout de la classe news-row -->
+                        <!--  CIBLAGE JS : Ajout de la classe news-row -->
                         <tr class="news-row" onclick="insertNews('{$news.url|escape:'javascript'}', '{$news.title|escape:'javascript'}')">
-                            <!-- 🟢 CIBLAGE JS : Ajout de la classe news-title -->
+                            <!--  CIBLAGE JS : Ajout de la classe news-title -->
                             <td class="ps-3 fw-bold text-dark news-title">{$news.title}</td>
                             <td class="text-muted small">{$news.date|date_format:"%d/%m/%Y"}</td>
                             <td class="text-end pe-3">
-                                <!-- 🟢 FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
+                                <!--  FIX BOUTON : d-inline-flex, align-items-center, text-nowrap, me-1 -->
                                 <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center text-nowrap">
                                     <i class="bi bi-link-45deg me-1"></i> Insérer
                                 </button>
@@ -66,7 +66,7 @@
                 {/if}
                 </tbody>
             </table>
-            <!-- 🟢 MESSAGE DE RECHERCHE VIDE -->
+            <!--  MESSAGE DE RECHERCHE VIDE -->
             <div id="noResultsMsg" class="text-center py-4 text-muted d-none">
                 Aucune actualité ne correspond à votre recherche.
             </div>
@@ -88,7 +88,7 @@
         }, '*');
     }
 
-    // 2. 🟢 LOGIQUE DE RECHERCHE EN DIRECT
+    // 2.  LOGIQUE DE RECHERCHE EN DIRECT
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const rows = document.querySelectorAll('.news-row');

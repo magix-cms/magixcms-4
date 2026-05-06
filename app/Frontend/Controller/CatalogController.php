@@ -34,7 +34,7 @@ class CatalogController extends BaseController
         }
 
         // --- 2. CODE NORMAL DE LA PAGE D'ACCUEIL DU CATALOGUE ---
-        // 🟢 ID de Cache Smarty
+        //  ID de Cache Smarty
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/index.tpl', $cacheId)) {
@@ -68,7 +68,7 @@ class CatalogController extends BaseController
 
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-            // 🟢 LECTURE DU PARAMÈTRE D'AFFICHAGE (0 = Catégories seules, 1 = Produits inclus)
+            //  LECTURE DU PARAMÈTRE D'AFFICHAGE (0 = Catégories seules, 1 = Produits inclus)
             $showAllProducts = ($this->siteSettings['product_catalog']['value'] ?? '0') === '1';
 
             $catalogHome['subdata'] = []; // Pour les catégories
@@ -77,7 +77,7 @@ class CatalogController extends BaseController
             $pageUrlBase = '';
 
             // ==========================================================
-            // 🟢 ACTION 1 : TOUJOURS CHARGER LES CATÉGORIES MÈRES
+            //  ACTION 1 : TOUJOURS CHARGER LES CATÉGORIES MÈRES
             // ==========================================================
             $rawCategories = $db->getRootCategories($idLang);
 
@@ -88,7 +88,7 @@ class CatalogController extends BaseController
             }
 
             // ==========================================================
-            // 🟢 ACTION 2 : CHARGER LES PRODUITS UNIQUEMENT SI ACTIVÉ
+            //  ACTION 2 : CHARGER LES PRODUITS UNIQUEMENT SI ACTIVÉ
             // ==========================================================
             $page = Request::isGet('p') ? (int)$_GET['p'] : 1;
 
@@ -129,7 +129,7 @@ class CatalogController extends BaseController
                 $seoTitle .= ' - Page ' . $page;
             }
 
-            // 🟢 NOUVEAU : GÉNÉRATION DU TABLEAU HREFLANG (Racine Catalogue)
+            //  NOUVEAU : GÉNÉRATION DU TABLEAU HREFLANG (Racine Catalogue)
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
             $urlTool = new UrlTool();

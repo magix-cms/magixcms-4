@@ -11,7 +11,7 @@ class LayoutDb extends BaseDb
     public function getAllHooks(): array|false
     {
         $qb = new QueryBuilder();
-        // 🟢 On remplace 'name' par 'position'
+        //  On remplace 'name' par 'position'
         $qb->select(['*'])->from('mc_hook')->orderBy('position', 'ASC');
         return $this->executeAll($qb);
     }
@@ -73,7 +73,7 @@ class LayoutDb extends BaseDb
         return $success;
     }
 
-    // 🟢 NOUVEAU : Ajout du paramètre optionnel $itemSlug
+    //  NOUVEAU : Ajout du paramètre optionnel $itemSlug
     public function addItem(int $idHook, string $moduleName, ?string $itemSlug = null): bool
     {
         $qbMax = new QueryBuilder();

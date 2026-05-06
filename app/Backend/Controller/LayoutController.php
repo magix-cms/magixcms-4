@@ -8,7 +8,7 @@ use App\Backend\Db\LayoutDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\Tool\SmartyTool;
-use App\Component\Cache\CacheManager; // 🟢 Import du gestionnaire de cache
+use App\Component\Cache\CacheManager; //  Import du gestionnaire de cache
 
 class LayoutController extends BaseController
 {
@@ -129,7 +129,7 @@ class LayoutController extends BaseController
         if ($idHook > 0 && !empty($moduleName)) {
             if ($this->layoutDb->addItem($idHook, $moduleName, $itemSlug)) {
 
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('layout');
 
                 $this->jsonResponse(true, 'Widget greffé avec succès.');
@@ -146,7 +146,7 @@ class LayoutController extends BaseController
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0 && $this->layoutDb->deleteItem($id)) {
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('layout');
 
             $this->jsonResponse(true, 'Widget retiré.');
@@ -162,7 +162,7 @@ class LayoutController extends BaseController
         $id = (int)($_GET['id'] ?? 0);
         if ($id > 0 && $this->layoutDb->toggleActive($id)) {
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('layout');
 
             $this->jsonResponse(true, 'Statut mis à jour.');
@@ -183,7 +183,7 @@ class LayoutController extends BaseController
         if ($id > 0 && in_array($dir, ['up', 'down'])) {
             if ($this->layoutDb->moveItem($id, $dir)) {
 
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('layout');
 
                 $this->jsonResponse(true, "Déplacement $dir effectué !");
@@ -207,7 +207,7 @@ class LayoutController extends BaseController
         if ($idHook > 0 && is_array($ids) && !empty($ids)) {
             if ($this->layoutDb->reorder($ids, $idHook)) {
 
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('layout');
 
                 $this->jsonResponse(true, "L'ordre et les zones ont été mis à jour.");

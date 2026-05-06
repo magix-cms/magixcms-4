@@ -17,10 +17,10 @@ class AboutController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        // 🟢 1. Création de l'ID de cache unique pour cette URL exacte
+        //  1. Création de l'ID de cache unique pour cette URL exacte
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        // 🟢 2. Si le cache Smarty N'EST PAS valide, on exécute la logique métier
+        //  2. Si le cache Smarty N'EST PAS valide, on exécute la logique métier
         if (!$this->view->isCached('about/index.tpl', $cacheId)) {
 
             $idLang = (int)($this->currentLang['id_lang'] ?? 1);
@@ -123,7 +123,7 @@ class AboutController extends BaseController
             ]);
         }
 
-        // 🟢 4. Affichage de la vue (avec liaison de l'ID de cache)
+        //  4. Affichage de la vue (avec liaison de l'ID de cache)
         $this->view->display('about/index.tpl', $cacheId);
     }
 }

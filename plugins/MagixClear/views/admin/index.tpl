@@ -28,7 +28,7 @@
                                     <small class="text-muted">Fichiers pré-compilés du thème (Recommandé après modif. HTML/CSS)</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    {* 🟢 CORRECTION AJAX : Remplacement de $sizes.front_tpl par un badge de chargement *}
+                                    {*  CORRECTION AJAX : Remplacement de $sizes.front_tpl par un badge de chargement *}
                                     <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_tpl"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_tpl" checked>
@@ -209,7 +209,7 @@
                 defaultCheckboxes.forEach(cb => cb.checked = true);
             });
 
-            // 🟢 NOUVEAU : Récupération asynchrone des tailles de dossiers
+            //  NOUVEAU : Récupération asynchrone des tailles de dossiers
             const formData = new FormData();
             formData.append('hashtoken', '{$hashtoken}');
 

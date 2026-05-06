@@ -119,7 +119,7 @@ tinymce.PluginManager.add('mc_ai_gemini', function(editor, url) {
 
                     api.block('L\'IA Magix prépare votre contenu...');
 
-                    // 🟢 APPEL AU CONTRÔLEUR PHP (Allégé : le backend valide déjà la session admin)
+                    //  APPEL AU CONTRÔLEUR PHP (Allégé : le backend valide déjà la session admin)
                     fetch('index.php?controller=GeminiAI&action=generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +138,7 @@ tinymce.PluginManager.add('mc_ai_gemini', function(editor, url) {
                         .then(resData => {
                             api.unblock();
 
-                            // 🟢 GESTION DE LA RÉPONSE
+                            //  GESTION DE LA RÉPONSE
                             if (resData.status && resData.content) {
                                 api.setData({ result: resData.content });
                                 api.setEnabled('insert_btn', true); // On active le bouton d'insertion

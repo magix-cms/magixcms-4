@@ -55,7 +55,7 @@ class LangDb extends BaseDb
         $success = $this->executeUpdate($qbSet);
 
         if ($success) {
-            // 🟢 CORRECTION : On nettoie proprement l'Admin ET le Front !
+            //  CORRECTION : On nettoie proprement l'Admin ET le Front !
             $this->clearAdminSqlCache('lang');
             $this->clearPublicSqlCache('lang');
         }

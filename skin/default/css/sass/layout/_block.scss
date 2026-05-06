@@ -64,7 +64,7 @@
 // --------------------------------------------------------
 // 3. APPLICATION DES GRILLES MULTICOLONNES
 // --------------------------------------------------------
-// 🟢 AJOUT : .about-list est maintenant bien présent
+//  AJOUT : .about-list est maintenant bien présent
 .pages-list,
 .category-list,
 .product-list,
@@ -227,7 +227,7 @@
 // ========================================================
 
 // --- A. PAGES, CATEGORIES & ABOUT ---
-// 🟢 AJOUT : about-card et about-card-large
+//  AJOUT : about-card et about-card-large
 // Déclaration groupée pour la base, mais séparable si besoin
 .page-card, .category-card, .about-card {
   .figure {
@@ -281,7 +281,7 @@
       padding: 0 1rem 1rem 1rem;
       margin-top: auto;
 
-      // 🟢 On cible TOUS les boutons à l'intérieur du prix
+      //  On cible TOUS les boutons à l'intérieur du prix
       .btn {
         transition: all 0.25s ease-in-out;
       }

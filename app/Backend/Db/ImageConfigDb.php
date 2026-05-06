@@ -19,7 +19,7 @@ class ImageConfigDb extends BaseDb
         $qb = new QueryBuilder();
         $qb->select('*')
             ->from('mc_config_img')
-            // 🟢 CORRECTION : On utilise la syntaxe standard du QueryBuilder
+            //  CORRECTION : On utilise la syntaxe standard du QueryBuilder
             ->orderBy('module_img', 'ASC');
 
         // Note : Si votre QueryBuilder supporte le chaînage, vous pouvez faire :

@@ -222,7 +222,7 @@ class ProductController extends BaseController
             // Gestion des traductions (qui utilisera maintenant le bon $defaultCat)
             $this->saveTranslations($db, $newId, $defaultCat);
 
-            // 🟢 PURGE DU CACHE (Impact croisé)
+            //  PURGE DU CACHE (Impact croisé)
             CacheManager::clearFrontend('product');
             CacheManager::clearFrontend('category');
 
@@ -265,7 +265,7 @@ class ProductController extends BaseController
 
             $publicUrls = $this->saveTranslations($db, $id, $defaultCat);
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
             CacheManager::clearFrontend('category');
 
@@ -311,7 +311,7 @@ class ProductController extends BaseController
 
                 $db->saveProductContent($idProduct, $idLang, $contentData);
 
-                // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                //  AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                 if (!empty($contentData['content_p'])) {
                     $revDb = new RevisionsDb();
                     // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
@@ -378,7 +378,7 @@ class ProductController extends BaseController
         }
 
         if ($uploadedCount > 0) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
 
             $this->jsonResponse(true, "$uploadedCount image(s) ajoutée(s).", ['uploaded' => $uploadedCount]);
@@ -432,7 +432,7 @@ class ProductController extends BaseController
             }
 
             if ($deletedCount > 0) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
 
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
@@ -449,7 +449,7 @@ class ProductController extends BaseController
         if (!empty($imageIds) && is_array($imageIds)) {
             $db = new ProductDb();
             if ($db->reorderImages($imageIds)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
 
                 $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
@@ -466,7 +466,7 @@ class ProductController extends BaseController
         if ($idProduct > 0 && $idImg > 0) {
             $db = new ProductDb();
             if ($db->setDefaultImage($idProduct, $idImg)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
 
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
@@ -541,7 +541,7 @@ class ProductController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
         }
 

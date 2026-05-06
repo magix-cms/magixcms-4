@@ -17,13 +17,13 @@ tinymce.PluginManager.add('mc_news', function(editor, url) {
     editor.ui.registry.addIcon('news', newsSvg);
 
     const showDialog = () => {
-        // 🟢 1. EXTRACTION DE L'ID DE LANGUE
+        //  1. EXTRACTION DE L'ID DE LANGUE
         // editor.id renvoie par exemple "content_2". On le coupe pour récupérer "2"
         const parts = editor.id.split('_');
         const langId = parts.length > 1 ? parts[parts.length - 1] : '';
         const langParam = langId ? '&lang_id=' + langId : '';
 
-        // 🟢 2. AJOUT DU PARAMÈTRE DANS L'URL
+        //  2. AJOUT DU PARAMÈTRE DANS L'URL
         const popupUrl = (typeof baseadmin !== 'undefined')
             ? '/' + baseadmin + '/index.php?controller=News&action=tinymcePopup' + langParam
             : '/admin/index.php?controller=News&action=tinymcePopup' + langParam;

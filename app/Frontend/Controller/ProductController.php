@@ -15,7 +15,7 @@ class ProductController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        // 🟢 Cache Smarty
+        //  Cache Smarty
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/product.tpl', $cacheId)) {
@@ -60,7 +60,7 @@ class ProductController extends BaseController
                 $product['gallery'][] = $formattedTemp['img'];
             }
 
-            // 🟢 GÉNÉRATION DU TABLEAU HREFLANG (Product)
+            //  GÉNÉRATION DU TABLEAU HREFLANG (Product)
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
             $urlTool = new \App\Component\Routing\UrlTool();

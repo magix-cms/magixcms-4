@@ -92,7 +92,7 @@ class MagixItemSelector {
 
             this.searchResults.innerHTML = '';
 
-            // 🟢 NOUVEAU : On filtre les données reçues pour exclure celles déjà sélectionnées
+            //  NOUVEAU : On filtre les données reçues pour exclure celles déjà sélectionnées
             const filteredData = rawData.filter(item => {
                 const itemId = item.id_product || item.id_pages || item.id_cat || item.id;
                 const isAlreadyAdded = this.selectedList.querySelector(`li[data-id="${itemId}"]`);

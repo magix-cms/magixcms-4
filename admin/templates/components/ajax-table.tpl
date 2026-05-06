@@ -92,8 +92,8 @@
 {if !isset($ajax_delete_modal_loaded)}
     {assign var="ajax_delete_modal_loaded" value=true scope="global"}
 
-    {* 🟢 CORRECTION 1 : On supprime aria-hidden="true" écrit en dur. Bootstrap le gérera dynamiquement *}
-    {* 🟢 CORRECTION 2 : On ajoute aria-labelledby pour relier la modale à son titre *}
+    {*  CORRECTION 1 : On supprime aria-hidden="true" écrit en dur. Bootstrap le gérera dynamiquement *}
+    {*  CORRECTION 2 : On ajoute aria-labelledby pour relier la modale à son titre *}
     <div class="modal fade" id="ajax_delete_modal" tabindex="-1" aria-labelledby="ajax_delete_modal_label">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -113,7 +113,7 @@
                 </div>
 
                 <div class="modal-footer bg-light justify-content-center border-0">
-                    {* 🟢 Correction sur le bouton Annuler *}
+                    {*  Correction sur le bouton Annuler *}
                     <button type="button"
                             class="btn btn-outline-secondary px-4"
                             data-bs-dismiss="modal"
@@ -121,7 +121,7 @@
                         {#cancel#|default:'Annuler'}
                     </button>
 
-                    {* 🟢 Correction sur le bouton Supprimer *}
+                    {*  Correction sur le bouton Supprimer *}
                     <button type="button"
                             id="ajax_confirm_delete_btn"
                             class="btn btn-danger px-4 fw-bold"

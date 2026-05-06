@@ -46,7 +46,7 @@ class HolderDb extends BaseDb
     }
 
     /**
-     * 🟢 NOUVEAU : Récupère le nom du fichier du logo actif
+     *  NOUVEAU : Récupère le nom du fichier du logo actif
      */
     public function getActiveLogo(): ?string
     {

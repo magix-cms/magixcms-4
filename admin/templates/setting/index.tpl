@@ -106,7 +106,7 @@
                                     <input type="number" min="0" id="news_per_page" name="settings[news_per_page]" class="form-control" value="{$settings.news_per_page.value|default:''}" />
                                 </div>
 
-                                {* 🟢 AJOUT : Switch pour activer/désactiver le calendrier *}
+                                {*  AJOUT : Switch pour activer/désactiver le calendrier *}
                                 <div class="col-12 mt-3">
                                     <div class="form-check form-switch fs-5">
                                         <input class="form-check-input" type="checkbox" role="switch" id="calendar_enabled" name="settings[calendar_enabled]" value="1" {if ($settings.calendar_enabled.value|default:'0') eq '1'} checked{/if} />

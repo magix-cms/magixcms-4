@@ -14,7 +14,6 @@
         </ol>
     </nav>
 
-    {* 🟢 GÉNÉRATION DU JSON-LD BREADCRUMBLIST TRADUIT *}
     <script type="application/ld+json">
         {
           "@context": "https://schema.org",
@@ -23,7 +22,7 @@
             {
               "@type": "ListItem",
               "position": 1,
-        {* 🟢 CORRECTION : json_encode rajoute les guillemets tout seul et gère l'échappement *}
+
         "name": {#breadcrumb_home#|json_encode nofilter},
               "item": "{$base_url}"
             }
@@ -31,7 +30,6 @@
             ,{
               "@type": "ListItem",
               "position": {$index + 2},
-              {* 🟢 CORRECTION : Même chose ici, pas de guillemets manuels ! *}
               "name": {$item.label|json_encode nofilter}
             {if !$item@last && !empty($item.url)}
               ,"item": "{$item.url}"

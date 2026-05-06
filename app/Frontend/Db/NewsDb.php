@@ -185,7 +185,7 @@ class NewsDb extends BaseDb
         $currentPage = $filters['page'] ?? 1;
         $itemsPerPage = $filters['limit'] ?? 12;
 
-        // 🟢 LA CORRECTION EST ICI :
+        //  LA CORRECTION EST ICI :
         // On injecte la page et la limite dans les paramètres du hash pour créer
         // des fichiers de cache totalement distincts.
         $hashParams = $qb->getParams();
@@ -222,7 +222,7 @@ class NewsDb extends BaseDb
         $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
 
-        // 🟢 CORRECTION : On utilise la même structure stricte que HomeDb
+        //  CORRECTION : On utilise la même structure stricte que HomeDb
         $qb->select(['h.*', 'c.*'])
             ->from('mc_news_home', 'h')
             ->join('mc_news_home_content', 'c', 'h.id_news_home = c.id_news_home')
@@ -238,7 +238,7 @@ class NewsDb extends BaseDb
             // Le cache est vide, on interroge la BDD
             $data = $this->executeRow($qb);
 
-            // 🟢 CORRECTION : On ne met en cache QUE si on a trouvé des données !
+            //  CORRECTION : On ne met en cache QUE si on a trouvé des données !
             // Cela évite de bloquer la page sur un cache "vide" si on oublie de publier dans le backend.
             if ($data !== false) {
                 $cache->set($cacheKey, $data, 3600);
@@ -264,7 +264,7 @@ class NewsDb extends BaseDb
             'n.id_news',
             'n.date_event_start AS date_start',
             'n.date_event_end AS date_end',
-            'n.date_publish', // 🟢 AJOUT : Nécessaire pour construire l'URL
+            'n.date_publish', //  AJOUT : Nécessaire pour construire l'URL
             'nc.name_news AS title',
             'nc.url_news AS slug'
         ])
@@ -277,7 +277,7 @@ class NewsDb extends BaseDb
             ->where('MONTH(n.date_event_start) = :month', ['month' => $month])
             ->orderBy('n.date_event_start', 'ASC');
 
-        // 🟢 Astuce : Changez en "v3" pour forcer le vidage du cache
+        //  Astuce : Changez en "v3" pour forcer le vidage du cache
         $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'calendar_events_v3');
         $cachedData = $cache->get($cacheKey);
 

@@ -125,7 +125,7 @@
                             </select>
                         </div>
 
-                        {* 🟢 NOUVEAU : Le champ pour le Slug (Identifiant unique) *}
+                        {*  NOUVEAU : Le champ pour le Slug (Identifiant unique) *}
                         <div class="mb-4">
                             <label for="item_slug" class="form-label fw-bold small text-muted text-uppercase">
                                 3. Identifiant unique <span class="fw-normal text-lowercase">(Optionnel)</span>

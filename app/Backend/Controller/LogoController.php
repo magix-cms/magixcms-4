@@ -50,7 +50,7 @@ class LogoController extends BaseController
         $this->view->display('appearance/logo/index.tpl');
     }
 
-    // 🟢 LA SOLUTION : Fonction pour générer logo, logo-1, logo-2 dynamiquement
+    //  LA SOLUTION : Fonction pour générer logo, logo-1, logo-2 dynamiquement
     private function generateUniqueFilename(string $baseName, string $postKey): string
     {
         $cleanFileName = Url::clean($baseName);
@@ -91,7 +91,7 @@ class LogoController extends BaseController
         $customName = trim($_POST['filename'] ?? '');
         $baseName = !empty($customName) ? $customName : 'logo';
 
-        // 🟢 Utilisation de notre générateur de nom unique
+        //  Utilisation de notre générateur de nom unique
         $uniqueFileName = $this->generateUniqueFilename($baseName, 'logo_file');
 
         $uploadTool = new UploadTool();
@@ -195,7 +195,7 @@ class LogoController extends BaseController
                 $customName = trim($_POST['edit_filename'] ?? '');
                 $baseName = !empty($customName) ? $customName : 'logo';
 
-                // 🟢 On garantit l'unicité même lors d'un remplacement
+                //  On garantit l'unicité même lors d'un remplacement
                 $uniqueFileName = $this->generateUniqueFilename($baseName, 'edit_logo_file');
 
                 $uploadTool = new UploadTool();

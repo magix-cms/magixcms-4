@@ -80,7 +80,7 @@ class PluginDb extends BaseDb
             $idModule = (int)$existingModule['id_module'];
         }
 
-        // 🟢 AJOUT : Attribution des droits par défaut à l'Admin principal (ID Role = 1)
+        //  AJOUT : Attribution des droits par défaut à l'Admin principal (ID Role = 1)
         if ($idModule > 0) {
             $qbCheckPerms = new QueryBuilder();
             $qbCheckPerms->select('id_access')
@@ -94,10 +94,10 @@ class PluginDb extends BaseDb
                     'id_role'   => 1,
                     'id_module' => $idModule,
                     'view'      => 1,
-                    'append'    => 1, // 🟢 CORRIGÉ : C'est 'append' et non 'add' !
+                    'append'    => 1, //  CORRIGÉ : C'est 'append' et non 'add' !
                     'edit'      => 1,
                     'del'       => 1,
-                    'action'    => 1  // 🟢 AJOUT : La colonne action
+                    'action'    => 1  //  AJOUT : La colonne action
                 ]);
                 $this->executeInsert($qbInsertPerms);
             }

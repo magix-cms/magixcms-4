@@ -22,7 +22,7 @@
 
         <div class="card-body">
             {* 3. LE FORMULAIRE *}
-            {* 🟢 CORRECTION : On pointe sur action=edit pour déclencher processSave *}
+            {*  CORRECTION : On pointe sur action=edit pour déclencher processSave *}
             <form id="edit_catalog" action="index.php?controller=Catalog&action=edit" method="post" class="validate_form">
 
                 <input type="hidden" name="hashtoken" value="{$hashtoken|default:''}">
@@ -30,7 +30,7 @@
                 <div class="tab-content">
                     {if isset($langs)}
                         {foreach $langs as $id => $iso}
-                            {* 🟢 AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe *}
+                            {*  AJOUT CRUCIAL : On récupère le contenu de la langue s'il existe *}
                             {$langContent = $page.content.$id|default:[]}
 
                             <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">

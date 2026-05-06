@@ -16,7 +16,7 @@
                     <thead class="bg-light text-muted small text-uppercase">
                     <tr>
                         <th class="ps-4">Plugin / Version</th>
-                        <th class="text-center">Type</th> {* 🟢 NOUVELLE COLONNE *}
+                        <th class="text-center">Type</th> {*  NOUVELLE COLONNE *}
                         <th class="text-center">Cibles Core</th>
                         <th class="text-center">Statut</th>
                         <th class="text-end pe-4">Actions</th>
@@ -30,7 +30,7 @@
                                 <small class="text-muted">v{$plugin.version}</small>
                             </td>
 
-                            {* 🟢 NOUVELLE CELLULE : GESTION DES TYPES DE PLUGINS *}
+                            {*  NOUVELLE CELLULE : GESTION DES TYPES DE PLUGINS *}
                             <td class="text-center">
                                 {assign var="p_type" value=$plugin.type|default:'backend'}
 

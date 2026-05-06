@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-            {/foreach} {* 🟢 LA CORRECTION EST ICI 🟢 *}
+            {/foreach} {*  LA CORRECTION EST ICI  *}
         {else}
             <div class="col-12">
                 <div class="alert alert-warning border-0 d-flex align-items-center shadow-sm">

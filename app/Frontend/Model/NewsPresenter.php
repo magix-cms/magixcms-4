@@ -10,14 +10,14 @@ use App\Component\Routing\UrlTool;
 class NewsPresenter
 {
     /**
-     * 🟢 AJOUT : $companyInfo et $skinFolder
+     *  AJOUT : $companyInfo et $skinFolder
      */
     public static function format(array $row, array $langContext, string $siteUrl, array $companyInfo = [], string $skinFolder = 'default'): array
     {
         $iso = $langContext['iso_lang'] ?? 'fr';
         $idNews = (int)($row['id_news'] ?? 0);
 
-        // 🟢 1. On stocke la date brute
+        //  1. On stocke la date brute
         $rawDatePublish = $row['date_publish'] ?? null;
 
         $data = [
@@ -35,7 +35,7 @@ class NewsPresenter
             ]
         ];
 
-        // 🟢 2. On formate la date spécifiquement pour l'URL
+        //  2. On formate la date spécifiquement pour l'URL
         $urlDate = null;
         if (!empty($rawDatePublish)) {
             $urlDate = date('Y-m-d', strtotime($rawDatePublish));
@@ -47,10 +47,10 @@ class NewsPresenter
             'id'   => $idNews,
             'url'  => $row['url_news'] ?? '',
             'iso'  => $iso,
-            'date' => $urlDate // 🟢 ICI : On passe la date formatée Y-m-d
+            'date' => $urlDate //  ICI : On passe la date formatée Y-m-d
         ]);
 
-        // 🟢 Transmission de $skinFolder
+        //  Transmission de $skinFolder
         $data['img'] = self::processImages($row, $idNews, $siteUrl, $skinFolder);
 
         $data['seo'] = [
@@ -58,8 +58,8 @@ class NewsPresenter
             'description' => !empty($row['seo_desc_news']) ? $row['seo_desc_news'] : strip_tags($data['resume'])
         ];
 
-        // 🟢 JSON-LD mis à jour avec $companyInfo
-        // 🟢 JSON-LD mis à jour avec $companyInfo
+        //  JSON-LD mis à jour avec $companyInfo
+        //  JSON-LD mis à jour avec $companyInfo
         $jsonLdData = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
         $data['json_ld']    = $jsonLdData['html']; // Le code <script> pour la page Single
         $data['schema_raw'] = $jsonLdData['raw'];  // Le tableau PHP brut pour le listing
@@ -86,7 +86,7 @@ class NewsPresenter
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_news'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_news'] ?? '');
 
-        // 🟢 CASCADE DE FALLBACK
+        //  CASCADE DE FALLBACK
         if (empty($row['name_img'])) {
             static $fallbackData = [];
 
@@ -134,7 +134,7 @@ class NewsPresenter
         return $imgData;
     }
 
-    // 🟢 CORRECTION : Le type de retour passe de "string" à "array"
+    //  CORRECTION : Le type de retour passe de "string" à "array"
     private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): array
     {
         $imageUrl = $imgData['default']['src'] ?? '';
@@ -199,7 +199,7 @@ class NewsPresenter
             if (!empty($publisher)) $schema['publisher'] = $publisher;
         }
 
-        // 🟢 CORRECTION : On renvoie un tableau contenant les DEUX formats
+        //  CORRECTION : On renvoie un tableau contenant les DEUX formats
         $htmlCode = '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
 
         return [

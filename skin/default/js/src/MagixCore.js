@@ -13,7 +13,7 @@ class MagixCore {
     init() {
         this.initScrollEvents();
         this.initGlobalClicks();
-        this.initScrollAnimations(); // 🟢 NOUVEAU : Initialisation des animations
+        this.initScrollAnimations();
     }
 
     /**
@@ -35,7 +35,7 @@ class MagixCore {
     }
 
     /**
-     * 🟢 NOUVEAU : Gestion des animations CSS au défilement (Scroll-Driven Animations)
+     * Gestion des animations CSS au défilement (Scroll-Driven Animations)
      * Utilise l'IntersectionObserver pour de hautes performances
      */
     initScrollAnimations() {

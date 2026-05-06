@@ -17,10 +17,10 @@ class PagesController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        // 🟢 1. Création de l'ID de cache unique pour l'URL
+        //  1. Création de l'ID de cache unique pour l'URL
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        // 🟢 2. Si la vue n'est pas en cache, on lance le calcul
+        //  2. Si la vue n'est pas en cache, on lance le calcul
         if (!$this->view->isCached('pages/index.tpl', $cacheId)) {
 
             $idLang = (int)($this->currentLang['id_lang'] ?? 1);
@@ -116,13 +116,13 @@ class PagesController extends BaseController
             $this->view->assign([
                 'pages'     => $pages,
                 'json_ld'   => $jsonLdList,
-                'seo_title' => $seoTitle, // 🟢 Sécurisé
-                'seo_desc'  => $seoDesc,  // 🟢 Sécurisé
+                'seo_title' => $seoTitle, //  Sécurisé
+                'seo_desc'  => $seoDesc,  //  Sécurisé
                 'hreflang'  => $hreflangUrls
             ]);
         }
 
-        // 🟢 4. Affichage de la vue avec le Cache ID
+        //  4. Affichage de la vue avec le Cache ID
         $this->view->display('pages/index.tpl', $cacheId);
     }
 }

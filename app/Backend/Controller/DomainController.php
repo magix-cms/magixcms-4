@@ -114,7 +114,7 @@ class DomainController extends BaseController
         $newId = $db->insertDomain($data);
 
         if ($newId) {
-            // 🟢 PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
+            //  PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
             CacheManager::clearFrontend('domain');
 
             $this->jsonResponse(true, 'Le domaine a été ajouté avec succès.', [
@@ -173,7 +173,7 @@ class DomainController extends BaseController
             'all_langs'            => $allLangs,
             'domain_langs'         => $domainLangs,
             'sitemap_langs'        => $sitemapLangs,
-            'index_sitemap_exists' => $indexExists, // 🟢 Nouvelle variable
+            'index_sitemap_exists' => $indexExists, //  Nouvelle variable
             'hashtoken'            => $this->session->getToken()
         ]);
 
@@ -195,7 +195,7 @@ class DomainController extends BaseController
         ];
 
         if ($db->updateDomain($id, $data)) {
-            // 🟢 PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
+            //  PURGE TOTALE DU FRONTEND (SQL 'domain' + HTML)
             CacheManager::clearFrontend('domain');
 
             $this->jsonResponse(true, 'Le domaine a été mis à jour.', ['type' => 'update']);
@@ -292,7 +292,7 @@ class DomainController extends BaseController
 
         $activeModules = ['pages', 'news', 'catalog_cat', 'catalog_pro', 'about'];
 
-        // 🟢 NOUVEAU : On récupère tous les plugins installés
+        //  NOUVEAU : On récupère tous les plugins installés
         $pluginDb = new PluginDb();
         $installedPlugins = $pluginDb->fetchInstalledPlugins();
 
@@ -370,7 +370,7 @@ class DomainController extends BaseController
             }
 
             // ==========================================
-            // 2. 🟢 LES PLUGINS DYNAMIQUES
+            // 2.  LES PLUGINS DYNAMIQUES
             // ==========================================
             foreach ($installedPlugins as $pluginName => $pluginData) {
                 // On vérifie si le plugin a créé une classe exprès pour le sitemap

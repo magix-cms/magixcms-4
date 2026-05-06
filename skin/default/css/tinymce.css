@@ -24711,8 +24711,7 @@ ul.label-list > li::before {
     margin-left: var(--spacer);
   }
 }
-/* 🟢 SÉCURITÉ MENU FIXE : Repousse le tout premier élément (quel qu'il soit) qui suit le header */
-/* 🟢 SÉCURITÉ MENU : Repousse le tout premier élément qui suit le header */
+/* Repousse le tout premier élément qui suit le header */
 #header + * {
   margin-top: calc(var(--header-h, 100px) + var(--toolbar-h, 40px));
 }

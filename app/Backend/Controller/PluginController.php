@@ -36,7 +36,7 @@ class PluginController extends BaseController
         foreach ($folders as $folder) {
             $pluginName = basename($folder);
 
-            // 🟢 CORRECTION : On lit le manifest.json DANS TOUS LES CAS
+            //  CORRECTION : On lit le manifest.json DANS TOUS LES CAS
             $manifestPath = $folder . '/manifest.json';
             $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
 
@@ -47,7 +47,7 @@ class PluginController extends BaseController
             if (isset($installed[$pluginName])) {
                 $pluginData = $installed[$pluginName];
                 $pluginData['is_installed'] = true;
-                $pluginData['type'] = $pluginType; // 🟢 Ajout du type manquant
+                $pluginData['type'] = $pluginType; //  Ajout du type manquant
                 $pluginData['version'] = $pluginVersion; // Met à jour la version si le JSON a changé
             } else {
                 // Sinon, c'est un nouveau plugin non installé

@@ -33,7 +33,7 @@
     }
 
     // d. Esthétique des liens principaux (NETTOYÉ DES DOUBLONS)
-    // 🟢 AJOUT : On cible uniquement les enfants directs pour ne pas toucher aux sous-menus complexes
+    //  AJOUT : On cible uniquement les enfants directs pour ne pas toucher aux sous-menus complexes
     > .nav-item {
       > .nav-link {
 
@@ -41,7 +41,7 @@
         color: var(--color-text);
         transition: color 0.2s;
 
-        // 🟢 AJOUT : Structure du span pour l'effet de soulignement centré
+        //  AJOUT : Structure du span pour l'effet de soulignement centré
         span {
           position: relative;
           padding-bottom: calc(var(--spacer) / 2); // Équivalent de calc(var(--spacer) / 2)
@@ -63,7 +63,7 @@
         &:hover, &.active {
           color: var(--main-color);
 
-          // 🟢 AJOUT : Déclenchement de l'animation au survol ou si actif
+          //  AJOUT : Déclenchement de l'animation au survol ou si actif
           span::after {
             transform: translateX(-50%) scaleX(1);
           }
@@ -77,7 +77,7 @@
     .dropdown-menu {
       background-color: var(--header-bg);
 
-      // 🟢 CORRECTION 1 : Gérer les arrondis et le fond haut/bas
+      //  CORRECTION 1 : Gérer les arrondis et le fond haut/bas
       padding-top: 0;     // Supprime le vide en haut
       padding-bottom: 0;  // Supprime le vide en bas
       overflow: hidden;   // Force les liens à respecter le border-radius du parent
@@ -85,7 +85,7 @@
       .dropdown-item {
         color: var(--color-text);
 
-        // 🟢 CORRECTION 2 : Effet de transition doux
+        //  CORRECTION 2 : Effet de transition doux
         transition: background-color 0.3s ease, color 0.3s ease;
 
         // On redonne un peu de hauteur aux liens vu qu'on a supprimé le padding du parent
@@ -120,11 +120,11 @@
       align-items: center;
       color: var(--bs-body-color);
 
-      // 🟢 CORRECTION 1 : On force le texte à revenir à la ligne
+      //  CORRECTION 1 : On force le texte à revenir à la ligne
       white-space: normal;
       word-break: break-word;
 
-      // 🟢 CORRECTION 2 : Gestion de l'espace Flexbox
+      //  CORRECTION 2 : Gestion de l'espace Flexbox
       > span:first-child {
         flex: 1;             // Le texte prend tout l'espace disponible
         padding-right: 15px; // Garde une marge avec la flèche
@@ -163,11 +163,11 @@
         padding: 0.5rem 1rem;
         font-size: 0.95rem;
 
-        // 🟢 CORRECTION 3 : Annule le nowrap par défaut de Bootstrap
+        //  CORRECTION 3 : Annule le nowrap par défaut de Bootstrap
         white-space: normal;
         word-break: break-word;
 
-        // 🟢 CORRECTION 4 : Même logique Flexbox pour les sous-menus
+        //  CORRECTION 4 : Même logique Flexbox pour les sous-menus
         > span:first-child {
           flex: 1;
           padding-right: 15px;

@@ -55,7 +55,7 @@ class CatalogDb extends BaseDb
             ->from('mc_catalog_cat', 'c')
             ->join('mc_catalog_cat_content', 'cc', 'c.id_cat = cc.id_cat')
             ->leftJoin('mc_catalog_cat_img', 'i', 'c.id_cat = i.id_cat AND i.default_img = 1')
-            // 🟢 CORRECTION : Utilisation de la concaténation stricte d'entier pour la jointure
+            //  CORRECTION : Utilisation de la concaténation stricte d'entier pour la jointure
             ->leftJoin('mc_catalog_cat_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
             ->where('(c.id_parent IS NULL OR c.id_parent = 0)')
             ->where('cc.id_lang = :lang', ['lang' => $idLang])

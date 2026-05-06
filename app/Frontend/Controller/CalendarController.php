@@ -91,7 +91,7 @@ class CalendarController extends BaseController
                 $daysOfWeek[] = ucfirst($dayFormatter->format($timestamp));
             }
 
-            // 🟢 RÉCUPÉRATION DES TRADUCTIONS STATIC (.CONF) VIA SMARTY
+            //  RÉCUPÉRATION DES TRADUCTIONS STATIC (.CONF) VIA SMARTY
             $seoPatternTitle = $this->view->getConfigVars('calendar_seo_title');
             if (empty($seoPatternTitle)) {
                 $seoPatternTitle = 'Agenda : %s - ' . $siteName; // Fallback

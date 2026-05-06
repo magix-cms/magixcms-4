@@ -36,7 +36,7 @@ class LogoManager {
                 this.activateLogo(btnAct.dataset.id);
             }
 
-            // 🟢 AJOUT : Activer un logo (Footer)
+            //  AJOUT : Activer un logo (Footer)
             const btnActFooter = e.target.closest('.btn-activate-footer');
             if (btnActFooter) {
                 e.preventDefault();
@@ -268,7 +268,7 @@ class LogoManager {
     }
 
     async deleteFavicons(token) {
-        // 🟢 PLUS DE confirm() ICI !
+        //  PLUS DE confirm() ICI !
 
         const formData = new FormData();
         formData.append('hashtoken', token);

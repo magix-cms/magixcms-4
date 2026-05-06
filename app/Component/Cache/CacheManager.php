@@ -20,7 +20,7 @@ class CacheManager
         if ($driver === 'none') return null;
 
         if ($driver === 'files') {
-            // 🟢 CORRECTION : Le bon dossier est "sql" et non "data"
+            //  CORRECTION : Le bon dossier est "sql" et non "data"
             $cacheDir = ROOT_DIR . 'var' . DS . 'caches' . DS . 'sql';
             $securePath = FileTool::createSecureCacheDir($cacheDir);
             self::$instance = new CacheTool($securePath, 3600);
@@ -67,7 +67,7 @@ class CacheManager
             }
         }
 
-        // 🟢 4. NOUVEAU : Purge des templates COMPILÉS (Crucial après une installation)
+        //  4. NOUVEAU : Purge des templates COMPILÉS (Crucial après une installation)
         $compileDir = ROOT_DIR . 'var' . DS . 'templates_c' . DS;
         if (is_dir($compileDir)) {
             FileTool::remove($compileDir);

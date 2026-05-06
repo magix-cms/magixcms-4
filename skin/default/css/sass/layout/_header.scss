@@ -19,11 +19,11 @@
   width: 100%;
   height: var(--header-h);
 
-  // 🟢 1. Le fond s'applique ici
+  // Le fond s'applique ici
   background: var(--header-bg);
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, .1), 0 5px 20px 0 rgba(0, 0, 0, .05);
 
-  // 🟢 2. Redéfinition du Scope Bootstrap
+  // Redéfinition du Scope Bootstrap
   // On injecte vos variables du root dans le moteur de la navbar Bootstrap
   --bs-navbar-color: var(--header-text);
   --bs-navbar-hover-color: var(--header-text-hover);
@@ -49,8 +49,7 @@
     //margin-top: calc(var(--header-h) + var(--toolbar-h, 0px));
   }
 }
-/* 🟢 SÉCURITÉ MENU FIXE : Repousse le tout premier élément (quel qu'il soit) qui suit le header */
-/* 🟢 SÉCURITÉ MENU : Repousse le tout premier élément qui suit le header */
+/* Repousse le tout premier élément qui suit le header */
 #header + * {
   margin-top: calc(var(--header-h, 100px) + var(--toolbar-h, 40px));
   //var(--header-h, 100px) !important;
@@ -70,7 +69,7 @@
   }
 
   a {
-    // 🟢 LA MAGIE FLEXBOX : Centre le contenu parfaitement
+    // LA MAGIE FLEXBOX : Centre le contenu parfaitement
     display: flex;
     align-items: center; // Centre verticalement
     height: var(--header-h); // Prend la hauteur totale du menu
@@ -80,16 +79,16 @@
     font-weight: $font-weight-bold;
     font-family: $headings-font-family;
 
-    // ❌ SUPPRIMÉ : On enlève le padding-top global qui faussait le texte
+    // On enlève le padding-top global qui faussait le texte
   }
 
-  // 🟢 NOUVEAU : Si c'est le logo texte (span)
+  // NOUVEAU : Si c'est le logo texte (span)
   span {
     margin: 0 !important; // Annule les marges résiduelles de Bootstrap (ex: mb-0)
     line-height: 1; // Évite les débordements invisibles de la police
   }
 
-  // 🟢 Si c'est l'image
+  // Si c'est l'image
   img {
     width: auto;
     max-width: 250px;

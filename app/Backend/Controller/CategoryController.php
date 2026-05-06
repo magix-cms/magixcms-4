@@ -245,7 +245,7 @@ class CategoryController extends BaseController
         if ($newId) {
             $this->saveTranslations($db, $newId);
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, 'La catégorie a été créée avec succès.', ['type' => 'add', 'id' => $newId]);
@@ -275,7 +275,7 @@ class CategoryController extends BaseController
         if ($db->updateCategoryStructure($id, $structureData)) {
             $publicUrls = $this->saveTranslations($db, $id);
 
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, 'La catégorie a été mise à jour.', [
@@ -323,7 +323,7 @@ class CategoryController extends BaseController
 
                 $db->saveCategoryContent($idCat, $idLang, $contentData);
 
-                // 🟢 AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
+                //  AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                 if (!empty($contentData['content_cat'])) {
                     $revDb = new RevisionsDb();
                     // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
@@ -388,7 +388,7 @@ class CategoryController extends BaseController
         }
 
         if ($uploadedCount > 0) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('category');
 
             $this->jsonResponse(true, "$uploadedCount image(s) ajoutée(s).", ['uploaded' => $uploadedCount]);
@@ -442,7 +442,7 @@ class CategoryController extends BaseController
             }
 
             if ($deletedCount > 0) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('category');
 
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
@@ -518,7 +518,7 @@ class CategoryController extends BaseController
         }
 
         if ($success) {
-            // 🟢 PURGE DU CACHE
+            //  PURGE DU CACHE
             CacheManager::clearFrontend('category');
         }
 
@@ -535,7 +535,7 @@ class CategoryController extends BaseController
         if ($idCat > 0 && !empty($ids)) {
             $productDb = new ProductDb();
             if ($productDb->unlinkProductsFromCategory($idCat, $ids)) {
-                // 🟢 PURGE DU CACHE (Impact croisé Cat/Prod)
+                //  PURGE DU CACHE (Impact croisé Cat/Prod)
                 CacheManager::clearFrontend('category');
                 CacheManager::clearFrontend('product');
 
@@ -556,7 +556,7 @@ class CategoryController extends BaseController
         if ($idCat > 0 && !empty($ids)) {
             $productDb = new ProductDb();
             if ($productDb->reorderProductsInCategory($idCat, $ids)) {
-                // 🟢 PURGE DU CACHE
+                //  PURGE DU CACHE
                 CacheManager::clearFrontend('category');
                 CacheManager::clearFrontend('product');
 

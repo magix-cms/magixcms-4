@@ -1,6 +1,6 @@
 {extends file="layout.tpl"}
 
-{* 🟢 MODIFICATION 1 : Le titre (Vous pouvez créer la clé de traduction #news_home_management#) *}
+{*  MODIFICATION 1 : Le titre (Vous pouvez créer la clé de traduction #news_home_management#) *}
 {block name='head:title'}Page d'accueil des Actualités{/block}
 
 {block name='article'}
@@ -23,7 +23,7 @@
         </div>
 
         <div class="card-body">
-            {* 🟢 MODIFICATION 2 : L'action du formulaire pointe vers le contrôleur NewsHome *}
+            {*  MODIFICATION 2 : L'action du formulaire pointe vers le contrôleur NewsHome *}
             <form id="edit_news_home" action="index.php?controller=NewsHome&action=edit" method="post" class="validate_form">
 
                 {* Jeton CSRF de sécurité *}
@@ -57,7 +57,7 @@
 
                                 <div class="mb-4">
                                     <label for="content_{$id}" class="form-label fw-medium">{#content#} :</label>
-                                    {* 🟢 MODIFICATION 3 & 4 : data-controller et l'ID de la page *}
+                                    {*  MODIFICATION 3 & 4 : data-controller et l'ID de la page *}
                                     <textarea name="content[{$id}][content_page]"
                                               id="content_{$id}"
                                               class="form-control mceEditor"

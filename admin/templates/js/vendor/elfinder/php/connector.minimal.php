@@ -22,7 +22,7 @@ if (!isset($_SESSION['id_admin'])) {
 // 3. Chemin physique absolu sur le serveur (Pour qu'elFinder puisse lire les fichiers)
 $rootPath = dirname(__FILE__, 7) . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR;
 
-// 🟢 LE FIX : Calcul du chemin Web relatif (Portable)
+//  LE FIX : Calcul du chemin Web relatif (Portable)
 $scriptPath = $_SERVER['SCRIPT_NAME'];
 $webRoot = '';
 
@@ -42,7 +42,7 @@ $opts = array(
         array(
             'driver'        => 'LocalFileSystem',
             'path'          => $rootPath,
-            'URL'           => $portableUrl, // 🟢 On injecte l'URL portable ici
+            'URL'           => $portableUrl, //  On injecte l'URL portable ici
             'mimeDetect'    => 'internal',
             'uploadDeny'    => array('all'),
             'uploadAllow'   => array('image', 'application/pdf'), // Fix pour le bug "grisé"

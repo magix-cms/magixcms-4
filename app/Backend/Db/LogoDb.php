@@ -14,7 +14,7 @@ class LogoDb extends BaseDb
     public function fetchAllLogos(int $idLang = 1): array
     {
         $qb = new QueryBuilder();
-        $qb->select('l.id_logo, l.img_logo AS name_img, l.active_logo, l.active_footer, c.alt_logo, c.title_logo') // 🟢 AJOUT ICI
+        $qb->select('l.id_logo, l.img_logo AS name_img, l.active_logo, l.active_footer, c.alt_logo, c.title_logo') //  AJOUT ICI
         ->from('mc_logo', 'l')
             ->leftJoin('mc_logo_content', 'c', 'l.id_logo = c.id_logo AND c.id_lang = ' . $idLang)
             ->orderBy('l.id_logo', 'DESC');
@@ -34,7 +34,7 @@ class LogoDb extends BaseDb
         $qb->insert('mc_logo', [
             'img_logo'      => $filename,
             'active_logo'   => 0,
-            'active_footer' => 0 // 🟢 AJOUT ICI
+            'active_footer' => 0 //  AJOUT ICI
         ]);
 
         if ($this->executeInsert($qb)) {

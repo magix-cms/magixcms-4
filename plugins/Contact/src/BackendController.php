@@ -34,7 +34,7 @@ class BackendController extends BaseController
             return;
         }
 
-        // 🟢 NOUVELLE ROUTE AJAX POUR L'ÉDITION
+        //  NOUVELLE ROUTE AJAX POUR L'ÉDITION
         if ($action === 'getContact') {
             $this->processGetContact();
             return;
@@ -47,7 +47,7 @@ class BackendController extends BaseController
         }
     }
 
-    // 🟢 NOUVELLE MÉTHODE
+    //  NOUVELLE MÉTHODE
     private function processGetContact(): void
     {
         if (ob_get_length()) ob_clean(); // Assure un JSON propre
@@ -101,7 +101,7 @@ class BackendController extends BaseController
         $contentData = $_POST['content'] ?? [];
 
         foreach ($contentData as $idLang => $data) {
-            // 🟢 PLUS DE GESTION D'URL ICI
+            //  PLUS DE GESTION D'URL ICI
             $cleanData = [
                 'name_page'      => FormTool::simpleClean($data['name_page'] ?? ''),
                 'seo_title_page' => FormTool::simpleClean($data['seo_title_page'] ?? ''),
@@ -117,7 +117,7 @@ class BackendController extends BaseController
         $this->jsonResponse(true, 'La page de contact a été mise à jour.', ['type' => 'update']);
     }
 
-    // 🟢 NOUVELLE MÉTHODE
+    //  NOUVELLE MÉTHODE
     private function processSaveContact(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -148,7 +148,7 @@ class BackendController extends BaseController
         }
 
         if ($db->saveContact($idContact, $mainData, $contentData)) {
-            // 🟢 AJOUT DU SIGNAL RELOAD POUR MAGIXFORMS
+            //  AJOUT DU SIGNAL RELOAD POUR MAGIXFORMS
             $this->jsonResponse(true, 'Destinataire enregistré avec succès.', [
                 'type' => 'add',
                 'reload' => true

@@ -26,7 +26,7 @@ class AboutDb extends BaseDb
             ->leftJoin('mc_about_img_content', 'imgc', 'img.id_img = imgc.id_img AND imgc.id_lang = ' . (int)$idLang)
             ->where('a.id_about = :id AND ac.published_about = 1', ['id' => $id]);
 
-        // 🟢 OVERRIDE : Un plugin peut ajouter des champs AVANT la mise en cache
+        //  OVERRIDE : Un plugin peut ajouter des champs AVANT la mise en cache
         $overrides = HookManager::triggerFilter('extendAboutData', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -36,7 +36,7 @@ class AboutDb extends BaseDb
             }
         }
 
-        // 🟢 CACHE SQL : Clé unique avec le tag 'about'
+        //  CACHE SQL : Clé unique avec le tag 'about'
         $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'about');
         $cachedData = $cache->get($cacheKey);
 

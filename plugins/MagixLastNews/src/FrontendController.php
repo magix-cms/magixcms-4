@@ -16,7 +16,7 @@ class FrontendController
     public static function renderWidget(array $params = []): string
     {
         // =========================================================
-        // 🟢 1. L'AIGUILLAGE INTELLIGENT
+        //  1. L'AIGUILLAGE INTELLIGENT
         // On regarde quel Hook est en train d'appeler ce module
         // =========================================================
         $hookName = $params['name'] ?? '';
@@ -27,7 +27,7 @@ class FrontendController
         }
 
         // =========================================================
-        // 🟢 2. SINON, RENDU NORMAL (Ex: Page d'accueil - displayHome)
+        //  2. SINON, RENDU NORMAL (Ex: Page d'accueil - displayHome)
         // =========================================================
         $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
         $idLang = (int)$currentLang['id_lang'];

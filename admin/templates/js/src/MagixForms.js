@@ -102,7 +102,7 @@ class MagixForms {
             return;
         }
 
-        // 🟢 AJOUT IMPORTANT : Si le PHP ordonne explicitement une redirection !
+        //  AJOUT IMPORTANT : Si le PHP ordonne explicitement une redirection !
         if (data.url || data.redirect) {
             setTimeout(() => { window.location.href = data.redirect || data.url; }, 1500);
             return;
@@ -195,7 +195,7 @@ class MagixForms {
                 body: initData
             }).then(res => res.json());
 
-            // 🟢 CORRECTION ICI : On utilise initRes.total et non initRes.data.total
+            //  CORRECTION ICI : On utilise initRes.total et non initRes.data.total
             if (!initRes.status || initRes.total === 0) {
                 progressText.textContent = 'Aucune image à traiter.';
                 setTimeout(() => { batchModal.hide(); window.location.reload(); }, 1500);
@@ -225,7 +225,7 @@ class MagixForms {
                 body: formData
             }).then(r => r.json());
 
-            // 🟢 CORRECTION ICI : On utilise res.finished, res.progress et res.next_offset directement
+            //  CORRECTION ICI : On utilise res.finished, res.progress et res.next_offset directement
             if (res.finished) {
                 // TERMINÉ !
                 progressBar.style.width = '100%';

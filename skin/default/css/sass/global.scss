@@ -11,7 +11,7 @@ $bootstrap-icons-font-dir: "../fonts";
 
 // 3. BASE ET RACINE (Le CSS commence à être généré ici)
 @import "base/root";           // On génère vos variables CSS natives en premier
-@import "base/typography";     // 🟢 DÉPLACÉ ICI : Après Bootstrap pour imposer vos règles !
+@import "base/typography";     // Après Bootstrap pour imposer vos règles !
 @import "base/headings";
 
 // 4. COMPOSANTS MAGIXCMS

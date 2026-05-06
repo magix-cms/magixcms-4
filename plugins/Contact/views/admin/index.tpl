@@ -237,11 +237,11 @@
                                     <div class="tab-pane fade {if $iso@first}show active{/if}" id="modal-lang-{$id}" role="tabpanel">
                                         <div class="mb-3">
                                             <label class="form-label fw-medium">Nom du service ou du contact ({$iso|upper}) <span class="text-danger">*</span></label>
-                                            {* 🟢 AJOUT DE 'required' POUR LA LANGUE PAR DÉFAUT *}
+                                            {*  AJOUT DE 'required' POUR LA LANGUE PAR DÉFAUT *}
                                             <input type="text" id="edit_name_{$id}" name="contact_content[{$id}][name_contact]" class="form-control" placeholder="ex: Service Commercial" {if $iso@first}required{/if}>
                                         </div>
                                         <div class="form-check form-switch mt-3">
-                                            {* 🟢 AJOUT DU CHAMP CACHÉ *}
+                                            {*  AJOUT DU CHAMP CACHÉ *}
                                             <input type="hidden" name="contact_content[{$id}][published_contact]" value="0">
                                             <input class="form-check-input" type="checkbox" role="switch" id="edit_status_{$id}" name="contact_content[{$id}][published_contact]" value="1" checked>
                                             <label class="form-check-label text-muted" for="edit_status_{$id}">Ce service est disponible dans cette langue</label>
@@ -279,9 +279,9 @@
                         const response = await fetch('index.php?controller=Contact&action=getContact&id_contact=' + idContact);
                         const result = await response.json();
 
-                        // 🟢 CORRECTION ICI : "result.contact" au lieu de "result.data.contact"
+                        //  CORRECTION ICI : "result.contact" au lieu de "result.data.contact"
                         if (result.success && result.contact) {
-                            const data = result.contact; // 🟢 ET ICI
+                            const data = result.contact; //  ET ICI
 
                             // A. Remplir les champs principaux
                             document.getElementById('edit_id_contact').value = data.id_contact;
@@ -323,7 +323,7 @@
 
                 document.querySelectorAll('[id^="edit_status_"]').forEach(el => el.checked = true);
             });
-            // 4. 🟢 Gestion de la suppression
+            // 4.  Gestion de la suppression
             document.querySelectorAll('.btn-delete-contact').forEach(btn => {
                 btn.addEventListener('click', async function(e) {
                     e.preventDefault();

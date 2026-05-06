@@ -22,7 +22,7 @@
   --mc-font-scale: 1;
   --fz-base: calc(#{$font-size-base} * var(--mc-font-scale));
 
-  // 🟢 NOUVEAU : Boucle SASS pour générer des variables CSS fluides pour h1 à h6
+  //  NOUVEAU : Boucle SASS pour générer des variables CSS fluides pour h1 à h6
   @each $level, $size in $headings-font-sizes {
     // Clamp plus "doux" que les display :
     // Min : 80% de la taille de base (0.8)
@@ -35,14 +35,14 @@
   }
 
   // --- 3. LAYOUT & SPACERS ---
-  // 🟢 CORRECTION : On relie au moteur de Bootstrap au lieu de forcer #fff
+  //  CORRECTION : On relie au moteur de Bootstrap au lieu de forcer #fff
   --body-bg: var(--bs-body-bg);
   --spacer: #{$spacer};
   --grid-gutter: var(--spacer);
   --toolbar-h: 0px;
   --header-h: #{$header-h};
 
-  // 🟢 CENTRE DE CONTRÔLE DU HEADER (Connecté au mode sombre)
+  //  CENTRE DE CONTRÔLE DU HEADER (Connecté au mode sombre)
   --header-bg: var(--bs-body-bg);          // Sera blanc en mode clair, sombre en mode sombre
   --header-text: var(--bs-body-color);     // Sera foncé en mode clair, clair en mode sombre
   --header-text-hover: var(--main-color);

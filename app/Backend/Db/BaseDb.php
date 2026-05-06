@@ -210,7 +210,7 @@ abstract class BaseDb
      */
     protected function getSqlCache(): CacheTool
     {
-        // 🟢 On utilise ROOT_DIR et BASEADMIN pour être sûr à 100%
+        //  On utilise ROOT_DIR et BASEADMIN pour être sûr à 100%
         // Chemin final : /chemin/absolu/magix/admin/var/caches/sql
         $cacheDir = ROOT_DIR . BASEADMIN . DS . 'var' . DS . 'caches' . DS . 'sql';
 

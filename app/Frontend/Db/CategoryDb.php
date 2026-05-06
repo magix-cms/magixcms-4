@@ -26,7 +26,7 @@ class CategoryDb extends BaseDb
             ->where('c.id_cat = :id', ['id' => $idCat])
             ->where('cc.published_cat = 1');
 
-        // 🟢 OVERRIDE : Un plugin peut ajouter des champs
+        //  OVERRIDE : Un plugin peut ajouter des champs
         $overrides = HookManager::triggerFilter('extendCategoryData', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {
@@ -96,7 +96,7 @@ class CategoryDb extends BaseDb
             ->where('cc.published_cat = 1')
             ->orderBy('c.order_cat', 'ASC');
 
-        // 🟢 OVERRIDE
+        //  OVERRIDE
         $overrides = HookManager::triggerFilter('extendCategoryList', []);
         if (!empty($overrides)) {
             foreach ($overrides as $pluginOverride) {

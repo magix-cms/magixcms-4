@@ -27,7 +27,7 @@ class TranslationController extends BaseController
 
         $rawLangs = $langDb->getFrontendLanguages() ?: [];
         $activeLangs = [];
-        $formattedLangs = []; // 🟢 Format spécifique pour le dropdown-lang.tpl [id => iso]
+        $formattedLangs = []; //  Format spécifique pour le dropdown-lang.tpl [id => iso]
 
         foreach ($rawLangs as $key => $val) {
             if (is_array($val)) {
@@ -46,7 +46,7 @@ class TranslationController extends BaseController
 
         $currentTheme = $themeDb->getCurrentTheme();
 
-        // 🟢 LOGIQUE : FILTRAGE INTELLIGENT DES PLUGINS (Type + Dossier i18n)
+        //  LOGIQUE : FILTRAGE INTELLIGENT DES PLUGINS (Type + Dossier i18n)
         $rawPlugins = $pluginDb->fetchInstalledPlugins();
         $installedPlugins = [];
         $pluginsDir = ROOT_DIR . 'plugins' . DS;
@@ -63,7 +63,7 @@ class TranslationController extends BaseController
                 // Les types qui ont une présence frontend
                 $translatableTypes = ['widget', 'frontend', 'hybrid'];
 
-                // 🟢 LA NOUVELLE CONDITION : Le dossier des traductions publiques doit exister
+                //  LA NOUVELLE CONDITION : Le dossier des traductions publiques doit exister
                 $hasFrontI18n = is_dir($pluginsDir . $pluginName . DS . 'i18n' . DS . 'front');
 
                 // On n'ajoute le plugin à la liste QUE s'il remplit les deux conditions
@@ -104,7 +104,7 @@ class TranslationController extends BaseController
         }
 
         $translations = [];
-        $structure = []; // 🟢 NOUVEAU : On stocke la structure [Groupe => [clés]]
+        $structure = []; //  NOUVEAU : On stocke la structure [Groupe => [clés]]
 
         foreach ($activeLangs as $lang) {
             $iso = $lang['iso_lang'];
@@ -131,7 +131,7 @@ class TranslationController extends BaseController
             'domain_label' => $domainLabel,
             'langs'        => $formattedLangs,
             'translations' => $translations,
-            'structure'    => $structure, // 🟢 Remplacement de 'keys' par 'structure'
+            'structure'    => $structure, //  Remplacement de 'keys' par 'structure'
             'plugins'      => $installedPlugins,
             'hashtoken'    => $this->session->getToken()
         ]);
@@ -150,7 +150,7 @@ class TranslationController extends BaseController
         $contents = $_POST['content'] ?? []; // Format: ['fr' => ['Groupe' => ['key' => 'val']]]
 
         $newKey = trim($_POST['new_key'] ?? '');
-        $newGroup = trim($_POST['new_group'] ?? 'Général'); // 🟢 Le groupe de la nouvelle variable
+        $newGroup = trim($_POST['new_group'] ?? 'Général'); //  Le groupe de la nouvelle variable
         $newValues = $_POST['new_value'] ?? [];
 
         if ($domain === 'theme') {
@@ -203,7 +203,7 @@ class TranslationController extends BaseController
             $line = trim($line);
             if (empty($line) || str_starts_with($line, ';')) continue;
 
-            // 🟢 DÉTECTION DES GROUPES via les commentaires
+            //  DÉTECTION DES GROUPES via les commentaires
             if (str_starts_with($line, '#')) {
                 $possibleGroup = trim(substr($line, 1));
                 // On ignore le commentaire système généré par le CMS

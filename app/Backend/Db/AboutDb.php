@@ -31,7 +31,7 @@ class AboutDb extends BaseDb
             ->leftJoin('mc_about_content', 'pa_c', 'pa.id_about = pa_c.id_about AND pa_c.id_lang = :id_lang')
             ->where('c.id_lang = :id_lang', ['id_lang' => $idLang]);
 
-        // 🟢 GESTION DE LA RECHERCHE (Adaptée de PagesDb)
+        //  GESTION DE LA RECHERCHE (Adaptée de PagesDb)
         if (!empty($search)) {
             // Lors d'une recherche, on trie par ID décroissant plutôt que par parent
             $qb->orderBy('a.id_about', 'DESC');
