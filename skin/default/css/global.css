@@ -22151,12 +22151,12 @@ h6, .h6 {
   left: 0;
   width: 0;
   height: 100%;
-  background-color: #333333;
+  background-color: #3c62aa;
   z-index: -1;
   transition: width 0.3s ease;
 }
 .btn-main-invert:hover {
-  border-color: #333333;
+  border-color: #3c62aa;
   color: #fff !important;
 }
 .btn-main-invert:hover:before {
@@ -22168,10 +22168,10 @@ h6, .h6 {
     color: #3c62aa;
   }
   .btn-main-invert:before {
-    background-color: rgb(127.5, 127.5, 127.5);
+    background-color: #3c62aa;
   }
   .btn-main-invert:hover {
-    border-color: rgb(127.5, 127.5, 127.5);
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }
@@ -22503,12 +22503,12 @@ h6, .h6 {
   left: 0;
   width: 0;
   height: 100%;
-  background-color: #333333;
+  background-color: #3c62aa;
   z-index: -1;
   transition: width 0.3s ease;
 }
 .btn-sd-invert:hover {
-  border-color: #333333;
+  border-color: #3c62aa;
   color: #fff !important;
 }
 .btn-sd-invert:hover:before {
@@ -22520,10 +22520,10 @@ h6, .h6 {
     color: #808285;
   }
   .btn-sd-invert:before {
-    background-color: rgb(127.5, 127.5, 127.5);
+    background-color: #3c62aa;
   }
   .btn-sd-invert:hover {
-    border-color: rgb(127.5, 127.5, 127.5);
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }
@@ -22855,12 +22855,12 @@ h6, .h6 {
   left: 0;
   width: 0;
   height: 100%;
-  background-color: #333333;
+  background-color: #3c62aa;
   z-index: -1;
   transition: width 0.3s ease;
 }
 .btn-dark-invert:hover {
-  border-color: #333333;
+  border-color: #3c62aa;
   color: #fff !important;
 }
 .btn-dark-invert:hover:before {
@@ -22872,10 +22872,10 @@ h6, .h6 {
     color: rgb(127.5, 127.5, 127.5);
   }
   .btn-dark-invert:before {
-    background-color: rgb(127.5, 127.5, 127.5);
+    background-color: #3c62aa;
   }
   .btn-dark-invert:hover {
-    border-color: rgb(127.5, 127.5, 127.5);
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }
@@ -23207,12 +23207,12 @@ h6, .h6 {
   left: 0;
   width: 0;
   height: 100%;
-  background-color: #333333;
+  background-color: #3c62aa;
   z-index: -1;
   transition: width 0.3s ease;
 }
 .btn-green-invert:hover {
-  border-color: #333333;
+  border-color: #3c62aa;
   color: #fff !important;
 }
 .btn-green-invert:hover:before {
@@ -23224,10 +23224,10 @@ h6, .h6 {
     color: #5cb75c;
   }
   .btn-green-invert:before {
-    background-color: rgb(127.5, 127.5, 127.5);
+    background-color: #3c62aa;
   }
   .btn-green-invert:hover {
-    border-color: rgb(127.5, 127.5, 127.5);
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }
@@ -23559,12 +23559,12 @@ h6, .h6 {
   left: 0;
   width: 0;
   height: 100%;
-  background-color: #333333;
+  background-color: #3c62aa;
   z-index: -1;
   transition: width 0.3s ease;
 }
 .btn-white-invert:hover {
-  border-color: #333333;
+  border-color: #3c62aa;
   color: #fff !important;
 }
 .btn-white-invert:hover:before {
@@ -23576,10 +23576,10 @@ h6, .h6 {
     color: #ffffff;
   }
   .btn-white-invert:before {
-    background-color: rgb(127.5, 127.5, 127.5);
+    background-color: #3c62aa;
   }
   .btn-white-invert:hover {
-    border-color: rgb(127.5, 127.5, 127.5);
+    border-color: #3c62aa;
     color: #fff !important;
   }
 }

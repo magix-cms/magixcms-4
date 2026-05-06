@@ -1,7 +1,7 @@
 // components/_buttons.scss
 
 // On définit une variable pour l'effet -invert (équivalent de votre @invert-base)
-$invert-base-color: #333333; // Modifiable selon vos besoins
+$invert-base-color: map-get($theme-color-map, "main"); // Modifiable selon vos besoins
 
 @each $name, $color in $theme-color-map {
 
