@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/release/magix-cms/magixcms-4.svg)](https://github.com/magix-cms/magixcms-4/releases/latest)
 [![License](https://img.shields.io/github/license/magix-cms/magixcms-4.svg)](LICENSE)
 ![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-8892bf.svg)
-![Status](https://img.shields.io/badge/Status-Beta-orange.svg)
+![Status](https://img.shields.io/badge/Status-RC1-orange.svg)
 
 ## 📌 À propos de Magix CMS
 
@@ -52,12 +52,12 @@ Conformément à l'approche de Magix CMS, **l'installation ne nécessite pas Com
 
 ---
 
-## ⚠️ État du Projet (Phase Beta)
+## ⚠️ État du Projet (Release Candidate 1 - RC1)
 
-Ce projet est actuellement en phase **Beta**.
-L'architecture logicielle est désormais stabilisée. Bien que cette version soit fonctionnelle, elle est mise à disposition pour :
-- Tests de performance et d'ergonomie.
-- Remontées de bugs.
-- Développement de thèmes et de modules tiers.
+Ce projet est actuellement en phase **Release Candidate 1 (RC1)**.
+Cette étape marque le "Feature Freeze" (gel des fonctionnalités). L'architecture logicielle est désormais complète, verrouillée et hautement stable. Cette version est mise à disposition pour :
+- La validation finale en conditions réelles.
+- La traque et la remontée des toutes dernières anomalies (via l'onglet Issues).
+- La finalisation du développement de thèmes et de modules par la communauté.
 
-**Utilisation en production :** Bien que plus stable que l'Alpha, la prudence reste de mise pour les projets critiques. Effectuez toujours des sauvegardes complètes avant toute mise à jour.
+**Utilisation en production :** Bien que cette RC1 soit extrêmement proche de la version finale et testée rigoureusement, elle reste une pré-version. Vous pouvez l'utiliser pour amorcer de nouveaux projets, mais veillez à toujours effectuer des sauvegardes complètes (fichiers et base de données) avant toute mise à jour sur un environnement critique.
