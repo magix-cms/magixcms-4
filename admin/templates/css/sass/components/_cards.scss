@@ -6,3 +6,8 @@
     box-shadow: var(--bs-box-shadow) !important; // Ombre un peu plus forte
   }
 }
+.card-theme{
+  height: 220px;
+  object-fit: contain;
+  border-bottom: 1px solid #eee;
+}

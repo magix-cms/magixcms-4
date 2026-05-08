@@ -22646,6 +22646,12 @@ textarea.form-control-lg {
   box-shadow: var(--bs-box-shadow) !important;
 }
 
+.card-theme {
+  height: 220px;
+  object-fit: contain;
+  border-bottom: 1px solid #eee;
+}
+
 .badge-magix {
   display: inline-flex;
   align-items: center;

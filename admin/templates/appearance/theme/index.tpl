@@ -14,7 +14,7 @@
                     <div class="card border-0 shadow-sm h-100 {if $theme.is_active}border border-primary border-3{/if}" style="transition: transform 0.2s;">
 
                         {* Vignette du thème *}
-                        <img src="{$theme.preview}" class="card-img-top" alt="Aperçu du thème {$theme.name}" style="height: 220px; object-fit: cover; border-bottom: 1px solid #eee;">
+                        <img src="{$theme.preview}" class="card-img-top card-theme" alt="Aperçu du thème {$theme.name}">
 
                         <div class="card-body d-flex justify-content-between align-items-center bg-light">
                             <h5 class="card-title mb-0 fw-bold text-capitalize">{$theme.name}</h5>
