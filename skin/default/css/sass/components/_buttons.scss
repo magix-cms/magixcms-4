@@ -17,8 +17,6 @@ $invert-base-color: map-get($theme-color-map, "dark"); // Modifiable selon vos b
       color: get-contrast-txt($color);
     }
 
-    // 2. GRADIENT (Dégradé dynamique)
-    // 2. GRADIENT (Dégradé animé dynamique)
     // 2. GRADIENT (Dégradé animé dynamique)
     &-gradient {
       background-image: linear-gradient(
