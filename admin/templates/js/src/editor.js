@@ -1,6 +1,6 @@
 /**
  * Configuration TinyMCE 7 pour MagixCMS 4
- * Version Vanilla JS (Sans jQuery) - Compatible Bootstrap 5 & GLightbox
+ * Version Vanilla JS (Sans jQuery) - Compatible Bootstrap 5.3 & GLightbox
  */
 (function (window, document) {
     // 1. Gestion de la langue
@@ -17,7 +17,7 @@
     let magixPlugins = [
         'advlist', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
         'searchreplace', 'visualblocks', 'code', 'fullscreen', 'wordcount', 'directionality',
-        'media', 'table', 'codesample', 'accordion'
+        'media', 'table', 'codesample', 'accordion', 'magix_bs_grid', 'quickbars' // <-- Quickbars intégré
     ];
 
     const magixCustomPlugins = [
@@ -28,7 +28,7 @@
     magixPlugins = magixPlugins.concat(magixCustomPlugins);
 
     // 3. Toolbar
-    let magixToolbar = 'undo redo | link unlink image code advreplace | blocks | '
+    let magixToolbar = 'undo redo | link unlink image bs_grid code advreplace | blocks styles | '
         +'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | '
         +'cbullist numlist | blockquote | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
 
@@ -71,7 +71,14 @@
         menubar: 'view edit insert format table tools',
         toolbar_mode: 'sliding',
         image_title: true,
-        // Fichiers et médias
+
+        // ========================================================
+        // ✨ QUICKBARS (Menus flottants intelligents)
+        // ========================================================
+        quickbars_selection_toolbar: 'bold italic | styles | link blockquote',
+        quickbars_insert_toolbar: 'bs_grid image media table',
+
+        // Fichiers et médias via Elfinder
         file_picker_types: 'file image media',
         file_picker_callback: function (callback, value, meta) {
             const elfinderUrl = '/' + baseadmin + '/templates/js/vendor/elfinder/elfinder.html';
@@ -83,13 +90,8 @@
                 resizable: true,
                 onMessage: function (dialogApi, details) {
                     if (details.mceAction === 'insertFile') {
-
-                        //  FIX ULTIME : Interception et suppression du dossier fantôme "/a/"
                         let finalUrl = details.content;
-                        // On cherche "/media/a/" et on le remplace strictement par "/media/"
                         finalUrl = finalUrl.replace(/(\/media\/)a\//i, '$1');
-
-                        //  FIX DU NaN : On force les champs à "vide"
                         callback(finalUrl, { alt: '', width: '', height: '' });
                         dialogApi.close();
                     }
@@ -104,7 +106,7 @@
             }, 300);
         },
 
-        // Snippets
+        // Snippets Magix
         snippets_url: '/'+baseadmin+'/index.php?controller=Snippet&action=tinymce',
 
         // ALIGNEMENTS BOOTSTRAP 5
@@ -117,7 +119,6 @@
             alignjustify: {selector : 'p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li,table,img', classes : 'text-justify'}
         },
 
-        // SÉCURITÉ : Bloque les styles inline polluants
         invalid_styles: {
             'table': 'width height border border-collapse border-width',
             'tr' : 'width height',
@@ -125,88 +126,49 @@
             'td' : 'width height'
         },
 
-        // LISTES DE CLASSES POUR LES DIALOGUES NATIFS
         image_dimensions: true,
         image_advtab: true,
         image_class_list: [
-            {title: 'None', value: ''},
-            {title: 'Image Fluid (Responsive)', value: 'img-fluid'},
-            {title: 'Image Rounded', value: 'rounded'},
-            {title: 'Image Circle', value: 'rounded-circle'},
-            {title: 'Image Thumbnail', value: 'img-thumbnail'},
-            {title: 'Float Left', value: 'float-start'},
-            {title: 'Float Right', value: 'float-end'}
-        ],
-
-        link_class_list: [
-            {title: '--- Basique ---', value: ''},
-            {title: 'Lien simple (TargetBlank)', value: 'targetblank'},
-            {title: 'Lien Lire la suite', value: 'btn btn-link readmore'},
-            {title: 'Lien Flèche (Arrow)', value: 'link-arrow'},
-
-            {title: '--- Boutons MAIN ---', value: ''},
-            {title: 'Main Standard', value: 'btn btn-main'},
-            {title: 'Main Gradient', value: 'btn btn-main-gradient'},
-            {title: 'Main Outline', value: 'btn btn-main-outline'},
-            {title: 'Main Invert', value: 'btn btn-main-invert'},
-            {title: 'Main White', value: 'btn btn-main-white'},
-            {title: 'Main Invert Transparent', value: 'btn btn-main-invert-transparent'},
-            {title: 'Main Glass', value: 'btn btn-main-glass'},
-            {title: 'Main Ghost Slide', value: 'btn btn-main-ghost-slide'},
-            {title: 'Main Ghost Curtain', value: 'btn btn-main-ghost-curtain'},
-            {title: 'Main Ghost Reveal', value: 'btn btn-main-ghost-reveal'},
-
-            {title: '--- Boutons SD ---', value: ''},
-            {title: 'SD Standard', value: 'btn btn-sd'},
-            {title: 'SD Gradient', value: 'btn btn-sd-gradient'},
-            {title: 'SD Outline', value: 'btn btn-sd-outline'},
-            {title: 'SD Invert', value: 'btn btn-sd-invert'},
-            {title: 'SD Glass', value: 'btn btn-sd-glass'},
-            {title: 'SD Ghost Slide', value: 'btn btn-sd-ghost-slide'},
-
-            {title: '--- Boutons DARK ---', value: ''},
-            {title: 'Dark Standard', value: 'btn btn-dark'},
-            {title: 'Dark Outline', value: 'btn btn-dark-outline'},
-            {title: 'Dark Invert', value: 'btn btn-dark-invert'},
-            {title: 'Dark Ghost Reveal', value: 'btn btn-dark-ghost-reveal'},
-
-            {title: '--- Boutons GREEN ---', value: ''},
-            {title: 'Green Standard', value: 'btn btn-green'},
-            {title: 'Green Gradient', value: 'btn btn-green-gradient'},
-            {title: 'Green Outline', value: 'btn btn-green-outline'},
-
-            {title: '--- Boutons WHITE ---', value: ''},
-            {title: 'White Standard', value: 'btn btn-white'},
-            {title: 'White Invert', value: 'btn btn-white-invert'}
+            {title: 'Aucune', value: ''},
+            {title: 'Image Responsive (S\'adapte)', value: 'img-fluid'},
+            {title: 'Coins Arrondis', value: 'rounded'},
+            {title: 'Cercle Parfait', value: 'rounded-circle'},
+            {title: 'Miniature (Bordure)', value: 'img-thumbnail'},
+            {title: 'Flotter à Gauche', value: 'float-start'},
+            {title: 'Flotter à Droite', value: 'float-end'}
         ],
 
         table_default_attributes: { class: 'table' },
         table_use_colgroups: false,
         table_class_list: [
-            {title: 'Table Default', value: 'table'},
-            {title: 'Table Small (Condensed)', value: 'table table-sm'},
-            {title: 'Table Bordered', value: 'table table-bordered'},
-            {title: 'Table Borderless', value: 'table table-borderless'},
-            {title: 'Table Hover', value: 'table table-hover'},
-            {title: 'Table Striped', value: 'table table-striped'}
+            {title: 'Tableau Classique', value: 'table'},
+            {title: 'Tableau Compact', value: 'table table-sm'},
+            {title: 'Tableau avec Bordures', value: 'table table-bordered'},
+            {title: 'Tableau sans Bordures', value: 'table table-borderless'},
+            {title: 'Tableau Lignes Zébrées', value: 'table table-striped'},
+            {title: 'Tableau Survolable', value: 'table table-hover'}
         ],
 
         codesample_languages: [
             {text: 'HTML/XML', value: 'markup'},
             {text: 'JavaScript', value: 'javascript'},
-            {text: 'json', value: 'json'},
             {text: 'CSS', value: 'css'},
             {text: 'PHP', value: 'php'},
             {text: 'Smarty', value: 'smarty'},
             {text: 'Sass/Scss', value: 'sass'}
         ],
 
-        // STYLE FORMATS
+        // ========================================================
+        // 🎨 STYLE FORMATS (Fidèle à ton thème & Bootstrap 5.3)
+        // ========================================================
         style_formats: [
-            {title: 'Link', items: [
-                    {title: 'TargetBlank', selector: 'a', classes: 'targetblank'}
+            {title: 'Liens Spéciaux', items: [
+                    {title: 'Lien (TargetBlank)', selector: 'a', classes: 'targetblank'},
+                    {title: 'Lien Lire la suite', selector: 'a', classes: 'btn btn-link readmore'},
+                    {title: 'Lien Flèche (Arrow)', selector: 'a', classes: 'link-arrow'}
                 ]},
-            {title: 'Buttons', items: [
+
+            {title: 'Boutons Magix', items: [
                     {title: 'Main (Bleu)', items: [
                             {title: 'Standard', selector: 'a', classes: 'btn btn-main'},
                             {title: 'Gradient', selector: 'a', classes: 'btn btn-main-gradient'},
@@ -257,84 +219,91 @@
                             {title: 'Glass', selector: 'a', classes: 'btn btn-white-glass'}
                         ]}
                 ]},
-            {title: 'Image', items: [
-                    //  ADAPTATION POUR GLIGHTBOX ICI
-                    {title: 'GLightbox Simple', selector: 'a', classes: 'glightbox'},
-                    {title: 'GLightbox Galerie', selector: 'a', classes: 'glightbox', attributes: {'data-gallery': 'gallery'}},
-                    // ----------------------------------
-                    {title: 'Image Fluid (Responsive)', selector: 'img', classes: 'img-fluid'},
-                    {title: 'Image Rounded', selector: 'img', classes: 'rounded'},
-                    {title: 'Image Circle', selector: 'img', classes: 'rounded-circle'},
-                    {title: 'Image Thumbnail', selector: 'img', classes: 'img-thumbnail'}
+
+            {title: 'Typographie & Textes', items: [
+                    {title: 'Titres Géants (Display)', items: [
+                            {title: "Display 1", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-1'},
+                            {title: "Display 2", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-2'},
+                            {title: "Display 3", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-3'},
+                            {title: "Display 4", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-4'},
+                            {title: "Display 5", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-5'},
+                            {title: "Display 6", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-6'}
+                        ]},
+                    {title: 'Titres standards', items: [
+                            {title: "Style H1", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h1'},
+                            {title: "Style H2", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h2'},
+                            {title: "Style H3", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h3'},
+                            {title: "Style H4", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h4'},
+                            {title: "Style H5", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h5'},
+                            {title: "Style H6", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h6'}
+                        ]},
+                    {title: 'Graisse (Poids)', items: [
+                            {title: 'Gras (fw-bold)', inline: 'span', classes: 'fw-bold'},
+                            {title: 'Normal (fw-normal)', inline: 'span', classes: 'fw-normal'},
+                            {title: 'Fin (fw-light)', inline: 'span', classes: 'fw-light'},
+                            {title: 'Italique (fst-italic)', inline: 'span', classes: 'fst-italic'}
+                        ]},
+                    {title: 'Casse (Majuscules)', items: [
+                            {title: 'MAJUSCULES', inline: 'span', classes: 'text-uppercase'},
+                            {title: 'minuscules', inline: 'span', classes: 'text-lowercase'},
+                            {title: 'Première Lettre', inline: 'span', classes: 'text-capitalize'}
+                        ]},
+                    {title: 'Phrase d\'accroche (Lead)', block: 'p', classes: 'lead'},
+                    {title: 'Texte Discret (Gris)', inline: 'span', classes: 'text-body-secondary'},
+                    {title: 'Texte Petit (Small)', inline: 'small', classes: 'small'}
                 ]},
-            {title: 'Table', items: [
-                    {title: 'Table', selector: 'table', classes: 'table'},
-                    {title: 'Table Small', selector: 'table', classes: 'table-sm'},
-                    {title: 'Table Bordered', selector: 'table', classes: 'table-bordered'},
-                    {title: 'Table Hover', selector: 'table', classes: 'table-hover'},
-                    {title: 'Table Striped', selector: 'table', classes: 'table-striped'},
-                    {title: 'TR (Lignes)', items: [
-                            {title : 'Active', selector : 'tr', classes : 'table-active'},
-                            {title : 'Success', selector : 'tr', classes : 'table-success'},
-                            {title : 'Warning', selector : 'tr', classes : 'table-warning'},
-                            {title : 'Danger', selector : 'tr', classes : 'table-danger'},
-                            {title : 'Info', selector : 'tr', classes : 'table-info'}
-                        ]},
-                    {title: 'TD (Cellules)', items: [
-                            {title : 'Active', selector : 'td', classes : 'table-active'},
-                            {title : 'Success', selector : 'td', classes : 'table-success'},
-                            {title : 'Warning', selector : 'td', classes : 'table-warning'},
-                            {title : 'Danger', selector : 'td', classes : 'table-danger'},
-                            {title : 'Info', selector : 'td', classes : 'table-info'}
-                        ]},
-                    {title: "Blocks", items: [
-                            {title: "Div responsive", block: "div", classes: 'table-responsive'}
-                        ]}
+
+            {title: 'Couleurs de texte', items: [
+                    {title: 'Primaire (Bleu)', inline: 'span', classes: 'text-primary'},
+                    {title: 'Succès (Vert)', inline: 'span', classes: 'text-success'},
+                    {title: 'Information (Bleu clair)', inline: 'span', classes: 'text-info'},
+                    {title: 'Danger (Rouge)', inline: 'span', classes: 'text-danger'},
+                    {title: 'Attention (Jaune)', inline: 'span', classes: 'text-warning'}
                 ]},
-            {title: 'Helper classes', items: [
-                    {title: "Blocks", items: [
-                            {title: "Div center (mx-auto)", block: "div", classes: 'mx-auto text-center'}
-                        ]},
-                    {title: "Header", items: [
-                            {title: "Title 1", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h1'},
-                            {title: "Title 2", selector: "h2,h1,h3,h4,h5,h6,p", classes: 'h2'},
-                            {title: "Title 3", selector: "h3,h1,h2,h4,h5,h6,p", classes: 'h3'},
-                            {title: "Title 4", selector: "h4,h1,h2,h3,h5,h6,p", classes: 'h4'},
-                            {title: "Title 5", selector: "h5,h1,h2,h3,h4,h6,p", classes: 'h5'},
-                            {title: "Title 6", selector: "h6,h1,h2,h3,h4,h5,p", classes: 'h6'}
-                        ]},
-                    {title: "Paragraph", items: [
-                            {title: "Text Muted", block: "p", classes: 'text-muted'},
-                            {title: "Text Primary", block: "p", classes: 'text-primary'},
-                            {title: "Text Success", block: "p", classes: 'text-success'},
-                            {title: "Text Info", block: "p", classes: 'text-info'},
-                            {title: "Text Warning", block: "p", classes: 'text-warning'},
-                            {title: "Text Danger", block: "p", classes: 'text-danger'}
-                        ]},
-                    {title: "List", items: [
-                            {title: "Bullet list", block: "ul", classes: 'bullet-list'},
-                            {title: 'Circle List', block: "ul", classes: 'circle-list'},
-                            {title: 'Square List', block: "ul", classes: 'square-list'},
-                            {title: 'Arrow List', block: "ul", classes: 'arrow-list'},
-                            {title: 'Label List', block: "ul", classes: 'label-list'}
-                        ]}
+
+            {title: 'Images & Médias', items: [
+                    {title: 'Activer Zoom (GLightbox)', selector: 'a, img', classes: 'glightbox'},
+                    {title: 'Activer Galerie (GLightbox)', selector: 'a, img', classes: 'glightbox', attributes: {'data-gallery': 'gallery'}},
+                    {title: 'Ajouter une Ombre', selector: 'img, div', classes: 'shadow-sm'},
+                    {title: 'Vidéo Responsive 16:9', block: 'div', classes: 'ratio ratio-16x9'},
+                    {title: 'Vidéo Responsive 4:3', block: 'div', classes: 'ratio ratio-4x3'},
+                    {title: 'Vidéo Responsive Carrée', block: 'div', classes: 'ratio ratio-1x1'}
                 ]},
-            {title: 'Alerts', items: [
-                    {title: "Blocks", items: [
-                            {title: "Alert success", block: "div", classes: 'alert alert-success'},
-                            {title: "Alert info", block: "div", classes: 'alert alert-info'},
-                            {title: "Alert warning", block: "div", classes: 'alert alert-warning'},
-                            {title: "Alert danger", block: "div", classes: 'alert alert-danger'}
-                        ]},
-                    {title: "Link", items: [
-                            {title: 'Alert link', selector: 'a', classes: 'alert-link'}
-                        ]}
+
+            {title: 'Alertes / Bannières', items: [
+                    {title: 'Information (Bleu)', block: 'div', classes: 'alert alert-info'},
+                    {title: 'Succès (Vert)', block: 'div', classes: 'alert alert-success'},
+                    {title: 'Attention (Jaune)', block: 'div', classes: 'alert alert-warning'},
+                    {title: 'Danger (Rouge)', block: 'div', classes: 'alert alert-danger'},
+                    {title: 'Lien d\'alerte', selector: 'a', classes: 'alert-link'}
                 ]},
-            {title: 'Embed', items: [
-                    {title: "Blocks", items: [
-                            {title: "Ratio 16:9", block: "div", classes: 'ratio ratio-16x9'},
-                            {title: "Ratio 4:3", block: "div", classes: 'ratio ratio-4x3'},
-                            {title: "Ratio 1:1", block: "div", classes: 'ratio ratio-1x1'}
+
+            {title: 'Utilitaires (Bootstrap 5)', items: [
+                    {title: 'Centrer le bloc (mx-auto)', selector: 'div, p, img, table, a', classes: 'mx-auto d-block'},
+                    {title: 'Ajouter Ombre (Shadow)', selector: '*', classes: 'shadow'},
+                    {title: 'Arrondir les angles', selector: '*', classes: 'rounded'},
+
+                    {title: 'Marges externes (Margins)', items: [
+                            {title: 'Marge Haut (mt-3)', selector: '*', classes: 'mt-3'},
+                            {title: 'Marge Haut Grosse (mt-5)', selector: '*', classes: 'mt-5'},
+                            {title: 'Marge Bas (mb-3)', selector: '*', classes: 'mb-3'},
+                            {title: 'Marge Bas Grosse (mb-5)', selector: '*', classes: 'mb-5'},
+                        ]},
+
+                    {title: 'Espacements internes (Paddings)', items: [
+                            {title: 'Padding Global (p-3)', selector: '*', classes: 'p-3'},
+                            {title: 'Padding Global Gros (p-5)', selector: '*', classes: 'p-5'},
+                            {title: 'Padding Vertical (py-4)', selector: '*', classes: 'py-4'},
+                            {title: 'Padding Horizontal (px-4)', selector: '*', classes: 'px-4'}
+                        ]},
+
+                    {title: 'Layout Flexbox (Avancé)', items: [
+                            {title: 'Activer Flexbox (d-flex)', selector: 'div, section', classes: 'd-flex'},
+                            {title: 'Empiler (flex-column)', selector: 'div, section', classes: 'flex-column'},
+                            {title: 'Ligne sur PC (flex-md-row)', selector: 'div, section', classes: 'flex-md-row'},
+                            {title: 'Centrer Vertical (align-items-center)', selector: 'div, section', classes: 'align-items-center'},
+                            {title: 'Centrer Horizontal (justify-content-center)', selector: 'div, section', classes: 'justify-content-center'},
+                            {title: 'Écarter éléments (gap-4)', selector: 'div, section', classes: 'gap-4'}
                         ]}
                 ]}
         ],
@@ -350,15 +319,16 @@
             {title: 'Label List', classes: 'label-list'}
         ],
 
-        // Sécurité éléments HTML
         extended_valid_elements: "+img[class|src|srcset|sizes|alt|title|hspace|vspace|width|height|align|name|loading],+svg[*],+g[*],+path[*],+span[*],+i[*],+div[*],+ul[*],+li[*],+iframe[*],+strong[*]",
 
-        // CSS de contenu (Frontend)
         content_css : (typeof contentCSS !== 'undefined') ? contentCSS : '',
-        // Synchronisation avec MagixForms
         fullscreen_native: true,
         sticky_toolbar: true,
         toolbar_sticky_offset: 0,
+
+        // ========================================================
+        // 🛠️ SETUP & LOGIQUE D'ÉVÉNEMENTS
+        // ========================================================
         setup: function (editor) {
             editor.on('BeforeSetContent', function (e) {
                 e.content = e.content.replace(/width="NaN"/gi, '');
@@ -376,7 +346,71 @@
                     document.body.style.overflow = 'auto';
                 }
             });
-        }
+
+            // 🧹 GESTION INTELLIGENTE DES CLASSES BOOTSTRAP (Remplacement propre)
+            editor.on('FormatApply', function (e) {
+
+                // 1. CORRECTION ICI : Récupérer l'élément de manière 100% fiable
+                let elm = e.node || editor.selection.getNode();
+                if (!elm) return;
+
+                // Sécurité : si on tombe sur un noeud de texte pur, on remonte à sa balise HTML
+                if (elm.nodeType !== 1) {
+                    elm = elm.parentNode;
+                }
+
+                let formats = editor.formatter.get(e.format);
+                if (!formats || formats.length === 0) return;
+
+                let format = formats[0];
+                if (!format.classes) return;
+
+                // 2. Si le format exige une balise précise (comme 'a' pour les boutons)
+                if (format.selector) {
+                    let parentMatch = editor.dom.getParent(elm, format.selector);
+                    if (parentMatch) elm = parentMatch;
+                }
+
+                if (!elm || !elm.classList) return;
+
+                // 3. Les classes que TinyMCE vient juste d'ajouter
+                let appliedClasses = Array.isArray(format.classes) ? format.classes : format.classes.split(' ');
+
+                // 🎯 Familles exclusives (On ne touche JAMAIS au mot 'btn' seul)
+                const exclusiveRegexes = [
+                    /^btn-(main|sd|dark|green|white)(?:-[a-zA-Z0-9]+)*$/, // La famille des boutons
+                    /^text-(primary|success|info|warning|danger|body-secondary)$/, // Famille des couleurs
+                    /^display-[1-6]$/, // Famille des gros titres
+                    /^h[1-6]$/, // Famille des titres classiques
+                    /^fw-(bold|normal|light)$/, // Famille des graisses
+                    /^text-(uppercase|lowercase|capitalize)$/, // Famille des casses
+                    /^alert-(info|success|warning|danger)$/ // Famille des alertes
+                ];
+
+                appliedClasses.forEach(function(appliedClass) {
+                    exclusiveRegexes.forEach(function(regex) {
+                        if (regex.test(appliedClass)) {
+                            // On parcourt les classes existantes sur le DOM...
+                            let existingClasses = Array.from(elm.classList);
+                            existingClasses.forEach(function(existingClass) {
+                                // On supprime l'ancienne classe de la même famille (sans toucher à 'btn' ou à la nouvelle)
+                                if (existingClass !== appliedClass && regex.test(existingClass) && existingClass !== 'btn') {
+                                    elm.classList.remove(existingClass);
+                                }
+                            });
+
+                            // 🔒 SÉCURITÉ BOOTSTRAP : On s'assure que la classe de base 'btn' est toujours là !
+                            if (appliedClass.startsWith('btn-') && !elm.classList.contains('btn')) {
+                                elm.classList.add('btn');
+                            }
+                        }
+                    });
+                });
+            });
+        },
+
+        // Embellit l'affichage du menu déroulant
+        preview_styles: 'font-family font-weight font-style text-decoration text-transform color background-color border border-radius outline text-shadow'
     });
 
 })(window, document);
