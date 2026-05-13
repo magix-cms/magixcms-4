@@ -1,5 +1,5 @@
 .c-gallery {
-  --gallery-ratio: 4/3;
+  --gallery-ratio: auto;
   --gallery-thumb-ratio: 1/1;
 }
 .c-gallery--about {
@@ -31,7 +31,7 @@
 .c-gallery__main .gallery-main-item img, .c-gallery__main .gallery-main-item picture {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .c-gallery__thumbs {
   margin-top: 1rem;
