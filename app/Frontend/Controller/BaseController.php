@@ -118,10 +118,16 @@ abstract class BaseController
                 $urlLink = '/' . ltrim($urlLink, '/');
 
                 if (!str_starts_with($urlLink, "/{$isoLang}/") && $urlLink !== "/{$isoLang}") {
-                    $item['url_link'] = "/{$isoLang}{$urlLink}";
-                } else {
-                    $item['url_link'] = $urlLink;
+                    $urlLink = "/{$isoLang}{$urlLink}";
                 }
+
+                // Forcer le slash de fin pour les URLs internes
+                // On s'assure de ne pas casser les URLs contenant des paramètres (?) ou des ancres (#)
+                if (!str_contains($urlLink, '?') && !str_contains($urlLink, '#')) {
+                    $urlLink = rtrim($urlLink, '/') . '/';
+                }
+
+                $item['url_link'] = $urlLink;
             }
 
             if (isset($item['mode_link']) && in_array($item['mode_link'], ['dropdown', 'mega'])) {
