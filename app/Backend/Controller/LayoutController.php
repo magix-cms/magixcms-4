@@ -123,7 +123,8 @@ class LayoutController extends BaseController
         $rawSlug = $_POST['item_slug'] ?? '';
         $itemSlug = null;
         if (!empty(trim($rawSlug))) {
-            $itemSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $rawSlug), '-'));
+            // On autorise le tiret (-) ET l'underscore (_)
+            $itemSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9_-]+/', '-', $rawSlug), '-_'));
         }
 
         if ($idHook > 0 && !empty($moduleName)) {
