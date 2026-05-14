@@ -1,6 +1,6 @@
 {* Fichier : plugins/Contact/views/front/hooks/footer_company.tpl *}
 <div class="widget-footer-contact mb-4">
-    <h5 class="text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Nos coordonnées</h5>
+    <p class="h5 text-uppercase mb-4 fw-bold text-white border-bottom border-secondary pb-2">Nos coordonnées</p>
 
     {* $companyData est déjà disponible grâce à votre BaseController ! *}
     <ul class="list-unstyled mb-4">

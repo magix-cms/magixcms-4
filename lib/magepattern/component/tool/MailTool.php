@@ -87,7 +87,7 @@ class MailTool
     }
 
     /**
-     * Initialise un objet Email
+     * Initialise un objet Email avec des en-têtes de confiance
      */
     public function createMessage(string $subject, string $from, string $reply, array $recipients, string $body, string $readReceipt = ''): Email
     {
@@ -97,6 +97,14 @@ class MailTool
             ->replyTo($reply)
             ->html($body)
             ->text(FormTool::tagClean($body));
+
+        // On définit le "Sender" technique pour correspondre au "From"
+        $email->sender($from);
+
+        // On ajoute des headers de légitimité automatique
+        $email->getHeaders()
+            ->addTextHeader('X-Mailer', 'MagixCMS Mailer')
+            ->addTextHeader('Auto-Submitted', 'auto-generated');
 
         foreach ($recipients as $address => $name) {
             if (is_int($address)) {
@@ -170,6 +178,17 @@ class MailTool
      * ]
      * );
      */
+    /**
+     * Génère un mail via un template Smarty et l'envoie avec options.
+     * * @param string $context    Contexte Smarty
+     * @param string $template   Fichier .tpl
+     * @param array  $data       Variables Smarty
+     * @param string $subject    Sujet
+     * @param string $from       Email expéditeur (le serveur)
+     * @param array  $to         Destinataires [email => Nom]
+     * @param array  $files      [Optionnel] Pièces jointes
+     * @param string $replyTo    [Optionnel] Email de réponse (l'utilisateur)
+     */
     public function sendTemplate(
         string $context,
         string $template,
@@ -177,16 +196,26 @@ class MailTool
         string $subject,
         string $from,
         array $to,
-        array $files = []
+        array $files = [],
+        string $replyTo = ''
     ): bool {
         try {
-            // 1. Rendu HTML via Smarty
+            // 1. Récupération de l'instance Smarty
             $smarty = SmartyTool::getInstance($context);
+
+            // Sauvegarder l'état actuel du cache et le désactiver pour le mail
+            $oldCaching = $smarty->caching;
+            $smarty->caching = 0; // On force à "pas de cache" (Smarty::CACHING_OFF)
+
             $smarty->assign($data);
             $htmlBody = $smarty->fetch($template);
 
+            // Restaurer l'état original du cache pour ne pas perturber le reste du CMS
+            $smarty->caching = $oldCaching;
+
             // 2. Création du message de base
-            $email = $this->createMessage($subject, $from, $from, $to, $htmlBody);
+            $reply = !empty($replyTo) ? $replyTo : $from;
+            $email = $this->createMessage($subject, $from, $reply, $to, $htmlBody);
 
             // 3. Ajout des pièces jointes si présentes
             if (!empty($files)) {

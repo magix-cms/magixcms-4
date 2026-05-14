@@ -11,6 +11,7 @@
 
                 <hr style="border:none; border-top: 1px solid #EEEEEE; margin: 20px 0;">
                 <p><strong>{#email_contact_subject_label#}</strong> {$subject}</p>
+                <p><strong>{#contact_email_label#}</strong> {$email}</p>
                 <p><strong>{#email_contact_message_label#}</strong></p>
                 <div style="background: #f8f9fa; border-left: 4px solid #dddddd; padding: 15px; font-style: italic;">
                     {$content|default:''}

@@ -48,7 +48,6 @@ class FrontendController extends BaseController
 
     // =================================================================
     //  2. LE CONTRÔLEUR CLASSIQUE DE LA PAGE DE CONTACT
-    // (Votre code existant reste strictement inchangé ci-dessous)
     // =================================================================
     public function run(): void
     {
@@ -105,12 +104,12 @@ class FrontendController extends BaseController
         $requiredFields = ['firstname', 'lastname', 'email', 'content', 'rgpd'];
         foreach ($requiredFields as $field) {
             if (empty($msg[$field])) {
-                $this->jsonResponse(false, 'Veuillez remplir tous les champs obligatoires.');
+                $this->jsonResponse(false, $this->view->getConfigVars('error_empty_fields'));
             }
         }
 
         if (!StringTool::isMail((string)$msg['email'])) {
-            $this->jsonResponse(false, 'L\'adresse e-mail fournie est invalide.');
+            $this->jsonResponse(false, $this->view->getConfigVars('error_invalid_email'));
         }
 
         $isHuman = true;
@@ -121,7 +120,7 @@ class FrontendController extends BaseController
         }
 
         if (!$isHuman) {
-            $this->jsonResponse(false, 'Erreur de sécurité : Validation reCAPTCHA échouée. Veuillez réessayer.');
+            $this->jsonResponse(false, $this->view->getConfigVars('error_recaptcha_failed'));
         }
 
         $idContact = (int)($msg['id_contact'] ?? 0);
@@ -147,7 +146,7 @@ class FrontendController extends BaseController
         }
 
         if (empty($recipients)) {
-            $this->jsonResponse(false, 'Aucun service de contact n\'est actuellement disponible pour recevoir votre message.');
+            $this->jsonResponse(false, $this->view->getConfigVars('error_no_contact_service'));
         }
 
         $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
@@ -163,23 +162,40 @@ class FrontendController extends BaseController
 
         $mailer = new MailTool($type, $options);
         $msg['content'] = nl2br((string)$msg['content']);
-        $subject = $msg['subject'] ?? 'Demande de contact';
 
-        $sender = !empty($this->siteSettings['mail_sender']['value']) ? $this->siteSettings['mail_sender']['value'] : (string)$msg['email'];
+        // 1. Vos variables Smarty pour le sujet
+        $userSubject = !empty($msg['subject']) ? $msg['subject'] : '...';
+        $fullName = trim(($msg['firstname'] ?? '') . ' ' . ($msg['lastname'] ?? ''));
+        $prefix = $this->view->getConfigVars('email_contact_new_message');
+        $connector = $this->view->getConfigVars('concact_of');
+
+        $finalSubject = $prefix . " " . $connector . " " . $fullName . " : " . $userSubject;
+
+        // 2. Construction de l'expéditeur NOMINATIF
+        // On récupère l'email technique du serveur
+        $senderEmail = !empty($this->siteSettings['mail_sender']['value'])
+            ? $this->siteSettings['mail_sender']['value']
+            : (string)$msg['email'];
+
+        // On crée un From formaté : "Nom de l'internaute" <email-du-votre-serveur>
+        // Note : Les guillemets sont importants pour les noms avec caractères spéciaux
+        $fromHeader = '"' . str_replace('"', '', $fullName) . '" <' . $senderEmail . '>';
 
         $sent = $mailer->sendTemplate(
             'front',
             'emails/message.tpl',
             $msg,
-            $this->view->getConfigVars('email_contact_new_message')." : " . $subject,
-            $sender,
-            $recipients
+            $finalSubject,
+            $fromHeader,
+            $recipients,
+            [],
+            (string)$msg['email']
         );
 
         if ($sent) {
-            $this->jsonResponse(true, 'Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais !', ['type' => 'success']);
+            $this->jsonResponse(true, $this->view->getConfigVars('success_message_sent'), ['type' => 'success']);
         } else {
-            $this->jsonResponse(false, 'Une erreur technique est survenue lors de l\'envoi du message (Vérifiez la configuration SMTP).');
+            $this->jsonResponse(false, $this->view->getConfigVars('error_technical_smtp'));
         }
     }
 }
