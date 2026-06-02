@@ -42,8 +42,8 @@
 
                         <div class="row mb-4 bg-light p-3 rounded border">
                             <div class="col-md-3 mb-3 mb-md-0">
-                                <label for="date_publish" class="form-label fw-medium">Date de publication</label>
-                                <input type="datetime-local" id="date_publish" name="date_publish" class="form-control bg-white" value="{if $news_data.date_publish}{$news_data.date_publish|date_format:"%Y-%m-%dT%H:%M"}{/if}" />
+                                <label for="date_publish" class="form-label fw-medium">Date de publication *</label>
+                                <input type="datetime-local" id="date_publish" name="date_publish" class="form-control bg-white" value="{if $news_data.date_publish}{$news_data.date_publish|date_format:"%Y-%m-%dT%H:%M"}{/if}" required />
                             </div>
 
                             <div class="col-md-3 mb-3 mb-md-0">

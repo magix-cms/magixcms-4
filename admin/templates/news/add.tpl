@@ -20,8 +20,8 @@
                 {* 1. BLOC DE STRUCTURE : Dates et Tags *}
                 <div class="row mb-4 bg-light p-3 rounded border">
                     <div class="col-md-3 mb-3 mb-md-0">
-                        <label for="date_publish" class="form-label fw-medium">Date de publication</label>
-                        <input type="datetime-local" id="date_publish" name="date_publish" class="form-control bg-white" />
+                        <label for="date_publish" class="form-label fw-medium">Date de publication *</label>
+                        <input type="datetime-local" id="date_publish" name="date_publish" class="form-control bg-white" required />
                     </div>
 
                     <div class="col-md-3 mb-3 mb-md-0">

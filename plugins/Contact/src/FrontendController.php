@@ -22,7 +22,10 @@ class FrontendController extends BaseController
         $hookName = $params['name'] ?? '';
 
         // Aiguillage A : WIDGET FOOTER (Pour les 3 colonnes)
-        if (str_starts_with($hookName, 'displayFooterCol')) {
+        if (
+            strtolower($hookName) === 'displayfooter' ||
+            str_starts_with($hookName, 'displayFooterCol')
+        ) {
             return self::renderFooterWidget($params);
         }
 
@@ -113,7 +116,6 @@ class FrontendController extends BaseController
         }
 
         $isHuman = true;
-
         if (class_exists('\Plugins\GoogleRecaptcha\src\FrontendController')) {
             $recaptcha = new \Plugins\GoogleRecaptcha\src\FrontendController();
             $isHuman = $recaptcha->verify('contact');
@@ -129,18 +131,27 @@ class FrontendController extends BaseController
 
         $recipients = [];
 
+        // 1. Si un ID spécifique est demandé
         if ($idContact > 0) {
             $recipientEmail = $db->getContactEmail($idContact);
             if (!empty($recipientEmail)) {
                 $recipients[$recipientEmail] = 'Service Web';
             }
-        } else {
+        }
+
+        // 2. Si aucun ID n'est demandé (0), on charge toute la liste
+        if (empty($recipients)) {
             $activeContacts = $db->getActiveContacts($idLang);
-            foreach ($activeContacts as $contact) {
-                $email = $db->getContactEmail((int)$contact['id_contact']);
-                if (!empty($email)) {
-                    $name = $contact['name_contact'] ?? 'Service Web';
-                    $recipients[$email] = $name;
+            if (!empty($activeContacts) && is_array($activeContacts)) {
+                foreach ($activeContacts as $contact) {
+                    $idC = isset($contact['id_contact']) ? (int)$contact['id_contact'] : 0;
+                    if ($idC > 0) {
+                        $email = $db->getContactEmail($idC);
+                        if (!empty($email)) {
+                            $name = !empty($contact['name_contact']) ? $contact['name_contact'] : 'Service Web';
+                            $recipients[$email] = $name;
+                        }
+                    }
                 }
             }
         }
@@ -152,6 +163,7 @@ class FrontendController extends BaseController
         $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
         $type = $isSmtp ? 'smtp' : 'mail';
 
+        // 🟢 RESTAURATION DES VRAIES CLÉS DE MAGIX CMS
         $options = [
             'setHost'       => $this->siteSettings['set_host']['value'] ?? '',
             'setPort'       => (int)($this->siteSettings['set_port']['value'] ?? 25),
@@ -163,7 +175,6 @@ class FrontendController extends BaseController
         $mailer = new MailTool($type, $options);
         $msg['content'] = nl2br((string)$msg['content']);
 
-        // 1. Vos variables Smarty pour le sujet
         $userSubject = !empty($msg['subject']) ? $msg['subject'] : '...';
         $fullName = trim(($msg['firstname'] ?? '') . ' ' . ($msg['lastname'] ?? ''));
         $prefix = $this->view->getConfigVars('email_contact_new_message');
@@ -171,31 +182,32 @@ class FrontendController extends BaseController
 
         $finalSubject = $prefix . " " . $connector . " " . $fullName . " : " . $userSubject;
 
-        // 2. Construction de l'expéditeur NOMINATIF
-        // On récupère l'email technique du serveur
         $senderEmail = !empty($this->siteSettings['mail_sender']['value'])
             ? $this->siteSettings['mail_sender']['value']
             : (string)$msg['email'];
 
-        // On crée un From formaté : "Nom de l'internaute" <email-du-votre-serveur>
-        // Note : Les guillemets sont importants pour les noms avec caractères spéciaux
         $fromHeader = '"' . str_replace('"', '', $fullName) . '" <' . $senderEmail . '>';
 
-        $sent = $mailer->sendTemplate(
-            'front',
-            'emails/message.tpl',
-            $msg,
-            $finalSubject,
-            $fromHeader,
-            $recipients,
-            [],
-            (string)$msg['email']
-        );
+        try {
+            $sent = $mailer->sendTemplate(
+                'front',
+                'emails/message.tpl',
+                $msg,
+                $finalSubject,
+                $fromHeader,
+                $recipients,
+                [],
+                (string)$msg['email']
+            );
 
-        if ($sent) {
-            $this->jsonResponse(true, $this->view->getConfigVars('success_message_sent'), ['type' => 'success']);
-        } else {
-            $this->jsonResponse(false, $this->view->getConfigVars('error_technical_smtp'));
+            if ($sent) {
+                $this->jsonResponse(true, $this->view->getConfigVars('success_message_sent'), ['type' => 'success']);
+            } else {
+                $this->jsonResponse(false, $this->view->getConfigVars('error_technical_smtp'));
+            }
+
+        } catch (\Throwable $e) {
+            $this->jsonResponse(false, "Plantage SMTP : " . $e->getMessage());
         }
     }
 }

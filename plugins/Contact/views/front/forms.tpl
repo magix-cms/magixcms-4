@@ -38,9 +38,9 @@
                placeholder="{#contact_phone_placeholder#}" class="form-control" maxlength="20" />
     </div>
 
-    {* Sélecteur de destinataire *}
     {* Ce select n'est pas obligatoire et peut être désactivé *}
-    {if isset($contact_services) && $contact_services|count > 1}
+    {* Sélecteur de destinataire *}
+    {if isset($contact_services) && $contact_services|count > 4}
         <div class="form-group mb-3">
             <label for="service" class="form-label fw-bold">
                 {#contact_service_label#} <span class="text-danger">*</span>
@@ -53,7 +53,7 @@
             </select>
         </div>
     {else}
-        <input type="hidden" name="msg[id_contact]" value="{$contact_services[0].id_contact|default:0}">
+        <input type="hidden" name="msg[id_contact]" value="0">
     {/if}
 
     <div class="form-group mb-3">
