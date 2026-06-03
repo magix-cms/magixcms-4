@@ -8,11 +8,9 @@ use Plugins\GoogleRecaptcha\db\FrontendDb;
 
 class FrontendController
 {
-    /**
-     * Méthode appelée par le hook 'displayHead' pour injecter le JS
-     */
     public static function injectScript(array $params = []): string
     {
+        // ... (votre code actuel pour injectScript reste inchangé) ...
         $currentModule = strtolower($_GET['controller'] ?? 'home');
         $db = new FrontendDb();
 
@@ -31,15 +29,12 @@ class FrontendController
         return $smarty->fetch($file, ['recaptcha_site_key' => $keys['site_key']]);
     }
 
-    /**
-     * Méthode métier appelée par d'autres plugins (ex: Contact)
-     */
     public function verify(string $moduleName): bool
     {
         $db = new FrontendDb();
 
         if (!$db->isLinkedToModule($moduleName)) {
-            return true;
+            return true; // Module non protégé, on laisse passer
         }
 
         $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
@@ -50,7 +45,7 @@ class FrontendController
         $keys = $db->getKeys();
         $secretKey = $keys['secret_key'] ?? '';
         if (empty($secretKey)) {
-            return true;
+            return false;
         }
 
         $url = 'https://www.google.com/recaptcha/api/siteverify';
@@ -65,17 +60,26 @@ class FrontendController
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($result === false || $httpCode !== 200) {
-            return true;
+            return false;
         }
 
         $responseData = json_decode($result, true);
 
-        return isset($responseData['success']) && $responseData['success'] === true;
+        if (!isset($responseData['success']) || $responseData['success'] !== true) {
+            return false;
+        }
+
+        // Si Google renvoie un score (v3), on bloque tout ce qui est en dessous de 0.5 (les bots)
+        if (isset($responseData['score']) && $responseData['score'] < 0.5) {
+            return false;
+        }
+
+        return true;
     }
 }

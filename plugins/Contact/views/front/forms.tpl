@@ -79,6 +79,12 @@
         </label>
     </div>
 
+    {* CHAMP HONEYPOT ANTI-SPAM (Caché aux humains via CSS) *}
+    <div style="display:none; visibility:hidden; position:absolute; left:-9999px;">
+        <label for="website_url">Laissez ce champ vide</label>
+        <input type="text" id="website_url" name="website_url" value="" autocomplete="off" tabindex="-1">
+    </div>
+
     <div class="mc-message"></div>
 
     <div class="d-grid mt-4">

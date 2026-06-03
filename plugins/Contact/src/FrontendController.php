@@ -102,8 +102,24 @@ class FrontendController extends BaseController
     {
         if (ob_get_length()) ob_clean();
 
+        // 1. LE BOUCLIER HONEYPOT (Anti-bot basique)
+        // Si le champ invisible est rempli, c'est un bot ! On simule un succès pour le tromper.
+        if (!empty($_POST['website_url'])) {
+            $this->jsonResponse(true, $this->view->getConfigVars('success_message_sent'), ['type' => 'success']);
+        }
+
+        // On nettoie les variables POST une seule fois
         $msg = FormTool::arrayClean($_POST['msg'] ?? [], 'content');
 
+        // 2. LE BOUCLIER ANTI-LIENS (Anti-spam manuel/semi-auto)
+        // Les spams contiennent presque toujours des liens (http, https, www).
+        // Si le message contient plus de 3 liens, on bloque.
+        $linkCount = substr_count(strtolower((string)$msg['content']), 'http') + substr_count(strtolower((string)$msg['content']), 'www.');
+        if ($linkCount > 3) {
+            $this->jsonResponse(false, 'Votre message ressemble à du spam (trop de liens).');
+        }
+
+        // 3. VÉRIFICATION DES CHAMPS REQUIS
         $requiredFields = ['firstname', 'lastname', 'email', 'content', 'rgpd'];
         foreach ($requiredFields as $field) {
             if (empty($msg[$field])) {
@@ -115,6 +131,7 @@ class FrontendController extends BaseController
             $this->jsonResponse(false, $this->view->getConfigVars('error_invalid_email'));
         }
 
+        // 4. LE BOUCLIER GOOGLE RECAPTCHA
         $isHuman = true;
         if (class_exists('\Plugins\GoogleRecaptcha\src\FrontendController')) {
             $recaptcha = new \Plugins\GoogleRecaptcha\src\FrontendController();
@@ -125,13 +142,14 @@ class FrontendController extends BaseController
             $this->jsonResponse(false, $this->view->getConfigVars('error_recaptcha_failed'));
         }
 
+        // 5. PRÉPARATION DES DESTINATAIRES
         $idContact = (int)($msg['id_contact'] ?? 0);
         $db = new ContactFrontDb();
         $idLang = (int)$this->currentLang['id_lang'];
 
         $recipients = [];
 
-        // 1. Si un ID spécifique est demandé
+        // Si un ID spécifique est demandé
         if ($idContact > 0) {
             $recipientEmail = $db->getContactEmail($idContact);
             if (!empty($recipientEmail)) {
@@ -139,7 +157,7 @@ class FrontendController extends BaseController
             }
         }
 
-        // 2. Si aucun ID n'est demandé (0), on charge toute la liste
+        // Si aucun ID n'est demandé (0) ou invalide, on charge toute la liste
         if (empty($recipients)) {
             $activeContacts = $db->getActiveContacts($idLang);
             if (!empty($activeContacts) && is_array($activeContacts)) {
@@ -160,10 +178,10 @@ class FrontendController extends BaseController
             $this->jsonResponse(false, $this->view->getConfigVars('error_no_contact_service'));
         }
 
+        // 6. CONFIGURATION SMTP ET ENVOI
         $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
         $type = $isSmtp ? 'smtp' : 'mail';
 
-        // 🟢 RESTAURATION DES VRAIES CLÉS DE MAGIX CMS
         $options = [
             'setHost'       => $this->siteSettings['set_host']['value'] ?? '',
             'setPort'       => (int)($this->siteSettings['set_port']['value'] ?? 25),
@@ -188,6 +206,7 @@ class FrontendController extends BaseController
 
         $fromHeader = '"' . str_replace('"', '', $fullName) . '" <' . $senderEmail . '>';
 
+        // 7. ENVOI SOUS BOUCLIER ANTI-CRASH (Try/Catch)
         try {
             $sent = $mailer->sendTemplate(
                 'front',
