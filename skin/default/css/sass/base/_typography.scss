@@ -35,3 +35,16 @@ h6, .h6 { font-size: var(--fz-h6); }
 .display-3 { font-size: calc(map-get($display-font-sizes, 3) * var(--mc-font-scale)); }
 .display-4 { font-size: calc(map-get($display-font-sizes, 4) * var(--mc-font-scale)); }
 // etc...
+
+
+// On demande à Bootstrap de cibler le breakpoint 'xxl' (>= 1400px)
+@include media-breakpoint-up(xxl) {
+  .container, .container-xxl {
+    // Calcule le plus petit entre 1636px et la largeur de l'écran MOINS 3rem (48px) de sécurité
+    max-width: min(map-get($container-max-widths, xxl), calc(100% - 3rem));
+
+    // Ajoute un padding interne pour que le contenu respire
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}

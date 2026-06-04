@@ -9128,7 +9128,7 @@ progress {
 }
 @media (min-width: 1400px) {
   .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
-    max-width: 1320px;
+    max-width: 1636px;
   }
 }
 :root {
@@ -21871,6 +21871,13 @@ h6, .h6 {
   font-size: calc(2.5rem * var(--mc-font-scale));
 }
 
+@media (min-width: 1400px) {
+  .container, .container-xxl {
+    max-width: min(1636px, 100% - 3rem);
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
 :where(h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6) {
   margin-top: 0;
   margin-bottom: 1rem;

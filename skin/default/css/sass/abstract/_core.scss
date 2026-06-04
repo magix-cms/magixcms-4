@@ -1,5 +1,14 @@
 // abstract/_core.scss
 
+$grid-breakpoints: (
+        xs: 0,
+        sm: 576px,
+        md: 768px,
+        lg: 992px,
+        xl: 1200px,
+        xxl: 1400px // <-- C'est ce "1400px" que Bootstrap va chercher tout seul
+);
+
 // 1. Fonctions Bootstrap
 @import "../bootstrap5/functions";
 
