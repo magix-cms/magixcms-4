@@ -52,12 +52,12 @@ Conformément à l'approche de Magix CMS, **l'installation ne nécessite pas Com
 
 ---
 
-## ⚠️ État du Projet (Release Candidate 1 - RC1)
+## ⚠️ État du Projet (Release Candidate 2 - RC2)
 
-Ce projet est actuellement en phase **Release Candidate 1 (RC1)**.
+Ce projet est actuellement en phase **Release Candidate 2 (RC2)**.
 Cette étape marque le "Feature Freeze" (gel des fonctionnalités). L'architecture logicielle est désormais complète, verrouillée et hautement stable. Cette version est mise à disposition pour :
 - La validation finale en conditions réelles.
 - La traque et la remontée des toutes dernières anomalies (via l'onglet Issues).
 - La finalisation du développement de thèmes et de modules par la communauté.
 
-**Utilisation en production :** Bien que cette RC1 soit extrêmement proche de la version finale et testée rigoureusement, elle reste une pré-version. Vous pouvez l'utiliser pour amorcer de nouveaux projets, mais veillez à toujours effectuer des sauvegardes complètes (fichiers et base de données) avant toute mise à jour sur un environnement critique.
+**Utilisation en production :** Bien que cette RC2 soit extrêmement proche de la version finale et testée rigoureusement, elle reste une pré-version. Vous pouvez l'utiliser pour amorcer de nouveaux projets, mais veillez à toujours effectuer des sauvegardes complètes (fichiers et base de données) avant toute mise à jour sur un environnement critique.
