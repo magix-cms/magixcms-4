@@ -252,9 +252,6 @@ class NewsDb extends BaseDb
     /**
      * Récupère uniquement les évènements pour le calendrier (Ultra-léger)
      */
-    /**
-     * Récupère uniquement les évènements pour le calendrier (Ultra-léger)
-     */
     public function getCalendarEvents(int $idLang, int $year, int $month): array
     {
         $cache = $this->getSqlCache();
@@ -264,7 +261,8 @@ class NewsDb extends BaseDb
             'n.id_news',
             'n.date_event_start AS date_start',
             'n.date_event_end AS date_end',
-            'n.date_publish', //  AJOUT : Nécessaire pour construire l'URL
+            'n.date_publish',
+            'n.is_online_event',
             'nc.name_news AS title',
             'nc.url_news AS slug'
         ])
@@ -277,8 +275,7 @@ class NewsDb extends BaseDb
             ->where('MONTH(n.date_event_start) = :month', ['month' => $month])
             ->orderBy('n.date_event_start', 'ASC');
 
-        //  Astuce : Changez en "v3" pour forcer le vidage du cache
-        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'calendar_events_v3');
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'calendar_events_v4');
         $cachedData = $cache->get($cacheKey);
 
         if ($cachedData !== null) {

@@ -526,35 +526,33 @@ abstract class BaseController
     }
     private function initCanonicalUrl(): void
     {
-        $settingDb = new SettingDb(); // Ou DomainDb selon où vous avez placé la méthode SQL
+        $settingDb = new SettingDb();
         $canonicalDomain = $settingDb->getCanonicalDomain();
 
-        // Si aucun domaine canonique n'est défini en BDD, on s'arrête là.
-        // La balise <link> ne sera pas affichée.
         if (!$canonicalDomain) {
             $this->view->assign('canonical_url', false);
             return;
         }
 
-        // On récupère le protocole (http ou https)
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+
+        // On bloque les requêtes de fichiers statiques fantômes
+        // Si la requête cherche une image, une icône ou un fichier txt, on coupe court.
+        if (preg_match('/\.(ico|png|jpg|jpeg|gif|webp|txt)$/i', $requestUri)) {
+            $this->view->assign('canonical_url', false);
+            return;
+        }
+
         $isSsl = isset($this->siteSettings['ssl']['value']) ? (int)$this->siteSettings['ssl']['value'] : 0;
         $protocol = ($isSsl === 1) ? 'https://' : 'http://';
 
-        // On nettoie le domaine canonique (au cas où il y aurait un slash à la fin en BDD)
         $cleanDomain = rtrim($canonicalDomain, '/');
 
-        // On récupère le chemin complet demandé par l'utilisateur (ex: /fr/contact.html?source=fb)
-        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-
-        // Optionnel : En SEO strict, on enlève souvent les paramètres GET (tout ce qui suit le "?")
-        // de l'URL canonique pour éviter les duplicatas liés au tracking (ex: ?utm_source=...)
         $uriParts = explode('?', $requestUri);
         $cleanUri = $uriParts[0];
 
-        // On assemble l'URL canonique parfaite !
         $canonicalUrl = $protocol . $cleanDomain . $cleanUri;
 
-        // On l'envoie à Smarty
         $this->view->assign('canonical_url', $canonicalUrl);
     }
 

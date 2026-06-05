@@ -17,7 +17,7 @@ class NewsPresenter
         $iso = $langContext['iso_lang'] ?? 'fr';
         $idNews = (int)($row['id_news'] ?? 0);
 
-        //  1. On stocke la date brute
+        // 1. On stocke la date brute[cite: 1]
         $rawDatePublish = $row['date_publish'] ?? null;
 
         $data = [
@@ -26,16 +26,17 @@ class NewsPresenter
             'longname'     => $row['longname_news'] ?? '',
             'resume'       => $row['resume_news'] ?? '',
             'content'      => $row['content_news'] ?? '',
-            'date_publish' => $rawDatePublish, // On la garde ici pour le template Smarty (date_format)
+            'date_publish' => $rawDatePublish,
             'date_start'   => $row['date_event_start'] ?? null,
             'date_end'     => $row['date_event_end'] ?? null,
+            'is_online'    => !empty($row['is_online_event']), // Récupération du statut en ligne[cite: 1]
             'link'         => [
                 'label' => $row['link_label_news'] ?? '',
                 'title' => $row['link_title_news'] ?? ''
             ]
         ];
 
-        //  2. On formate la date spécifiquement pour l'URL
+        // 2. On formate la date spécifiquement pour l'URL[cite: 1]
         $urlDate = null;
         if (!empty($rawDatePublish)) {
             $urlDate = date('Y-m-d', strtotime($rawDatePublish));
@@ -47,10 +48,9 @@ class NewsPresenter
             'id'   => $idNews,
             'url'  => $row['url_news'] ?? '',
             'iso'  => $iso,
-            'date' => $urlDate //  ICI : On passe la date formatée Y-m-d
+            'date' => $urlDate
         ]);
 
-        //  Transmission de $skinFolder
         $data['img'] = self::processImages($row, $idNews, $siteUrl, $skinFolder);
 
         $data['seo'] = [
@@ -58,14 +58,13 @@ class NewsPresenter
             'description' => !empty($row['seo_desc_news']) ? $row['seo_desc_news'] : strip_tags($data['resume'])
         ];
 
-        //  JSON-LD mis à jour avec $companyInfo
-        //  JSON-LD mis à jour avec $companyInfo
         $jsonLdData = self::generateJsonLd($data, $data['img'], $siteUrl, $companyInfo);
-        $data['json_ld']    = $jsonLdData['html']; // Le code <script> pour la page Single
-        $data['schema_raw'] = $jsonLdData['raw'];  // Le tableau PHP brut pour le listing
+        $data['json_ld']    = $jsonLdData['html'];
+        $data['schema_raw'] = $jsonLdData['raw'];
 
+        // On ajoute 'is_online_event' aux clés connues[cite: 1]
         $knownKeys = array_flip([
-            'id_news', 'date_publish', 'date_event_start', 'date_event_end', 'date_register',
+            'id_news', 'date_publish', 'date_event_start', 'date_event_end', 'is_online_event', 'date_register',
             'id_content', 'id_lang', 'name_news', 'longname_news', 'url_news', 'resume_news',
             'content_news', 'link_label_news', 'link_title_news', 'seo_title_news', 'seo_desc_news',
             'last_update', 'published_news', 'name_img', 'alt_img', 'title_img', 'caption_img', 'id_img'
@@ -86,7 +85,7 @@ class NewsPresenter
         $altText   = !empty($row['alt_img']) ? $row['alt_img'] : ($row['name_news'] ?? '');
         $titleText = !empty($row['title_img']) ? $row['title_img'] : ($row['name_news'] ?? '');
 
-        //  CASCADE DE FALLBACK
+        // CASCADE DE FALLBACK[cite: 1]
         if (empty($row['name_img'])) {
             static $fallbackData = [];
 
@@ -134,7 +133,6 @@ class NewsPresenter
         return $imgData;
     }
 
-    //  CORRECTION : Le type de retour passe de "string" à "array"
     private static function generateJsonLd(array $data, array $imgData, string $siteUrl, array $companyInfo = []): array
     {
         $imageUrl = $imgData['default']['src'] ?? '';
@@ -164,15 +162,38 @@ class NewsPresenter
         }
 
         if (!empty($data['date_start'])) {
-            // --- MODE EVENT ---
+            // --- MODE EVENT ---[cite: 1]
             $schema = [
                 '@context'    => 'https://schema.org',
                 '@type'       => 'Event',
                 'name'        => $data['name'],
                 'description' => trim(strip_tags($data['resume'] ?: $data['content'])),
                 'startDate'   => date('c', strtotime($data['date_start'])),
-                'url'         => $siteUrl . $data['url']
+                'url'         => $siteUrl . $data['url'],
+                'eventStatus' => 'https://schema.org/EventScheduled'
             ];
+
+            // Configuration du lieu en fonction du statut de l'événement
+            if (!empty($data['is_online'])) {
+                $schema['eventAttendanceMode'] = 'https://schema.org/OnlineEventAttendanceMode';
+                $schema['location'] = [
+                    '@type' => 'VirtualLocation',
+                    'url'   => $siteUrl . $data['url']
+                ];
+            } else {
+                $schema['eventAttendanceMode'] = 'https://schema.org/OfflineEventAttendanceMode';
+                $schema['location'] = [
+                    '@type' => 'Place',
+                    'name'  => $companyInfo['name'] ?? 'Lieu de l\'événement',
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'streetAddress'   => $companyInfo['street'] ?? '',
+                        'addressLocality' => $companyInfo['city'] ?? '',
+                        'postalCode'      => $companyInfo['postcode'] ?? '',
+                        'addressCountry'  => $companyInfo['country'] ?? 'BE'
+                    ]
+                ];
+            }
 
             if ($imageNode) {
                 $schema['image'] = $imageNode;
@@ -182,7 +203,7 @@ class NewsPresenter
             if (!empty($data['date_end'])) $schema['endDate'] = date('c', strtotime($data['date_end']));
 
         } else {
-            // --- MODE NEWS ARTICLE ---
+            // --- MODE NEWS ARTICLE ---[cite: 1]
             $schema = [
                 '@context'      => 'https://schema.org',
                 '@type'         => 'NewsArticle',
@@ -199,7 +220,6 @@ class NewsPresenter
             if (!empty($publisher)) $schema['publisher'] = $publisher;
         }
 
-        //  CORRECTION : On renvoie un tableau contenant les DEUX formats
         $htmlCode = '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
 
         return [

@@ -83,6 +83,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 mt-3 pt-2 border-top">
+                                <div class="form-check form-switch fs-6">
+                                    <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="is_online_event" name="is_online_event" value="1" {if isset($news_data.is_online_event) && $news_data.is_online_event == 1}checked{/if}>
+                                    <label class="form-check-label fw-bold text-primary cursor-pointer" for="is_online_event">
+                                        <i class="bi bi-camera-video me-1"></i> {#online_event#}
+                                    </label>
+                                </div>
+                                <div class="form-text mt-0 ms-5 text-muted small">
+                                    {#virtual_event#}
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">

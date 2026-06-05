@@ -122,6 +122,7 @@ class NewsController extends BaseController
             'date_publish'     => !empty($_POST['date_publish']) ? $_POST['date_publish'] : null,
             'date_event_start' => !empty($_POST['date_event_start']) ? $_POST['date_event_start'] : null,
             'date_event_end'   => !empty($_POST['date_event_end']) ? $_POST['date_event_end'] : null,
+            'is_online_event'  => isset($_POST['is_online_event']) ? 1 : 0
         ];
 
         $newId = $db->insertNewsStructure($mainData);
@@ -241,6 +242,7 @@ class NewsController extends BaseController
             'date_publish'     => !empty($_POST['date_publish']) ? $_POST['date_publish'] : null,
             'date_event_start' => !empty($_POST['date_event_start']) ? $_POST['date_event_start'] : null,
             'date_event_end'   => !empty($_POST['date_event_end']) ? $_POST['date_event_end'] : null,
+            'is_online_event'  => isset($_POST['is_online_event']) ? 1 : 0
         ];
 
         $rawDate = $mainData['date_publish'] ?: 'now';
