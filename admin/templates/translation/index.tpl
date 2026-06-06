@@ -27,7 +27,7 @@
     </div>
 
     <div class="alert alert-info border-0 shadow-sm mb-4">
-        <i class="bi bi-info-circle me-2"></i> Vous éditez actuellement les traductions pour : <strong>{$domain_label}</strong>.
+        <i class="bi bi-info-circle me-2"></i> Vous éditez actuellement les traductions pour : <strong>{$domain_label|default:$domain}</strong>.
         Dans le frontend, utilisez <code>{ldelim}#ma_cle#{rdelim}</code> pour les afficher.
     </div>
 
@@ -42,6 +42,15 @@
         </div>
 
         <div class="card-body bg-light">
+
+            {* 3. BARRE DE RECHERCHE RAPIDE *}
+            <div class="mb-4">
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="filterTranslations" class="form-control border-start-0" placeholder="Rechercher une clé ou un texte traduit (ex: footer, bienvenue)...">
+                </div>
+            </div>
+
             <form id="edit_translations" action="index.php?controller=Translation&action=save" method="post">
                 <input type="hidden" name="hashtoken" value="{$hashtoken|default:''}">
                 <input type="hidden" name="domain" value="{$domain}">
@@ -51,15 +60,16 @@
                         {foreach $langs as $id => $iso}
                             <fieldset role="tabpanel" class="tab-pane {if $iso@first}show active{/if}" id="lang-{$id}">
 
-                                {if $structure|count > 0}
-                                    {*  LES ACCORDÉONS BOOTSTRAP 5 *}
+                                {if isset($structure) && $structure|count > 0}
+                                    {* LES ACCORDÉONS BOOTSTRAP 5 *}
                                     <div class="accordion shadow-sm" id="accordionLang{$iso}">
 
                                         {foreach $structure as $groupName => $keysArr}
                                             {* On crée un ID valide pour Bootstrap (sans espaces) *}
                                             {$cleanGroupId = $groupName|replace:' ':'_'|replace:'&':''|replace:'é':'e'|lower}
 
-                                            <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+                                            {* Ajout de la classe "translation-group" pour le JS *}
+                                            <div class="accordion-item border-0 mb-2 rounded overflow-hidden translation-group">
                                                 <h2 class="accordion-header" id="heading-{$iso}-{$cleanGroupId}">
                                                     <button class="accordion-button {if !$keysArr@first}collapsed{/if} bg-white fw-bold text-primary border-bottom" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{$iso}-{$cleanGroupId}">
                                                         <i class="bi bi-folder2-open me-2"></i> {$groupName}
@@ -71,10 +81,14 @@
                                                     <div class="accordion-body bg-light">
                                                         <div class="row g-4">
                                                             {foreach $keysArr as $key}
-                                                                <div class="col-12">
+                                                                {* Ajout de la classe "translation-item" pour le JS *}
+                                                                <div class="col-12 translation-item">
                                                                     <div class="form-group bg-white p-3 rounded border border-light">
-                                                                        <label class="form-label fw-bold text-dark mb-2">{$key}</label>
-                                                                        <textarea class="form-control bg-light"
+                                                                        {* Ajout de la classe "translation-key" pour le JS *}
+                                                                        <label class="form-label fw-bold text-dark mb-2 translation-key">{$key}</label>
+
+                                                                        {* Ajout de la classe "translation-val" pour le JS *}
+                                                                        <textarea class="form-control bg-light translation-val"
                                                                                   name="content[{$iso}][{$groupName}][{$key}]"
                                                                                   rows="2">{$translations.$iso.$groupName.$key|default:''|escape}</textarea>
                                                                     </div>
@@ -107,12 +121,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Groupe de classement</label>
-                                    {*  MODIFICATION : On permet de choisir un groupe existant ou d'en créer un (via un datalist) *}
+                                    {* Utilisation d'un datalist pour suggérer les groupes existants *}
                                     <input type="text" name="new_group" class="form-control" list="groupList" placeholder="Ex: Footer" value="Général">
                                     <datalist id="groupList">
-                                        {foreach $structure as $groupName => $keysArr}
-                                            <option value="{$groupName}"></option>
-                                        {/foreach}
+                                        {if isset($structure)}
+                                            {foreach $structure as $groupName => $keysArr}
+                                                <option value="{$groupName}"></option>
+                                            {/foreach}
+                                        {/if}
                                     </datalist>
                                 </div>
                                 <div class="col-12">
@@ -146,6 +162,5 @@
 {/block}
 
 {block name='javascripts' append}
-    {* Adaptez le chemin selon l'endroit où vous stockez vos JS backend *}
     <script src="{$site_url}/{$baseadmin}/templates/js/MagixTranslation.min.js?v={$smarty.now}"></script>
 {/block}
