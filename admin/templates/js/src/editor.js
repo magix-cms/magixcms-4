@@ -23,20 +23,20 @@
     const magixCustomPlugins = [
         'youtube', 'loremipsum', 'mc_pages',
         'mc_cat', 'mc_news', 'mc_product', 'lazyloadimage', 'cryptmail',
-        'tabpanel', 'snippets', 'advreplace', 'mc_history', 'clists'
+        'tabpanel', 'snippets', 'advreplace', 'mc_history', 'clists', 'bsicons'
     ];
     magixPlugins = magixPlugins.concat(magixCustomPlugins);
 
     // 3. Toolbar
     let magixToolbar = 'undo redo | link unlink image bs_grid code advreplace | blocks styles | '
         +'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | '
-        +'cbullist numlist | blockquote | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
+        +'cbullist numlist | blockquote| bsicons | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
 
     // 4. Menus
     let magixMenu = {
         view   : {title : 'View'  , items : 'code | visualaid visualblocks | preview fullscreen'},
         edit   : {title : 'Edit'  , items : 'undo redo | cut copy paste pastetext | selectall | searchreplace'},
-        insert : {title : 'Insert', items : 'link anchor | snippets | image media youtube | tabpanel | table | hr | loremipsum | codesample'},
+        insert : {title : 'Insert', items : 'link anchor | snippets | image media youtube | tabpanel | table | hr | loremipsum | codesample | bsicons'},
         format : {title : 'Format', items : 'styles | lazyloadimage cryptmail'},
         table  : {title : 'Table' , items : 'inserttable tableprops deletetable | cell row column'},
         tools  : {title : 'Tools' , items : 'code advreplace mc_history'}
