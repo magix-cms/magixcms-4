@@ -615,6 +615,7 @@ CREATE TABLE IF NOT EXISTS `mc_news` (
     `date_publish` timestamp NULL DEFAULT NULL,
     `date_event_start` timestamp NULL DEFAULT NULL,
     `date_event_end` timestamp NULL DEFAULT NULL,
+    `is_online_event` tinyint(1) UNSIGNED DEFAULT '0',
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_news`),
     KEY `idx_news_dates` (`date_publish`,`date_event_start`,`date_event_end`),
