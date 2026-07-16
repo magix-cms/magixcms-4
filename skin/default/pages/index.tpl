@@ -78,7 +78,7 @@
             <section class="page-children mt-5 pt-4 border-top">
                 <div class="row">
                     <div class="col-12 mb-4">
-                        <h3 class="fw-bold text-primary">En savoir plus</h3>
+                        <h3 class="fw-bold text-primary">{#pages_learn_more#}</h3>
                     </div>
                     {include file="pages/loop/pages-grid.tpl" data=$pages.subdata classType="normal"}
                 </div>
