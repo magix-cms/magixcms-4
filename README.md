@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/release/magix-cms/magixcms-4.svg)](https://github.com/magix-cms/magixcms-4/releases/latest)
 [![License](https://img.shields.io/github/license/magix-cms/magixcms-4.svg)](LICENSE)
 ![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-8892bf.svg)
-![Status](https://img.shields.io/badge/Status-RC2-orange.svg)
+![Status](https://img.shields.io/badge/Status-Stable-orange.svg)
 
 ## 📌 À propos de Magix CMS
 
@@ -52,12 +52,8 @@ Conformément à l'approche de Magix CMS, **l'installation ne nécessite pas Com
 
 ---
 
-## ⚠️ État du Projet (Release Candidate 2 - RC2)
+## 📄 Licence
 
-Ce projet est actuellement en phase **Release Candidate 2 (RC2)**.
-Cette étape marque le "Feature Freeze" (gel des fonctionnalités). L'architecture logicielle est désormais complète, verrouillée et hautement stable. Cette version est mise à disposition pour :
-- La validation finale en conditions réelles.
-- La traque et la remontée des toutes dernières anomalies (via l'onglet Issues).
-- La finalisation du développement de thèmes et de modules par la communauté.
-
-**Utilisation en production :** Bien que cette RC2 soit extrêmement proche de la version finale et testée rigoureusement, elle reste une pré-version. Vous pouvez l'utiliser pour amorcer de nouveaux projets, mais veillez à toujours effectuer des sauvegardes complètes (fichiers et base de données) avant toute mise à jour sur un environnement critique.
+Ce projet est sous licence **GPLv3**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+Copyright (C) 2008 - 2026 Gerits Aurelien (Magix CMS)
+Ce programme est un logiciel libre ; vous pouvez le redistribuer et/ou le modifier selon les termes de la Licence Publique Générale GNU telle que publiée par la Free Software Foundation ; soit la version 3 de la Licence, ou (à votre discrétion) toute version ultérieure.
