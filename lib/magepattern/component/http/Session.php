@@ -201,7 +201,7 @@ class Session
             return true;
         }
 
-        // 🟢 TOLÉRANCE POUR LE DÉVELOPPEMENT LOCAL (Simulateur Mobile Chrome)
+        //  TOLÉRANCE POUR LE DÉVELOPPEMENT LOCAL (Simulateur Mobile Chrome)
         // On vérifie si le serveur est en local (localhost, .test, .local, ou IP interne)
         $isLocalhost = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', '::1']) ||
             str_ends_with($_SERVER['HTTP_HOST'], '.test') ||
@@ -212,7 +212,7 @@ class Session
             return ($_SESSION[$this->ipKey] === IPMatcher::getVisitorIp());
         }
 
-        // 🔴 EN PRODUCTION : Sécurité maximale (IP + User-Agent)
+        //  EN PRODUCTION : Sécurité maximale (IP + User-Agent)
         return ($_SESSION[$this->ipKey] === IPMatcher::getVisitorIp() &&
             $_SESSION[$this->uaKey] === ($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'));
     }

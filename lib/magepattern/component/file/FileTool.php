@@ -439,7 +439,7 @@ class FileTool
             $dstPath = $dst . DIRECTORY_SEPARATOR . $file;
 
             if (is_dir($srcPath)) {
-                self::copyDirectory($srcPath, $dstPath); // 🟢 Remplacement de $this-> par self::
+                self::copyDirectory($srcPath, $dstPath); //  Remplacement de $this-> par self::
             } else {
                 copy($srcPath, $dstPath);
             }

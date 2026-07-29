@@ -422,7 +422,7 @@
     &:hover .date { background: var(--main-color, #0d6efd); }
   }
 
-  // 🟢 2. INVERSION PAIR/IMPAIR EN GRID
+  //  2. INVERSION PAIR/IMPAIR EN GRID
   @include media-breakpoint-up(md) {
     &:nth-child(even) .figure {
       // On inverse les largeurs de colonnes (Texte 60% | Image 40%)

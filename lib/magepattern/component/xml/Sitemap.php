@@ -113,7 +113,7 @@ class Sitemap extends XMLWriter
      * @param bool $hasImages True si le sitemap contiendra des images (ajoute le namespace)
      * @return bool
      */
-    public function init(string $uri, bool $isIndex = false, bool $hasImages = false): bool // 🟢 Ajout du 3e paramètre
+    public function init(string $uri, bool $isIndex = false, bool $hasImages = false): bool //  Ajout du 3e paramètre
     {
         try {
             // Création du dossier si inexistant
@@ -133,7 +133,7 @@ class Sitemap extends XMLWriter
             $this->startElement($rootElement);
             $this->writeAttribute('xmlns', self::NS_SITEMAP);
 
-            // 🟢 MODIFICATION ICI : On n'ajoute le namespace que si c'est explicitement demandé
+            //  MODIFICATION ICI : On n'ajoute le namespace que si c'est explicitement demandé
             if (!$isIndex && $hasImages) {
                 $this->writeAttribute('xmlns:image', self::NS_IMAGE);
             }

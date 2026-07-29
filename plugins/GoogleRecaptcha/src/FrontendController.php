@@ -10,11 +10,12 @@ class FrontendController
 {
     public static function injectScript(array $params = []): string
     {
-        // ... (votre code actuel pour injectScript reste inchangé) ...
+        // 1. Quel est le contrôleur réellement détecté ?
         $currentModule = strtolower($_GET['controller'] ?? 'home');
         $db = new FrontendDb();
 
         if (!$db->isLinkedToModule($currentModule)) {
+            // AFFICHE CE QUI A ÉTÉ DÉTECTÉ SI ÇA BLOQUE ICI
             return '';
         }
 
@@ -23,10 +24,17 @@ class FrontendController
             return '';
         }
 
-        $smarty = SmartyTool::getInstance('front');
         $file = ROOT_DIR . 'plugins' . DS . 'GoogleRecaptcha' . DS . 'views' . DS . 'front' . DS . 'hooks' . DS . 'script.tpl';
 
-        return $smarty->fetch($file, ['recaptcha_site_key' => $keys['site_key']]);
+        if (!file_exists($file)) {
+            return '';
+        }
+
+        $smarty = SmartyTool::getInstance('front');
+
+        // Il est plus sûr d'assigner la variable explicitement plutôt que dans le fetch()
+        $smarty->assign('recaptcha_site_key', $keys['site_key']);
+        return $smarty->fetch($file);
     }
 
     public function verify(string $moduleName): bool

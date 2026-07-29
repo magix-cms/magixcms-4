@@ -131,3 +131,20 @@ $container-max-widths: (
         xl: 1140px,
         xxl: 1636px //1820px // Au lieu de 1320px
 );
+
+// --------------------------------------------------
+// 11. BORDER RADIUS
+// --------------------------------------------------
+$border-radius:               .375rem;
+$border-radius-sm:            .25rem;
+$border-radius-lg:            .5rem;
+$border-radius-xl:            1rem;
+$border-radius-xxl:           2rem;
+$border-radius-pill:          50rem;
+
+// --------------------------------------------------
+// 12. BTN BORDER RADIUS
+// --------------------------------------------------
+$btn-border-radius: 8px;
+$btn-border-radius-lg: 12px;
+$btn-border-radius-sm: 4px;

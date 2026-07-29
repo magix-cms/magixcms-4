@@ -31,7 +31,7 @@ $autoloader->addNamespace('App\\Frontend\\', APP_PATH . 'Frontend' . DS);
 $autoloader->addNamespace('App\\Component\\', APP_PATH . 'Component' . DS);
 $autoloader->addNamespace('Plugins\\', ROOT_DIR . 'plugins' . DS);
 
-// 🟢 4. INTERCEPTION DES REDIRECTIONS SEO (À placer ici !)
+//  4. INTERCEPTION DES REDIRECTIONS SEO (À placer ici !)
 // On le fait avant même de configurer Smarty ou de lire les contrôleurs.
 $redirectTool = new \App\Component\Routing\RedirectTool();
 $redirectTool->checkAndRedirect();
@@ -93,13 +93,13 @@ try {
         $app->run();
 
     } else {
-        // 🟢 CAS 3 : CONTRÔLEUR INTROUVABLE -> VRAIE ERREUR 404
+        //  CAS 3 : CONTRÔLEUR INTROUVABLE -> VRAIE ERREUR 404
         $app = new \App\Frontend\Controller\ErrorController();
         $app->run();
     }
 
 } catch (\Throwable $e) {
-    // 🔴 Le catch ne sert plus aux 404, mais aux ERREURS FATALES (500)
+    //  Le catch ne sert plus aux 404, mais aux ERREURS FATALES (500)
     header("HTTP/1.0 500 Internal Server Error");
     echo "<div style='font-family: sans-serif; padding: 20px; border: 1px solid #d32f2f; background: #ffebee; color: #b71c1c;'>";
     echo "<h3>Erreur 500 - Problème critique sur le site</h3>";
