@@ -13,6 +13,8 @@
 ## Description
 **advreplace** est un outil puissant permettant d'effectuer des modifications chirurgicales dans le code HTML généré par l'éditeur, sans obliger l'utilisateur à basculer manuellement en vue "Code Source". Il est capable de nettoyer des attributs invisibles, de reformater des balises et de corriger des liens en masse.
 
+<img width="508" height="452" alt="Image" src="https://github.com/user-attachments/assets/c0147d50-423a-4b2a-bf64-03953bd5b46c" />
+
 ## Soutenir le projet
 
 Si vous souhaitez soutenir le développement, vous pouvez faire un don via PayPal :

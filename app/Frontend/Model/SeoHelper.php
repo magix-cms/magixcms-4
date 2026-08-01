@@ -162,7 +162,6 @@ class SeoHelper
 
         return '<script type="application/ld+json">' . "\n" . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n" . '</script>';
     }
-
     /**
      * Génère le JSON-LD FAQPage de manière universelle
      */
@@ -179,12 +178,17 @@ class SeoHelper
             $answer = $item['answer'] ?? '';
 
             if (!empty($question) && !empty($answer)) {
+                // Nettoyage de la question (texte brut uniquement)
+                $cleanQuestion = trim(preg_replace('/\s+/', ' ', html_entity_decode(stripslashes(strip_tags((string)$question)), ENT_QUOTES, 'UTF-8')));
+
+                $cleanAnswer = trim(preg_replace('/\s+/', ' ', html_entity_decode(stripslashes(strip_tags((string)$answer)), ENT_QUOTES, 'UTF-8')));
+
                 $mainEntity[] = [
                     '@type'          => 'Question',
-                    'name'           => trim(preg_replace('/\s+/', ' ', html_entity_decode(stripslashes(strip_tags((string)$question)), ENT_QUOTES, 'UTF-8'))),
+                    'name'           => $cleanQuestion,
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text'  => trim(preg_replace('/\s+/', ' ', html_entity_decode(stripslashes(strip_tags((string)$answer)), ENT_QUOTES, 'UTF-8')))
+                        'text'  => $cleanAnswer
                     ]
                 ];
             }
@@ -196,8 +200,10 @@ class SeoHelper
             'mainEntity' => $mainEntity
         ];
 
+        $jsonFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+
         return '<script type="application/ld+json">' . "\n" .
-            json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) .
+            json_encode($schema, $jsonFlags) .
             "\n" . '</script>';
     }
 }
