@@ -6,6 +6,7 @@
   "type": "hybrid",
   "has_config": true,
   "core_targets": {
-    "contact": 1
+    "contact": 1,
+    "news": 1
   }
 }

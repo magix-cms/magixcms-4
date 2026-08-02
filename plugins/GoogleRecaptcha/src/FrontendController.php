@@ -8,15 +8,32 @@ use Plugins\GoogleRecaptcha\db\FrontendDb;
 
 class FrontendController
 {
+    /** @var callable[] */
+    private static array $injectConditions = [];
+    /**
+     * Permet à d'autres modules d'enregistrer une condition dynamique.
+     * Le callback doit retourner un booléen (false pour bloquer l'injection).
+     */
+    public static function addInjectCondition(callable $callback): void
+    {
+        self::$injectConditions[] = $callback;
+    }
+
     public static function injectScript(array $params = []): string
     {
-        // 1. Quel est le contrôleur réellement détecté ?
         $currentModule = strtolower($_GET['controller'] ?? 'home');
         $db = new FrontendDb();
 
         if (!$db->isLinkedToModule($currentModule)) {
-            // AFFICHE CE QUI A ÉTÉ DÉTECTÉ SI ÇA BLOQUE ICI
             return '';
+        }
+
+        // --- SYSTÈME DE VETO DYNAMIQUE ---
+        // On vérifie si un autre plugin a demandé d'annuler l'injection sur cette page
+        foreach (self::$injectConditions as $condition) {
+            if ($condition($currentModule) === false) {
+                return '';
+            }
         }
 
         $keys = $db->getKeys();
@@ -31,9 +48,8 @@ class FrontendController
         }
 
         $smarty = SmartyTool::getInstance('front');
-
-        // Il est plus sûr d'assigner la variable explicitement plutôt que dans le fetch()
         $smarty->assign('recaptcha_site_key', $keys['site_key']);
+
         return $smarty->fetch($file);
     }
 
