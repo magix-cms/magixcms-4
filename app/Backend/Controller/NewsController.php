@@ -197,7 +197,7 @@ class NewsController extends BaseController
         $controller = StringTool::strtolower($_GET['controller'] ?? 'news');
 
         $rawDate = !empty($newsData['date_publish']) ? $newsData['date_publish'] : 'now';
-        $datePublish = DateTool::getDate($rawDate, 'sql');
+        $datePublish = date('Y/m/d', strtotime(DateTool::getDate($rawDate, 'sql')));
 
         foreach ($activeLangs as $langId => $iso) {
             $slug = $newsData['content'][$langId]['url_news'] ?? '';
@@ -246,7 +246,7 @@ class NewsController extends BaseController
         ];
 
         $rawDate = $mainData['date_publish'] ?: 'now';
-        $datePublish = DateTool::getDate($rawDate, 'sql');
+        $datePublish = date('Y/m/d', strtotime(DateTool::getDate($rawDate, 'sql')));
 
         if (!$db->updateNewsStructure($idNews, $mainData)) {
             $success = false;
@@ -556,7 +556,7 @@ class NewsController extends BaseController
             foreach ($result['data'] as $news) {
 
                 $rawDate = !empty($news['date_publish']) ? $news['date_publish'] : 'now';
-                $datePublish = DateTool::getDate($rawDate, 'sql');
+                $datePublish = date('Y/m/d', strtotime(DateTool::getDate($rawDate, 'sql')));
 
                 $title = !empty($news['name_news']) ? $news['name_news'] : '⚠️ (Non traduit)';
                 $slug = !empty($news['url_news']) ? $news['url_news'] : Url::clean($title);

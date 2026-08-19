@@ -155,7 +155,7 @@ class DomainController extends BaseController
         $domainLangs = $db->fetchDomainLanguages($id);
 
         $sitemapLangs = !empty($domainLangs) ? $domainLangs : $allLangs;
-        
+
         $indexFileName = "sitemap-{$cleanDomainName}.xml";
         $indexExists = file_exists(ROOT_DIR . '/' . $indexFileName);
 
@@ -325,7 +325,7 @@ class DomainController extends BaseController
                         $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'category', 'id' => $item['id'], 'url' => $item['url']]);
                     } elseif ($module === 'news') {
                         $rawDate = (!empty($item['date']) && !str_starts_with($item['date'], '0000')) ? $item['date'] : 'now';
-                        $datePublish = date('Y-m-d', strtotime($rawDate));
+                        $datePublish = date('Y/m/d', strtotime($rawDate)); // MODIFICATION ICI : 'Y-m-d' devient 'Y/m/d'
                         $uri = '/' . $iso . '/news/' . $datePublish . '/' . $item['id'] . '-' . $item['url'] . '/';
                     } elseif ($module === 'pages') {
                         $uri = $urlTool->buildUrl(['iso' => $iso, 'type' => 'pages', 'id' => $item['id'], 'url' => $item['url']]);
