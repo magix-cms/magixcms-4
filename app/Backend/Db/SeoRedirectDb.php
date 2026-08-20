@@ -52,15 +52,48 @@ class SeoRedirectDb extends BaseDb
     }
 
     /**
-     * Récupère la liste paginée pour l'affichage dans le tableau du back-office
+     * Récupère la liste paginée pour l'affichage dans le tableau du back-office (avec recherche)
+     *
+     * @param int $page Le numéro de la page en cours
+     * @param int $limit Le nombre de résultats par page
+     * @param array $search Le tableau des filtres de recherche
+     * @return array|false
      */
-    public function getPaginatedList(int $page = 1, int $limit = 25): array|false
+    public function getPaginatedList(int $page = 1, int $limit = 25, array $search = []): array|false
     {
         $qb = new QueryBuilder();
-        // ENSURE 'id_redirect' is explicitly selected here!
         $qb->select(['id_redirect', 'old_url', 'new_url', 'type_redirect', 'active'])
-            ->from('mc_seo_redirect')
-            ->orderBy('id_redirect', 'DESC');
+            ->from('mc_seo_redirect');
+
+        // GESTION DE LA RECHERCHE
+        if (!empty($search)) {
+            $nbc = 1;
+            foreach ($search as $key => $q) {
+                if ($q !== '') {
+                    $paramName = 'p' . $nbc;
+                    $binds = [];
+
+                    switch ($key) {
+                        case 'id_redirect':
+                        case 'type_redirect':
+                        case 'active':
+                            // Recherche stricte pour les ID et statuts
+                            $binds[$paramName] = $q;
+                            $qb->where("{$key} = :{$paramName}", $binds);
+                            break;
+                        case 'old_url':
+                        case 'new_url':
+                            // Recherche partielle pour les URLs
+                            $binds[$paramName] = '%' . $q . '%';
+                            $qb->where("{$key} LIKE :{$paramName}", $binds);
+                            break;
+                    }
+                    $nbc++;
+                }
+            }
+        }
+
+        $qb->orderBy('id_redirect', 'DESC');
 
         return $this->executePaginatedQuery($qb, $page, $limit);
     }

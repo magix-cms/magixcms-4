@@ -6,6 +6,7 @@ namespace App\Backend\Controller;
 
 use App\Backend\Db\SeoRedirectDb;
 use Magepattern\Component\Tool\FormTool;
+use Magepattern\Component\HTTP\Request;
 
 class SeoRedirectController extends BaseController
 {
@@ -19,6 +20,9 @@ class SeoRedirectController extends BaseController
         $this->index();
     }
 
+    /**
+     * Affiche la liste des redirections via le composant table-forms
+     */
     /**
      * Affiche la liste des redirections via le composant table-forms
      */
@@ -40,14 +44,17 @@ class SeoRedirectController extends BaseController
         // 2. Initialisation du Helper pour formater les données correctement
         $this->getScheme($rawScheme, $targetColumns, $associations);
 
-        // 3. Récupération des données paginées
-        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-        $limit = 25;
-        $redirectData = $db->getPaginatedList($page, $limit);
+        // 3. Récupération des données paginées et de la recherche
+        $page   = Request::isGet('page') ? (int)$_GET['page'] : (isset($_GET['p']) ? (int)$_GET['p'] : 1);
+        $limit  = Request::isGet('offset') ? (int)$_GET['offset'] : 25;
+        $search = $_GET['search'] ?? []; // Capture des paramètres de recherche
+
+        // On passe $search à la méthode
+        $redirectData = $db->getPaginatedList($page, $limit, $search);
 
         $meta = [];
 
-        // 4. Formatage strict des données avec getItems() pour éviter l'erreur id_redirect
+        // 4. Formatage strict des données avec getItems()
         if ($redirectData !== false) {
             $this->getItems('redirect_list', $redirectData['data'], true, $redirectData['meta']);
             $meta = $redirectData['meta'];
@@ -58,6 +65,7 @@ class SeoRedirectController extends BaseController
             'idcolumn'   => 'id_redirect',
             'hashtoken'  => $this->session->getToken(),
             'url_token'  => urlencode($this->session->getToken()),
+            'get_search' => $search, // Indispensable pour pré-remplir les inputs de recherche
             'sortable'   => false,
             'checkbox'   => true, // Permet la sélection multiple
             'edit'       => true,
