@@ -46,6 +46,9 @@
                     <li class="list-inline-item me-3">
                         <a href="{#legal_url#}" class="text-decoration-none">{#legal_label#}</a>
                     </li>
+                    <li class="list-inline-item me-3">
+                        <a href="{#cookie_page_url#}" class="text-decoration-none">{#cookie_page_label#}</a>
+                    </li>
                     <li class="list-inline-item">
                         <a href="{$base_url}{$current_lang.iso_lang}/contact/" class="text-decoration-none">{#contact_label#}</a>
                     </li>
