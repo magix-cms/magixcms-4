@@ -84,15 +84,16 @@ abstract class BaseController
 
         $this->initSiteUrl();
         $this->initSkin();
+        $this->initLanguage();
+        $this->initTranslations();
 
         $this->checkMaintenanceMode();
 
-        $this->initLanguage();
+
         $this->initCookieConsent();
         $this->initDeviceDetection();
         $this->initGlobalData();
         $this->initMenu();
-        $this->initTranslations();
         $this->initCanonicalUrl();
     }
 

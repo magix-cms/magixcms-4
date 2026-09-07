@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Backend\Controller;
 
 use App\Backend\Db\ProductDb;
-use App\Backend\Db\CategoryDb; // Nécessaire pour récupérer l'arborescence et l'URL parente
+use App\Backend\Db\CategoryDb;
 use App\Component\Db\ConfigDb;
 use App\Component\Routing\UrlTool;
 use App\Component\File\UploadTool;
@@ -42,7 +42,6 @@ class ProductController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
         $db = new ProductDb();
 
-        // Ajout de date_register pour coller au design category
         $targetColumns = ['id_product', 'reference_p', 'name_p', 'default_category_name', 'price_p', 'published_p', 'date_register'];
 
         $rawScheme = array_merge(
@@ -154,7 +153,6 @@ class ProductController extends BaseController
         $urlTool = new UrlTool();
         $defaultCategoryData = $product['default_category_id'] > 0 ? $catDb->fetchCategoryById($product['default_category_id']) : null;
 
-        // Calcul des URLs publiques
         foreach ($activeLangs as $langId => $iso) {
             $slug = $product['content'][$langId]['url_p'] ?? '';
             $urlParent = $defaultCategoryData ? ($defaultCategoryData['content'][$langId]['url_cat'] ?? '') : '';
@@ -174,7 +172,7 @@ class ProductController extends BaseController
 
         $this->view->assign([
             'product'         => $product,
-            'category_tree' => $categoryTree,
+            'category_tree'   => $categoryTree,
             'langs'           => $activeLangs,
             'hashtoken'       => $this->session->getToken()
         ]);
@@ -191,7 +189,6 @@ class ProductController extends BaseController
 
         $db = new ProductDb();
 
-        // Formatage de la structure
         $structureData = [
             'price_p'        => (float)str_replace(',', '.', $_POST['price_p'] ?? '0'),
             'price_promo_p'  => (float)str_replace(',', '.', $_POST['price_promo_p'] ?? '0'),
@@ -207,22 +204,22 @@ class ProductController extends BaseController
         $newId = $db->insertProductStructure($structureData);
 
         if ($newId) {
-            // Gestion des catégories
             $categories = isset($_POST['categories']) && is_array($_POST['categories']) ? array_map('intval', $_POST['categories']) : [];
             $defaultCat = (int)($_POST['default_category'] ?? 0);
 
             // --- CORRECTION CRITIQUE ICI ---
-            // On force le defaultCat côté Contrôleur AVANT de générer les traductions et l'URL
-            if (!in_array($defaultCat, $categories) && count($categories) > 0) {
+            // 1. La catégorie par défaut DOIT faire partie du tableau pour ne pas être effacée en BDD.
+            if ($defaultCat > 0 && !in_array($defaultCat, $categories, true)) {
+                $categories[] = $defaultCat;
+            }
+            // 2. Si aucune catégorie par défaut n'est choisie, mais que des cases sont cochées, on force la première.
+            elseif ($defaultCat === 0 && count($categories) > 0) {
                 $defaultCat = $categories[0];
             }
 
             $db->saveProductCategories($newId, $categories, $defaultCat);
-
-            // Gestion des traductions (qui utilisera maintenant le bon $defaultCat)
             $this->saveTranslations($db, $newId, $defaultCat);
 
-            //  PURGE DU CACHE (Impact croisé)
             CacheManager::clearFrontend('product');
             CacheManager::clearFrontend('category');
 
@@ -257,15 +254,18 @@ class ProductController extends BaseController
             $defaultCat = (int)($_POST['default_category'] ?? 0);
 
             // --- CORRECTION CRITIQUE ICI ---
-            if (!in_array($defaultCat, $categories) && count($categories) > 0) {
+            // 1. La catégorie par défaut DOIT faire partie du tableau pour ne pas être effacée en BDD.
+            if ($defaultCat > 0 && !in_array($defaultCat, $categories, true)) {
+                $categories[] = $defaultCat;
+            }
+            // 2. Si aucune catégorie par défaut n'est choisie, mais que des cases sont cochées, on force la première.
+            elseif ($defaultCat === 0 && count($categories) > 0) {
                 $defaultCat = $categories[0];
             }
 
             $db->saveProductCategories($id, $categories, $defaultCat);
-
             $publicUrls = $this->saveTranslations($db, $id, $defaultCat);
 
-            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
             CacheManager::clearFrontend('category');
 
@@ -311,10 +311,8 @@ class ProductController extends BaseController
 
                 $db->saveProductContent($idProduct, $idLang, $contentData);
 
-                //  AJOUT : Enregistrement dans l'historique si le contenu n'est pas vide
                 if (!empty($contentData['content_p'])) {
                     $revDb = new RevisionsDb();
-                    // Paramètres : item_type, item_id, id_lang, nom_du_champ, contenu
                     $revDb->saveRevision('product', $idProduct, (int)$idLang, 'content_p', $contentData['content_p']);
                 }
 
@@ -333,10 +331,6 @@ class ProductController extends BaseController
 
         return $publicUrls;
     }
-
-    // ==========================================
-    // GESTION DES IMAGES (LA GALERIE)
-    // ==========================================
 
     public function processUploadImages(): void
     {
@@ -378,9 +372,7 @@ class ProductController extends BaseController
         }
 
         if ($uploadedCount > 0) {
-            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
-
             $this->jsonResponse(true, "$uploadedCount image(s) ajoutée(s).", ['uploaded' => $uploadedCount]);
         } else {
             $msg = !empty($errors) ? implode(', ', $errors) : 'Erreur lors du traitement.';
@@ -432,9 +424,7 @@ class ProductController extends BaseController
             }
 
             if ($deletedCount > 0) {
-                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
-
                 $this->jsonResponse(true, "$deletedCount image(s) supprimée(s).", ['type' => 'delete_success']);
             }
         }
@@ -449,9 +439,7 @@ class ProductController extends BaseController
         if (!empty($imageIds) && is_array($imageIds)) {
             $db = new ProductDb();
             if ($db->reorderImages($imageIds)) {
-                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
-
                 $this->jsonResponse(true, 'L\'ordre des images a été sauvegardé.', ['type' => 'order_success']);
             }
         }
@@ -466,9 +454,7 @@ class ProductController extends BaseController
         if ($idProduct > 0 && $idImg > 0) {
             $db = new ProductDb();
             if ($db->setDefaultImage($idProduct, $idImg)) {
-                //  PURGE DU CACHE
                 CacheManager::clearFrontend('product');
-
                 $this->jsonResponse(true, 'Image par défaut mise à jour.', ['type' => 'update']);
             }
         }
@@ -541,46 +527,36 @@ class ProductController extends BaseController
         }
 
         if ($success) {
-            //  PURGE DU CACHE
             CacheManager::clearFrontend('product');
         }
 
         $this->jsonResponse($success, $success ? 'Métadonnées sauvegardées avec succès.' : 'Erreur lors de la sauvegarde.');
     }
-    /**
-     * Construit un arbre hiérarchique à partir d'une liste plate de catégories.
-     */
+
     private function buildCategoryTree(array $flatCategories): array
     {
         $tree = ['root' => []];
         $indexed = [];
 
-        // 1. Indexation par ID et initialisation du conteneur d'enfants
         foreach ($flatCategories as $cat) {
             $cat['subdata'] = [];
             $indexed[$cat['id_cat']] = $cat;
         }
 
-        // 2. Création de la hiérarchie via les références
         foreach ($indexed as $id => &$cat) {
             $parentId = (int)($cat['parent_cat'] ?? 0);
 
-            // Si c'est un parent de 1er niveau ou si le parent n'est pas dans le dataset, on l'attache à la racine
             if ($parentId === 0 || !isset($indexed[$parentId])) {
                 $tree['root'][] = &$cat;
             } else {
-                // Sinon, on l'attache dans les "subdata" de son parent direct
                 $indexed[$parentId]['subdata'][] = &$cat;
             }
         }
-        unset($cat); // Toujours détruire la référence après la boucle
+        unset($cat);
 
         return $tree['root'];
     }
 
-    /**
-     * Affiche la liste des produits dans une fenêtre modale allégée pour TinyMCE
-     */
     public function tinymcePopup(): void
     {
         $db = new ProductDb();
@@ -598,7 +574,6 @@ class ProductController extends BaseController
             $title = !empty($p['name_p']) ? $p['name_p'] : '⚠️ (Non traduit)';
             $slug = !empty($p['url_p']) ? $p['url_p'] : Url::clean($title);
 
-            // Construction de l'URL publique stricte via UrlTool
             $publicUrl = $urlTool->buildUrl([
                 'iso'          => $iso,
                 'type'         => 'product',
