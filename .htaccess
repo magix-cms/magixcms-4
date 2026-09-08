@@ -196,11 +196,13 @@ ErrorDocument 500 /index.php?http_error=500
         RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [R=301,QSA,L]
     </IfModule>
 
-    # 3. FORCER LE WWW - Désactivé en local
+    # 3. FORCER LE WWW - Désactivé en local et sur les sous-domaines
     RewriteCond %{HTTP_HOST} !^www\.
     RewriteCond %{HTTP_HOST} !^localhost$
     RewriteCond %{HTTP_HOST} !\.test$
-    RewriteRule .* http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Appliquer UNIQUEMENT si le domaine ressemble à domaine.com (1 seul point)
+    RewriteCond %{HTTP_HOST} ^[^.]+\.[^.]+$
+    RewriteRule .* %{REQUEST_SCHEME}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # 4. RÉÉCRITURE EN CASCADE (Logique URL Front-end)
     RewriteCond %{REQUEST_FILENAME} !-f
