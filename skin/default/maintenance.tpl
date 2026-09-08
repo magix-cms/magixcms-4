@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{#maintenance_page_title#} - {$companyData.name|default:#maintenance_site_default#}</title>
+    <title>{#maintenance_page_title#} - {$companyData|default:#maintenance_site_default#}</title>
 
-    <link rel="stylesheet" href="{$skin_url}/css/global.css">
+    <link rel="stylesheet" href="{$skin_url}/css/global.min.css">
 
     <style>
         .maintenance-wrapper { height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -25,7 +25,7 @@
                         {#maintenance_title#}
                     </h1>
                     <p class="lead text-muted mb-4">
-                        {#maintenance_text#}
+                        {#maintenance_text# nofilter}
                     </p>
                     <div class="progress mb-3" style="height: 4px;">
                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary w-100" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
