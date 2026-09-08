@@ -10,6 +10,7 @@ $invert-base-color: map-get($theme-color-map, "dark"); // Modifiable selon vos b
     background-color: $color;
     border-color: $color;
     color: get-contrast-txt($color);
+    // font-family: $headings-font-family;
 
     &:hover, &:focus {
       background-color: darken($color, 8%);
@@ -83,7 +84,7 @@ $invert-base-color: map-get($theme-color-map, "dark"); // Modifiable selon vos b
 
     // 8. WHITE (Prend un fond blanc au survol)
     &-white {
-      @include button-invert-fill($color, #ffffff);
+      @include button-invert-fill($color, #ffffff, 1, $color);
     }
 
     // 9. INVERT TRANSPARENT (Opacité 0.7 au survol)

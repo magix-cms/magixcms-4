@@ -99,8 +99,11 @@
 // ==========================================
 
 // Ce mixin remplace vos anciens `-outline`, `-invert`, `-white` et `-invert-transparent`
-@mixin button-invert-fill($base-color, $hover-color, $opacity: 1) {
-  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+@mixin button-invert-fill($base-color, $hover-color, $opacity: 1, $hover-text-color: null) {
+  // Si une couleur est fournie, on l'utilise, sinon on calcule le contraste auto
+  $text-on-hover: if($hover-text-color != null, $hover-text-color, get-contrast-txt($hover-color));
+
+  position: relative; z-index: 1; overflow: hidden;
   background-color: transparent !important;
   border: 1px solid $base-color; color: $base-color;
   transition: all 0.3s ease;
@@ -113,17 +116,19 @@
   }
   &:hover {
     border-color: $hover-color;
-    color: get-contrast-txt($hover-color) !important;
+    color: $text-on-hover !important; // Utilise la couleur calculée/imposée get-contrast-txt($hover-color) !important;
     &:before { width: 100%; }
   }
   @include color-mode(dark) {
     $dark-base: if(lightness($base-color) < 30, lighten($base-color, 30%), $base-color);
     $dark-hover: if(lightness($hover-color) < 30, lighten($hover-color, 30%), $hover-color);
+    $dark-text: if($hover-text-color != null, $hover-text-color, get-contrast-txt($dark-hover));
+
     border-color: $dark-base; color: $dark-base;
     &:before { background-color: if($opacity < 1, rgba($dark-hover, $opacity), $dark-hover); }
     &:hover {
       border-color: $dark-hover;
-      color: get-contrast-txt($dark-hover) !important;
+      color: $dark-text !important;//get-contrast-txt($dark-hover) !important;
     }
   }
 }
