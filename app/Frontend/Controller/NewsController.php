@@ -135,6 +135,7 @@ class NewsController extends BaseController
 
             foreach ($rawList as $raw) {
                 $formatted = NewsPresenter::format($raw, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
+                $formatted['tags'] = $this->db->getNewsTags((int)$raw['id_news'], $idLang);
                 $newsList[] = $formatted;
                 if (!empty($formatted['schema_raw'])) {
                     $itemListElements[] = ['@type' => 'ListItem', 'position' => $position++, 'item' => $formatted['schema_raw']];
