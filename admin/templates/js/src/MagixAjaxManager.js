@@ -183,19 +183,34 @@ class MagixAjaxManager {
 
     deleteItem(idItem) {
         this.itemToDelete = idItem;
+
+        // 1. NETTOYAGE DES DOUBLONS (Modales orphelines)
+        // On supprime les anciennes modales qui ont été stockées dans <body>
+        // lors des requêtes AJAX précédentes pour éviter les conflits d'ID.
+        const orphanedModals = document.querySelectorAll('body > #ajax_delete_modal');
+        orphanedModals.forEach(modal => modal.remove());
+
+        // 2. On récupère la toute nouvelle modale fraîchement chargée via loadList()
         const modalEl = document.getElementById('ajax_delete_modal');
 
         if (modalEl) {
+            // Déplacement à la racine du body pour un affichage propre par Bootstrap
             if (modalEl.parentNode !== document.body) {
                 document.body.appendChild(modalEl);
             }
 
-            const confirmBtn = document.getElementById('ajax_confirm_delete_btn');
-            confirmBtn.onclick = () => this.executeDelete();
+            // 3. CIBLAGE SÉCURISÉ DU BOUTON
+            // On cherche le bouton *spécifiquement* dans cette modale, pas dans tout le document
+            const confirmBtn = modalEl.querySelector('#ajax_confirm_delete_btn');
+            if (confirmBtn) {
+                confirmBtn.onclick = () => this.executeDelete();
+            }
 
-            this.deleteModalInstance = new bootstrap.Modal(modalEl);
+            // 4. Utilisation de la méthode Bootstrap 5 recommandée
+            this.deleteModalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
             this.deleteModalInstance.show();
         } else {
+            // Fallback natif si la modale Bootstrap n'est pas présente dans le DOM
             if (confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
                 this.executeDelete();
             }
@@ -207,6 +222,7 @@ class MagixAjaxManager {
 
         const formData = new FormData();
         const tokenInput = document.getElementById(`${this.prefix}_hashtoken`) || document.querySelector('input[name="hashtoken"]');
+
         formData.append('hashtoken', tokenInput.value);
         formData.append(`id_${this.suffix}`, this.itemToDelete);
 
@@ -217,7 +233,7 @@ class MagixAjaxManager {
             .then(res => res.json())
             .then(data => {
                 if (this.deleteModalInstance) {
-                    //  CORRECTION ARIA : On retire le focus actif avant de fermer la modale
+                    // CORRECTION ARIA : On retire le focus actif avant de fermer la modale
                     if (document.activeElement) {
                         document.activeElement.blur();
                     }
@@ -226,10 +242,24 @@ class MagixAjaxManager {
 
                 if (data.status || data.success) {
                     MagixToast.success(data.message);
+
+                    // --- CORRECTION DU TOKEN CSRF ---
+                    // Si le serveur a renvoyé un nouveau jeton, on met à jour l'input caché
+                    if (data.hashtoken && tokenInput) {
+                        tokenInput.value = data.hashtoken;
+                    }
+
+                    // On peut maintenant recharger la liste sans craindre l'expiration du jeton
                     this.loadList();
                 } else {
                     MagixToast.error(data.message);
                 }
+                this.itemToDelete = null;
+            })
+            .catch(error => {
+                console.error("Erreur de suppression:", error);
+                MagixToast.error("Erreur réseau lors de la suppression.");
+                if (this.deleteModalInstance) this.deleteModalInstance.hide();
                 this.itemToDelete = null;
             });
     }
