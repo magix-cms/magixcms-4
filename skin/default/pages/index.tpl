@@ -80,7 +80,7 @@
                     <div class="col-12 mb-4">
                         <h3 class="fw-bold text-primary">{#pages_learn_more#}</h3>
                     </div>
-                    {include file="pages/loop/pages-grid.tpl" data=$pages.subdata classType="normal"}
+                    {include file="pages/loop/pages-grid.tpl" data=$pages.subdata classType="normal" animate=false animType="fade-up"}
                 </div>
             </section>
         {/if}

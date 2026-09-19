@@ -13,12 +13,17 @@
     {* Classes supplémentaires et troncature *}
     {$extraClass = $extraClass|default:""}
     {$truncate = $truncate|default:200}
+    {* Options d'animation *}
+    {$animate = $animate|default:false}
+    {* Choix par défaut parmi : fade-up, fade-down, fade-left, fade-right, zoom-in *}
+    {$animType = $animType|default:'fade-up'}
 {/strip}
 
 {if isset($data) && $data|count > 0}
     <ul class="category-list{$class} list-grid mb-0 {$extraClass}">
-        {foreach $data as $item}
-            <li class="category-card{$class}">
+        {foreach $data as $index => $item}
+            {$delay = ($index % 5) + 1}
+            <li class="category-card{$class}{if $animate} animate-on-scroll {$animType} delay-{$delay}{/if}">
                 <div class="figure transition-hover">
                     <a href="{$item.url}" class="time-figure rounded-top">
                         {include file="components/img.tpl" img=$item.img responsiveC=true lazy=$lazy}

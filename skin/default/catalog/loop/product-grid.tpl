@@ -13,12 +13,17 @@
     {* Classes supplémentaires et troncature *}
     {$extraClass = $extraClass|default:""}
     {$truncate = $truncate|default:200}
+    {* Options d'animation *}
+    {$animate = $animate|default:false}
+    {* Choix par défaut parmi : fade-up, fade-down, fade-left, fade-right, zoom-in *}
+    {$animType = $animType|default:'fade-up'}
 {/strip}
 
 {if isset($data) && $data|count > 0}
     <ul class="product-list{$class} list-grid mb-0 {$extraClass}">
-        {foreach $data as $item}
-            <li class="product-card{$class}">
+        {foreach $data as $index => $item}
+            {$delay = ($index % 5) + 1}
+            <li class="product-card{$class}{if $animate} animate-on-scroll {$animType} delay-{$delay}{/if}">
                 <div class="figure bg-body transition-hover">
                     <div class="time-figure rounded-top position-relative">
                         {if $item.has_promo}
