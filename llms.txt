@@ -26,8 +26,8 @@
 - Les icônes utilisées sont exclusivement `bootstrap-icons`.
 
 ## 5. Ressources utiles
-- GitHub Repository : https://github.com/magix-cms/magixcms-4
-- Documentation (WIP) : https://www.magix-cms.com/fr/pages/1-documentation/
+- GitHub Repository : [Dépôt GitHub Magix CMS 4](https://github.com/magix-cms/magixcms-4)
+- Documentation (WIP) : [Documentation officielle](https://www.magix-cms.com/fr/pages/1-documentation/)
 
 ## 6. Contexte du projet
 - Client : Magix CMS 4.
