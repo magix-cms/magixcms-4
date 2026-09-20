@@ -132,7 +132,7 @@ class NewsDb extends BaseDb
      * Récupère la liste des actualités paginée avec cache SQL
      */
     /**
-     * MOTEUR DE LISTING GÉNÉRIQUE (Root, Tags, Archives...)
+     * MOTEUR DE LISTING GÉNÉRIQUE (Root, Tags, Archives, Widgets...)
      */
     public function getNewsList(int $idLang, array $filters = []): array
     {
@@ -168,6 +168,22 @@ class NewsDb extends BaseDb
             $qb->where('MONTH(n.date_publish) = :month', ['month' => $filters['month']]);
         }
 
+        // --- NOUVEAU FILTRE & TRI ---
+        if (isset($filters['is_event'])) {
+            if ($filters['is_event'] === true) {
+                // Mode AGENDA : Uniquement les évènements + Tri par date d'évènement
+                $qb->where('n.date_event_start IS NOT NULL');
+                $qb->orderBy('n.date_event_start', 'ASC');
+            } else {
+                // Mode BLOG : Uniquement les news classiques + Tri par date de publication
+                $qb->where('n.date_event_start IS NULL');
+                $qb->orderBy('n.date_publish', 'DESC');
+            }
+        } else {
+            // Mode MIXTE (Comportement historique : on affiche tout)
+            $qb->orderBy('n.date_publish', 'DESC');
+        }
+
         // OVERRIDE
         $overrides = HookManager::triggerFilter('extendNewsList', []);
         if (!empty($overrides)) {
@@ -178,21 +194,21 @@ class NewsDb extends BaseDb
             }
         }
 
-        // Tri
-        $qb->orderBy('n.date_publish', 'DESC');
-
         // GESTION DE LA PAGINATION
         $currentPage = $filters['page'] ?? 1;
         $itemsPerPage = $filters['limit'] ?? 12;
 
-        //  LA CORRECTION EST ICI :
-        // On injecte la page et la limite dans les paramètres du hash pour créer
-        // des fichiers de cache totalement distincts.
+        // CRÉATION DU HASH SÉCURISÉ POUR LE CACHE
         $hashParams = $qb->getParams();
         $hashParams['hash_page'] = $currentPage;
         $hashParams['hash_limit'] = $itemsPerPage;
 
-        // 2. Génération de la clé avec les nouveaux paramètres sécurisés
+        // On différencie les caches selon le type d'affichage demandé (Agenda ou Blog)
+        if (isset($filters['is_event'])) {
+            $hashParams['is_event'] = $filters['is_event'] ? 1 : 0;
+        }
+
+        // 2. Génération de la clé et vérification du cache
         $cacheKey = $cache->generateKey($qb->getSql(), $hashParams, 'news_list');
         $cachedData = $cache->get($cacheKey);
 

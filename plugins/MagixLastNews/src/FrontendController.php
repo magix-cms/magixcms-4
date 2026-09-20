@@ -7,64 +7,88 @@ use App\Frontend\Db\NewsDb;
 use App\Frontend\Model\NewsPresenter;
 use Magepattern\Component\Tool\SmartyTool;
 use App\Frontend\Db\CompanyDb;
+use App\Component\Db\PluginDb;
 
 class FrontendController
 {
     /**
-     * Méthode appelée par défaut par le HookManager (Priorité B)
+     * Méthode appelée par défaut par le HookManager
      */
     public static function renderWidget(array $params = []): string
     {
-        // =========================================================
-        //  1. L'AIGUILLAGE INTELLIGENT
-        // On regarde quel Hook est en train d'appeler ce module
-        // =========================================================
         $hookName = $params['name'] ?? '';
 
-        // Si le nom du hook commence par 'displayFooterCol', on redirige vers le design Footer
+        // Aiguillage pour le footer
         if (str_starts_with($hookName, 'displayFooterCol')) {
             return self::renderFooterWidget($params);
         }
 
         // =========================================================
-        //  2. SINON, RENDU NORMAL (Ex: Page d'accueil - displayHome)
+        //  1. DÉTECTION DYNAMIQUE BASÉE SUR L'ORDRE DU LAYOUT
+        // =========================================================
+        static $callCount = [];
+
+        // On initialise le compteur pour ce Hook spécifique
+        if (!isset($callCount[$hookName])) {
+            $callCount[$hookName] = 0;
+        }
+
+        $currentIndex = $callCount[$hookName];
+        $callCount[$hookName]++;
+
+        // Appel de la méthode globale pour connaître l'ordre d'affichage
+        $pluginDb = new PluginDb();
+        $widgetOrder = $pluginDb->getWidgetOrder($hookName, 'MagixLastNews');
+
+        $itemSlug = '';
+        if (isset($widgetOrder[$currentIndex])) {
+            $itemSlug = strtolower((string)($widgetOrder[$currentIndex]['item_slug'] ?? ''));
+        }
+
+        $isEventMode = ($itemSlug === 'calendar');
+
+        // =========================================================
+        //  2. RÉCUPÉRATION DES DONNÉES SQL
         // =========================================================
         $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
         $idLang = (int)$currentLang['id_lang'];
-        $siteUrl = $params['site_url'] ?? 'http://localhost';
+        $siteUrl = rtrim($params['site_url'] ?? 'http://localhost', '/');
 
-        // On instancie le moteur central des News
         $newsDb = new NewsDb();
 
-        // On récupère le tableau complet (items + pagination)
-        $dbResult = $newsDb->getNewsList($idLang, [
-            'limit' => 3 // Je ne veux que les 3 dernières !
-        ]);
+        $queryFilters = ['limit' => 3];
+        $queryFilters['is_event'] = $isEventMode;
 
-        // On extrait uniquement les articles (items)
+        $dbResult = $newsDb->getNewsList($idLang, $queryFilters);
         $rawNews = $dbResult['items'] ?? [];
 
         if (empty($rawNews)) {
-            return ''; // S'il n'y a pas de news, on n'affiche rien
+            return '';
         }
 
-        // Formatage via le Presenter universel
         $lastNews = [];
         $companyDb = new CompanyDb();
         $companyInfo = $companyDb->getCompanyInfo();
 
         foreach ($rawNews as $row) {
             $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
-            // Récupérer les tags pour le widget
             $formatted['tags'] = $newsDb->getNewsTags((int)$formatted['id'], $idLang);
             $lastNews[] = $formatted;
         }
 
-        // Envoi à Smarty
+        // =========================================================
+        //  3. RENDU SMARTY SÉCURISÉ
+        // =========================================================
         $view = SmartyTool::getInstance('front');
+
+        $view->assign('is_event_widget', $isEventMode);
         $view->assign('last_news', $lastNews);
 
-        return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget.tpl');
+        // On inclut $currentIndex dans le hash pour garantir que Smarty
+        // génère bien deux blocs distincts en mémoire cache.
+        $cacheId = md5('magixlastnews_' . $hookName . '_' . $itemSlug . '_' . $currentIndex);
+
+        return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget.tpl', $cacheId);
     }
 
     /**
@@ -74,19 +98,19 @@ class FrontendController
     {
         $currentLang = $params['current_lang'] ?? ['id_lang' => 1, 'iso_lang' => 'fr'];
         $idLang = (int)$currentLang['id_lang'];
-        $siteUrl = $params['site_url'] ?? 'http://localhost';
+        $siteUrl = rtrim($params['site_url'] ?? 'http://localhost', '/');
 
         $newsDb = new NewsDb();
 
-        // On limite strictement à 3 pour le footer
         $dbResult = $newsDb->getNewsList($idLang, [
-            'limit' => 3
+            'limit' => 3,
+            'is_event' => false
         ]);
 
         $rawNews = $dbResult['items'] ?? [];
 
         if (empty($rawNews)) {
-            return ''; // Pas de news = on n'affiche pas la colonne
+            return '';
         }
 
         $footerNews = [];
@@ -94,16 +118,15 @@ class FrontendController
         $companyInfo = $companyDb->getCompanyInfo();
 
         foreach ($rawNews as $row) {
-            // Utilisation de votre Presenter pour un formatage parfait et sécurisé
             $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
-            // Note : On a ignoré les tags ici pour la performance (non nécessaires dans le footer)
             $footerNews[] = $formatted;
         }
 
         $view = SmartyTool::getInstance('front');
-        // On assigne sous un nom de variable différent pour éviter tout conflit
         $view->assign('footer_news', $footerNews);
 
-        return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget_footer.tpl');
+        $cacheId = md5('magixlastnews_footer_' . $idLang);
+
+        return $view->fetch(ROOT_DIR . 'plugins/MagixLastNews/views/front/widget_footer.tpl', $cacheId);
     }
 }

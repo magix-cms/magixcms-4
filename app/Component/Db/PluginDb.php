@@ -38,4 +38,35 @@ class PluginDb
             return [];
         }
     }
+
+    /**
+     * Récupère l'ordre d'affichage des widgets pour un hook donné.
+     * Permet de synchroniser les instances multiples d'un même plugin (ex: Blog vs Agenda).
+     *
+     * @param string $hookName Le nom du hook (ex: 'displayHomeTop')
+     * @param string $moduleName Le nom du module (ex: 'MagixLastNews')
+     * @return array Tableau contenant l'ordre des item_slugs
+     */
+    public function getWidgetOrder(string $hookName, string $moduleName): array
+    {
+        try {
+            $qb = new QueryBuilder();
+            $qb->select(['hi.item_slug'])
+                ->from('mc_hook_item', 'hi')
+                ->join('mc_hook', 'h', 'hi.id_hook = h.id_hook')
+                ->where('h.name = :hook', ['hook' => $hookName])
+                ->where('hi.module_name = :module', ['module' => $moduleName])
+                ->where('hi.active = 1')
+                ->orderBy('hi.position', 'ASC');
+
+            $layer = Layer::getInstance();
+            $result = $layer->fetchAll($qb->getSql(), $qb->getParams());
+
+            return is_array($result) ? $result : [];
+
+        } catch (\Throwable $e) {
+            Logger::getInstance()->log($e, "php", "error", Logger::LOG_MONTH, Logger::LOG_LEVEL_ERROR);
+            return [];
+        }
+    }
 }
