@@ -759,7 +759,7 @@ CREATE TABLE IF NOT EXISTS `mc_setting` (
 INSERT INTO `mc_setting` (`name`, `value`, `type`, `label`, `category`) VALUES
 ('theme', 'default', 'string', 'site theme', 'theme'),
 ('analytics', NULL, 'string', 'google analytics', 'google'),
-('magix_version', '4.0.0', 'string', 'Version Magix CMS', 'release'),
+('magix_version', '4.0.1', 'string', 'Version Magix CMS', 'release'),
 ('vat_rate', '21', 'float', 'VAT Rate', 'catalog'),
 ('price_display', 'tinc', 'string', 'Price display with or without tax included', 'catalog'),
 ('product_per_page', '12', 'int', 'Number of product per page in the pages of the catalog', 'catalog'),
