@@ -66,7 +66,15 @@ class NewsController extends BaseController
                 }
             }
 
-            $news['tags'] = $this->db->getNewsTags($id, $idLang);
+            // On récupère les tags et on prépare le slug pour la vue détaillée
+            $tags = $this->db->getNewsTags($id, $idLang);
+            if ($tags) {
+                foreach ($tags as &$tag) {
+                    $tag['slug'] = Url::clean($tag['name_tag']);
+                }
+                unset($tag);
+            }
+            $news['tags'] = $tags;
 
             $urlTool = new UrlTool();
             $allLangs = $this->view->getTemplateVars('langs');
@@ -135,7 +143,17 @@ class NewsController extends BaseController
 
             foreach ($rawList as $raw) {
                 $formatted = NewsPresenter::format($raw, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
-                $formatted['tags'] = $this->db->getNewsTags((int)$raw['id_news'], $idLang);
+
+                // On récupère les tags et on prépare le slug proprement
+                $tags = $this->db->getNewsTags((int)$raw['id_news'], $idLang);
+                if ($tags) {
+                    foreach ($tags as &$tag) {
+                        $tag['slug'] = Url::clean($tag['name_tag']);
+                    }
+                    unset($tag); // Libérer la référence
+                }
+                $formatted['tags'] = $tags;
+
                 $newsList[] = $formatted;
                 if (!empty($formatted['schema_raw'])) {
                     $itemListElements[] = ['@type' => 'ListItem', 'position' => $position++, 'item' => $formatted['schema_raw']];

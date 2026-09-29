@@ -8,6 +8,7 @@ use App\Frontend\Model\NewsPresenter;
 use Magepattern\Component\Tool\SmartyTool;
 use App\Frontend\Db\CompanyDb;
 use App\Component\Db\PluginDb;
+use Magepattern\Component\HTTP\Url;
 
 class FrontendController
 {
@@ -72,7 +73,17 @@ class FrontendController
 
         foreach ($rawNews as $row) {
             $formatted = NewsPresenter::format($row, $currentLang, $siteUrl, $companyInfo);
-            $formatted['tags'] = $newsDb->getNewsTags((int)$formatted['id'], $idLang);
+
+            // Nettoyage des tags avec Url::clean()
+            $tags = $newsDb->getNewsTags((int)$formatted['id'], $idLang);
+            if ($tags) {
+                foreach ($tags as &$tag) {
+                    $tag['slug'] = Url::clean($tag['name_tag']);
+                }
+                unset($tag);
+            }
+            $formatted['tags'] = $tags;
+
             $lastNews[] = $formatted;
         }
 
