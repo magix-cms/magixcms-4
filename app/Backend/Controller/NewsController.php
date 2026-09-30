@@ -43,20 +43,76 @@ class NewsController extends BaseController
         $idLangue = (int)$this->defaultLang['id_lang'];
         $db = new NewsDb();
 
-        $targetColumns = ['id_news', 'name_news', 'published_news', 'date_publish', 'date_register'];
-
+        $targetColumns = [
+            'id_news',
+            'name_news',
+            'event_type',
+            'event_dates',
+            'published_news',
+            'date_publish',
+            'date_register'
+        ];
         $rawScheme = array_merge(
             $db->getTableScheme('mc_news'),
             $db->getTableScheme('mc_news_content')
         );
 
         $associations = [
-            'id_news'        => ['title' => 'id', 'type' => 'text', 'class' => 'text-center text-muted small px-4'],
-            'name_news'      => ['title' => 'name', 'type' => 'text', 'class' => 'w-50 fw-bold'],
-            'published_news' => ['title' => 'status', 'type' => 'bin', 'class' => 'text-center px-3', 'enum' => 'status_'],
-            'date_publish'   => ['title' => 'Publication', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small'],
-            'date_register'  => ['title' => 'date', 'type' => 'date', 'class' => 'text-center text-nowrap text-muted small']
+            'id_news'          => [
+                'title' => 'id',
+                'type' => 'text',
+                'class' => 'text-center text-muted small px-4',
+                // On ajoute un champ texte pour chercher par ID
+                'input' => ['type' => 'text', 'placeholder' => 'ID']
+            ],
+            'name_news'        => [
+                'title' => 'name',
+                'type' => 'text',
+                'class' => 'w-25 fw-bold',
+                // Champ texte standard pour le nom
+                'input' => ['type' => 'text', 'placeholder' => 'Rechercher un titre...']
+            ],
+            'event_type'       => [
+                'title' => 'Type',
+                'type' => 'html',
+                'class' => 'text-nowrap',
+                'input' => [
+                    'type' => 'select',
+                    'values' => [
+                        ['v' => 'event', 'name' => 'Évènement'],
+                        ['v' => 'article', 'name' => 'Article']
+                    ]
+                ]
+            ],
+            'event_dates'      => [
+                'title' => 'Évènement',
+                'type' => 'text',
+                'class' => 'text-muted small text-nowrap',
+                'input' => null
+            ],
+            'published_news'   => [
+                'title' => 'status',
+                'type' => 'bin',
+                'class' => 'text-center px-3',
+                'enum' => 'status_'
+            ],
+            'date_publish'     => [
+                'title' => 'Publication',
+                'type' => 'date',
+                'class' => 'text-center text-nowrap text-muted small',
+                'input' => ['type' => 'text', 'placeholder' => 'ex: 2026-09-29', 'class' => 'text-center']
+            ],
+            'date_register'    => [
+                'title' => 'date',
+                'type' => 'date',
+                'class' => 'text-center text-nowrap text-muted small',
+                'input' => ['type' => 'text', 'placeholder' => 'ex: 2026-09', 'class' => 'text-center']
+            ]
         ];
+
+        // On injecte les colonnes virtuelles dans le RawScheme pour que le formateur Smarty les accepte
+        $rawScheme[] = ['column' => 'event_type', 'type' => 'varchar(50)'];
+        $rawScheme[] = ['column' => 'event_dates', 'type' => 'varchar(255)'];
 
         $this->getScheme($rawScheme, $targetColumns, $associations);
 
@@ -69,6 +125,29 @@ class NewsController extends BaseController
         $meta = [];
 
         if ($result !== false) {
+
+            foreach ($result['data'] as &$row) {
+                // Détection du type
+                if (!empty($row['date_event_start'])) {
+                    // C'est un évènement
+                    $row['event_type'] = '<span class="badge bg-info text-dark"><i class="bi bi-calendar-event me-1"></i> Évènement</span>';
+
+                    // Formatage des dates
+                    $dStart = date('d/m/Y', strtotime($row['date_event_start']));
+                    if (!empty($row['date_event_end'])) {
+                        $dEnd = date('d/m/Y', strtotime($row['date_event_end']));
+                        $row['event_dates'] = "Du $dStart au $dEnd";
+                    } else {
+                        $row['event_dates'] = "Le $dStart";
+                    }
+                } else {
+                    // C'est une actualité classique
+                    $row['event_type'] = '<span class="badge bg-secondary"><i class="bi bi-newspaper me-1"></i> Article</span>';
+                    $row['event_dates'] = '-'; // Pas d'évènement
+                }
+            }
+            unset($row);
+
             $this->getItems('news_list', $result['data'], true, $result['meta']);
             $meta = $result['meta'];
         }

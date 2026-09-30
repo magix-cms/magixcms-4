@@ -86,6 +86,9 @@
                             <span class="text-muted">&mdash;</span>
                         {/if}
 
+                    {elseif $col.type == 'html'}
+                        {if isset($row[$name]) && $row[$name]}{$row[$name] nofilter}{else}<span class="text-muted">&mdash;</span>{/if}
+
                     {else}
                         {if isset($row[$name]) && $row[$name]}{$row[$name]}{else}<span class="text-muted">&mdash;</span>{/if}
                     {/if}

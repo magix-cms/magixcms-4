@@ -22,7 +22,9 @@ class NewsDb extends BaseDb
             'c.published_news',
             'IFNULL(ni.default_img, 0) as default_img',
             'n.date_publish',
-            'n.date_register'
+            'n.date_register',
+            'n.date_event_start',
+            'n.date_event_end'
         ])
             ->from('mc_news', 'n')
             ->join('mc_news_content', 'c', 'n.id_news = c.id_news')
@@ -53,9 +55,17 @@ class NewsDb extends BaseDb
                             break;
                         case 'date_publish':
                         case 'date_register':
-                            $formattedDate = DateTool::toSql((string)$q);
-                            $binds[$paramName] = '%' . $formattedDate . '%';
+                            $binds[$paramName] = '%' . $q . '%';
                             $qb->where("n.{$key} LIKE :{$paramName}", $binds);
+                            break;
+                        case 'event_type':
+                            if ($q === 'event') {
+                                // Si c'est un évènement, la date de début n'est pas nulle
+                                $qb->where("n.date_event_start IS NOT NULL");
+                            } elseif ($q === 'article') {
+                                // Si c'est un article classique, la date de début est nulle
+                                $qb->where("n.date_event_start IS NULL");
+                            }
                             break;
                     }
                     $nbc++;
