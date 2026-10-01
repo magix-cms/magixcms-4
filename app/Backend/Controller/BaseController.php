@@ -325,20 +325,33 @@ abstract class BaseController
 
             // 2. Amorçage des plugins (Enregistrement des Hooks)
             foreach ($installedPlugins as $plugin) {
-                // Le nom de la classe d'amorçage
-                $bootClass = "Plugins\\" . $plugin['name'] . "\\Boot";
+                try {
+                    // Le nom de la classe d'amorçage
+                    $bootClass = "Plugins\\" . $plugin['name'] . "\\Boot";
 
-                if (class_exists($bootClass)) {
-                    $bootInstance = new $bootClass();
+                    if (class_exists($bootClass)) {
+                        $bootInstance = new $bootClass();
 
-                    // Si le plugin déclare une méthode register(), on l'appelle
-                    if (method_exists($bootInstance, 'register')) {
-                        $bootInstance->register();
+                        // Si le plugin déclare une méthode register(), on l'appelle
+                        if (method_exists($bootInstance, 'register')) {
+                            $bootInstance->register();
+                        }
                     }
+                } catch (\Throwable $e) {
+                    // CATCH INDIVIDUEL : On logge le plugin précis, le fichier et la ligne sans bloquer les autres
+                    $errorMsg = sprintf(
+                        "Erreur d'initialisation dans le plugin '%s' : %s (Fichier : %s à la ligne %d)",
+                        $plugin['name'],
+                        $e->getMessage(),
+                        $e->getFile(),
+                        $e->getLine()
+                    );
+                    $this->logger->log($errorMsg, "warning");
                 }
             }
         } catch (\Throwable $e) {
-            $this->logger->log("Erreur lors de l'initialisation des plugins : " . $e->getMessage(), "warning");
+            // CATCH GLOBAL : S'il y a un problème avec la requête DB initiale
+            $this->logger->log("Erreur critique lors de la récupération des plugins : " . $e->getMessage(), "error");
         }
     }
     /**
