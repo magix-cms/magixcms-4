@@ -21,7 +21,24 @@
                 </ul>
             </div>
         {/if}
+        {* Menu de Contact (Mobile uniquement) *}
+        <div class="contact dropup d-lg-none">
+            <button class="btn d-flex flex-column align-items-center border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Contact">
+                <i class="bi bi-chat-dots mb-1 fs-4 text-primary"></i>
+                <span class="fw-bold text-uppercase small-text">Contact</span>
+            </button>
 
+            <ul class="dropdown-menu shadow-lg border-0 mb-2 p-2" style="min-width: 220px; border-radius: 1rem;">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center rounded py-2" href="{$base_url}{$current_lang.iso_lang}/contact/" rel="noopener noreferrer">
+                        <div class="text-white d-inline-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px;">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <span class="fw-bold text-dark">{#contact_label#}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
         {* Menu de Partage *}
         <div class="dropup action-share">
             <button class="btn d-flex flex-column align-items-center border-0 floating-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{#footbar_share_label#}">
