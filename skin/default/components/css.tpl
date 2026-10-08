@@ -6,7 +6,7 @@
     {/if}
 
     {* 4. ON GÉNÈRE LES LIENS AVEC LE TABLEAU FINAL *}
-    {$is_dev = (isset($mc_settings.mode.value) && $mc_settings.mode.value == 'dev')}
+    {$is_dev = ($mc_settings.mode.value == 'dev')}
     {$suffix = $is_dev ? '' : '.min'}
 
     {foreach $final_css as $css}
@@ -19,7 +19,14 @@
                 {$css_path = "{$skin_url}/css/{$css}{$suffix}.css"}
             {/if}
         {/if}
-        <link rel="preload" href="{$css_path}" as="style" />
-        <link rel="stylesheet" href="{$css_path}" />
+
+        {if in_array($css, $global_css)}
+            {* CSS Global : 1 seule balise avec 100% de la priorité réseau initiale *}
+            <link rel="stylesheet" href="{$css_path}" fetchpriority="high" />
+        {else}
+            {* CSS Modulaires : Non-bloquant ET priorité réseau basse pour ne pas freiner global.min.css *}
+            <link rel="stylesheet" href="{$css_path}" media="print" onload="this.media='all';this.onload=null;" />
+            <noscript><link rel="stylesheet" href="{$css_path}" /></noscript>
+        {/if}
     {/foreach}
 {/strip}
