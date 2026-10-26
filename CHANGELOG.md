@@ -1,3 +1,26 @@
+## [4.0.2] - 2026-10-27
+### Sécurité & Stabilité
+- **Protection contre l'assignation en masse des réglages (F7) :**
+  - Ajout d'une liste blanche stricte (`allowedKeys`) dans `SettingController` interdisant l'écrasement de clés système sensibles (notamment `theme`).
+- **Assainissement des traductions & Neutralisation XSS :**
+  - Ajout de la méthode `sanitizeTranslation()` dans `TranslationController` pour filtrer les balises actives et attributs JavaScript avant écriture dans les fichiers `.conf`.
+  - Neutralisation des schémas malveillants (`javascript:`, `vbscript:`, `data:`) sur les variables d'URLs.
+- **Résilience du thème et prévention DoS (DOS-1) :**
+  - Validation stricte du chemin de thème dans `BaseController::initSkin()` pour bloquer toute traversée de dossier (Path Traversal).
+  - Mise en place d'un repli (fallback) garanti sur le thème `default` si le dossier cible est manquant ou incomplet, protégeant l'affichage lors des purges de cache.
+- **Sécurisation du module Logo & Accessibilité (#50) :**
+  - Validation du jeton CSRF (`hashtoken`) dans `LogoController::updateContent()`.
+  - Assainissement HTML des champs `alt_logo` et `title_logo` via `FormTool::simpleClean()`.
+  - Transmission explicite du paramètre `title` au composant `img.tpl` dans le header frontend.
+- **Chiffrement des clés d'API tierces (Google reCAPTCHA) :**
+  - Stockage chiffré (AES-256-CBC) de la clé secrète reCAPTCHA en base de données et masquage visuel (`********`) dans l'administration.
+  - Déchiffrement automatique et transparent lors de la vérification du score côté serveur dans `FrontendController`.
+- **Homogénéisation de l'authentification SMTP :**
+  - Déchiffrement à la volée du mot de passe SMTP dans le plugin Contact (`FrontendController::processSend()`).
+  - Déchiffrement et prise en compte de la configuration SMTP globale lors de l'envoi de réinitialisation de mot de passe administrateur (`LoginController::processForgotPassword()`).
+- **Prévention des fuites d'URL non-publiées (#68) :**
+  - Ajout des conditions de publication (`published_pages = 1`, `published_about = 1`, `published_cat = 1`) dans les jointures de `MenuDb::getFrontendTree()`, empêchant l'exposition des slugs de brouillons dans le DOM du menu.
+
 ## [4.0.2] - 2026-10-26
 
 ### Sécurité (Correctifs d'audit)
