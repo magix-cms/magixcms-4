@@ -27,7 +27,7 @@ class TranslationController extends BaseController
 
         $rawLangs = $langDb->getFrontendLanguages() ?: [];
         $activeLangs = [];
-        $formattedLangs = []; //  Format spécifique pour le dropdown-lang.tpl [id => iso]
+        $formattedLangs = [];
 
         foreach ($rawLangs as $key => $val) {
             if (is_array($val)) {
@@ -46,7 +46,6 @@ class TranslationController extends BaseController
 
         $currentTheme = $themeDb->getCurrentTheme();
 
-        //  LOGIQUE : FILTRAGE INTELLIGENT DES PLUGINS (Type + Dossier i18n)
         $rawPlugins = $pluginDb->fetchInstalledPlugins();
         $installedPlugins = [];
         $pluginsDir = ROOT_DIR . 'plugins' . DS;
@@ -56,17 +55,10 @@ class TranslationController extends BaseController
 
             if (file_exists($manifestPath)) {
                 $manifest = json_decode(file_get_contents($manifestPath), true);
-
-                // Rigueur absolue : si pas de type, c'est du backend par défaut
                 $type = $manifest['type'] ?? 'backend';
-
-                // Les types qui ont une présence frontend
                 $translatableTypes = ['widget', 'frontend', 'hybrid', 'addon'];
-
-                //  LA NOUVELLE CONDITION : Le dossier des traductions publiques doit exister
                 $hasFrontI18n = is_dir($pluginsDir . $pluginName . DS . 'i18n' . DS . 'front');
 
-                // On n'ajoute le plugin à la liste QUE s'il remplit les deux conditions
                 if (in_array($type, $translatableTypes) && $hasFrontI18n) {
                     $installedPlugins[] = [
                         'name' => $pluginName,
@@ -106,13 +98,12 @@ class TranslationController extends BaseController
         }
 
         $translations = [];
-        $structure = []; //  NOUVEAU : On stocke la structure [Groupe => [clés]]
+        $structure = [];
 
         foreach ($activeLangs as $lang) {
             $iso = $lang['iso_lang'];
             $langPath = $i18nDir . $iso . '.conf';
 
-            // readConf renvoie maintenant [ 'Groupe' => ['cle' => 'val'] ]
             $parsed = $this->readConf($langPath);
             $translations[$iso] = $parsed;
 
@@ -133,7 +124,7 @@ class TranslationController extends BaseController
             'domain_label' => $domainLabel,
             'langs'        => $formattedLangs,
             'translations' => $translations,
-            'structure'    => $structure, //  Remplacement de 'keys' par 'structure'
+            'structure'    => $structure,
             'plugins'      => $installedPlugins,
             'hashtoken'    => $this->session->getToken()
         ]);
@@ -148,14 +139,12 @@ class TranslationController extends BaseController
             $this->jsonResponse(false, 'Session invalide.');
         }
 
-        // CORRECTION PATH TRAVERSAL : Sécurisation du domaine
         $rawDomain = $_POST['domain'] ?? 'theme';
         $domain = basename(preg_replace('/[^a-zA-Z0-9_-]/', '', $rawDomain));
 
-        $contents = $_POST['content'] ?? []; // Format: ['fr' => ['Groupe' => ['key' => 'val']]]
-
+        $contents = $_POST['content'] ?? [];
         $newKey = trim($_POST['new_key'] ?? '');
-        $newGroup = trim($_POST['new_group'] ?? 'Général'); // Le groupe de la nouvelle variable
+        $newGroup = trim($_POST['new_group'] ?? 'Général');
         $newValues = $_POST['new_value'] ?? [];
 
         if ($domain === 'theme') {
@@ -169,25 +158,38 @@ class TranslationController extends BaseController
         $success = true;
 
         foreach ($contents as $rawIso => $transData) {
-            // CORRECTION PATH TRAVERSAL : Sécurisation du nom de fichier (.conf)
             $iso = basename(preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$rawIso));
             if (empty($iso)) {
-                continue; // On ignore cette entrée si elle est vide ou malveillante
+                continue;
             }
 
             $filePath = $baseDir . $iso . '.conf';
 
+            // 🛡️ FIX : Nettoyage de TOUTES les traductions soumises
+            $cleanTransData = [];
+            if (is_array($transData)) {
+                foreach ($transData as $group => $keys) {
+                    if (is_array($keys)) {
+                        foreach ($keys as $k => $v) {
+                            $cleanTransData[$group][$k] = $this->sanitizeTranslation((string)$k, (string)$v);
+                        }
+                    }
+                }
+            }
+
             // Ajout de la nouvelle variable dans le bon groupe
             if (!empty($newKey) && isset($newValues[$iso]) && trim($newValues[$iso]) !== '') {
                 $cleanKey = preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($newKey));
-                if (!isset($transData[$newGroup])) {
-                    $transData[$newGroup] = [];
+                if (!isset($cleanTransData[$newGroup])) {
+                    $cleanTransData[$newGroup] = [];
                 }
-                $transData[$newGroup][$cleanKey] = trim($newValues[$iso]);
+
+                // 🛡️ FIX : Nettoyage de la nouvelle valeur ajoutée
+                $cleanTransData[$newGroup][$cleanKey] = $this->sanitizeTranslation($cleanKey, (string)$newValues[$iso]);
             }
 
-            // Écriture du fichier structuré
-            if (!$this->writeConf($filePath, $transData)) {
+            // Écriture du fichier structuré avec les données propres
+            if (!$this->writeConf($filePath, $cleanTransData)) {
                 $success = false;
             }
         }
@@ -200,24 +202,52 @@ class TranslationController extends BaseController
     }
 
     /**
-     * Parse le fichier et groupe les variables en fonction des commentaires #
+     * 🛡️ NOUVEAU FIX : Purifie une chaîne de traduction pour éviter les failles XSS (Stored XSS).
      */
+    private function sanitizeTranslation(string $key, string $value): string
+    {
+        $val = trim($value);
+
+        // 1. Validation stricte si la clé indique une URL (ex: legal_url, footer_website_link)
+        if (str_contains(strtolower($key), 'url') || str_contains(strtolower($key), 'link')) {
+            // Bloquer les schémas d'exécution de code dangereux (javascript:alert(1))
+            if (preg_match('#^(javascript|vbscript|data):#i', $val)) {
+                return '#'; // On neutralise le lien
+            }
+            // Autorise les URLs valides (http, https, mailto, tel) et les chemins relatifs (/)
+            return filter_var($val, FILTER_SANITIZE_URL);
+        }
+
+        // 2. Nettoyage anti-XSS pour le texte général
+        // Permet d'utiliser <strong> ou <br> dans les traductions tout en bloquant les attaques.
+
+        // A. Suppression des balises actives malveillantes
+        $val = preg_replace('/<(script|iframe|object|embed|applet|style).*?>.*?<\/\1>/is', '', $val);
+        $val = preg_replace('/<(script|iframe|object|embed|applet|style).*?>/is', '', $val);
+
+        // B. Suppression des attributs JavaScript (ex: <img src=x onerror=alert(1)>)
+        $val = preg_replace('/(?<=\s)on[a-z]+\s*=\s*(["\']).*?\1/is', '', $val);
+
+        // C. Neutralisation des liens "javascript:" injectés dans des balises HTML existantes
+        $val = preg_replace('/href\s*=\s*(["\'])\s*javascript:.*?\1/is', 'href="#"', $val);
+
+        return $val;
+    }
+
     private function readConf(string $path): array
     {
         if (!file_exists($path)) return [];
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         $data = [];
-        $currentGroup = 'Général'; // Groupe par défaut
+        $currentGroup = 'Général';
 
         foreach ($lines as $line) {
             $line = trim($line);
             if (empty($line) || str_starts_with($line, ';')) continue;
 
-            //  DÉTECTION DES GROUPES via les commentaires
             if (str_starts_with($line, '#')) {
                 $possibleGroup = trim(substr($line, 1));
-                // On ignore le commentaire système généré par le CMS
                 if ($possibleGroup !== 'Fichier généré par Magix CMS' && $possibleGroup !== '') {
                     $currentGroup = $possibleGroup;
                 }
@@ -238,15 +268,11 @@ class TranslationController extends BaseController
         return $data;
     }
 
-    /**
-     * Écrit le fichier avec des sauts de lignes et les entêtes de groupes #
-     */
     private function writeConf(string $path, array $data): bool
     {
         $content = "# Fichier généré par Magix CMS\n";
 
         foreach ($data as $group => $keys) {
-            // On recrée le commentaire visuel pour le groupe
             $content .= "\n# {$group}\n";
 
             foreach ($keys as $key => $val) {
