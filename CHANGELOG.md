@@ -1,6 +1,19 @@
 ## [4.0.2] - 2026-10-26
 
 ### Sécurité (Correctifs d'audit)
+- **Correction du Déni de Service Frontend (DOS-1) et Path Traversal :**
+  - Refonte de la méthode `BaseController::initSkin()` côté Frontend.
+  - Implémentation d'un assainissement strict de la variable `theme` (`basename` + regex alphanumérique) empêchant l'injection de chemins relatifs (ex: `../media`).
+  - Validation absolue de l'existence du dossier du thème cible et de son fichier maître `layout.tpl`.
+  - En cas d'anomalie (thème introuvable, dossier vide), mise en place d'un mécanisme de repli (fallback) garanti sur le thème `default`, assurant la continuité de service même en cas de purge du cache (qui menait à un DoS en cas d'erreur de thème).
+  - Synchronisation de `BaseController::initTranslations()` pour exploiter ce paramètre sécurisé.
+- **Protection contre l'assignation de masse des paramètres (F7) :**
+  - Implémentation d'une liste blanche stricte (`allowedKeys`) dans `SettingController::processSave()`.
+  - Blocage de la modification arbitraire de clés système sensibles (notamment l'écrasement de `theme`), empêchant les attaques par traversée de répertoire (Path Traversal) vers des dossiers de médias.
+- **Assainissement des traductions & Prévention Stored XSS (i18n) :**
+  - Ajout de la méthode `sanitizeTranslation()` dans `TranslationController::save()`.
+  - Purgation systématique des balises actives (`<script>`, `<iframe>`, `<object>`, `<embed>`) et des gestionnaires d'événements JavaScript (`onload`, `onerror`, `onclick`) avant l'écriture dans les fichiers `.conf` (protégeant les templates utilisant le modificateur `nofilter`).
+  - Validation stricte des clés contenant des URLs (`legal_url`, `footer_website_url`, etc.) avec neutralisation immédiate des protocoles exécutables (`javascript:`, `vbscript:`, `data:`).
 - **Chiffrement des identifiants SMTP (#55) :**
     - Ajout du composant réversible `Magepattern\Component\Security\CryptTool` (chiffrement AES-256-CBC).
     - Gestion sécurisée et autonome de la clé de chiffrement (support de la constante `SECRET_KEY` ou génération persistante d'un fichier `crypt_secret.php` protégé).

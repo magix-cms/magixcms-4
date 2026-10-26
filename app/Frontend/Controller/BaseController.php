@@ -280,18 +280,45 @@ abstract class BaseController
      */
     private function initSkin(): void
     {
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
-        $skinPath = ROOT_DIR . 'skin' . DS . $skinFolder;
+        $baseSkinDir = realpath(ROOT_DIR . 'skin');
+        $rawSkinFolder = (string)($this->siteSettings['theme']['value'] ?? 'default');
 
-        if (is_dir($skinPath)) {
-            $this->view->setTemplateDir($skinPath);
-            $this->view->setConfigDir($skinPath . DS . 'i18n');
-
-            $siteUrl = $this->view->getTemplateVars('site_url');
-            $this->view->assign('skin_url', $siteUrl . '/skin/' . $skinFolder);
-        } else {
-            $this->logger->log("Le skin '{$skinFolder}' est introuvable. Fallback sur default.", "error");
+        // 1. Assainissement strict : lettres, chiffres, tirets uniquement (neutralise ../)
+        $cleanSkinFolder = basename(preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSkinFolder));
+        if (empty($cleanSkinFolder)) {
+            $cleanSkinFolder = 'default';
         }
+
+        $skinPath = ROOT_DIR . 'skin' . DS . $cleanSkinFolder;
+        $realSkinPath = realpath($skinPath);
+
+        // 2. Validation triple :
+        // - Le dossier existe et est bien confiné dans /skin/
+        // - Le fichier maître layout.tpl est bien présent
+        $isValidSkin = ($baseSkinDir !== false &&
+            $realSkinPath !== false &&
+            str_starts_with($realSkinPath, $baseSkinDir) &&
+            is_dir($realSkinPath) &&
+            file_exists($realSkinPath . DS . 'layout.tpl'));
+
+        if ($isValidSkin) {
+            $activeSkin = $cleanSkinFolder;
+            $activePath = $realSkinPath;
+        } else {
+            // 3. VRAI REPLI DE SÉCURITÉ SUR LE THÈME PAR DÉFAUT
+            $this->logger->log("Le skin '{$rawSkinFolder}' est invalide ou incomplet. Basculement sécurisé sur default.", "warning");
+            $activeSkin = 'default';
+            $activePath = ROOT_DIR . 'skin' . DS . 'default';
+        }
+
+        $this->view->setTemplateDir($activePath);
+        $this->view->setConfigDir($activePath . DS . 'i18n');
+
+        $siteUrl = $this->view->getTemplateVars('site_url');
+        $this->view->assign('skin_url', $siteUrl . '/skin/' . $activeSkin);
+
+        // On mémorise le thème validé pour éviter les réévaluations dans les méthodes suivantes
+        $this->siteSettings['theme']['value'] = $activeSkin;
     }
 
     /**
@@ -491,7 +518,8 @@ abstract class BaseController
         $this->stackPluginsTranslations($locale);
 
         // 2. SKIN EN DERNIER (Priorité haute : écrase les clés identiques des plugins)
-        $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
+        // On utilise le thème déjà assaini et validé par initSkin
+        $skinFolder = basename(preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($this->siteSettings['theme']['value'] ?? 'default')));
         $skinConfFile = ROOT_DIR . 'skin' . DS . $skinFolder . DS . 'i18n' . DS . $locale . '.conf';
 
         try {
