@@ -36,7 +36,8 @@
             </div>
             <div class="col-md-6">
                 <label for="admin_password" class="form-label fw-bold">Mot de passe</label>
-                <input type="password" class="form-control" id="admin_password" name="admin_password" required minlength="8">
+                <input type="password" class="form-control" id="admin_password" name="admin_password" required minlength="12">
+                <div class="form-text">Min. 12 caractères (majuscule, minuscule, chiffre, symbole).</div>
             </div>
             <div class="col-md-6">
                 <label for="admin_password_conf" class="form-label fw-bold">Confirmer le mot de passe</label>

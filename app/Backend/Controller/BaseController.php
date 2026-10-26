@@ -7,7 +7,7 @@ namespace App\Backend\Controller;
 use App\Backend\Model\DataHelperTrait;
 use App\Backend\Db\LangDb;
 use App\Backend\Db\CompanyDb;
-use App\Backend\Db\EmployeeDb; // <-- Importation de la classe Db
+use App\Backend\Db\EmployeeDb;
 use App\Backend\Db\ConfigDb;
 use Magepattern\Component\Tool\SmartyTool;
 use Magepattern\Component\File\FileTool;
@@ -26,30 +26,25 @@ abstract class BaseController
     protected Smarty $view;
     protected Logger $logger;
 
-    // On stocke la langue globalement pour tous les contrôleurs
     protected array $defaultLang = [];
-
-    /**
-     * Par défaut, tous les contrôleurs de l'admin nécessitent d'être connecté.
-     */
     protected bool $requireAuth = true;
-
-    /**
-     * @var Session
-     */
     protected Session $session;
-
-    /**
-     * @var JSON
-     */
     protected JSON $json;
-    /**
-     * @var array
-     */
     protected array $siteSettings = [];
 
     public function __construct()
     {
+        // Configuration de l'outil de chiffrement
+        if (class_exists('\Magepattern\Component\Security\CryptTool')) {
+            $secretKey = defined('SECRET_KEY') ? constant('SECRET_KEY') : null;
+
+            \Magepattern\Component\Security\CryptTool::configure(
+                $secretKey,
+                ROOT_DIR . 'app' . DIRECTORY_SEPARATOR . 'init',
+                'MagixCMS'
+            );
+        }
+
         $this->view = SmartyTool::getInstance('admin');
         $this->logger = Logger::getInstance();
 
@@ -142,11 +137,29 @@ abstract class BaseController
     /**
      * Vérifie si la session admin existe, sinon redirige.
      */
+    /**
+     * Vérifie si la session admin existe ET est toujours valide en base.
+     */
     private function checkAuthentication(Session $session): void
     {
-        if (!$session->get('id_admin') || !$session->get('keyuniqid_admin')) {
+        $idAdmin = (int)$session->get('id_admin');
+        $sessionKey = $session->get('keyuniqid_admin');
+
+        if ($idAdmin <= 0 || !$sessionKey) {
             $session->destroy();
             header('Location: index.php?controller=Login');
+            exit;
+        }
+
+        // Invalidation stricte
+        // On s'assure que la clé de session correspond TOUJOURS à celle en BDD.
+        // Si le mot de passe est modifié ailleurs, la clé BDD changera, et le cookie actuel deviendra invalide.
+        $db = new EmployeeDb();
+        $user = $db->fetchEmployeeById($idAdmin);
+
+        if (!$user || $user['keyuniqid_admin'] !== $sessionKey || (int)$user['active_admin'] !== 1) {
+            $session->destroy();
+            header('Location: index.php?controller=Login&action=logout');
             exit;
         }
     }

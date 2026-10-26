@@ -34,14 +34,21 @@ abstract class BaseController
      * @var JSON
      */
     protected JSON $json;
-    /**
-     * @throws \Smarty\Exception
-     */
-    /**
-     * @throws \Smarty\Exception
-     */
+
     public function __construct()
     {
+        // NOUVEAU : Configuration de l'outil de chiffrement Magepattern
+        // Placé tout en haut pour que tout le frontend puisse l'utiliser (Formulaires de contact, etc.)
+        if (class_exists('\Magepattern\Component\Security\CryptTool')) {
+            $secretKey = defined('SECRET_KEY') ? constant('SECRET_KEY') : null;
+
+            \Magepattern\Component\Security\CryptTool::configure(
+                $secretKey,
+                ROOT_DIR . 'app' . DIRECTORY_SEPARATOR . 'init',
+                'MagixCMS'
+            );
+        }
+
         $this->view = SmartyTool::getInstance('front');
         $this->logger = Logger::getInstance();
         $this->json = new JSON();
@@ -88,7 +95,6 @@ abstract class BaseController
         $this->initTranslations();
 
         $this->checkMaintenanceMode();
-
 
         $this->initCookieConsent();
         $this->initDeviceDetection();

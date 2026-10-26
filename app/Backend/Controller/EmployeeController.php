@@ -120,9 +120,9 @@ class EmployeeController extends BaseController
             $this->jsonResponse(false, 'Le mot de passe est obligatoire.');
         }
 
-        // Vérification de la robustesse avec l'outil de sécurité
-        if (!PasswordTool::checkStrength($password, 6)) {
-            $this->jsonResponse(false, 'Le mot de passe doit contenir au moins 6 caractères (incluant majuscule, minuscule, chiffre et caractère spécial).');
+        // Vérification stricte de la robustesse (12 caractères minimum)
+        if (!PasswordTool::checkStrength($password, 12)) {
+            $this->jsonResponse(false, 'Le mot de passe doit contenir au moins 12 caractères (incluant majuscule, minuscule, chiffre et caractère spécial).');
         }
 
         $data = [
@@ -191,7 +191,7 @@ class EmployeeController extends BaseController
             $this->jsonResponse(false, "Utilisateur introuvable.");
         }
 
-        // 1. 🛡️ SÉCURITÉ BOLA (Object Level Authorization)
+        // 1. SÉCURITÉ BOLA (Object Level Authorization)
         // Un administrateur restreint ne peut PAS modifier un compte Super-Administrateur.
         if (!$isCurrentUserSuperAdmin && (int)$targetUser['id_role'] === 1) {
             $this->jsonResponse(false, "Opération interdite : vous ne pouvez pas modifier un compte Super-Administrateur.");
@@ -211,18 +211,6 @@ class EmployeeController extends BaseController
             $this->jsonResponse(false, 'Cet e-mail est déjà utilisé.');
         }
 
-        $password = $_POST['passwd_admin'] ?? '';
-
-        // 2. 🛡️ RE-AUTHENTIFICATION (Preuve de possession)
-        // Si l'utilisateur modifie SON PROPRE e-mail ou mot de passe, on exige le mot de passe actuel
-        if ($id === $currentUserId && ($email !== $targetUser['email_admin'] || !empty($password))) {
-            $currentPasswordInput = $_POST['current_passwd'] ?? '';
-
-            if (empty($currentPasswordInput) || !password_verify($currentPasswordInput, $targetUser['passwd_admin'])) {
-                $this->jsonResponse(false, "Par sécurité, vous devez renseigner votre mot de passe actuel valide pour modifier votre e-mail ou votre mot de passe.");
-            }
-        }
-
         $data = [
             'title_admin'     => in_array($_POST['title_admin'] ?? 'm', ['m', 'w']) ? $_POST['title_admin'] : 'm',
             'firstname_admin' => ($_POST['firstname_admin'] ?? ''),
@@ -238,15 +226,29 @@ class EmployeeController extends BaseController
             'active_admin'    => ($id === $currentUserId) ? $targetUser['active_admin'] : (int)($_POST['active_admin'] ?? 0)
         ];
 
+        // Gestion du mot de passe ET invalidation de session
         if (!empty($password)) {
-            if (!PasswordTool::checkStrength($password, 6)) {
-                $this->jsonResponse(false, 'Le nouveau mot de passe est trop faible.');
+            // FIX #62 : Vérification stricte de la robustesse (12 caractères minimum)
+            if (!PasswordTool::checkStrength($password, 12)) {
+                $this->jsonResponse(false, 'Le nouveau mot de passe doit contenir au moins 12 caractères (incluant majuscule, minuscule, chiffre et caractère spécial).');
             }
             $data['passwd_admin'] = PasswordTool::hash($password);
             $data['last_change_admin'] = date('Y-m-d H:i:s');
+
+            // FIX #61 : On force la création d'une nouvelle clé unique
+            $data['keyuniqid_admin'] = RSATool::uniqID(32);
         }
 
         if ($db->updateEmployee($id, $data)) {
+
+            // FIX #61 (Suite) : Si on modifie NOTRE PROPRE mot de passe, on met à jour
+            // notre session pour ne pas être déconnecté. En revanche, si on vient
+            // de changer le mot de passe d'un AUTRE utilisateur, sa session à lui
+            // sera détruite lors de son prochain clic !
+            if (!empty($password) && $id === $currentUserId) {
+                $this->session->set('keyuniqid_admin', $data['keyuniqid_admin']);
+            }
+
             // Le SuperAdmin fondateur (ID 1) est immunisé contre tout changement de rôle
             if ($id !== 1) {
                 $db->syncEmployeeRole($id, $idRolePosted);

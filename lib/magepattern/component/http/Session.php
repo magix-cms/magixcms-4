@@ -42,19 +42,21 @@ use Throwable;
 
 class Session
 {
-    // Clés de configuration (identifiants dans $_SESSION)
     protected string $ipKey;
     protected string $uaKey;
     protected string $csrfKey;
+
+    // NOUVEAU : Propriétés pour le timeout
+    protected int $idleTimeout;
+    protected int $absoluteTimeout;
 
     protected bool $ssl;
     protected string $sessionName;
 
     /**
-     * Session constructor.
-     * * @param bool $ssl Force le mode HTTPS (Secure cookie)
-     * @param string $name Nom du cookie de session (ex: MP_SESSID)
-     * @param array $config Clés personnalisées [ip_key, ua_key, csrf_key]
+     * @param bool $ssl
+     * @param string $name
+     * @param array $config
      */
     public function __construct(
         bool $ssl = true,
@@ -64,15 +66,17 @@ class Session
         $this->ssl = $ssl;
         $this->sessionName = $name;
 
-        // Injection des clés personnalisées ou valeurs par défaut
         $this->ipKey   = $config['ip_key']   ?? 'mp_client_ip';
         $this->uaKey   = $config['ua_key']   ?? 'mp_client_ua';
         $this->csrfKey = $config['csrf_key'] ?? 'mp_csrf_token';
+
+        // CONFIGURATION : 1 heure d'inactivité / 12 heures maximum absolu
+        $this->idleTimeout     = $config['idle_timeout']     ?? 3600;
+        $this->absoluteTimeout = $config['absolute_timeout'] ?? 43200;
     }
 
     /**
-     * Démarre la session avec des paramètres de sécurité modernes.
-     * * @param int $lifetime 0 pour session de navigateur, ou durée en secondes
+     * @param int $lifetime
      * @return bool
      */
     public function start(int $lifetime = 0): bool
@@ -92,22 +96,21 @@ class Session
                 'cookie_samesite'        => 'Lax',
                 'use_strict_mode'        => 1,
                 'use_only_cookies'       => 1
-
-                // 👇 COMMENTÉ OU SUPPRIMÉ POUR COMPATIBILITÉ PHP 8.4+ 👇
-                // 'sid_length'             => 48,
-                // 'sid_bits_per_character' => 6,
             ];
 
             if (!session_start($options)) {
                 throw new RuntimeException("Impossible de démarrer la session.");
             }
 
-            // Validation de l'empreinte (Anti-Hijacking)
-            if (!$this->validateFingerprint()) {
+            // 🛡️ MODIFICATION : On vérifie l'empreinte ET le temps écoulé
+            if (!$this->validateFingerprint() || !$this->checkTimeouts()) {
                 $this->destroy();
                 session_start($options);
                 $this->regenerate();
             }
+
+            // Mise à jour de la dernière activité à chaque requête
+            $_SESSION['last_activity'] = time();
 
             return true;
 
@@ -118,7 +121,42 @@ class Session
     }
 
     /**
+     * Méthode de vérification des timeouts
+     */
+    /**
+     * @return bool
+     */
+    private function checkTimeouts(): bool
+    {
+        $now = time();
+
+        // Initialisation à la création
+        if (!isset($_SESSION['created_at'])) {
+            $_SESSION['created_at'] = $now;
+        }
+        if (!isset($_SESSION['last_activity'])) {
+            $_SESSION['last_activity'] = $now;
+        }
+
+        // Expiration absolue (ex: après 12h de connexion, peu importe l'activité)
+        if (($now - $_SESSION['created_at']) > $this->absoluteTimeout) {
+            return false;
+        }
+
+        // Expiration d'inactivité (ex: parti manger et resté absent plus d'1h)
+        if (($now - $_SESSION['last_activity']) > $this->idleTimeout) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Régénère l'ID (à utiliser après un changement de privilèges / login).
+     */
+    /**
+     * @param bool $deleteOldSession
+     * @return string
      */
     public function regenerate(bool $deleteOldSession = true): string
     {
@@ -132,6 +170,9 @@ class Session
 
     /**
      * Détruit la session proprement côté serveur et navigateur.
+     */
+    /**
+     * @return void
      */
     public function destroy(): void
     {
@@ -148,6 +189,11 @@ class Session
     /**
      * Gestion du Token CSRF (Cross-Site Request Forgery).
      */
+    /**
+     * @param bool $forceRegenerate
+     * @return string
+     * @throws \Random\RandomException
+     */
     public function getToken(bool $forceRegenerate = false): string
     {
         $this->ensureStarted();
@@ -163,6 +209,10 @@ class Session
     /**
      * Vérification sécurisée du Token (Timing-attack safe).
      */
+    /**
+     * @param string|null $token
+     * @return bool
+     */
     public function validateToken(?string $token): bool
     {
         $this->ensureStarted();
@@ -173,12 +223,22 @@ class Session
     /**
      * Accesseurs de données.
      */
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
     public function set(string $key, mixed $value): void
     {
         $this->ensureStarted();
         $_SESSION[$key] = $value;
     }
 
+    /**
+     * @param string $key
+     * @param mixed|null $default
+     * @return mixed
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         $this->ensureStarted();
@@ -188,12 +248,18 @@ class Session
     /**
      * Fingerprinting : IP + User Agent.
      */
+    /**
+     * @return void
+     */
     private function setFingerprint(): void
     {
         $_SESSION[$this->ipKey] = IPMatcher::getVisitorIp();
         $_SESSION[$this->uaKey] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     }
 
+    /**
+     * @return bool
+     */
     private function validateFingerprint(): bool
     {
         if (!isset($_SESSION[$this->ipKey])) {
@@ -217,6 +283,9 @@ class Session
             $_SESSION[$this->uaKey] === ($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'));
     }
 
+    /**
+     * @return void
+     */
     private function ensureStarted(): void
     {
         if (session_status() === PHP_SESSION_NONE) {

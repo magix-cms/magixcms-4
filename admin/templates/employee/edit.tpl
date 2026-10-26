@@ -29,10 +29,14 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="current_passwd" class="form-label fw-medium text-danger">Mot de passe actuel</label>
+                            <label for="passwd_admin" class="form-label fw-medium">Nouveau mot de passe</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
-                                <input type="password" id="current_passwd" name="current_passwd" class="form-control" placeholder="Requis pour validation...">
+                                <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" minlength="12">
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i> Laissez vide pour conserver le mot de passe actuel.<br>
+                                <span class="text-danger">Si modifié :</span> Min. 12 caractères incluant majuscule, minuscule, chiffre et caractère spécial.
                             </div>
                         </div>
                     </div>

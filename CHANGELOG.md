@@ -1,5 +1,30 @@
 ## [4.0.2] - 2026-10-26
 
+### Sécurité (Correctifs d'audit)
+- **Chiffrement des identifiants SMTP (#55) :**
+    - Ajout du composant réversible `Magepattern\Component\Security\CryptTool` (chiffrement AES-256-CBC).
+    - Gestion sécurisée et autonome de la clé de chiffrement (support de la constante `SECRET_KEY` ou génération persistante d'un fichier `crypt_secret.php` protégé).
+    - Chiffrement du mot de passe SMTP au repos dans la table `mc_setting` et masquage systématique (`********`) dans l'interface d'administration.
+- **Protection Brute-Force & Lockout Admin (#59) :**
+    - Ajout des colonnes `failed_attempts` et `locked_until` dans la table `mc_admin_employee`.
+    - Verrouillage temporaire automatique de 15 minutes après 5 tentatives de connexion consécutives infructueuses.
+    - Temporisation anti-énumération sur les requêtes d'authentification invalides.
+    - Blocage de la demande de réinitialisation de mot de passe sur un compte temporairement verrouillé.
+- **Gestion de l'expiration et Timeout de Session (#60) :**
+    - Implémentation d'un timeout d'inactivité (Idle Timeout : 1 heure) et d'un timeout absolu (Absolute Lifetime : 12 heures) au sein de la classe `Magepattern\Component\HTTP\Session`.
+- **Révocation des sessions actives au changement de mot de passe (#61) :**
+    - Régénération de `keyuniqid_admin` lors de toute modification de mot de passe dans `EmployeeController`.
+    - Vérification continue de la concordance entre le jeton de session et la valeur en base de données dans `BaseController::checkAuthentication()`, déconnectant instantanément tout accès tiers concurrent.
+- **Renforcement de la politique de mot de passe (#62) :**
+    - Relèvement du seuil de robustesse à 12 caractères minimum (avec majuscule, minuscule, chiffre et caractère spécial) pour tous les comptes administrateurs.
+    - Intégration de la validation stricte côté serveur dans `FinalizeController` afin d'interdire l'installation du CMS avec un mot de passe vide ou faible.
+    - Mise à jour des formulaires de saisie et modèles de vues correspondants (`add.tpl`, `edit.tpl`, `step3.tpl`).
+- **Prévention Stored XSS sur les fichiers SVG (XSS-2) :**
+    - Interception des flux d'upload dans le connecteur elFinder avec assainissement automatique des fichiers au format `image/svg+xml`.
+    - Éradication des balises `<script>`, des gestionnaires d'événements JavaScript en ligne (`onload`, `onclick`, `onmouseover`), des schémas `javascript:` et des conteneurs `<foreignObject>`.
+
+## [4.0.2] - 2026-10-26
+
 ### Sécurité (Correctifs critiques)
 - **Open Redirect :** Blocage des redirections externes non autorisées et des protocoles dangereux (`javascript:`, `data:`) au sein du composant de routage `RedirectTool`.
 - **BOLA / Élévation de privilèges :** Renforcement de l'autorisation au niveau objet (Object-Level Authorization) dans la gestion des administrateurs. Les rôles restreints ne peuvent plus éditer un Super-Administrateur.
@@ -15,6 +40,7 @@
 ### Ajouté
 - **Sécurité Magepattern :** Nouveau composant `SecurityTool` intégré au `Bootstrap` pour centraliser les méthodes de purification et de sécurisation du CMS.
 - **Interface Éditeur :** Ajout d'un champ "Mot de passe actuel" dynamique dans le formulaire d'édition du profil administrateur.
+
 ## [4.0.2] - 2026-10-24
 
 ### Sécurité

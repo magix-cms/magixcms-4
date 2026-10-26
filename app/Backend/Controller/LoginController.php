@@ -10,40 +10,24 @@ use Magepattern\Component\Tool\MailTool;
 
 class LoginController extends BaseController
 {
-    // 1. On désactive le Guard pour ce contrôleur spécifique !
-    /**
-     * @var bool
-     */
     protected bool $requireAuth = false;
 
-    /**
-     * Construct
-     */
     public function __construct() {
-        // INDISPENSABLE : Appeler le constructeur parent pour déclencher initTranslations(), initSettings() et initialiser $this->session avec le SSL
         parent::__construct();
 
-        // 2. Règle de redirection : Si déjà connecté et qu'on essaie de voir le login
         if ($this->session->get('id_admin') && !isset($_GET['action'])) {
             header('Location: index.php?controller=Dashboard');
             exit;
         }
     }
 
-    /**
-     * @return void
-     * @throws \Random\RandomException
-     * @throws \Smarty\Exception
-     */
     public function run(): void
     {
-        // 1. Gestion du routage interne du contrôleur
         if (Request::isGet('action') && $_GET['action'] === 'logout') {
             $this->logout();
             return;
         }
 
-        // 2. Traitement du formulaire
         if (Request::isMethod('POST')) {
             if (Request::isPost('email_forgot')) {
                 $this->processForgotPassword();
@@ -55,88 +39,78 @@ class LoginController extends BaseController
         }
     }
 
-    /**
-     * @param string $email
-     * @param string $password
-     * @return array|null
-     */
-    private function authenticateAdmin(string $email, string $password): ?array
-    {
-        $loginDb = new LoginDb();
-
-        $adminData = $loginDb->getAdminCredentials($email);
-
-        if ($adminData !== null && $adminData['active_admin'] == 1) {
-            if (password_verify($password, $adminData['passwd_admin'])) {
-                unset($adminData['passwd_admin']);
-                return $adminData;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return void
-     * @throws \Smarty\Exception
-     */
     private function processLogin(): void
     {
         $email     = Request::isPost('email_admin') ? FormTool::simpleClean($_POST['email_admin']) : '';
         $password  = Request::isPost('passwd_admin') ? FormTool::simpleClean($_POST['passwd_admin']) : '';
         $csrfToken = Request::isPost('hashtoken') ? FormTool::simpleClean($_POST['hashtoken']) : '';
 
-        // Vérification CSRF avec la session héritée du BaseController
         if (!$this->session->validateToken($csrfToken)) {
             $this->view->assign('error', 'Session expirée ou jeton de sécurité invalide.');
             $this->showForm();
             return;
         }
 
-        $adminData = $this->authenticateAdmin($email, $password);
+        $loginDb = new LoginDb();
+        $adminData = $loginDb->getAdminCredentials($email);
 
         if ($adminData !== null) {
-            $this->session->regenerate();
 
-            $this->session->set('keyuniqid_admin', $adminData['keyuniqid_admin']);
-            $this->session->set('id_admin', $adminData['id_admin']);
-            $this->session->set('email_admin', $adminData['email_admin']);
+            // 1. 🛡️ VERROUILLAGE : Vérification de la date de déblocage
+            if (!empty($adminData['locked_until']) && strtotime($adminData['locked_until']) > time()) {
+                $remaining = (int)ceil((strtotime($adminData['locked_until']) - time()) / 60);
+                $this->view->assign('error', "Compte temporairement bloqué suite à de multiples échecs. Réessayez dans {$remaining} minute(s).");
+                $this->showForm();
+                return;
+            }
 
-            header('Location: index.php?controller=Dashboard');
-            exit;
+            // 2. 🛡️ AUTHENTIFICATION : Vérification du mot de passe
+            if ($adminData['active_admin'] == 1 && password_verify($password, $adminData['passwd_admin'])) {
+                // Succès : on réinitialise le compteur d'échecs
+                $loginDb->resetFailedAttempts($email);
+
+                $this->session->regenerate();
+                $this->session->set('keyuniqid_admin', $adminData['keyuniqid_admin']);
+                $this->session->set('id_admin', $adminData['id_admin']);
+                $this->session->set('email_admin', $adminData['email_admin']);
+
+                header('Location: index.php?controller=Dashboard');
+                exit;
+            } else {
+                // Échec : on incrémente le compteur
+                $attempts = $loginDb->recordFailedAttempt($email);
+
+                if ($attempts >= 5) {
+                    $this->view->assign('error', "Compte bloqué pour 15 minutes suite à 5 tentatives échouées.");
+                } else {
+                    $this->view->assign('error', 'Email ou mot de passe incorrect.');
+                }
+                $this->showForm();
+                return;
+            }
         }
+
+        // 3. ANTI-ÉNUMÉRATION : On ralentit la réponse si l'email n'existe pas
+        // (Empêche un attaquant de deviner quels e-mails existent en mesurant le temps de réponse)
+        usleep(400000);
 
         $this->view->assign('error', 'Email ou mot de passe incorrect.');
         $this->showForm();
     }
 
-    /**
-     * @return void
-     * @throws \Smarty\Exception
-     */
     private function showForm(): void
     {
-        // Utilisation de la session globale
         $this->view->assign('hashtoken', $this->session->getToken());
         $this->view->display('login/login.tpl');
     }
 
-    /**
-     * @return void
-     */
     private function logout(): void
     {
-        // Destruction de la session globale
         $this->session->destroy();
-
         header('Location: index.php?controller=Login');
         exit;
     }
 
-    /**
-     * @return void
-     * @throws \Random\RandomException
-     */
     private function processForgotPassword(): void
     {
         $email     = Request::isPost('email_forgot') ? FormTool::simpleClean($_POST['email_forgot']) : '';
@@ -150,6 +124,16 @@ class LoginController extends BaseController
 
         if (!empty($email) && StringTool::isMail($email)) {
             $loginDb = new LoginDb();
+
+            // 🛡️ SÉCURITÉ : Ne pas permettre la récupération si le compte est bloqué pour abus
+            $adminData = $loginDb->getAdminCredentials($email);
+
+            if ($adminData !== null && !empty($adminData['locked_until']) && strtotime($adminData['locked_until']) > time()) {
+                $this->view->assign('error', 'Action impossible. Ce compte est temporairement verrouillé.');
+                $this->showForm();
+                return;
+            }
+
             $adminKey = $loginDb->getAdminKeyByEmail($email);
 
             if ($adminKey !== null) {

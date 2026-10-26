@@ -9,6 +9,8 @@ use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\Database\Layer;
 use Magepattern\Component\Database\QueryBuilder;
+// 🛡️ NOUVEAU : Import des outils de sécurité Magepattern
+use Magepattern\Component\Security\PasswordTool;
 use Smarty\Smarty;
 
 class FinalizeController
@@ -38,6 +40,7 @@ class FinalizeController
         $lastName  = Request::isPost('admin_lastname') ? FormTool::simpleClean($_POST['admin_lastname']) : '';
         $email     = Request::isPost('admin_email') ? FormTool::simpleClean($_POST['admin_email']) : '';
         $password  = Request::isPost('admin_password') ? $_POST['admin_password'] : '';
+        $passwordConf = Request::isPost('admin_password_conf') ? $_POST['admin_password_conf'] : '';
         $urlDomain = Request::isPost('url_domain') ? FormTool::simpleClean($_POST['url_domain']) : '';
 
         $urlDomain = preg_replace('#^https?://#', '', $urlDomain);
@@ -47,6 +50,18 @@ class FinalizeController
             if (!StringTool::isMail($email)) {
                 throw new \Exception("Le format de l'adresse e-mail est invalide.");
             }
+
+            // ==========================================================
+            // 🛡️ FIX #62 : Validation stricte du mot de passe (Installeur)
+            // ==========================================================
+            if (empty($password) || $password !== $passwordConf) {
+                throw new \Exception("Les mots de passe ne correspondent pas ou sont vides.");
+            }
+
+            if (!PasswordTool::checkStrength($password, 12)) {
+                throw new \Exception("Le mot de passe administrateur doit contenir au moins 12 caractères (incluant majuscule, minuscule, chiffre et caractère spécial).");
+            }
+            // ==========================================================
 
             $config = [
                 'driver'   => defined('MP_DBDRIVER') ? MP_DBDRIVER : 'mysql',

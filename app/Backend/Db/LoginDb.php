@@ -3,41 +3,70 @@
 namespace App\Backend\Db;
 
 use Magepattern\Component\Database\QueryBuilder;
-use Magepattern\Component\Tool\DateTool;
-use Magepattern\Component\Security\PasswordTool;
 
 class LoginDb extends BaseDb
 {
     /**
-     * Authentifie l'administrateur en utilisant les outils Magepattern.
-     */
-    /**
-     * Recherche un employé par son e-mail (sans vérifier le mot de passe ici).
-     *
-     * @param string $email
-     * @return array|null Retourne les données de l'employé ou null si échec.
+     * Recherche un employé par son e-mail et récupère son état de blocage.
      */
     public function getAdminCredentials(string $email): ?array
     {
         $qb = new QueryBuilder();
 
-        // Ajout de passwd_admin et active_admin dans la sélection
-        $qb->select(['em.id_admin', 'em.email_admin', 'em.keyuniqid_admin', 'em.passwd_admin', 'em.active_admin'])
+        $qb->select([
+            'em.id_admin', 'em.email_admin', 'em.keyuniqid_admin', 'em.passwd_admin',
+            'em.active_admin', 'em.failed_attempts', 'em.locked_until'
+        ])
             ->from('mc_admin_employee', 'em')
             ->join('mc_admin_access_rel', 'rel', 'em.id_admin = rel.id_admin')
-            // On cherche UNIQUEMENT par e-mail
             ->where('em.email_admin = :email', ['email' => $email]);
 
         $result = $this->executeRow($qb);
 
         return $result ?: null;
     }
+
+    /**
+     * Incrémente le compteur d'échecs et verrouille le compte si la limite est atteinte.
+     */
+    public function recordFailedAttempt(string $email, int $maxAttempts = 5, int $lockoutMinutes = 15): int
+    {
+        $admin = $this->getAdminCredentials($email);
+        if (!$admin) return 0;
+
+        $attempts = (int)($admin['failed_attempts'] ?? 0) + 1;
+        $data = ['failed_attempts' => $attempts];
+
+        // Si le maximum d'essais est atteint, on verrouille le compte
+        if ($attempts >= $maxAttempts) {
+            $data['locked_until'] = date('Y-m-d H:i:s', strtotime("+$lockoutMinutes minutes"));
+        }
+
+        $qb = new QueryBuilder();
+        $qb->update('mc_admin_employee', $data)
+            ->where('email_admin = :email', ['email' => $email]);
+
+        $this->executeUpdate($qb);
+
+        return $attempts;
+    }
+
+    /**
+     * Remet à zéro les échecs après une connexion réussie.
+     */
+    public function resetFailedAttempts(string $email): void
+    {
+        $qb = new QueryBuilder();
+        $qb->update('mc_admin_employee', [
+            'failed_attempts' => 0,
+            'locked_until'    => null
+        ])->where('email_admin = :email', ['email' => $email]);
+
+        $this->executeUpdate($qb);
+    }
+
     /**
      * Vérifie si l'e-mail correspond à un administrateur et retourne sa clé unique.
-     */
-    /**
-     * @param string $email
-     * @return string|null
      */
     public function getAdminKeyByEmail(string $email): ?string
     {
@@ -47,28 +76,19 @@ class LoginDb extends BaseDb
             ->where('email_admin = :email_forgot', ['email_forgot' => $email]);
 
         $result = $this->executeRow($qb);
-
-        // On retourne uniquement la chaîne de la clé, ou null si l'e-mail n'existe pas
         return $result ? $result['keyuniqid_admin'] : null;
     }
+
     /**
      * Enregistre le mot de passe temporaire (ou token) de récupération.
-     */
-    /**
-     * @param string $email
-     * @param string $temporaryPassword
-     * @return bool
      */
     public function updateRecoveryPassword(string $email, string $temporaryPassword): bool
     {
         $qb = new QueryBuilder();
-
         $qb->update('mc_admin_employee', [
             'change_passwd' => $temporaryPassword
-        ])
-            ->where('email_admin = :email_admin', ['email_admin' => $email]);
+        ])->where('email_admin = :email_admin', ['email_admin' => $email]);
 
-        // Fait appel à ta nouvelle méthode abstraite
         return $this->executeUpdate($qb);
     }
 }

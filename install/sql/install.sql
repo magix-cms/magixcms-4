@@ -165,6 +165,8 @@ CREATE TABLE IF NOT EXISTS `mc_admin_employee` (
     `last_change_admin` timestamp NULL DEFAULT NULL,
     `change_passwd` varchar(32) DEFAULT NULL,
     `active_admin` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
+    `failed_attempts` tinyint UNSIGNED NOT NULL DEFAULT '0',
+    `locked_until` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`id_admin`),
     UNIQUE KEY `idx_email_admin` (`email_admin`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

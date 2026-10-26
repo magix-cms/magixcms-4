@@ -8,6 +8,7 @@ use App\Backend\Db\SettingDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\Tool\MailTool;
+use Magepattern\Component\Security\CryptTool;
 
 class MailSettingController extends BaseController
 {
@@ -36,9 +37,15 @@ class MailSettingController extends BaseController
     private function index(): void
     {
         $db = new SettingDb();
+        $settings = $db->fetchAllSettings();
+
+        // 🛡️ SÉCURITÉ : Masquage du mot de passe pour l'affichage (ne sera jamais envoyé au HTML en clair)
+        if (!empty($settings['set_password']['value'])) {
+            $settings['set_password']['value'] = '********';
+        }
 
         $this->view->assign([
-            'settings'  => $db->fetchAllSettings(),
+            'settings'  => $settings,
             'hashtoken' => $this->session->getToken()
         ]);
 
@@ -57,13 +64,29 @@ class MailSettingController extends BaseController
 
         $postedSettings = $_POST['settings'] ?? [];
 
-        // Gestion explicite de la checkbox : si décochée, elle n'est pas dans le $_POST
         if (!isset($postedSettings['smtp_enabled'])) {
             $postedSettings['smtp_enabled'] = '0';
         }
 
         foreach ($postedSettings as $name => $value) {
-            $cleanValue = FormTool::simpleClean((string)$value);
+
+            // 🛡️ SÉCURITÉ : Interception du mot de passe
+            if ($name === 'set_password') {
+                if ($value === '********') {
+                    // Si la valeur est '********', c'est que l'utilisateur ne l'a pas modifiée
+                    continue;
+                }
+
+                if (!empty($value)) {
+                    // Chiffrement avec Magepattern
+                    $cleanValue = CryptTool::encrypt((string)$value);
+                } else {
+                    $cleanValue = ''; // On autorise le fait de vider le mot de passe
+                }
+            } else {
+                $cleanValue = FormTool::simpleClean((string)$value);
+            }
+
             if (!$db->updateSetting($name, $cleanValue)) {
                 $success = false;
             }
@@ -77,9 +100,7 @@ class MailSettingController extends BaseController
             $this->jsonResponse(false, 'Erreur lors de la sauvegarde.');
         }
     }
-    /**
-     * AJAX : Teste l'envoi d'un e-mail avec les paramètres saisis dans le formulaire
-     */
+
     private function testSmtp(): void
     {
         if (ob_get_length()) ob_clean();
@@ -91,27 +112,35 @@ class MailSettingController extends BaseController
 
         $settings = $_POST['settings'] ?? [];
 
-        // Détermination du type (smtp ou mail natif)
         $isSmtp = isset($settings['smtp_enabled']) && $settings['smtp_enabled'] == '1';
         $type = $isSmtp ? 'smtp' : 'mail';
 
-        // Préparation des options pour votre MailTool
+        // 🛡️ SÉCURITÉ : Récupération et Déchiffrement du mot de passe
+        $password = $settings['set_password'] ?? '';
+
+        // Si le champ reçu contient '********' ou est vide, on va chercher la vraie valeur en BDD
+        if ($password === '********' || empty($password)) {
+            $db = new SettingDb();
+            $dbSettings = $db->fetchAllSettings();
+            $encryptedPassword = $dbSettings['set_password']['value'] ?? '';
+
+            // Déchiffrement avec Magepattern
+            $password = CryptTool::decrypt($encryptedPassword);
+        }
+
         $options = [
             'setHost'       => $settings['set_host'] ?? '',
             'setPort'       => (int)($settings['set_port'] ?? 25),
             'setEncryption' => $settings['set_encryption'] ?? '',
             'setUsername'   => $settings['set_username'] ?? '',
-            'setPassword'   => $settings['set_password'] ?? '',
+            'setPassword'   => $password,
         ];
 
-        // Expéditeur de secours si le champ est vide
         $sender = !empty($settings['mail_sender']) ? $settings['mail_sender'] : 'test@magixcms.com';
 
         try {
-            // Utilisation de votre classe MailTool
             $mailTool = new MailTool($type, $options);
 
-            // Création d'un message brut
             $htmlBody = '<h2>Test de connexion réussi !</h2>
                          <p>Si vous lisez ceci, c\'est que MagixCMS arrive bien à communiquer avec votre serveur d\'envoi.</p>';
 
@@ -123,7 +152,6 @@ class MailSettingController extends BaseController
                 $htmlBody
             );
 
-            // Tentative d'envoi
             if ($mailTool->send($email)) {
                 $this->jsonResponse(true, 'E-mail envoyé avec succès ! Vérifiez votre boîte de réception.');
             } else {

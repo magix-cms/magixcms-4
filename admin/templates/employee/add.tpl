@@ -82,10 +82,10 @@
                         <label for="passwd_admin" class="form-label fw-medium">Mot de passe <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
-                            <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" required minlength="6">
+                            <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" required minlength="12">
                         </div>
                         <div class="form-text text-muted small mt-1">
-                            <i class="bi bi-info-circle me-1"></i> Min. 6 caractères incluant : 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
+                            <i class="bi bi-info-circle me-1"></i> Min. 12 caractères incluant : 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
                         </div>
                     </div>
                 </div>
