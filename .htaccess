@@ -204,18 +204,26 @@ ErrorDocument 500 /index.php?http_error=500
     RewriteCond %{HTTP_HOST} ^[^.]+\.[^.]+$
     RewriteRule .* %{REQUEST_SCHEME}://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # 4. RÉÉCRITURE EN CASCADE (Logique URL Front-end)
+    # ----------------------------------------------------------------------
+    # 4. REDIRECTIONS 301 STRICTES (À faire AVANT l'analyse interne)
+    # ----------------------------------------------------------------------
+
+    # A. Suppression de l'AMP - Cas 1 : Avec langue (ex: /fr/amp/...)
+    RewriteRule ^([a-zA-Z]{2})/amp/(.*)$ /$1/$2 [R=301,L]
+
+    # B. Suppression de l'AMP - Cas 2 : Sans langue (ex: /amp/...)
+    RewriteRule ^amp/(.*)$ /$1 [R=301,L]
+
+
+    # ----------------------------------------------------------------------
+    # 5. RÉÉCRITURE EN CASCADE (Logique URL Front-end Interne)
+    # ----------------------------------------------------------------------
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
     # A. Extraction de la langue (/fr/...) -> Transformé en ?lang=fr
-    #RewriteCond %{REQUEST_URI} !^/amp
     RewriteCond %{QUERY_STRING} !(lang)+
     RewriteRule ^([a-zA-Z]{2})/(.*) /$2?lang=$1 [QSA,L]
-
-    # B. AMP
-    #RewriteCond %{REQUEST_URI} ^/amp
-    #RewriteRule ^amp/(.*) /$1?amp=1 [QSA,L]
 
     # C. Web Service
     RewriteRule ^webservice/?$ /index.php?controller=webservice [QSA,L]
@@ -252,7 +260,7 @@ ErrorDocument 500 /index.php?http_error=500
     RewriteCond %{QUERY_STRING} !(hash)+
     RewriteRule (.*)/([0-9a-zA-Z]+)/?$ /$1?hash=$2 [QSA,L]
 
-    # 5. POINT DE CHUTE FINAL (CONTROLLER)
+    # 6. POINT DE CHUTE FINAL (CONTROLLER)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^([0-9a-zA-Z]+)/?$ /index.php?controller=$1 [QSA,L]

@@ -80,16 +80,38 @@ class PluginController extends BaseController
 
     public function install(): void
     {
-        $pluginName = $_GET['name'] ?? '';
-        if (empty($pluginName)) {
+        // 1. PROTECTION CSRF : Vérification du hashtoken
+        // Si vous appelez ça via AJAX ou un formulaire, assurez-vous d'envoyer le hashtoken
+        // Si l'appel reste en GET, récupérez-le via $_GET['hashtoken']
+        $token = $_POST['hashtoken'] ?? ($_GET['hashtoken'] ?? '');
+        if (!$this->session->validateToken($token)) {
+            $this->jsonResponse(false, 'Session invalide ou expirée (CSRF).');
+        }
+
+        $rawPluginName = $_GET['name'] ?? ($_POST['name'] ?? '');
+        if (empty($rawPluginName)) {
             $this->jsonResponse(false, 'Nom du plugin manquant.');
         }
 
-        $pluginPath = ROOT_DIR . 'plugins' . DS . $pluginName;
-        $manifestPath = $pluginPath . DS . 'manifest.json';
-        $sqlPath = $pluginPath . DS . 'sql' . DS . 'install.sql';
+        // 2. ASSAINISSEMENT STRICT : Uniquement Alphanumérique + Underscore (Ex: MagixModuleNews)
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $rawPluginName)) {
+            $this->jsonResponse(false, 'Nom de plugin invalide.');
+        }
+        $pluginName = $rawPluginName;
 
-        if (!is_dir($pluginPath) || !file_exists($manifestPath)) {
+        $pluginsBaseDir = realpath(ROOT_DIR . 'plugins');
+        $pluginPath = $pluginsBaseDir . DS . $pluginName;
+
+        // 3.️ VÉRIFICATION REALPATH : On s'assure qu'on ne sort pas du dossier plugins/
+        $resolvedPluginPath = realpath($pluginPath);
+        if ($resolvedPluginPath === false || !str_starts_with($resolvedPluginPath, $pluginsBaseDir)) {
+            $this->jsonResponse(false, 'Chemin du plugin non autorisé (Path Traversal bloqué).');
+        }
+
+        $manifestPath = $resolvedPluginPath . DS . 'manifest.json';
+        $sqlPath = $resolvedPluginPath . DS . 'sql' . DS . 'install.sql';
+
+        if (!is_dir($resolvedPluginPath) || !file_exists($manifestPath)) {
             $this->jsonResponse(false, 'Plugin invalide ou manifest.json manquant.');
         }
 
@@ -208,13 +230,32 @@ class PluginController extends BaseController
 
     public function uninstall(): void
     {
-        $pluginName = $_GET['name'] ?? ($_POST['name'] ?? '');
-        if (empty($pluginName)) {
+        // 1. PROTECTION CSRF
+        $token = $_POST['hashtoken'] ?? ($_GET['hashtoken'] ?? '');
+        if (!$this->session->validateToken($token)) {
+            $this->jsonResponse(false, 'Session invalide ou expirée (CSRF).');
+        }
+
+        $rawPluginName = $_GET['name'] ?? ($_POST['name'] ?? '');
+        if (empty($rawPluginName)) {
             $this->jsonResponse(false, 'Nom du plugin manquant.');
         }
 
-        $pluginPath = ROOT_DIR . 'plugins' . DS . $pluginName;
-        $sqlPath = $pluginPath . DS . 'sql' . DS . 'uninstall.sql';
+        // 2. ASSAINISSEMENT STRICT
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $rawPluginName)) {
+            $this->jsonResponse(false, 'Nom de plugin invalide.');
+        }
+        $pluginName = $rawPluginName;
+
+        $pluginsBaseDir = realpath(ROOT_DIR . 'plugins');
+        $pluginPath = $pluginsBaseDir . DS . $pluginName;
+
+        $resolvedPluginPath = realpath($pluginPath);
+        if ($resolvedPluginPath === false || !str_starts_with($resolvedPluginPath, $pluginsBaseDir)) {
+            $this->jsonResponse(false, 'Chemin du plugin non autorisé.');
+        }
+
+        $sqlPath = $resolvedPluginPath . DS . 'sql' . DS . 'uninstall.sql';
 
         $db = new PluginDb();
 

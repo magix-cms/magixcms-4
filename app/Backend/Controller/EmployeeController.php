@@ -182,34 +182,47 @@ class EmployeeController extends BaseController
             $this->jsonResponse(false, 'Session expirée.');
         }
 
-        // 🛡️ SÉCURITÉ ANTI-ESCALADE : Protection du SuperAdmin
         $currentUserId = (int)$this->session->get('id_admin');
         $currentUser = $db->fetchEmployeeById($currentUserId);
         $isCurrentUserSuperAdmin = ($currentUser && (int)$currentUser['id_role'] === 1);
-        $idRolePosted = (int)($_POST['id_role'] ?? 0);
 
-        // Si on tente de modifier le SuperAdmin ID 1, mais qu'on n'est pas soi-même l'ID 1
-        if ($id === 1 && $currentUserId !== 1) {
-            $this->jsonResponse(false, "Opération interdite : vous ne pouvez pas modifier le Super-Administrateur principal.");
+        $targetUser = $db->fetchEmployeeById($id);
+        if (!$targetUser) {
+            $this->jsonResponse(false, "Utilisateur introuvable.");
         }
 
-        // Si on tente d'attribuer le rôle SuperAdmin (id_role = 1) à quelqu'un,
-        // alors qu'on n'est pas soi-même SuperAdmin
+        // 1. 🛡️ SÉCURITÉ BOLA (Object Level Authorization)
+        // Un administrateur restreint ne peut PAS modifier un compte Super-Administrateur.
+        if (!$isCurrentUserSuperAdmin && (int)$targetUser['id_role'] === 1) {
+            $this->jsonResponse(false, "Opération interdite : vous ne pouvez pas modifier un compte Super-Administrateur.");
+        }
+
+        $idRolePosted = (int)($_POST['id_role'] ?? $targetUser['id_role']);
         if ($idRolePosted === 1 && !$isCurrentUserSuperAdmin) {
-            $this->jsonResponse(false, "Escalade de privilège bloquée : vous ne pouvez pas attribuer le rôle Super-Administrateur.");
+            $this->jsonResponse(false, "Escalade bloquée : vous ne pouvez pas attribuer le rôle Super-Administrateur.");
         }
 
         $email = FormTool::simpleClean($_POST['email_admin'] ?? '');
-
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->jsonResponse(false, 'L\'adresse e-mail est invalide.');
         }
 
         if ($db->emailExists($email, $id)) {
-            $this->jsonResponse(false, 'Cet e-mail est déjà utilisé par un autre employé.');
+            $this->jsonResponse(false, 'Cet e-mail est déjà utilisé.');
         }
 
-        // On NE MET PAS 'keyuniqid_admin' ici pour ne pas casser la session en cours
+        $password = $_POST['passwd_admin'] ?? '';
+
+        // 2. 🛡️ RE-AUTHENTIFICATION (Preuve de possession)
+        // Si l'utilisateur modifie SON PROPRE e-mail ou mot de passe, on exige le mot de passe actuel
+        if ($id === $currentUserId && ($email !== $targetUser['email_admin'] || !empty($password))) {
+            $currentPasswordInput = $_POST['current_passwd'] ?? '';
+
+            if (empty($currentPasswordInput) || !password_verify($currentPasswordInput, $targetUser['passwd_admin'])) {
+                $this->jsonResponse(false, "Par sécurité, vous devez renseigner votre mot de passe actuel valide pour modifier votre e-mail ou votre mot de passe.");
+            }
+        }
+
         $data = [
             'title_admin'     => in_array($_POST['title_admin'] ?? 'm', ['m', 'w']) ? $_POST['title_admin'] : 'm',
             'firstname_admin' => ($_POST['firstname_admin'] ?? ''),
@@ -221,25 +234,23 @@ class EmployeeController extends BaseController
             'postcode_admin'  => FormTool::simpleClean($_POST['postcode_admin'] ?? ''),
             'city_admin'      => FormTool::simpleClean($_POST['city_admin'] ?? ''),
             'country_admin'   => FormTool::simpleClean($_POST['country_admin'] ?? ''),
-            'active_admin'    => (int)($_POST['active_admin'] ?? 0)
+            // On empêche un administrateur de désactiver son propre compte (anti lock-out)
+            'active_admin'    => ($id === $currentUserId) ? $targetUser['active_admin'] : (int)($_POST['active_admin'] ?? 0)
         ];
 
-        // Modification du mot de passe UNIQUEMENT s'il est renseigné dans le formulaire
-        $password = $_POST['passwd_admin'] ?? '';
         if (!empty($password)) {
-            // Vérification de la robustesse
             if (!PasswordTool::checkStrength($password, 6)) {
-                $this->jsonResponse(false, 'Le nouveau mot de passe est trop faible (inclure majuscule, minuscule, chiffre et caractère spécial).');
+                $this->jsonResponse(false, 'Le nouveau mot de passe est trop faible.');
             }
-            // Utilisation de PasswordTool pour le hachage
             $data['passwd_admin'] = PasswordTool::hash($password);
             $data['last_change_admin'] = date('Y-m-d H:i:s');
         }
 
         if ($db->updateEmployee($id, $data)) {
-            $idRole = (int)($_POST['id_role'] ?? 0);
-            $db->syncEmployeeRole($id, $idRole);
-
+            // Le SuperAdmin fondateur (ID 1) est immunisé contre tout changement de rôle
+            if ($id !== 1) {
+                $db->syncEmployeeRole($id, $idRolePosted);
+            }
             $this->jsonResponse(true, 'Employé mis à jour avec succès.', ['type' => 'update']);
         } else {
             $this->jsonResponse(false, 'Erreur lors de la mise à jour.');

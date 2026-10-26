@@ -6,6 +6,7 @@ namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\Tool\SecurityTool;
 
 class CategoryPresenter
 {
@@ -23,7 +24,7 @@ class CategoryPresenter
             'name'      => $row['name_cat'] ?? '',
             'longname'  => $row['longname_cat'] ?? '',
             'resume'    => $row['resume_cat'] ?? '',
-            'content'   => $row['content_cat'] ?? '',
+            'content'   => SecurityTool::purifyHtml($row['content_cat'] ?? ''),
             'date'      => $row['last_update'] ?? $row['date_register'] ?? null,
             'link'      => [
                 'label' => $row['link_label_cat'] ?? '',

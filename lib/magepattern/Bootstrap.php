@@ -50,7 +50,8 @@ final class Bootstrap
         'smarty'       => __DIR__ . '/package/smarty/vendor/autoload.php',
         'mailer'       => __DIR__ . '/package/mailer/vendor/autoload.php',
         'mobiledetect' => __DIR__ . '/package/mobiledetect/vendor/autoload.php',
-        'dompdf'       => __DIR__ . '/package/dompdf/vendor/autoload.php'
+        'dompdf'       => __DIR__ . '/package/dompdf/vendor/autoload.php',
+        'htmlpurifier' => __DIR__ . '/package/htmlpurifier/vendor/autoload.php'
     ];
 
     /**
@@ -59,7 +60,8 @@ final class Bootstrap
     private static array $boot_libraries = [
         'autoloader',
         // 'swift', // Décommenter uniquement si une version compatible PHP 8 est installée
-        'mobiledetect'
+        'mobiledetect',
+        'htmlpurifier'
     ];
 
     /**

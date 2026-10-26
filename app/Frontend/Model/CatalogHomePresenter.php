@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace App\Frontend\Model;
+use Magepattern\Component\Tool\SecurityTool;
 
 class CatalogHomePresenter
 {
@@ -12,7 +13,7 @@ class CatalogHomePresenter
 
         return [
             'title'   => $title,
-            'content' => $row['content_page'] ?? '',
+            'content' => SecurityTool::purifyHtml($row['content_page'] ?? ''),
             'seo'     => [
                 'title'       => !empty($row['seo_title_page']) ? $row['seo_title_page'] : $title,
                 'description' => $row['seo_desc_page'] ?? ''

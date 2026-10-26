@@ -6,6 +6,7 @@ namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\Tool\SecurityTool;
 
 class NewsPresenter
 {
@@ -25,7 +26,7 @@ class NewsPresenter
             'name'         => $row['name_news'] ?? '',
             'longname'     => $row['longname_news'] ?? '',
             'resume'       => $row['resume_news'] ?? '',
-            'content'      => $row['content_news'] ?? '',
+            'content'      => SecurityTool::purifyHtml($row['content_news'] ?? ''),
             'date_publish' => $rawDatePublish,
             'date_start'   => $row['date_event_start'] ?? null,
             'date_end'     => $row['date_event_end'] ?? null,

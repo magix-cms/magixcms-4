@@ -6,6 +6,7 @@ namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\Tool\SecurityTool;
 
 class ProductPresenter
 {
@@ -64,7 +65,7 @@ class ProductPresenter
             'price_suffix'             => $priceSuffix,
             // -------------------------
             'resume'                   => $row['resume_p'] ?? '',
-            'content'                  => $row['content_p'] ?? '',
+            'content'                  => SecurityTool::purifyHtml($row['content_p'] ?? ''),
             'id_parent'                => $idParent,
             'cat_name'                 => $row['name_cat'] ?? '',
         ];

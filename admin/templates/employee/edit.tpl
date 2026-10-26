@@ -18,7 +18,26 @@
                 <input type="hidden" name="id_admin" value="{$employee.id_admin}">
 
                 {* --- INFORMATIONS PERSONNELLES --- *}
-                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Informations personnelles</h5>
+                {* --- IDENTIFIANTS DE CONNEXION --- *}
+                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Identifiants de connexion</h5>
+
+                {* BLOC DE SÉCURITÉ : Re-authentification pour le compte actif *}
+                {if $employee.id_admin == $current_user.id_admin}
+                    <div class="alert alert-warning py-2 mb-3 small d-flex align-items-center">
+                        <i class="bi bi-shield-lock-fill fs-5 me-2"></i>
+                        <div><strong>Sécurité :</strong> Renseignez votre mot de passe actuel pour valider une modification de votre e-mail ou de votre mot de passe.</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="current_passwd" class="form-label fw-medium text-danger">Mot de passe actuel</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
+                                <input type="password" id="current_passwd" name="current_passwd" class="form-control" placeholder="Requis pour validation...">
+                            </div>
+                        </div>
+                    </div>
+                {/if}
+
                 <div class="row mb-4">
                     <div class="col-md-2 mb-3">
                         <label for="title_admin" class="form-label fw-medium">Civilité</label>

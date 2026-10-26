@@ -6,6 +6,7 @@ namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\Tool\SecurityTool;
 
 class PagesPresenter
 {
@@ -28,7 +29,7 @@ class PagesPresenter
             'name'      => html_entity_decode(stripslashes($row['name_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),
             'longname'  => html_entity_decode(stripslashes($row['longname_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),
             'resume'    => stripslashes($row['resume_pages'] ?? ''),
-            'content'   => stripslashes($row['content_pages'] ?? ''),
+            'content'   => SecurityTool::purifyHtml(stripslashes($row['content_pages'] ?? '')),
             'date'      => $row['last_update'] ?? $row['date_register'] ?? null,
             'link'      => [
                 'label' => html_entity_decode(stripslashes($row['link_label_pages'] ?? ''), ENT_QUOTES, 'UTF-8'),

@@ -6,6 +6,7 @@ namespace App\Frontend\Model;
 
 use App\Component\File\ImageTool;
 use App\Component\Routing\UrlTool;
+use Magepattern\Component\Tool\SecurityTool;
 
 class AboutPresenter
 {
@@ -23,7 +24,7 @@ class AboutPresenter
             'name'      => $row['name_about'] ?? '',
             'longname'  => $row['longname_about'] ?? '',
             'resume'    => $row['resume_about'] ?? '',
-            'content'   => $row['content_about'] ?? '',
+            'content'   => SecurityTool::purifyHtml($row['content_about'] ?? ''),
             'date'      => $row['last_update'] ?? $row['date_register'] ?? null,
             'link'      => [
                 'label' => $row['link_label_about'] ?? '',
