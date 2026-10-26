@@ -6,7 +6,12 @@
   "type": "hybrid",
   "has_config": true,
   "core_targets": {
-    "contact": 1,
     "news": 1
+  },
+  "plugin_targets": {
+    "Contact": 1,
+    "Magixcartpay": 1,
+    "Magixaccount": 1,
+    "Eventregistration": 1
   }
 }

@@ -48,12 +48,15 @@ class MenuDb extends BaseDb
             'cat_c.url_cat as category_url'
         ];
 
+        // 🛡️ FIX #68 : On ajoute la condition de publication (published_... = 1)
+        // directement dans les jointures. Ainsi, les pages/catégories non publiées
+        // ne renverront pas d'URL (fuite stoppée) et seront filtrées par PHP.
         $qb->select(implode(', ', $selectCols))
             ->from('mc_menu', 'm')
             ->leftJoin('mc_menu_content', 'mc', 'm.id_link = mc.id_link AND mc.id_lang = ' . $idLang)
-            ->leftJoin('mc_cms_page_content', 'cms_c', "m.type_link = 'pages' AND m.id_page = cms_c.id_pages AND cms_c.id_lang = " . $idLang)
-            ->leftJoin('mc_about_content', 'ab_c', "m.type_link = 'about_page' AND m.id_page = ab_c.id_about AND ab_c.id_lang = " . $idLang)
-            ->leftJoin('mc_catalog_cat_content', 'cat_c', "m.type_link = 'category' AND m.id_page = cat_c.id_cat AND cat_c.id_lang = " . $idLang)
+            ->leftJoin('mc_cms_page_content', 'cms_c', "m.type_link = 'pages' AND m.id_page = cms_c.id_pages AND cms_c.id_lang = {$idLang} AND cms_c.published_pages = 1")
+            ->leftJoin('mc_about_content', 'ab_c', "m.type_link = 'about_page' AND m.id_page = ab_c.id_about AND ab_c.id_lang = {$idLang} AND ab_c.published_about = 1")
+            ->leftJoin('mc_catalog_cat_content', 'cat_c', "m.type_link = 'category' AND m.id_page = cat_c.id_cat AND cat_c.id_lang = {$idLang} AND cat_c.published_cat = 1")
             ->orderBy('m.id_parent, m.order_link');
 
         $elements = $this->executeAll($qb) ?: [];

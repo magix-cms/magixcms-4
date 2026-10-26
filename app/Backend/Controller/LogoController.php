@@ -169,8 +169,17 @@ class LogoController extends BaseController
         }
     }
 
+    /**
+     * @return void
+     */
     public function updateContent(): void
     {
+        // 🛡️ FIX #50 (Partie 1) : Protection CSRF ajoutée !
+        $token = $_POST['hashtoken'] ?? '';
+        if (!$this->session->validateToken($token)) {
+            $this->jsonResponse(false, 'Session invalide ou expirée.');
+        }
+
         $idLogo = (int)($_POST['id_logo'] ?? 0);
         $contents = $_POST['content'] ?? [];
         $db = new LogoDb();
@@ -179,11 +188,16 @@ class LogoController extends BaseController
         if ($idLogo > 0) {
             if (!empty($contents)) {
                 foreach ($contents as $idLang => $data) {
+                    // 🛡️ FIX #50 (Partie 2) : Stored XSS neutralisé via FormTool::simpleClean
+                    // (trim n'est pas suffisant pour la sécurité)
+                    $cleanAlt = \Magepattern\Component\Tool\FormTool::simpleClean($data['alt_logo'] ?? '');
+                    $cleanTitle = \Magepattern\Component\Tool\FormTool::simpleClean($data['title_logo'] ?? '');
+
                     $db->updateLogoContent(
                         $idLogo,
                         (int)$idLang,
-                        trim($data['alt_logo'] ?? ''),
-                        trim($data['title_logo'] ?? '')
+                        $cleanAlt,
+                        $cleanTitle
                     );
                 }
                 $success = true;
@@ -195,7 +209,6 @@ class LogoController extends BaseController
                 $customName = trim($_POST['edit_filename'] ?? '');
                 $baseName = !empty($customName) ? $customName : 'logo';
 
-                //  On garantit l'unicité même lors d'un remplacement
                 $uniqueFileName = $this->generateUniqueFilename($baseName, 'edit_logo_file');
 
                 $uploadTool = new UploadTool();

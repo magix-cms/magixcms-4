@@ -11,6 +11,7 @@ use Magepattern\Component\Tool\MailTool;
 use Magepattern\Component\Tool\SmartyTool;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\HTTP\Request;
+use Magepattern\Component\Security\CryptTool;
 
 class FrontendController extends BaseController
 {
@@ -182,12 +183,16 @@ class FrontendController extends BaseController
         $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
         $type = $isSmtp ? 'smtp' : 'mail';
 
+        // FIX : Déchiffrement du mot de passe SMTP à la volée
+        $encryptedPassword = $this->siteSettings['set_password']['value'] ?? '';
+        $smtpPassword = !empty($encryptedPassword) ? CryptTool::decrypt($encryptedPassword) : '';
+
         $options = [
             'setHost'       => $this->siteSettings['set_host']['value'] ?? '',
             'setPort'       => (int)($this->siteSettings['set_port']['value'] ?? 25),
             'setEncryption' => $this->siteSettings['set_encryption']['value'] ?? '',
             'setUsername'   => $this->siteSettings['set_username']['value'] ?? '',
-            'setPassword'   => $this->siteSettings['set_password']['value'] ?? '',
+            'setPassword'   => $smtpPassword, // <-- On utilise la variable déchiffrée !
         ];
 
         $mailer = new MailTool($type, $options);

@@ -5,11 +5,13 @@ namespace Plugins\GoogleRecaptcha\src;
 
 use Magepattern\Component\Tool\SmartyTool;
 use Plugins\GoogleRecaptcha\db\FrontendDb;
+use Magepattern\Component\Security\CryptTool;
 
 class FrontendController
 {
     /** @var callable[] */
     private static array $injectConditions = [];
+
     /**
      * Permet à d'autres modules d'enregistrer une condition dynamique.
      * Le callback doit retourner un booléen (false pour bloquer l'injection).
@@ -48,6 +50,7 @@ class FrontendController
         }
 
         $smarty = SmartyTool::getInstance('front');
+        // La site_key (clé publique) reste toujours en clair, c'est normal pour reCAPTCHA
         $smarty->assign('recaptcha_site_key', $keys['site_key']);
 
         return $smarty->fetch($file);
@@ -67,10 +70,14 @@ class FrontendController
         }
 
         $keys = $db->getKeys();
-        $secretKey = $keys['secret_key'] ?? '';
-        if (empty($secretKey)) {
+        $encryptedSecretKey = $keys['secret_key'] ?? '';
+
+        if (empty($encryptedSecretKey)) {
             return false;
         }
+
+        // Déchiffrement de la clé secrète avant l'envoi à Google
+        $secretKey = CryptTool::decrypt($encryptedSecretKey);
 
         $url = 'https://www.google.com/recaptcha/api/siteverify';
         $data = [

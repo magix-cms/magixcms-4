@@ -7,6 +7,7 @@ use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\Tool\StringTool;
 use Magepattern\Component\Tool\MailTool;
+use Magepattern\Component\Security\CryptTool;
 
 class LoginController extends BaseController
 {
@@ -141,10 +142,27 @@ class LoginController extends BaseController
 
                 if ($loginDb->updateRecoveryPassword($email, $tempPassword)) {
                     try {
-                        $mailer = new MailTool('mail');
+                        // FIX : On aligne l'envoi d'e-mail sur la configuration globale du CMS + Déchiffrement
+                        $isSmtp = isset($this->siteSettings['smtp_enabled']['value']) && $this->siteSettings['smtp_enabled']['value'] == '1';
+                        $type = $isSmtp ? 'smtp' : 'mail';
+
+                        $encryptedPassword = $this->siteSettings['set_password']['value'] ?? '';
+                        $smtpPassword = !empty($encryptedPassword) ? CryptTool::decrypt($encryptedPassword) : '';
+
+                        $options = [
+                            'setHost'       => $this->siteSettings['set_host']['value'] ?? '',
+                            'setPort'       => (int)($this->siteSettings['set_port']['value'] ?? 25),
+                            'setEncryption' => $this->siteSettings['set_encryption']['value'] ?? '',
+                            'setUsername'   => $this->siteSettings['set_username']['value'] ?? '',
+                            'setPassword'   => $smtpPassword,
+                        ];
+
+                        $mailer = new MailTool($type, $options);
+
+                        $sender = !empty($this->siteSettings['mail_sender']['value']) ? $this->siteSettings['mail_sender']['value'] : 'noreply@magix-cms.com';
 
                         $subject = 'Récupération de votre mot de passe - Magix CMS';
-                        $from    = 'noreply@magix-cms.com';
+                        $from    = $sender;
                         $recipients = [$email => 'Administrateur'];
 
                         $htmlBody  = "<p>Bonjour,</p>";
