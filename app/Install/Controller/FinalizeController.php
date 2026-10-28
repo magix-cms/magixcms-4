@@ -193,9 +193,19 @@ class FinalizeController
             $this->view->display('step4.tpl');
 
         } catch (\Throwable $e) {
-            die("<div style='color:red; font-family:sans-serif; padding:20px; border:1px solid red; background:#ffebeb;'>
-                    <strong>Erreur fatale lors de l'installation :</strong><br><br>" . $e->getMessage() . "
-                 </div>");
+            // Au lieu d'un die() brutal, on réaffiche l'étape 3
+            // avec le message d'erreur et on préserve les données déjà saisies.
+            $this->view->assign([
+                'step'            => 3,
+                'error_msg'       => $e->getMessage(),
+                'site_name'       => $siteName ?? '',
+                'url_domain'      => $urlDomain ?? '',
+                'admin_firstname' => $firstName ?? '',
+                'admin_lastname'  => $lastName ?? '',
+                'admin_email'     => $email ?? ''
+            ]);
+
+            $this->view->display('step3.tpl');
         }
     }
 }
