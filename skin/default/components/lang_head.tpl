@@ -11,7 +11,7 @@
 
 
 {* --- 1. BALISE CANONICAL --- *}
-{if isset($smarty.server.REQUEST_URI)}
+{if isset($smarty.server.REQUEST_URI) && (!isset($canonical_url) || $canonical_url !== false)}
     {$clean_uri = $smarty.server.REQUEST_URI|replace:'/amp/':'/'}
     <link rel="canonical" href="{$base_url}{$clean_uri}">
 {/if}
