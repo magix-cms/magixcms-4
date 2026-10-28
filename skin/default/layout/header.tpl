@@ -13,6 +13,7 @@
                     size="medium"
                     responsiveC=true
                     alt=$logo.alt_logo|default:$companyData.name
+                    title=$logo.title_logo|default:$companyData.name
                     lazy=false
                     fetchpriority="high"
                     html_sizes="220px"}
