@@ -6,6 +6,7 @@
     <meta name="robots" content="no-index">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{$hashtoken|default:''}">
     <link rel="icon" type="image/png" href="{$site_url}/{$baseadmin}/templates/img/favicon.png" />
     <!--[if IE]>
     <link rel="shortcut icon" type="image/x-icon" href="{$site_url}/{$baseadmin}/templates/img/favicon.ico" />
@@ -115,6 +116,11 @@
                         wrapper.scrollBy({ left: evt.deltaY, behavior: 'auto' });
                     }
                 }, { passive: false });
+            });
+            document.addEventListener('hide.bs.modal', function () {
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
             });
         });
     </script>

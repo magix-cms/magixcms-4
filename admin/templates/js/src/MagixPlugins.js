@@ -75,7 +75,7 @@ class MagixPlugins {
 
         this.modal.show();
     }
-
+    
     /**
      * Exécute la requête d'installation
      */
@@ -83,7 +83,12 @@ class MagixPlugins {
         this.setLoadingState(btnElement, true, 'Installation...');
 
         try {
-            const response = await fetch(`index.php?controller=Plugin&action=install&name=${pluginName}`, {
+            // 🛡️ FIX CSRF : Récupération du jeton global
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            const token = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
+            // Note : on passe le hashtoken en GET car la méthode est en GET
+            const response = await fetch(`index.php?controller=Plugin&action=install&name=${pluginName}&hashtoken=${encodeURIComponent(token)}`, {
                 method: 'GET',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
@@ -118,6 +123,12 @@ class MagixPlugins {
         try {
             const formData = new FormData();
             formData.append('name', pluginName);
+
+            // 🛡️ FIX CSRF : Récupération et ajout du jeton global
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta && csrfMeta.getAttribute('content')) {
+                formData.append('hashtoken', csrfMeta.getAttribute('content'));
+            }
 
             const response = await fetch(`index.php?controller=Plugin&action=uninstall`, {
                 method: 'POST',

@@ -41,10 +41,17 @@ class MagixForms {
                 this.displayLoader(form);
                 const formData = new FormData(form);
 
-                // ASTUCE : Si un bouton a déclenché le submit, on l'ajoute manuellement au FormData
+                // ASTUCE : Si un bouton a déclenché le submit, on l'ajoute manuellement
                 if (e.submitter && e.submitter.name) {
                     formData.append(e.submitter.name, e.submitter.value);
                 }
+
+                // On injecte automatiquement le hashtoken de la balise meta
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (csrfMeta && csrfMeta.getAttribute('content')) {
+                    formData.set('hashtoken', csrfMeta.getAttribute('content'));
+                }
+
                 const url = form.getAttribute('action') || `/admin/index.php?controller=${this.controller}`;
                 const method = form.classList.contains('search_form') ? 'GET' : 'POST';
 
@@ -97,7 +104,9 @@ class MagixForms {
             return;
         }
 
-        if (data.reload) {
+        // 🛡️ FIX : On force le rafraîchissement global après installation ou désinstallation d'un plugin
+        // Cela évite la désynchronisation du jeton CSRF pour les requêtes AJAX suivantes
+        if (data.reload || data.type === 'install_success' || data.type === 'uninstall_success') {
             setTimeout(() => { window.location.reload(); }, 1500);
             return;
         }
@@ -189,6 +198,12 @@ class MagixForms {
             initData.append('module', moduleName);
             initData.append('attribute', attributeName);
 
+            // FIX CSRF GLOBAL
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta && csrfMeta.getAttribute('content')) {
+                initData.set('hashtoken', csrfMeta.getAttribute('content'));
+            }
+
             const initRes = await fetch(`/admin/index.php?controller=${this.controller}&action=initBatch`, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -218,6 +233,12 @@ class MagixForms {
             formData.append('module', moduleName);
             formData.append('attribute', attributeName);
             formData.append('offset', currentOffset);
+
+            // FIX CSRF GLOBAL
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta && csrfMeta.getAttribute('content')) {
+                formData.set('hashtoken', csrfMeta.getAttribute('content'));
+            }
 
             const res = await fetch(`/admin/index.php?controller=${this.controller}&action=processBatch`, {
                 method: 'POST',
@@ -329,10 +350,18 @@ class MagixForms {
                 }
 
                 // VERROUILLAGE
+                // VERROUILLAGE
                 form.dataset.uploading = "true";
                 if(submitBtn) submitBtn.disabled = true;
 
                 const formData = new FormData(form);
+
+                // 🛡️ FIX CSRF GLOBAL
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (csrfMeta && csrfMeta.getAttribute('content')) {
+                    formData.set('hashtoken', csrfMeta.getAttribute('content'));
+                }
+
                 const url = form.getAttribute('action');
 
                 // UI Elements
