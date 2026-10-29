@@ -75,7 +75,7 @@ class MagixPlugins {
 
         this.modal.show();
     }
-    
+
     /**
      * Exécute la requête d'installation
      */
