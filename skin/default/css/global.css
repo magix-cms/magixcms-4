@@ -24655,28 +24655,54 @@ h6, .h6 {
   margin-bottom: calc(var(--spacer) * 2);
 }
 
-#gallery-holder {
-  margin-top: var(--spacer, 1rem);
-  margin-bottom: calc(var(--grid-gutter, 1.5rem) * 2);
-  break-inside: avoid;
+#gallery-holder,
+.magix-masonry-gallery {
+  column-count: 1;
+  column-gap: 1rem;
 }
-@media (min-width: 576px) {
-  #gallery-holder {
-    column-gap: 0.2rem;
-    column-count: 3;
+@media (min-width: 768px) {
+  #gallery-holder,
+  .magix-masonry-gallery {
+    column-count: 2;
   }
 }
-#gallery-holder .img-holder {
-  margin-bottom: 0.5rem;
+@media (min-width: 992px) {
+  #gallery-holder,
+  .magix-masonry-gallery {
+    column-count: 3;
+    column-gap: 1.5rem;
+  }
+}
+#gallery-holder .img-holder,
+.magix-masonry-gallery .img-holder {
+  break-inside: avoid;
+  margin-bottom: 1rem;
   overflow: hidden;
+  position: relative;
+  border-radius: 0.5rem;
 }
-#gallery-holder .img-holder img {
+@media (min-width: 992px) {
+  #gallery-holder .img-holder,
+  .magix-masonry-gallery .img-holder {
+    margin-bottom: 1.5rem;
+  }
+}
+#gallery-holder .img-holder a,
+.magix-masonry-gallery .img-holder a {
+  display: block;
   width: 100%;
-  object-fit: cover;
-  transition-duration: 300ms;
+  height: 100%;
 }
-#gallery-holder .img-holder img:hover {
-  transform: scale(1.1);
+#gallery-holder .img-holder img,
+.magix-masonry-gallery .img-holder img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+#gallery-holder .img-holder img:hover,
+.magix-masonry-gallery .img-holder img:hover {
+  transform: scale(1.08);
 }
 
 ul.arrow-list > li, ul.bullet-list > li, ul.circle-list > li, ul.square-list > li, ul.label-list > li {

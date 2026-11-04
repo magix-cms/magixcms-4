@@ -155,6 +155,7 @@
             {/if}
         </div>
     </section>
+    {hook name="displayProductExtraContent" id_product=$product.id}
 {/block}
 
 {block name="javascript_data"}
