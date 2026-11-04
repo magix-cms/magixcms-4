@@ -446,4 +446,37 @@ class FileTool
         }
         closedir($dir);
     }
+    /**
+     * Supprime un répertoire et tout son contenu (fichiers et sous-dossiers).
+     *
+     * @param string $directory Le chemin absolu du dossier à supprimer.
+     * @return bool True si la suppression complète a réussi, false sinon.
+     */
+    public static function removeDirectory(string $directory): bool
+    {
+        if (!is_dir($directory)) {
+            return false;
+        }
+
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isDir()) {
+                    @rmdir($file->getRealPath());
+                } else {
+                    @unlink($file->getRealPath());
+                }
+            }
+
+            // Enfin, on supprime le dossier parent lui-même
+            return @rmdir($directory);
+        } catch (\Throwable $e) {
+            Logger::getInstance()->log($e, "php", "error");
+            return false;
+        }
+    }
 }

@@ -58,16 +58,28 @@ class SettingController extends BaseController
         // Seules ces clés sont autorisées à être modifiées par ce formulaire.
         // La clé 'theme' en est volontairement exclue pour des raisons de sécurité.
         // =========================================================================
+        // =========================================================================
+        // LISTE BLANCHE DES PARAMÈTRES (Whitelist)
+        // Seules ces clés sont autorisées à être modifiées par ce formulaire.
+        // La clé 'theme' en est volontairement exclue pour des raisons de sécurité.
+        // =========================================================================
         $allowedKeys = [
+            'product_per_page',
+            'vat_rate',
+            'price_display',
+            'product_catalog',
+            'news_per_page',
+            'calendar_enabled',
+            'holder_bgcolor',
+            'logo_percent',
+            'robots',
+            'analytics',
+            'content_css',
             'mode',
+            'cache',
             'ssl',
             'maintenance',
-            'cache',
-            'robots',
-            'geminiai',
-            'product_catalog',
-            'calendar_enabled'
-            // Si vous avez d'autres champs dans setting/index.tpl, ajoutez-les ici.
+            'geminiai'
         ];
 
         $booleanKeys = [

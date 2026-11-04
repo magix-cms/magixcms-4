@@ -413,7 +413,12 @@ class MagixForms {
                                 if (typeof MagixToast !== 'undefined') MagixToast.success('Upload réussi.');
 
                                 // Rafraîchissement
-                                this.refreshImagesBlock(form.dataset.editId);
+                                // Remplacez :
+// this.refreshImagesBlock(form.dataset.editId, form.dataset.targetBlock || 'block-img');
+
+// Par :
+                                const targetCtrl = form.dataset.controller || this.controller;
+                                this.refreshImagesBlock(form.dataset.editId, form.dataset.targetBlock || 'block-img', targetCtrl);
 
                                 // Reset Form
                                 form.reset();
@@ -454,17 +459,24 @@ class MagixForms {
         });
     }
 
-    async refreshImagesBlock(editId) {
+    // Modifiez la signature et le getElementById :
+    // Modifiez la signature et l'URL :
+    async refreshImagesBlock(editId, targetBlockId = 'block-img', customController = null) {
         if (!editId) return;
+
+        // Détermination du contrôleur final
+        const ctrl = customController || this.controller;
+
         try {
-            const response = await fetch(`/admin/index.php?controller=${this.controller}&edit=${editId}&action=getImages`, {
+            // Utilisation de la variable ctrl au lieu de this.controller
+            const response = await fetch(`/admin/index.php?controller=${ctrl}&edit=${editId}&action=getImages`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             const data = await response.json();
-            const blockImg = document.getElementById('block-img');
+
+            const blockImg = document.getElementById(targetBlockId);
             if (blockImg && data.result) {
                 blockImg.innerHTML = data.result;
-                // Dispatch d'un événement si vous utilisez un lightbox (ex: Fancybox/Glightbox)
                 document.dispatchEvent(new Event('magix:imagesReloaded'));
             }
         } catch (error) {
