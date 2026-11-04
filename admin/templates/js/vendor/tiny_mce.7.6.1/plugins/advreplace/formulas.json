@@ -5,6 +5,16 @@
     "replace": ""
   },
   {
+    "name": "Docs: Remove dir attributes",
+    "find": "\\s+dir=[\"'](ltr|rtl)[\"']",
+    "replace": ""
+  },
+  {
+    "name": "Docs: Remove all span tags",
+    "find": "<\\/?span[^>]*>",
+    "replace": ""
+  },
+  {
     "name": "Clean: Remove all inline styles",
     "find": "\\s+style=[\"'][^\"']*[\"']",
     "replace": ""
@@ -12,6 +22,11 @@
   {
     "name": "Clean: Remove all IDs",
     "find": "\\s+id=[\"'][^\"']*[\"']",
+    "replace": ""
+  },
+  {
+    "name": "Clean: Remove empty class attributes",
+    "find": "\\s+class=[\"']\\s*[\"']",
     "replace": ""
   },
   {
@@ -87,6 +102,6 @@
   {
     "name": "Image: Change old-folder to new-folder",
     "find": "src=\"([^\"]*)/old-folder/",
-    "replace": "src=\"$1/new-folder/"
+    "replace": "src=\"$1/new-folder/\""
   }
 ]
