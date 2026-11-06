@@ -22296,6 +22296,28 @@ h6, .h6 {
     color: #fff !important;
   }
 }
+.btn-main-white-border {
+  background-color: #ffffff !important;
+  border: 1px solid #3c62aa;
+  color: #3c62aa;
+  transition: all 0.3s ease;
+}
+.btn-main-white-border:hover, .btn-main-white-border:focus {
+  background-color: #3c62aa !important;
+  border-color: rgb(46.6956521739, 76.2695652174, 132.3043478261);
+  color: #fff !important;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-main-white-border {
+    background-color: transparent !important;
+    border-color: #3c62aa;
+    color: #3c62aa;
+  }
+  .btn-main-white-border:hover, .btn-main-white-border:focus {
+    background-color: #3c62aa !important;
+    color: #fff !important;
+  }
+}
 
 [data-bs-theme=dark] .btn-outline-dark {
   --bs-btn-color: var(--bs-light);
@@ -22645,6 +22667,28 @@ h6, .h6 {
   .btn-sd-glass:hover, .btn-sd-glass:focus {
     background-color: #808285 !important;
     border-color: #808285;
+    color: #fff !important;
+  }
+}
+.btn-sd-white-border {
+  background-color: #ffffff !important;
+  border: 1px solid #808285;
+  color: #808285;
+  transition: all 0.3s ease;
+}
+.btn-sd-white-border:hover, .btn-sd-white-border:focus {
+  background-color: #808285 !important;
+  border-color: rgb(102.8915662651, 104.578313253, 107.1084337349);
+  color: #fff !important;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-sd-white-border {
+    background-color: transparent !important;
+    border-color: #808285;
+    color: #808285;
+  }
+  .btn-sd-white-border:hover, .btn-sd-white-border:focus {
+    background-color: #808285 !important;
     color: #fff !important;
   }
 }
@@ -23000,6 +23044,28 @@ h6, .h6 {
     color: #fff !important;
   }
 }
+.btn-dark-white-border {
+  background-color: #ffffff !important;
+  border: 1px solid #333333;
+  color: #333333;
+  transition: all 0.3s ease;
+}
+.btn-dark-white-border:hover, .btn-dark-white-border:focus {
+  background-color: #333333 !important;
+  border-color: rgb(25.5, 25.5, 25.5);
+  color: #fff !important;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-dark-white-border {
+    background-color: transparent !important;
+    border-color: rgb(127.5, 127.5, 127.5);
+    color: rgb(127.5, 127.5, 127.5);
+  }
+  .btn-dark-white-border:hover, .btn-dark-white-border:focus {
+    background-color: rgb(127.5, 127.5, 127.5) !important;
+    color: #fff !important;
+  }
+}
 
 [data-bs-theme=dark] .btn-outline-dark {
   --bs-btn-color: var(--bs-light);
@@ -23352,6 +23418,28 @@ h6, .h6 {
     color: #fff !important;
   }
 }
+.btn-green-white-border {
+  background-color: #ffffff !important;
+  border: 1px solid #5cb75c;
+  color: #5cb75c;
+  transition: all 0.3s ease;
+}
+.btn-green-white-border:hover, .btn-green-white-border:focus {
+  background-color: #5cb75c !important;
+  border-color: rgb(68.629787234, 155.370212766, 68.629787234);
+  color: #fff !important;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-green-white-border {
+    background-color: transparent !important;
+    border-color: #5cb75c;
+    color: #5cb75c;
+  }
+  .btn-green-white-border:hover, .btn-green-white-border:focus {
+    background-color: #5cb75c !important;
+    color: #fff !important;
+  }
+}
 
 [data-bs-theme=dark] .btn-outline-dark {
   --bs-btn-color: var(--bs-light);
@@ -23701,6 +23789,28 @@ h6, .h6 {
   .btn-white-glass:hover, .btn-white-glass:focus {
     background-color: #ffffff !important;
     border-color: #ffffff;
+    color: #000 !important;
+  }
+}
+.btn-white-white-border {
+  background-color: #ffffff !important;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+.btn-white-white-border:hover, .btn-white-white-border:focus {
+  background-color: #ffffff !important;
+  border-color: rgb(229.5, 229.5, 229.5);
+  color: #000 !important;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-white-white-border {
+    background-color: transparent !important;
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  .btn-white-white-border:hover, .btn-white-white-border:focus {
+    background-color: #ffffff !important;
     color: #000 !important;
   }
 }

@@ -97,6 +97,11 @@ $invert-base-color: map-get($theme-color-map, "dark"); // Modifiable selon vos b
 
     // 10. GLASS (Glassmorphism)
     &-glass { @include button-glass($color); }
+
+    // 11. WHITE BORDER (Fond blanc permanent + Bordure)
+    &-white-border {
+      @include button-white-border($color);
+    }
   }
   // ==========================================
   // RUSTINE : INVERSION DU BOUTON DARK EN MODE SOMBRE
