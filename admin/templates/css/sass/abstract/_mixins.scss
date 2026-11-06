@@ -99,8 +99,11 @@
 // ==========================================
 
 // Ce mixin remplace vos anciens `-outline`, `-invert`, `-white` et `-invert-transparent`
-@mixin button-invert-fill($base-color, $hover-color, $opacity: 1) {
-  position: relative; z-index: 1; overflow: hidden; // <-- SÉCURITÉ
+@mixin button-invert-fill($base-color, $hover-color, $opacity: 1, $hover-text-color: null) {
+  // Si une couleur est fournie, on l'utilise, sinon on calcule le contraste auto
+  $text-on-hover: if($hover-text-color != null, $hover-text-color, get-contrast-txt($hover-color));
+
+  position: relative; z-index: 1; overflow: hidden;
   background-color: transparent !important;
   border: 1px solid $base-color; color: $base-color;
   transition: all 0.3s ease;
@@ -113,17 +116,19 @@
   }
   &:hover {
     border-color: $hover-color;
-    color: get-contrast-txt($hover-color) !important;
+    color: $text-on-hover !important; // Utilise la couleur calculée/imposée get-contrast-txt($hover-color) !important;
     &:before { width: 100%; }
   }
   @include color-mode(dark) {
     $dark-base: if(lightness($base-color) < 30, lighten($base-color, 30%), $base-color);
     $dark-hover: if(lightness($hover-color) < 30, lighten($hover-color, 30%), $hover-color);
+    $dark-text: if($hover-text-color != null, $hover-text-color, get-contrast-txt($dark-hover));
+
     border-color: $dark-base; color: $dark-base;
     &:before { background-color: if($opacity < 1, rgba($dark-hover, $opacity), $dark-hover); }
     &:hover {
       border-color: $dark-hover;
-      color: get-contrast-txt($dark-hover) !important;
+      color: $dark-text !important;//get-contrast-txt($dark-hover) !important;
     }
   }
 }
@@ -144,19 +149,35 @@
   -webkit-backdrop-filter: blur(5px);
   color: $color;
 
-  &:hover {
+  //  LA CORRECTION EST ICI : On ajoute une transition douce sur le transform et les couleurs
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+  background-color 0.3s ease,
+  border-color 0.3s ease,
+  color 0.3s ease !important;
+
+  &:hover, &:focus { // Ajout de :focus pour l'accessibilité au clavier
     background-color: $color !important;
     border-color: $color;
     color: get-contrast-txt($color) !important;
-    transform: translateY(-2px);
+    // La "montée" se fera maintenant en douceur grâce au transition ci-dessus
+    transform: translateY(-3px);
   }
+
+  //  AJOUT OPTIONNEL MAIS RECOMMANDÉ : Effet d'enfoncement au clic
+  &:active {
+    transform: translateY(1px);
+    transition: transform 0.1s ease; // Très rapide pour l'impression de clic
+  }
+
   @include color-mode(dark) {
     background-color: rgba(0, 0, 0, 0.5) !important;
     border-color: rgba(255, 255, 255, 0.1);
     $dark-color: if(lightness($color) < 20, lighten($color, 40%), $color);
     color: $dark-color;
-    &:hover {
+
+    &:hover, &:focus {
       background-color: $color !important;
+      border-color: $color;
       color: get-contrast-txt($color) !important;
     }
   }
@@ -166,5 +187,36 @@
   .form-control:focus {
     border-color: lighten($color, 10%);
     box-shadow: 0 0 0 0.25rem rgba($color, 0.25);
+  }
+}
+// ==========================================
+// 4. L'EFFET WHITE BORDER (Fond blanc fixe + Bordure couleur)
+// ==========================================
+
+@mixin button-white-border($color) {
+  background-color: #ffffff !important;
+  border: 1px solid $color;
+  color: $color;
+  transition: all 0.3s ease;
+
+  &:hover, &:focus {
+    background-color: $color !important;
+    border-color: darken($color, 10%); // Assombrit légèrement la bordure au survol
+    color: get-contrast-txt($color) !important;
+  }
+
+  @include color-mode(dark) {
+    $dark-color: if(lightness($color) < 30, lighten($color, 30%), $color);
+
+    // En mode sombre, le fond blanc devient généralement transparent
+    // pour ne pas agresser l'œil, mais conserve la bordure de couleur.
+    background-color: transparent !important;
+    border-color: $dark-color;
+    color: $dark-color;
+
+    &:hover, &:focus {
+      background-color: $dark-color !important;
+      color: get-contrast-txt($dark-color) !important;
+    }
   }
 }
