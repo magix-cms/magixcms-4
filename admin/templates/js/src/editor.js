@@ -207,7 +207,10 @@
                 ]},
 
             {title: 'Boutons Magix', items: magixButtonsMenu},
-
+            {title: 'Tailles de boutons', items: [
+                    {title: 'Petit (btn-sm)', selector: 'a', classes: 'btn-sm'},
+                    {title: 'Grand (btn-lg)', selector: 'a', classes: 'btn-lg'}
+                ]},
             {title: 'Typographie & Textes', items: [
                     {title: 'Titres Géants (Display)', items: [
                             {title: "Display 1", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'display-1'},
@@ -366,7 +369,8 @@
 
                 // 🎯 Familles exclusives (On ne touche JAMAIS au mot 'btn' seul)
                 const exclusiveRegexes = [
-                    /^btn-(main|sd|dark|green|white)(?:-[a-zA-Z0-9]+)*$/, // La famille des boutons
+                    /^btn-(main|sd|dark|green|white)(?:-[a-zA-Z0-9]+)*$/, // La famille des couleurs de boutons
+                    /^btn-(sm|lg)$/, // <-- NOUVEAU : La famille des tailles de boutons
                     /^text-(primary|success|info|warning|danger|body-secondary)$/, // Famille des couleurs
                     /^display-[1-6]$/, // Famille des gros titres
                     /^h[1-6]$/, // Famille des titres classiques
