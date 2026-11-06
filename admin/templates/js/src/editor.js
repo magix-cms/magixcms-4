@@ -50,6 +50,44 @@
         magixMenu.tools.items += ' mc_ai_gemini';
     }
 
+    // 5.5 GÉNÉRATION DYNAMIQUE DES BOUTONS (Basé sur SCSS)
+    // Ajout d'une propriété "name" pour rendre le sous-titre unique
+    const themeColors = [
+        { title: 'Main (Bleu)', key: 'main', name: 'Bleu' },
+        { title: 'SD (Gris)', key: 'sd', name: 'Gris' },
+        { title: 'Dark (Noir)', key: 'dark', name: 'Noir' },
+        { title: 'Green (Vert)', key: 'green', name: 'Vert' },
+        { title: 'White (Blanc)', key: 'white', name: 'Blanc' }
+    ];
+
+    const buttonVariants = [
+        { title: 'Standard', suffix: '' },
+        { title: 'Gradient', suffix: '-gradient' },
+        { title: 'Outline', suffix: '-outline' },
+        { title: 'Invert', suffix: '-invert' },
+        { title: 'White', suffix: '-white' },
+        { title: 'White Border', suffix: '-white-border' },
+        { title: 'Invert Transp.', suffix: '-invert-transparent' },
+        { title: 'Glass', suffix: '-glass' },
+        { title: 'Ghost Slide', suffix: '-ghost-slide' },
+        { title: 'Ghost Curtain', suffix: '-ghost-curtain' },
+        { title: 'Ghost Reveal', suffix: '-ghost-reveal' }
+    ];
+
+    const magixButtonsMenu = themeColors.map(color => {
+        return {
+            title: color.title,
+            items: buttonVariants.map(variant => {
+                return {
+                    // CORRECTION : Le titre devient unique (ex: "Standard - Bleu")
+                    title: `${variant.title} - ${color.name}`,
+                    selector: 'a',
+                    classes: `btn btn-${color.key}${variant.suffix}`
+                };
+            })
+        };
+    });
+
     // 6. INITIALISATION VANILLA
     tinymce.init({
         selector: '.mceEditor',
@@ -168,57 +206,7 @@
                     {title: 'Lien Flèche (Arrow)', selector: 'a', classes: 'link-arrow'}
                 ]},
 
-            {title: 'Boutons Magix', items: [
-                    {title: 'Main (Bleu)', items: [
-                            {title: 'Standard', selector: 'a', classes: 'btn btn-main'},
-                            {title: 'Gradient', selector: 'a', classes: 'btn btn-main-gradient'},
-                            {title: 'Outline', selector: 'a', classes: 'btn btn-main-outline'},
-                            {title: 'Invert', selector: 'a', classes: 'btn btn-main-invert'},
-                            {title: 'White', selector: 'a', classes: 'btn btn-main-white'},
-                            {title: 'Invert Transp.', selector: 'a', classes: 'btn btn-main-invert-transparent'},
-                            {title: 'Glass', selector: 'a', classes: 'btn btn-main-glass'},
-                            {title: 'Ghost Slide', selector: 'a', classes: 'btn btn-main-ghost-slide'},
-                            {title: 'Ghost Curtain', selector: 'a', classes: 'btn btn-main-ghost-curtain'},
-                            {title: 'Ghost Reveal', selector: 'a', classes: 'btn btn-main-ghost-reveal'}
-                        ]},
-                    {title: 'SD (Gris)', items: [
-                            {title: 'Standard', selector: 'a', classes: 'btn btn-sd'},
-                            {title: 'Gradient', selector: 'a', classes: 'btn btn-sd-gradient'},
-                            {title: 'Outline', selector: 'a', classes: 'btn btn-sd-outline'},
-                            {title: 'Invert', selector: 'a', classes: 'btn btn-sd-invert'},
-                            {title: 'White', selector: 'a', classes: 'btn btn-sd-white'},
-                            {title: 'Invert Transp.', selector: 'a', classes: 'btn btn-sd-invert-transparent'},
-                            {title: 'Glass', selector: 'a', classes: 'btn btn-sd-glass'},
-                            {title: 'Ghost Slide', selector: 'a', classes: 'btn btn-sd-ghost-slide'},
-                            {title: 'Ghost Curtain', selector: 'a', classes: 'btn btn-sd-ghost-curtain'},
-                            {title: 'Ghost Reveal', selector: 'a', classes: 'btn btn-sd-ghost-reveal'}
-                        ]},
-                    {title: 'Dark (Noir)', items: [
-                            {title: 'Standard', selector: 'a', classes: 'btn btn-dark'},
-                            {title: 'Gradient', selector: 'a', classes: 'btn btn-dark-gradient'},
-                            {title: 'Outline', selector: 'a', classes: 'btn btn-dark-outline'},
-                            {title: 'Invert', selector: 'a', classes: 'btn btn-dark-invert'},
-                            {title: 'White', selector: 'a', classes: 'btn btn-dark-white'},
-                            {title: 'Glass', selector: 'a', classes: 'btn btn-dark-glass'},
-                            {title: 'Ghost Slide', selector: 'a', classes: 'btn btn-dark-ghost-slide'},
-                            {title: 'Ghost Curtain', selector: 'a', classes: 'btn btn-dark-ghost-curtain'},
-                            {title: 'Ghost Reveal', selector: 'a', classes: 'btn btn-dark-ghost-reveal'}
-                        ]},
-                    {title: 'Green (Vert)', items: [
-                            {title: 'Standard', selector: 'a', classes: 'btn btn-green'},
-                            {title: 'Gradient', selector: 'a', classes: 'btn btn-green-gradient'},
-                            {title: 'Outline', selector: 'a', classes: 'btn btn-green-outline'},
-                            {title: 'Invert', selector: 'a', classes: 'btn btn-green-invert'},
-                            {title: 'Glass', selector: 'a', classes: 'btn btn-green-glass'},
-                            {title: 'Ghost Slide', selector: 'a', classes: 'btn btn-green-ghost-slide'}
-                        ]},
-                    {title: 'White (Blanc)', items: [
-                            {title: 'Standard', selector: 'a', classes: 'btn btn-white'},
-                            {title: 'Outline', selector: 'a', classes: 'btn btn-white-outline'},
-                            {title: 'Invert', selector: 'a', classes: 'btn btn-white-invert'},
-                            {title: 'Glass', selector: 'a', classes: 'btn btn-white-glass'}
-                        ]}
-                ]},
+            {title: 'Boutons Magix', items: magixButtonsMenu},
 
             {title: 'Typographie & Textes', items: [
                     {title: 'Titres Géants (Display)', items: [
