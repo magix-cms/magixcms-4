@@ -68,15 +68,16 @@
                 style.textContent = `
           .tox-dialog__body-content:has(#cm-editor-modal) {
             padding: 0 !important;
+            overflow: hidden !important; /* Coupe l'ascenseur inactif de TinyMCE */
+            position: relative !important; /* Point d'ancrage pour le positionnement absolu */
           }
           #cm-editor-modal {
-            height: 68vh;
-            min-height: 400px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-            /* Plus de background forcé ici, oneDark s'en charge ! */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffff;
           }
         `;
                 document.head.appendChild(style);
@@ -163,10 +164,17 @@
                             "&": {
                                 height: "100%",
                                 fontSize: "14px",
-                                fontFamily: "Menlo, Monaco, Consolas, 'Courier New', monospace"
+                                fontFamily: "Menlo, Monaco, Consolas, 'Courier New', monospace",
+                                backgroundColor: "#ffffff",
+                                color: "#333333"
                             },
                             ".cm-scroller": { overflow: "auto" },
-                            "&.cm-focused": { outline: "none" }
+                            "&.cm-focused": { outline: "none" },
+                            ".cm-gutters": {
+                                backgroundColor: "#f5f5f5",
+                                color: "#999999",
+                                borderRight: "1px solid #dddddd"
+                            }
                         });
 
                         cmInstance = new EditorView({
@@ -175,7 +183,7 @@
                                 extensions: [
                                     basicSetup,
                                     html(),
-                                    oneDark,
+                                    //oneDark,
                                     customTheme,
                                     EditorView.lineWrapping
                                 ]
