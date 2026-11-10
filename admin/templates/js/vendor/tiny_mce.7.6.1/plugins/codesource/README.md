@@ -1,13 +1,15 @@
 Plugin CodeSource (CodeMirror 6) for TinyMCE 7
 ======================
 
-Replace the default TinyMCE source code modal with a powerful, modern CodeMirror 6 editor. Includes automatic HTML beautifier, syntax highlighting, OneDark theme, and Shadow DOM isolation to prevent CSS conflicts.
+Replace the default TinyMCE source code modal with a powerful, modern CodeMirror 6 editor. Includes safe automatic HTML beautifier, syntax highlighting on a clean light theme, integrated search, and Shadow DOM isolation to prevent CSS conflicts.
 
 ### version
-[![release](https://img.shields.io/github/release/gtraxx/tinymce-codesource.svg)](https://github.com/magix-cms/tinymce-plugin-codesource/releases/latest)
+[![release](https://img.shields.io/github/release/gtraxx/tinymce-codesource.svg)](https://github.com/gtraxx/tinymce-codesource/releases/latest)
 ![Version TinyMCE](https://img.shields.io/badge/TinyMCE-7-blue)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 ![Statut](https://img.shields.io/badge/projet-Open%20Source-orange)
+
+<img width="1200" height="741" alt="Image" src="https://github.com/user-attachments/assets/3ba8c1a4-3b05-4ceb-bea8-91fdd5099ff8" />
 
 ## Soutenir le projet
 
@@ -20,34 +22,36 @@ Authors
 
 * Gerits Aurelien (Author-Developer) aurelien[at]magix-cms[point]com
 
-### Features
+### Key Features
 
-* **CodeMirror 6 Engine**: Lightweight and blazing fast rendering.
-* **OneDark Theme**: Elegant dark mode for syntax highlighting (HTML, CSS, JS inline).
-* **Auto-Beautifier**: Automatically formats and indents TinyMCE's minified HTML output.
-* **Shadow DOM Isolation**: Protects the editor's syntax colors from aggressive TinyMCE modal CSS resets.
+* **CodeMirror 6 Engine**: Lightweight, modular, and blazing-fast performance.
+* **Clean Light Theme**: High-contrast syntax highlighting on a pure white background with styled line-number gutters, matching modern CMS administration interfaces.
+* **Safe HTML Auto-Beautifier**: Automatically indents standard markup while strictly preserving whitespace and formatting inside sensitive blocks (`<pre>`, `<code>`, `codesample`, `<script>`, `<style>`, `<textarea>`) and self-closing tags (`<path />`, `<source />`, etc.).
+* **Integrated Search & Replace**: Instant panel access via `Ctrl + F` (`Cmd + F`) or the dedicated dialog search action button.
+* **Shadow DOM Isolation**: Shields the CodeMirror 6 canvas from TinyMCE 7's aggressive modal CSS resets.
+* **Cross-Platform & Fullscreen Stability**: Absolute viewport container prevents top clipping on Windows and guarantees independent vertical scrolling even with large documents or full-screen editing.
 
 ### Screenshot
 
-<img width="1208" height="661" alt="Image" src="https://github.com/user-attachments/assets/db449e3d-f7c2-48ac-9b3d-f28173b942c0" />
+<img width="1244" height="696" alt="Plugin codesource tinyMce" src="https://github.com/user-attachments/assets/4a610d5e-c716-43fb-a095-ae556432345c" />
 
 ### Installation
-* Download the `dist/codesource.zip` archive.
-* Unzip archive in tinyMCE plugin directory (`tiny_mce/plugins/codesource/`).
-* Ensure `codemirror.bundle.js` and `plugin.min.js` are present in the directory.
+* Download the `dist/codesource.zip` archive or clone this repository.
+* Extract the folder into your TinyMCE plugins directory (`tinymce/plugins/codesource/`).
+* Ensure `codemirror.bundle.js` and `plugin.min.js` (or `plugin.js`) are present in the directory.
 
 ### Configuration
 ```html
 <script type="text/javascript">
     tinymce.init({
         selector: "textarea",
-        // Do not include the default 'code' plugin, use 'codesource' instead
+        // Replace the default 'code' plugin with 'codesource'
         plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
+            "advlist autolink lists link image charmap preview anchor",
             "searchreplace visualblocks fullscreen",
-            "insertdatetime media table contextmenu paste codesource"
+            "insertdatetime media table codesource"
         ],
-        toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | codesource",
+        toolbar: "undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | codesource",
     });
 </script>
 ```
