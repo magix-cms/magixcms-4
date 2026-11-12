@@ -16,16 +16,19 @@
             {* --- COLONNE FRONTEND --- *}
             <div class="col-md-6">
                 <div class="card shadow-sm h-100 border-0 border-top border-4 border-primary">
+
                     <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
                         <h5 class="m-0 fw-bold"><i class="bi bi-globe me-2 text-primary"></i> Site Public</h5>
-                        {* NOUVEAUX BOUTONS FRONTEND *}
+                        {* BOUTONS FRONTEND *}
                         <div class="btn-group btn-group-sm">
                             <button type="button" class="btn btn-outline-primary btn-select-front" title="Tout cocher (Front)"><i class="bi bi-check-all"></i></button>
                             <button type="button" class="btn btn-outline-primary btn-unselect-front" title="Tout décocher (Front)"><i class="bi bi-x"></i></button>
                         </div>
                     </div>
+
                     <div class="card-body bg-light rounded-bottom">
-                        <div class="list-group list-front"> {* <-- AJOUT DE LA CLASSE list-front *}
+                        {* CORRECTION : Une seule div pour le list-group *}
+                        <div class="list-group list-front">
 
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-primary border-4">
                                 <div>
@@ -33,7 +36,6 @@
                                     <small class="text-muted">Fichiers pré-compilés du thème (Recommandé après modif. HTML/CSS)</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    {*  CORRECTION AJAX : Remplacement de $sizes.front_tpl par un badge de chargement *}
                                     <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_tpl"><i class="bi bi-hourglass"></i> ...</span>
                                     <div class="form-check form-switch fs-4 m-0">
                                         <input class="form-check-input clear-checkbox default-checked" type="checkbox" name="targets[]" value="front_tpl" checked>
@@ -70,7 +72,7 @@
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-warning border-4">
                                 <div>
                                     <div class="fw-bold text-warning-emphasis"><i class="bi bi-database-exclamation me-1"></i> Cache SQL (caches/sql)</div>
-                                    <small class="text-muted">Requêtes de la BDD (Catalogue, Pages, etc.) mises en cache</small>
+                                    <small class="text-muted">Requêtes de la BDD mises en cache</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_sql"><i class="bi bi-hourglass"></i> ...</span>
@@ -83,7 +85,7 @@
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3">
                                 <div>
                                     <div class="fw-bold">Fichiers de logs (log)</div>
-                                    <small class="text-muted">Historique des erreurs PHP et avertissements</small>
+                                    <small class="text-muted">Historique des erreurs PHP</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-secondary me-3 dir-size-badge" style="min-width: 65px; text-align: center;" data-target="front_log"><i class="bi bi-hourglass"></i> ...</span>
@@ -92,27 +94,29 @@
                                     </div>
                                 </div>
                             </label>
-                        </div>
 
+                        </div> {* Fin du list-group list-front *}
                     </div>
                 </div>
             </div>
 
             {* --- COLONNE BACKEND --- *}
-                {* --- COLONNE BACKEND --- *}
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100 border-0 border-top border-4 border-dark">
-                        <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
-                            <h5 class="m-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i> Administration</h5>
-                            {* NOUVEAUX BOUTONS BACKEND *}
-                            <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn btn-outline-dark btn-select-back" title="Tout cocher (Admin)"><i class="bi bi-check-all"></i></button>
-                                <button type="button" class="btn btn-outline-dark btn-unselect-back" title="Tout décocher (Admin)"><i class="bi bi-x"></i></button>
-                            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100 border-0 border-top border-4 border-dark">
+
+                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h5 class="m-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i> Administration</h5>
+                        {* BOUTONS BACKEND *}
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-dark btn-select-back" title="Tout cocher (Admin)"><i class="bi bi-check-all"></i></button>
+                            <button type="button" class="btn btn-outline-dark btn-unselect-back" title="Tout décocher (Admin)"><i class="bi bi-x"></i></button>
                         </div>
-                        <div class="card-body bg-light rounded-bottom">
-                            <div class="list-group list-back"> {* <-- AJOUT DE LA CLASSE list-back *}
-                                
+                    </div>
+
+                    <div class="card-body bg-light rounded-bottom">
+                        {* CORRECTION : Une seule div pour le list-group *}
+                        <div class="list-group list-back">
+
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-dark border-4">
                                 <div>
                                     <div class="fw-bold">Compilation Smarty (templates_c)</div>
@@ -178,17 +182,17 @@
                                 </div>
                             </label>
 
-                        </div>
-
+                        </div> {* Fin du list-group list-back *}
                     </div>
                 </div>
             </div>
-        </div>
+
+        </div> {* Fin du row *}
 
         <div class="card mt-4 shadow-sm border-0">
             <div class="card-body d-flex justify-content-between align-items-center bg-white rounded">
                 <div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btn-default-all">Remettre les recommandations par défaut</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btn-default-all">Recommandés</button>
                 </div>
                 <button type="submit" class="btn btn-danger px-5 py-2 fw-bold shadow-sm">
                     <i class="bi bi-trash-fill me-2"></i> Lancer le nettoyage
@@ -229,7 +233,7 @@
                 defaultCheckboxes.forEach(cb => cb.checked = true);
             });
 
-            //  NOUVEAU : Récupération asynchrone des tailles de dossiers
+            //  Récupération asynchrone des tailles de dossiers
             const formData = new FormData();
             formData.append('hashtoken', '{$hashtoken}');
 
@@ -242,15 +246,13 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if(data.success && data.sizes) {
+                    if(data.status && data.sizes) {
                         document.querySelectorAll('.dir-size-badge').forEach(badge => {
                             const targetKey = badge.getAttribute('data-target');
                             if(data.sizes[targetKey]) {
-                                // Si la taille n'est pas "0 B", on attire l'œil en passant le badge en info/bleu
                                 if(data.sizes[targetKey] !== '0 B') {
                                     badge.classList.replace('bg-secondary', 'bg-info');
                                 }
-                                // On remplace le sablier par la valeur textuelle (ex: 12.5 MB)
                                 badge.innerHTML = data.sizes[targetKey];
                             } else {
                                 badge.innerHTML = 'N/A';
