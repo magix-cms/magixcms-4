@@ -16,12 +16,17 @@
             {* --- COLONNE FRONTEND --- *}
             <div class="col-md-6">
                 <div class="card shadow-sm h-100 border-0 border-top border-4 border-primary">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="m-0 fw-bold"><i class="bi bi-globe me-2 text-primary"></i> Site Public (Frontend)</h5>
+                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h5 class="m-0 fw-bold"><i class="bi bi-globe me-2 text-primary"></i> Site Public</h5>
+                        {* NOUVEAUX BOUTONS FRONTEND *}
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary btn-select-front" title="Tout cocher (Front)"><i class="bi bi-check-all"></i></button>
+                            <button type="button" class="btn btn-outline-primary btn-unselect-front" title="Tout décocher (Front)"><i class="bi bi-x"></i></button>
+                        </div>
                     </div>
                     <div class="card-body bg-light rounded-bottom">
+                        <div class="list-group list-front"> {* <-- AJOUT DE LA CLASSE list-front *}
 
-                        <div class="list-group">
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-primary border-4">
                                 <div>
                                     <div class="fw-bold">Compilation Smarty (templates_c)</div>
@@ -94,14 +99,20 @@
             </div>
 
             {* --- COLONNE BACKEND --- *}
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100 border-0 border-top border-4 border-dark">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="m-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i> Administration (Backend)</h5>
-                    </div>
-                    <div class="card-body bg-light rounded-bottom">
-
-                        <div class="list-group">
+                {* --- COLONNE BACKEND --- *}
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100 border-0 border-top border-4 border-dark">
+                        <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                            <h5 class="m-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i> Administration</h5>
+                            {* NOUVEAUX BOUTONS BACKEND *}
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-dark btn-select-back" title="Tout cocher (Admin)"><i class="bi bi-check-all"></i></button>
+                                <button type="button" class="btn btn-outline-dark btn-unselect-back" title="Tout décocher (Admin)"><i class="bi bi-x"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body bg-light rounded-bottom">
+                            <div class="list-group list-back"> {* <-- AJOUT DE LA CLASSE list-back *}
+                                
                             <label class="list-group-item d-flex justify-content-between align-items-center cursor-pointer py-3 border-start border-dark border-4">
                                 <div>
                                     <div class="fw-bold">Compilation Smarty (templates_c)</div>
@@ -177,9 +188,7 @@
         <div class="card mt-4 shadow-sm border-0">
             <div class="card-body d-flex justify-content-between align-items-center bg-white rounded">
                 <div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btn-default-all">Recommandés</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btn-select-all">Tout cocher</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-unselect-all">Tout décocher</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" id="btn-default-all">Remettre les recommandations par défaut</button>
                 </div>
                 <button type="submit" class="btn btn-danger px-5 py-2 fw-bold shadow-sm">
                     <i class="bi bi-trash-fill me-2"></i> Lancer le nettoyage
@@ -192,20 +201,31 @@
 {block name="javascripts" append}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Logique des boutons de sélection (inchangée)
-            const checkboxes = document.querySelectorAll('.clear-checkbox');
+            // Logique des boutons de sélection (Par colonne)
+            const frontCheckboxes = document.querySelectorAll('.list-front .clear-checkbox');
+            const backCheckboxes = document.querySelectorAll('.list-back .clear-checkbox');
             const defaultCheckboxes = document.querySelectorAll('.default-checked');
+            const allCheckboxes = document.querySelectorAll('.clear-checkbox');
 
-            document.getElementById('btn-select-all').addEventListener('click', function() {
-                checkboxes.forEach(cb => cb.checked = true);
+            // --- ACTIONS FRONTEND ---
+            document.querySelector('.btn-select-front').addEventListener('click', function() {
+                frontCheckboxes.forEach(cb => cb.checked = true);
+            });
+            document.querySelector('.btn-unselect-front').addEventListener('click', function() {
+                frontCheckboxes.forEach(cb => cb.checked = false);
             });
 
-            document.getElementById('btn-unselect-all').addEventListener('click', function() {
-                checkboxes.forEach(cb => cb.checked = false);
+            // --- ACTIONS BACKEND ---
+            document.querySelector('.btn-select-back').addEventListener('click', function() {
+                backCheckboxes.forEach(cb => cb.checked = true);
+            });
+            document.querySelector('.btn-unselect-back').addEventListener('click', function() {
+                backCheckboxes.forEach(cb => cb.checked = false);
             });
 
+            // --- ACTION GLOBALE (Bouton par défaut) ---
             document.getElementById('btn-default-all').addEventListener('click', function() {
-                checkboxes.forEach(cb => cb.checked = false);
+                allCheckboxes.forEach(cb => cb.checked = false);
                 defaultCheckboxes.forEach(cb => cb.checked = true);
             });
 

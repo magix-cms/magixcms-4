@@ -127,7 +127,7 @@
                                         {* Nom Long *}
                                         <div class="row mb-3">
                                             <div class="col-md-9">
-                                                <label for="longname_about_{$id}" class="form-label fw-medium">Nom long (Menu)</label>
+                                                <label for="longname_about_{$id}" class="form-label fw-medium">{#longname_pages#}</label>
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" id="longname_about_{$id}" name="content[{$id}][longname_about]" value="{$page_data.content.$id.longname_about|default:''}" maxlength="125" />
                                                     <span class="input-group-text bg-light text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Nom affiché dans les menus longs" style="cursor: help;">

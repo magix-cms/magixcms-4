@@ -23,7 +23,7 @@
 
             <div class="row mt-3">
                 <div class="col-12 text-center text-lg-start">
-                    <h1 class="display-4 fw-bold text-primary mb-3">{$about.name}</h1>
+                    <h1 class="display-4 fw-bold text-primary mb-3">{if !$about.longname eq ''}{$about.longname}{else}{$about.name}{/if}</h1>
                     {*{if $about.resume}
                         <p class="lead text-muted">{$about.resume}</p>
                     {/if}*}
