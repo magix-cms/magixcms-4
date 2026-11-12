@@ -1,3 +1,22 @@
+## [4.0.2] - 2026-11-12
+
+### Ajouté
+- **MagixClear** : Ajout de boutons d'action dédiés (« Tout cocher » / « Tout décocher ») séparés pour le **Site Public (Frontend)** et l'**Administration (Backend)**, accompagnés d'un bouton permettant de restaurer la sélection recommandée par défaut.
+- **MagixClear** : Calcul et affichage asynchrone (AJAX) du poids des dossiers de cache (`templates_c`, `tpl_caches`, `caches`, `caches/sql`) et de logs, avec purge automatique d'OPcache après nettoyage.
+- **Formulaires Backend (`MagixForms.js`)** : Support du comptage par mots (`count-words`) en plus du comptage par caractères pour les compteurs SEO, et mise à jour dynamique des champs d'URLs publiques après sauvegarde.
+
+### Modifié
+- **Gestionnaire de plugins** : Amélioration de l'extraction et de l'affichage du module cible pour les extensions de type `addon` (`PluginController` et `plugin/index.tpl`).
+
+### Corrigé
+- **Paramètres (`SettingController`)** : Ajout des clés manquantes (`content_css`, `analytics`, `product_per_page`, `vat_rate`, `price_display`, `news_per_page`, `holder_bgcolor`, `logo_percent`) dans la liste blanche (`$allowedKeys`) afin de rétablir leur enregistrement en base de données.
+- **Accessibilité (`layout.tpl`)** : Libération automatique du focus actif (`blur()`) lors de l'événement `hide.bs.modal` pour corriger les erreurs WAI-ARIA à la fermeture des modales Bootstrap.
+- **MagixClear** : Correction de l'imbrication des balises HTML et des listes Bootstrap dans la vue d'administration (`index.tpl`).
+
+### Sécurité
+- **Protection CSRF globale** : Récupération et injection dynamique du jeton `hashtoken` (via `<meta name="csrf-token">`) dans toutes les requêtes AJAX/Fetch de `MagixForms.js` (formulaires, traitement par lots, uploads XHR) et de `MagixPlugins.js` (installation et désinstallation des plugins).
+- **Synchronisation de session** : Rechargement automatique de la page après l'installation ou la désinstallation d'un plugin afin d'éviter toute expiration ou désynchronisation du jeton CSRF.
+
 ## [4.0.2] - 2026-10-27
 ### Sécurité & Stabilité
 - **Protection contre l'assignation en masse des réglages (F7) :**
