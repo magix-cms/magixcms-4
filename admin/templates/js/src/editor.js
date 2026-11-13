@@ -53,7 +53,7 @@
     // 5.5 GÉNÉRATION DYNAMIQUE DES BOUTONS (Basé sur SCSS)
     // Ajout d'une propriété "name" pour rendre le sous-titre unique
     const themeColors = [
-        { title: 'Main (Bleu)', key: 'main', name: 'Bleu' },
+        { title: 'Main', key: 'main', name: 'Main' },
         { title: 'SD (Gris)', key: 'sd', name: 'Gris' },
         { title: 'Dark (Noir)', key: 'dark', name: 'Noir' },
         { title: 'Green (Vert)', key: 'green', name: 'Vert' },
@@ -84,6 +84,58 @@
                     selector: 'a',
                     classes: `btn btn-${color.key}${variant.suffix}`
                 };
+            })
+        };
+    });
+    // 5.6 GÉNÉRATION DYNAMIQUE DES PADDINGS BOOTSTRAP 5.3 (0 à 5, tous axes)
+    const paddingDirections = [
+        { title: 'Global (p-*)', prefix: 'p' },
+        { title: 'Horizontal (px-*)', prefix: 'px' },
+        { title: 'Vertical (py-*)', prefix: 'py' },
+        { title: 'Haut (pt-*)', prefix: 'pt' },
+        { title: 'Bas (pb-*)', prefix: 'pb' },
+        { title: 'Gauche (ps-*)', prefix: 'ps' },
+        { title: 'Droite (pe-*)', prefix: 'pe' }
+    ];
+
+    const paddingScale = ['0', '1', '2', '3', '4', '5'];
+    const paddingSelector = 'a, div, p, section, article, aside, header, footer, h1, h2, h3, h4, h5, h6, ul, ol, li, table, td, th, blockquote, span, img';
+
+    const magixPaddingsMenu = paddingDirections.map(dir => {
+        return {
+            title: dir.title,
+            items: paddingScale.map(size => {
+                const className = `${dir.prefix}-${size}`;
+                return {
+                    title: className,
+                    selector: paddingSelector,
+                    classes: className
+                };
+            })
+        };
+    });
+
+    // 5.7 GÉNÉRATION DYNAMIQUE DES MARGES BOOTSTRAP 5.3 (0 à 5)
+    const marginDirections = [
+        { title: 'Global (m-*)', prefix: 'm' },
+        { title: 'Horizontal (mx-*)', prefix: 'mx' },
+        { title: 'Vertical (my-*)', prefix: 'my' },
+        { title: 'Haut (mt-*)', prefix: 'mt' },
+        { title: 'Bas (mb-*)', prefix: 'mb' },
+        { title: 'Gauche (ms-*)', prefix: 'ms' },
+        { title: 'Droite (me-*)', prefix: 'me' },
+        { title: 'Auto (Centrage)', prefix: 'mx', isAuto: true }
+    ];
+
+    const magixMarginsMenu = marginDirections.map(dir => {
+        if (dir.isAuto) {
+            return { title: 'Centrage Horizontal (mx-auto)', selector: paddingSelector, classes: 'mx-auto' };
+        }
+        return {
+            title: dir.title,
+            items: paddingScale.map(size => {
+                const className = `${dir.prefix}-${size}`;
+                return { title: className, selector: paddingSelector, classes: className };
             })
         };
     });
@@ -228,6 +280,14 @@
                             {title: "Style H5", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h5'},
                             {title: "Style H6", selector: "h1,h2,h3,h4,h5,h6,p", classes: 'h6'}
                         ]},
+                    {title: 'Tailles de texte (fs-*)', items: [
+                            {title: 'Taille H1 (fs-1)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-1'},
+                            {title: 'Taille H2 (fs-2)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-2'},
+                            {title: 'Taille H3 (fs-3)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-3'},
+                            {title: 'Taille H4 (fs-4)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-4'},
+                            {title: 'Taille H5 (fs-5)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-5'},
+                            {title: 'Taille H6 (fs-6)', inline: 'span', selector: 'a, span, p, div, li', classes: 'fs-6'}
+                        ]},
                     {title: 'Graisse (Poids)', items: [
                             {title: 'Gras (fw-bold)', inline: 'span', classes: 'fw-bold'},
                             {title: 'Normal (fw-normal)', inline: 'span', classes: 'fw-normal'},
@@ -235,13 +295,13 @@
                             {title: 'Italique (fst-italic)', inline: 'span', classes: 'fst-italic'}
                         ]},
                     {title: 'Casse (Majuscules)', items: [
-                            {title: 'MAJUSCULES', inline: 'span', classes: 'text-uppercase'},
-                            {title: 'minuscules', inline: 'span', classes: 'text-lowercase'},
-                            {title: 'Première Lettre', inline: 'span', classes: 'text-capitalize'}
+                            {title: 'MAJUSCULES', inline: 'span', selector: 'a, button, h1, h2, h3, h4, h5, h6, span', classes: 'text-uppercase'},
+                            {title: 'minuscules', inline: 'span', selector: 'a, button, h1, h2, h3, h4, h5, h6, span', classes: 'text-lowercase'},
+                            {title: 'Première Lettre', inline: 'span', selector: 'a, button, h1, h2, h3, h4, h5, h6, span', classes: 'text-capitalize'}
                         ]},
                     {title: 'Phrase d\'accroche (Lead)', block: 'p', classes: 'lead'},
                     {title: 'Texte Discret (Gris)', inline: 'span', classes: 'text-body-secondary'},
-                    {title: 'Texte Petit (Small)', inline: 'small', classes: 'small'}
+                    {title: 'Texte Petit (Small)', inline: 'small', classes: 'small'},
                 ]},
 
             {title: 'Couleurs de texte', items: [
@@ -250,6 +310,13 @@
                     {title: 'Information (Bleu clair)', inline: 'span', classes: 'text-info'},
                     {title: 'Danger (Rouge)', inline: 'span', classes: 'text-danger'},
                     {title: 'Attention (Jaune)', inline: 'span', classes: 'text-warning'}
+                ]},
+            {title: 'Couleurs de fond (Subtle)', items: [
+                    {title: 'Fond Bleu doux', block: 'div', classes: 'bg-primary-subtle p-3 rounded'},
+                    {title: 'Fond Vert doux', block: 'div', classes: 'bg-success-subtle p-3 rounded'},
+                    {title: 'Fond Gris doux', block: 'div', classes: 'bg-secondary-subtle p-3 rounded'},
+                    {title: 'Fond Jaune doux', block: 'div', classes: 'bg-warning-subtle p-3 rounded'},
+                    {title: 'Fond Rouge doux', block: 'div', classes: 'bg-danger-subtle p-3 rounded'}
                 ]},
 
             {title: 'Images & Médias', items: [
@@ -274,19 +341,8 @@
                     {title: 'Ajouter Ombre (Shadow)', selector: '*', classes: 'shadow'},
                     {title: 'Arrondir les angles', selector: '*', classes: 'rounded'},
 
-                    {title: 'Marges externes (Margins)', items: [
-                            {title: 'Marge Haut (mt-3)', selector: '*', classes: 'mt-3'},
-                            {title: 'Marge Haut Grosse (mt-5)', selector: '*', classes: 'mt-5'},
-                            {title: 'Marge Bas (mb-3)', selector: '*', classes: 'mb-3'},
-                            {title: 'Marge Bas Grosse (mb-5)', selector: '*', classes: 'mb-5'},
-                        ]},
-
-                    {title: 'Espacements internes (Paddings)', items: [
-                            {title: 'Padding Global (p-3)', selector: '*', classes: 'p-3'},
-                            {title: 'Padding Global Gros (p-5)', selector: '*', classes: 'p-5'},
-                            {title: 'Padding Vertical (py-4)', selector: '*', classes: 'py-4'},
-                            {title: 'Padding Horizontal (px-4)', selector: '*', classes: 'px-4'}
-                        ]},
+                    {title: 'Marges externes (Margins)', items: magixMarginsMenu},
+                    {title: 'Espacements internes (Paddings)', items: magixPaddingsMenu},
 
                     {title: 'Layout Flexbox (Avancé)', items: [
                             {title: 'Activer Flexbox (d-flex)', selector: 'div, section', classes: 'd-flex'},
@@ -370,13 +426,23 @@
                 // 🎯 Familles exclusives (On ne touche JAMAIS au mot 'btn' seul)
                 const exclusiveRegexes = [
                     /^btn-(main|sd|dark|green|white)(?:-[a-zA-Z0-9]+)*$/, // La famille des couleurs de boutons
-                    /^btn-(sm|lg)$/, // <-- NOUVEAU : La famille des tailles de boutons
+                    /^btn-(sm|lg)$/, // La famille des tailles de boutons
                     /^text-(primary|success|info|warning|danger|body-secondary)$/, // Famille des couleurs
                     /^display-[1-6]$/, // Famille des gros titres
                     /^h[1-6]$/, // Famille des titres classiques
                     /^fw-(bold|normal|light)$/, // Famille des graisses
                     /^text-(uppercase|lowercase|capitalize)$/, // Famille des casses
-                    /^alert-(info|success|warning|danger)$/ // Famille des alertes
+                    /^alert-(info|success|warning|danger)$/, // Famille des alertes
+                    /^p-[0-5]$/,  // Paddings globaux
+                    /^px-[0-5]$/, // Paddings horizontaux
+                    /^py-[0-5]$/, // Paddings verticaux
+                    /^pt-[0-5]$/, // Paddings haut
+                    /^pb-[0-5]$/, // Paddings bas
+                    /^ps-[0-5]$/, // Paddings gauche
+                    /^pe-[0-5]$/,  // Paddings droite
+                    /^m-[0-5]$/, /^mx-([0-5]|auto)$/, /^my-[0-5]$/, /^mt-[0-5]$/, /^mb-[0-5]$/, /^ms-[0-5]$/, /^me-[0-5]$/, // Marges
+                    /^fs-[1-6]$/, // Tailles de polices
+                    /^bg-(primary|success|secondary|warning|danger)-subtle$/ // Fonds doux
                 ];
 
                 appliedClasses.forEach(function(appliedClass) {
