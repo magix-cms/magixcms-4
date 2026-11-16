@@ -37,16 +37,18 @@ class NewsController extends BaseController
 
         if (!$rawNews) {
             $this->render404();
-            return;
         }
 
         $urlTool = new UrlTool();
         $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+
+        // On utilise la clé 'news' et on passe la date pour que UrlTool ajoute les slashes /YYYY/MM/DD/
         $officialUrl = $urlTool->buildUrl([
-            'type' => 'news_single',
+            'type' => 'news',
             'id'   => $id,
             'url'  => $rawNews['url_news'] ?? '',
-            'iso'  => $isoLang
+            'iso'  => $isoLang,
+            'date' => $rawNews['date_publish'] ?? ''
         ]);
 
         $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
@@ -63,7 +65,7 @@ class NewsController extends BaseController
 
         if (!$this->view->isCached('news/single.tpl', $cacheId)) {
 
-            $siteUrl = $this->view->getTemplateVars('site_url');
+            $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/');
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
@@ -102,15 +104,21 @@ class NewsController extends BaseController
                     $lId = (int)$l['id_lang'];
                     $lIso = strtolower($l['iso_lang']);
 
-                    $hreflangUrls[$lId] = $urlTool->buildUrl([
-                        'type' => 'news_single',
-                        'id'   => $id,
-                        'url'  => $rawNews['url_news'] ?? '',
-                        'iso'  => $lIso
-                    ]);
+                    $translatedNews = $this->db->getNewsPage($id, $lId);
 
-                    if (isset($l['is_default']) && $l['is_default'] == 1) {
-                        $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                    if ($translatedNews && !empty($translatedNews['url_news'])) {
+                        // Utilisation correcte de UrlTool pour les traductions aussi
+                        $hreflangUrls[$lId] = $urlTool->buildUrl([
+                            'type' => 'news',
+                            'id'   => $id,
+                            'url'  => $translatedNews['url_news'],
+                            'iso'  => $lIso,
+                            'date' => $translatedNews['date_publish'] ?? ''
+                        ]);
+
+                        if (isset($l['is_default']) && $l['is_default'] == 1) {
+                            $this->view->assign('x_default_url', $hreflangUrls[$lId]);
+                        }
                     }
                 }
             }
@@ -133,7 +141,6 @@ class NewsController extends BaseController
         // PROTECTION SEO : Si le .htaccess a envoyé des paramètres parasites sur la liste
         if (isset($_GET['action']) || isset($_GET['hash']) || isset($_GET['id'])) {
             $this->render404();
-            //return;
         }
 
         $idLang = (int)($this->currentLang['id_lang'] ?? 1);
@@ -169,13 +176,12 @@ class NewsController extends BaseController
             foreach ($rawList as $raw) {
                 $formatted = NewsPresenter::format($raw, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
-                // On récupère les tags et on prépare le slug proprement
                 $tags = $this->db->getNewsTags((int)$raw['id_news'], $idLang);
                 if ($tags) {
                     foreach ($tags as &$tag) {
                         $tag['slug'] = Url::clean($tag['name_tag']);
                     }
-                    unset($tag); // Libérer la référence
+                    unset($tag);
                 }
                 $formatted['tags'] = $tags;
 
@@ -191,7 +197,6 @@ class NewsController extends BaseController
                 $jsonLd = '<script type="application/ld+json">' . "\n" . json_encode($itemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . "\n" . '</script>';
             }
 
-            // URLs des filtres
             $allTags = $this->db->getAllTags($idLang);
             if ($allTags) {
                 foreach ($allTags as &$t) {
@@ -213,21 +218,17 @@ class NewsController extends BaseController
 
             $siteDesc = $this->siteSettings['site_description']['value'] ?? '';
 
-            // 1. On récupère les données
             $newsHome = $this->db->getNewsHomeConfig($idLang);
 
-            // 2. SÉCURITÉ : Si la DB ne retourne rien (site en ligne tout neuf), on force un tableau
             if (!is_array($newsHome)) {
                 $newsHome = [];
             }
 
-            // 3. On garantit que les clés critiques existent pour Smarty
             $newsHome['content_page'] = $newsHome['content_page'] ?? '';
             $newsHome['title_page']   = $newsHome['title_page'] ?? 'Actualités';
             $newsHome['seo_title_page'] = $newsHome['seo_title_page'] ?? '';
             $newsHome['seo_desc_page']  = $newsHome['seo_desc_page'] ?? '';
 
-            // Initialisation des bases par défaut (NewsHome ou Site)
             $baseTitle = !empty($newsHome['seo_title_page']) ? $newsHome['seo_title_page'] : (!empty($newsHome['title_page']) ? $newsHome['title_page'] . ' - ' . $siteName : 'Actualités - ' . $siteName);
             $baseDesc = !empty($newsHome['seo_desc_page']) ? $newsHome['seo_desc_page'] : $siteDesc;
 
@@ -253,7 +254,6 @@ class NewsController extends BaseController
                 }
             }
 
-            // Pagination URL
             $currentUrl = $_SERVER['REQUEST_URI'];
             $currentUrl = preg_replace('/([?&])p=[0-9]+&?/', '$1', $currentUrl);
             $currentUrl = rtrim($currentUrl, '?&');
