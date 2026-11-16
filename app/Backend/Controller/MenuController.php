@@ -7,7 +7,11 @@ use App\Backend\Db\PluginDb; //  AJOUT : On importe la DB des plugins
 use Magepattern\Component\Tool\FormTool;
 
 class MenuController extends BaseController {
-
+    /**
+     * @return void
+     * @throws \Random\RandomException
+     * @throws \Smarty\Exception
+     */
     public function run(): void
     {
         $action = $_GET['action'] ?? 'index';
@@ -18,6 +22,11 @@ class MenuController extends BaseController {
         }
     }
 
+    /**
+     * @return void
+     * @throws \Random\RandomException
+     * @throws \Smarty\Exception
+     */
     public function index(): void
     {
         $db = new MenuDb();
@@ -36,6 +45,9 @@ class MenuController extends BaseController {
         $this->view->display('appearance/menu/index.tpl');
     }
 
+    /**
+     * @return void
+     */
     public function add(): void
     {
         $token = $_POST['hashtoken'] ?? '';
@@ -52,12 +64,34 @@ class MenuController extends BaseController {
 
         // L'ID cible dépend du type sélectionné par l'utilisateur
         $idPage = 0;
-        $pluginFolder = ''; //  AJOUT : Variable pour le dossier du plugin
+        $pluginFolder = trim($_POST['target_plugin'] ?? '');
+
+        // --- DEBUT DE LA VALIDATION STRICTE DU PLUGIN ---
+        if ($type === 'plugin') {
+            if (empty($pluginFolder)) {
+                $this->jsonResponse(false, "Le dossier du plugin cible est manquant.");
+            }
+
+            $manifestPath = ROOT_DIR . 'plugins/' . $pluginFolder . '/manifest.json';
+
+            if (!file_exists($manifestPath)) {
+                $this->jsonResponse(false, "Le plugin spécifié n'existe pas.");
+            }
+
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+            $pluginType = $manifest['type'] ?? 'backend';
+            $hasRoute = $manifest['has_route'] ?? false;
+
+            // On rejette strictement si le plugin n'a pas de route ou n'est pas du bon type
+            if (!in_array($pluginType, ['frontend', 'hybrid']) || $hasRoute !== true) {
+                $this->jsonResponse(false, "Ce plugin ne peut pas être ajouté au menu.");
+            }
+        }
+        // --- FIN DE LA VALIDATION STRICTE DU PLUGIN ---
 
         if ($type === 'pages') $idPage = (int)($_POST['target_pages'] ?? 0);
         elseif ($type === 'about_page') $idPage = (int)($_POST['target_about'] ?? 0);
         elseif ($type === 'category') $idPage = (int)($_POST['target_category'] ?? 0);
-        elseif ($type === 'plugin') $pluginFolder = trim($_POST['target_plugin'] ?? ''); //  AJOUT : Récupération du plugin
 
         $idLink = $db->insertMenu([
             'type_link' => $type,
@@ -72,7 +106,7 @@ class MenuController extends BaseController {
 
                 $urlLink = ''; // Par défaut vide pour les pages internes
 
-                //  AJOUT : Logique spécifique pour les plugins
+                // Logique spécifique pour les plugins (validée précédemment)
                 if ($type === 'plugin' && !empty($pluginFolder)) {
                     $cleanName = ucfirst(str_replace('Magix', '', $pluginFolder));
                     $realName  = $cleanName;
@@ -84,7 +118,7 @@ class MenuController extends BaseController {
                 $db->insertMenuContent($idLink, (int)$idLang, [
                     'name_link'  => $realName,
                     'title_link' => $realName,
-                    'url_link'   => $urlLink //  MODIFIÉ : On insère l'URL pré-générée
+                    'url_link'   => $urlLink
                 ]);
             }
             $this->jsonResponse(true, "Lien ajouté au menu", ['success' => true, 'type' => 'add']);
@@ -92,6 +126,9 @@ class MenuController extends BaseController {
         $this->jsonResponse(false, "Erreur lors de l'ajout", ['success' => false]);
     }
 
+    /**
+     * @return void
+     */
     public function getContent(): void
     {
         if (ob_get_length()) ob_clean();
@@ -103,6 +140,9 @@ class MenuController extends BaseController {
         exit;
     }
 
+    /**
+     * @return void
+     */
     public function update(): void
     {
         $id = (int)($_POST['id_link'] ?? 0);
@@ -129,6 +169,9 @@ class MenuController extends BaseController {
         }
     }
 
+    /**
+     * @return void
+     */
     public function delete(): void
     {
         $id = (int)($_POST['id'] ?? 0);
@@ -143,6 +186,9 @@ class MenuController extends BaseController {
         $this->jsonResponse(false, "Erreur de suppression");
     }
 
+    /**
+     * @return void
+     */
     public function reorder(): void
     {
         $order = $_POST['order'] ?? [];
@@ -155,6 +201,10 @@ class MenuController extends BaseController {
         }
     }
 
+    /**
+     * @return void
+     * @throws \Smarty\Exception
+     */
     public function getList(): void
     {
         if (ob_get_length()) ob_clean();
@@ -171,10 +221,10 @@ class MenuController extends BaseController {
     }
 
     /**
-     *  NOUVELLE MÉTHODE : Scanne les plugins INSTALLÉS et filtre ceux qui ont le type "frontend_page"
+     * Scanne les plugins INSTALLÉS et filtre ceux qui peuvent avoir une URL dans le menu
      */
     /**
-     * Scanne les plugins INSTALLÉS et filtre ceux qui peuvent avoir une URL dans le menu
+     * @return array
      */
     private function getFrontendPlugins(): array
     {
@@ -192,8 +242,11 @@ class MenuController extends BaseController {
 
                 $type = $manifest['type'] ?? 'backend';
 
-                // Seuls les types 'frontend' et 'hybrid' possèdent une route (URL) propre
-                if (in_array($type, ['frontend', 'hybrid'])) {
+                // AJOUT : Vérification du nouveau flag (par défaut à false si inexistant)
+                $hasRoute = $manifest['has_route'] ?? false;
+
+                // MODIFICATION : Le plugin doit être frontend/hybrid ET autoriser sa présence dans le menu
+                if (in_array($type, ['frontend', 'hybrid']) && $hasRoute === true) {
                     $frontendPlugins[] = [
                         'folder' => $folderName,
                         'name'   => $manifest['name'] ?? $folderName

@@ -5,6 +5,7 @@
   "author": "Magix CMS",
   "type": "hybrid",
   "has_config": true,
+  "has_route": true,
   "default_hooks": [
     "displayFooterColRight"
   ]
