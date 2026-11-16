@@ -34,7 +34,13 @@ class CatalogController extends BaseController
         }
 
         // --- 2. CODE NORMAL DE LA PAGE D'ACCUEIL DU CATALOGUE ---
-        //  ID de Cache Smarty
+
+        // PROTECTION SEO : Si on arrive ici, l'URL de base du catalogue ne doit pas contenir de paramètres d'action parasites
+        if (isset($_GET['action']) || isset($_GET['hash']) || isset($_GET['id'])) {
+            $this->render404();
+        }
+
+        // ID de Cache Smarty
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/index.tpl', $cacheId)) {

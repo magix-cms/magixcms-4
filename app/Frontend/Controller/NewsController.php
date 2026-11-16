@@ -31,20 +31,39 @@ class NewsController extends BaseController
     private function renderSingle(int $id): void
     {
         $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+
+        // 1. VÉRIFICATION STRICTE DE L'URL ET REDIRECTION 301
+        $rawNews = $this->db->getNewsPage($id, $idLang);
+
+        if (!$rawNews) {
+            $this->render404();
+            return;
+        }
+
+        $urlTool = new UrlTool();
+        $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+        $officialUrl = $urlTool->buildUrl([
+            'type' => 'news_single',
+            'id'   => $id,
+            'url'  => $rawNews['url_news'] ?? '',
+            'iso'  => $isoLang
+        ]);
+
+        $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
+        $officialUri = parse_url($officialUrl, PHP_URL_PATH);
+
+        if ($currentUri !== $officialUri) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $officialUrl);
+            exit;
+        }
+
+        // 2. GESTION DU CACHE
         $cacheId = md5('news_single_' . $idLang . '_' . $_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('news/single.tpl', $cacheId)) {
 
-            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
             $siteUrl = $this->view->getTemplateVars('site_url');
-
-            $rawNews = $this->db->getNewsPage($id, $idLang);
-
-            if (!$rawNews) {
-                $this->render404();
-                return;
-            }
-
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
@@ -66,7 +85,6 @@ class NewsController extends BaseController
                 }
             }
 
-            // On récupère les tags et on prépare le slug pour la vue détaillée
             $tags = $this->db->getNewsTags($id, $idLang);
             if ($tags) {
                 foreach ($tags as &$tag) {
@@ -76,7 +94,6 @@ class NewsController extends BaseController
             }
             $news['tags'] = $tags;
 
-            $urlTool = new UrlTool();
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
 
@@ -98,6 +115,8 @@ class NewsController extends BaseController
                 }
             }
 
+            $this->view->assign('canonical_url', $officialUrl);
+
             $this->view->assign([
                 'news'      => $news,
                 'seo_title' => $news['seo']['title'] ?? '',
@@ -111,6 +130,12 @@ class NewsController extends BaseController
 
     private function renderList(): void
     {
+        // PROTECTION SEO : Si le .htaccess a envoyé des paramètres parasites sur la liste
+        if (isset($_GET['action']) || isset($_GET['hash']) || isset($_GET['id'])) {
+            $this->render404();
+            //return;
+        }
+
         $idLang = (int)($this->currentLang['id_lang'] ?? 1);
         $cacheId = md5('news_list_' . $idLang . '_' . $_SERVER['REQUEST_URI']);
 

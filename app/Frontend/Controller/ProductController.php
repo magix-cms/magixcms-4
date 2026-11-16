@@ -15,21 +15,44 @@ class ProductController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        //  Cache Smarty
+        if ($id === 0) {
+            $this->render404();
+        }
+
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+        $db = new ProductDb();
+
+        // 1. VÉRIFICATION STRICTE DE L'URL ET REDIRECTION 301
+        $rawProduct = $db->getProductPage($id, $idLang);
+
+        if (!$rawProduct) {
+            $this->render404();
+        }
+
+        $urlTool = new \App\Component\Routing\UrlTool();
+        $officialUrl = $urlTool->buildUrl([
+            'type' => 'product',
+            'id'   => $id,
+            'url'  => $rawProduct['url_p'],
+            'iso'  => $isoLang
+        ]);
+
+        $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
+        $officialUri = parse_url($officialUrl, PHP_URL_PATH);
+
+        if ($currentUri !== $officialUri) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $officialUrl);
+            exit;
+        }
+
+        // 2. GESTION DU CACHE
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/product.tpl', $cacheId)) {
 
-            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
-            $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/'); // Correction slash de fin
-
-            $db = new ProductDb();
-            $rawProduct = $db->getProductPage($id, $idLang);
-
-            if (!$rawProduct) {
-                $this->render404();
-                return;
-            }
+            $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/');
 
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
@@ -46,10 +69,10 @@ class ProductController extends BaseController
 
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-            // 1. Formatage du produit
+            // Formatage du produit
             $product = ProductPresenter::format($rawProduct, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
 
-            // 2. Galerie
+            // Galerie
             $product['gallery'] = [];
             $images = $db->getProductImages($id, $idLang);
 
@@ -60,21 +83,18 @@ class ProductController extends BaseController
                 $product['gallery'][] = $formattedTemp['img'];
             }
 
-            //  GÉNÉRATION DU TABLEAU HREFLANG (Product)
+            // GÉNÉRATION DU TABLEAU HREFLANG
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
-            $urlTool = new \App\Component\Routing\UrlTool();
 
             if ($allLangs && is_array($allLangs)) {
                 foreach ($allLangs as $l) {
                     $lId = (int)$l['id_lang'];
                     $lIso = strtolower($l['iso_lang']);
 
-                    // Requête spécifique aux Produits
                     $translatedProduct = $db->getProductPage($id, $lId);
 
                     if ($translatedProduct && !empty($translatedProduct['url_p'])) {
-                        // Attention au type pour ProductTool, ça peut être 'catalog' ou 'product' selon votre config
                         $hreflangUrls[$lId] = $urlTool->buildUrl([
                             'type' => 'product',
                             'id'   => $id,
@@ -88,6 +108,8 @@ class ProductController extends BaseController
                     }
                 }
             }
+
+            $this->view->assign('canonical_url', $officialUrl);
 
             $this->view->assign([
                 'product'   => $product,

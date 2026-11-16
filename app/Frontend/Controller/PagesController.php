@@ -17,21 +17,52 @@ class PagesController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        //  1. Création de l'ID de cache unique pour l'URL
+        // 1. SÉCURITÉ : Si aucun ID, c'est direct une 404 (et render404 fait un exit)
+        if ($id === 0) {
+            $this->render404();
+        }
+
+        // 2. DÉFINITION GLOBALE DES VARIABLES (PhpStorm est content)
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+        $db = new PagesDb();
+
+        $rawPage = $db->getPagesPage($id, $idLang);
+
+        if (!$rawPage) {
+            $this->render404();
+        }
+
+        // 3. VÉRIFICATION STRICTE DE L'URL ET REDIRECTION 301
+        $urlTool = new UrlTool();
+
+        $officialUrl = $urlTool->buildUrl([
+            'type' => 'pages',
+            'id'   => $id,
+            'url'  => $rawPage['url_pages'],
+            'iso'  => $isoLang
+        ]);
+
+        $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
+        $officialUri = parse_url($officialUrl, PHP_URL_PATH);
+
+        if ($currentUri !== $officialUri) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $officialUrl);
+            exit;
+        }
+
+        // 4. GESTION DU CACHE
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        //  2. Si la vue n'est pas en cache, on lance le calcul
         if (!$this->view->isCached('pages/index.tpl', $cacheId)) {
 
-            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
             $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/');
 
-            $db = new PagesDb();
-            $rawPage = $db->getPagesPage($id, $idLang);
-
+            // Sécurité si aucun ID (cas très rare sur PagesController)
             if (!$rawPage) {
                 $this->render404();
-                return;
+                //return;
             }
 
             $companyDb = new CompanyDb();
@@ -46,7 +77,6 @@ class PagesController extends BaseController
             $seoDesc = !empty($rawPage['seo_desc_pages'])
                 ? $rawPage['seo_desc_pages']
                 : ($rawPage['resume_pages'] ?? '');
-
 
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
@@ -77,7 +107,6 @@ class PagesController extends BaseController
                     if ((int)$formattedChild['id_parent'] === $id) {
                         $pages['subdata'][] = $formattedChild;
                     } else {
-                        // Ré-attache au root comme stipulé dans la logique métier de Magix CMS
                         $pages['root'][] = $formattedChild;
                     }
                 }
@@ -88,7 +117,7 @@ class PagesController extends BaseController
             // Génération du tableau Hreflang
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
-            $urlTool = new UrlTool();
+            $urlTool = new UrlTool(); // Instancié ici aussi pour la boucle
 
             if ($allLangs && is_array($allLangs)) {
                 foreach ($allLangs as $l) {
@@ -111,10 +140,10 @@ class PagesController extends BaseController
                     }
                 }
             }
+
             $breadcrumbs_data = [];
             $currentParentId = (int)$rawPage['id_parent'];
 
-            // On remplace le 'while' par un 'if' pour ne cibler que le parent direct
             if ($currentParentId > 0) {
                 $parentInfo = $db->getParentBreadcrumbInfo($currentParentId, $idLang);
 
@@ -123,7 +152,7 @@ class PagesController extends BaseController
                         'type' => 'pages',
                         'id'   => $parentInfo['id_pages'],
                         'url'  => $parentInfo['url_pages'],
-                        'iso'  => $iso ?? 'fr'
+                        'iso'  => $isoLang
                     ]);
 
                     $breadcrumbs_data[] = [
@@ -133,10 +162,13 @@ class PagesController extends BaseController
                 }
             }
 
+            // Pour s'assurer que la vraie URL est poussée dans le layout pour le link rel="canonical"
+            $this->view->assign('canonical_url', $officialUrl);
+
             // Assignation Smarty
             $this->view->assign([
                 'pages'              => $pages,
-                'parent_breadcrumbs' => $breadcrumbs_data, // Contient 0 ou 1 seul parent
+                'parent_breadcrumbs' => $breadcrumbs_data,
                 'json_ld'            => $jsonLdList,
                 'seo_title'          => $seoTitle,
                 'seo_desc'           => $seoDesc,
@@ -144,7 +176,7 @@ class PagesController extends BaseController
             ]);
         }
 
-        //  4. Affichage de la vue avec le Cache ID
+        // 3. Affichage de la vue
         $this->view->display('pages/index.tpl', $cacheId);
     }
 }

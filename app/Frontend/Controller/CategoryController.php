@@ -18,22 +18,44 @@ class CategoryController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        //  Cache Smarty
+        if ($id === 0) {
+            $this->render404();
+        }
+
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+        $db = new CategoryDb();
+
+        // 1. VÉRIFICATION STRICTE DE L'URL ET REDIRECTION 301
+        $rawCategory = $db->getCategoryPage($id, $idLang);
+
+        if (!$rawCategory) {
+            $this->render404();
+        }
+
+        $urlTool = new \App\Component\Routing\UrlTool();
+        $officialUrl = $urlTool->buildUrl([
+            'type' => 'category',
+            'id'   => $id,
+            'url'  => $rawCategory['url_cat'],
+            'iso'  => $isoLang
+        ]);
+
+        $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
+        $officialUri = parse_url($officialUrl, PHP_URL_PATH);
+
+        if ($currentUri !== $officialUri) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $officialUrl);
+            exit;
+        }
+
+        // 2. GESTION DU CACHE
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
         if (!$this->view->isCached('catalog/category.tpl', $cacheId)) {
 
-            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
             $siteUrl = $this->view->getTemplateVars('site_url');
-
-            $db = new CategoryDb();
-            $rawCategory = $db->getCategoryPage($id, $idLang);
-
-            if (!$rawCategory) {
-                $this->render404();
-                return;
-            }
-
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
 
@@ -47,20 +69,19 @@ class CategoryController extends BaseController
                 ? $rawCategory['seo_desc_cat']
                 : ($rawCategory['resume_cat'] ?? '');
 
-
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
 
-            // 1. Formatage de la catégorie courante
+            // Formatage de la catégorie courante
             $category = CategoryPresenter::format($rawCategory, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
-            // 2. Galerie d'images
+            // Galerie d'images
             $category['gallery'] = [];
             $images = $db->getCategoryImages($id, $idLang);
             foreach ($images as $imgRow) {
                 $category['gallery'][] = CategoryPresenter::format(array_merge($rawCategory, $imgRow), $this->currentLang, $siteUrl, $companyInfo, $skinFolder)['img'];
             }
 
-            // 3. Sous-catégories
+            // Sous-catégories
             $category['subdata'] = [];
             $rawChildren = $db->getCategoryChildren($id, $idLang);
             if (!empty($rawChildren)) {
@@ -69,7 +90,7 @@ class CategoryController extends BaseController
                 }
             }
 
-            // 4. Liste des produits
+            // Liste des produits
             $category['products'] = [];
             $productDb = new ProductDb();
             $rawProducts = $productDb->getProductList($idLang, ['id_cat' => $id]);
@@ -85,17 +106,15 @@ class CategoryController extends BaseController
 
             $jsonLdList = SeoHelper::generateItemListJsonLd($category['products']);
 
-            //  GÉNÉRATION DU TABLEAU HREFLANG (Category)
+            // GÉNÉRATION DU TABLEAU HREFLANG
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
-            $urlTool = new \App\Component\Routing\UrlTool();
 
             if ($allLangs && is_array($allLangs)) {
                 foreach ($allLangs as $l) {
                     $lId = (int)$l['id_lang'];
                     $lIso = strtolower($l['iso_lang']);
 
-                    // Requête spécifique aux Catégories
                     $translatedCat = $db->getCategoryPage($id, $lId);
 
                     if ($translatedCat && !empty($translatedCat['url_cat'])) {
@@ -112,6 +131,9 @@ class CategoryController extends BaseController
                     }
                 }
             }
+
+            // Pousser l'URL officielle dans la balise canonique du layout
+            $this->view->assign('canonical_url', $officialUrl);
 
             $this->view->assign([
                 'category'  => $category,

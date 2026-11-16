@@ -19,7 +19,11 @@ class CalendarController extends BaseController
         $isCalendarActive = $this->siteSettings['calendar_enabled']['value'] ?? '0';
         if ($isCalendarActive !== '1') {
             $this->render404();
-            return;
+        }
+
+        // 2. PROTECTION SEO : Bloquer les paramètres d'action parasites
+        if (isset($_GET['action']) || isset($_GET['hash']) || isset($_GET['id'])) {
+            $this->render404();
         }
 
         $this->db = new NewsDb();

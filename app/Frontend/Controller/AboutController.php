@@ -17,22 +17,44 @@ class AboutController extends BaseController
     {
         $id = Request::isGet('id') ? (int)$_GET['id'] : 0;
 
-        //  1. Création de l'ID de cache unique pour cette URL exacte
+        if ($id === 0) {
+            $this->render404();
+        }
+
+        $idLang = (int)($this->currentLang['id_lang'] ?? 1);
+        $isoLang = strtolower($this->currentLang['iso_lang'] ?? 'fr');
+        $db = new AboutDb();
+
+        // 1. VÉRIFICATION STRICTE DE L'URL ET REDIRECTION 301
+        $rawPage = $db->getAboutPage($id, $idLang);
+
+        if (!$rawPage) {
+            $this->render404();
+        }
+
+        $urlTool = new UrlTool();
+        $officialUrl = $urlTool->buildUrl([
+            'type' => 'about',
+            'id'   => $id,
+            'url'  => $rawPage['url_about'],
+            'iso'  => $isoLang
+        ]);
+
+        $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
+        $officialUri = parse_url($officialUrl, PHP_URL_PATH);
+
+        if ($currentUri !== $officialUri) {
+            header("HTTP/1.1 301 Moved Permanently");
+            header("Location: " . $officialUrl);
+            exit;
+        }
+
+        // 2. GESTION DU CACHE
         $cacheId = md5($_SERVER['REQUEST_URI']);
 
-        //  2. Si le cache Smarty N'EST PAS valide, on exécute la logique métier
         if (!$this->view->isCached('about/index.tpl', $cacheId)) {
 
-            $idLang = (int)($this->currentLang['id_lang'] ?? 1);
             $siteUrl = rtrim((string)$this->view->getTemplateVars('site_url'), '/');
-
-            $db = new AboutDb();
-            $rawPage = $db->getAboutPage($id, $idLang);
-
-            if (!$rawPage) {
-                $this->render404();
-                return;
-            }
 
             $companyDb = new CompanyDb();
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
@@ -74,11 +96,9 @@ class AboutController extends BaseController
                 foreach ($rawChildren as $childRow) {
                     $formattedChild = AboutPresenter::format($childRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder);
 
-                    // Si l'enfant a ce parent précis, c'est un sous-niveau
                     if ((int)$formattedChild['id_parent'] === $id) {
                         $about['subdata'][] = $formattedChild;
                     } else {
-                        // Sinon c'est une ré-attache au root
                         $about['root'][] = $formattedChild;
                     }
                 }
@@ -89,7 +109,6 @@ class AboutController extends BaseController
             // Génération du tableau Hreflang
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];
-            $urlTool = new UrlTool();
 
             if ($allLangs && is_array($allLangs)) {
                 foreach ($allLangs as $l) {
@@ -113,6 +132,8 @@ class AboutController extends BaseController
                 }
             }
 
+            $this->view->assign('canonical_url', $officialUrl);
+
             // Assignation Smarty
             $this->view->assign([
                 'about'     => $about,
@@ -123,7 +144,6 @@ class AboutController extends BaseController
             ]);
         }
 
-        //  4. Affichage de la vue (avec liaison de l'ID de cache)
         $this->view->display('about/index.tpl', $cacheId);
     }
 }
