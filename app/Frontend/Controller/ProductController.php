@@ -30,12 +30,18 @@ class ProductController extends BaseController
             $this->render404();
         }
 
+        // CORRECTION ICI : On récupère l'ID et l'URL de la catégorie parente (soit de la BDD, soit du routeur)
+        $idCategory = $rawProduct['id_cat'] ?? $rawProduct['id_parent'] ?? ($_GET['id_parent'] ?? '');
+        $urlCategory = $rawProduct['url_cat'] ?? $rawProduct['url_parent'] ?? ($_GET['url_parent'] ?? '');
+
         $urlTool = new \App\Component\Routing\UrlTool();
         $officialUrl = $urlTool->buildUrl([
-            'type' => 'product',
-            'id'   => $id,
-            'url'  => $rawProduct['url_p'],
-            'iso'  => $isoLang
+            'type'         => 'product',
+            'id'           => $id,
+            'url'          => $rawProduct['url_p'],
+            'iso'          => $isoLang,
+            'id_category'  => $idCategory,
+            'url_category' => $urlCategory
         ]);
 
         $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0];
@@ -95,11 +101,17 @@ class ProductController extends BaseController
                     $translatedProduct = $db->getProductPage($id, $lId);
 
                     if ($translatedProduct && !empty($translatedProduct['url_p'])) {
+
+                        $tIdCategory = $translatedProduct['id_cat'] ?? $translatedProduct['id_parent'] ?? $idCategory;
+                        $tUrlCategory = $translatedProduct['url_cat'] ?? $translatedProduct['url_parent'] ?? $urlCategory;
+
                         $hreflangUrls[$lId] = $urlTool->buildUrl([
-                            'type' => 'product',
-                            'id'   => $id,
-                            'url'  => $translatedProduct['url_p'],
-                            'iso'  => $lIso
+                            'type'         => 'product',
+                            'id'           => $id,
+                            'url'          => $translatedProduct['url_p'],
+                            'iso'          => $lIso,
+                            'id_category'  => $tIdCategory,
+                            'url_category' => $tUrlCategory
                         ]);
 
                         if (isset($l['is_default']) && $l['is_default'] == 1) {
