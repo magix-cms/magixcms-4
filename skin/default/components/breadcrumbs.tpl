@@ -14,6 +14,7 @@
         </ol>
     </nav>
 
+    {* GÉNÉRATION DU JSON-LD BREADCRUMBLIST *}
     <script type="application/ld+json">
         {
           "@context": "https://schema.org",
@@ -22,9 +23,8 @@
             {
               "@type": "ListItem",
               "position": 1,
-
-        "name": {#breadcrumb_home#|json_encode nofilter},
-              "item": "{$base_url}"
+              "name": {#breadcrumb_home#|json_encode nofilter},
+              "item": "{$site_url}"
             }
         {foreach $breadcrumbs as $index => $item}
             ,{
@@ -32,8 +32,13 @@
               "position": {$index + 2},
               "name": {$item.label|json_encode nofilter}
             {if !$item@last && !empty($item.url)}
+                {* Vérification native Smarty pour savoir si l'URL contient déjà http *}
+                {if $item.url|regex_replace:"/^http.*/":"http" == "http"}
               ,"item": "{$item.url}"
+              {else}
+              ,"item": "{$site_url}{$item.url}"
               {/if}
+            {/if}
             }
         {/foreach}
         ]
