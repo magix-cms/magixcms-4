@@ -1,6 +1,7 @@
 ## [4.0.3] - 2026-11-18
 
 ### Ajouté
+- **Installateur (`step3.tpl`)** : Intégration autonome (Vanilla JS compatible Smarty) de l'affichage/masquage sur les champs `admin_password` et `admin_password_conf`, ainsi que du générateur de mot de passe robuste (16 caractères) remplissant et validant automatiquement les deux champs.
 - **Utilitaire de mots de passe (`MagixPasswordUtility.js`)** : Création d'une classe Vanilla JS générique permettant d'afficher ou masquer les mots de passe (`password` / `text`) et de générer des mots de passe robustes (16 caractères incluant minuscule, majuscule, chiffre et caractère spécial).
 - **Gestion des administrateurs (`employee/add.tpl`, `employee/edit.tpl`)** : Intégration de l'affichage/masquage et du générateur de mot de passe sur le champ `passwd_admin`, ainsi que du bouton d'affichage sur le champ `current_passwd_admin`.
 - **Configuration E-mails & SMTP (`mail_setting/index.tpl`)** : Intégration de `MagixPasswordUtility` (affichage/masquage et génération) sur le champ mot de passe SMTP (`settings[set_password]`), avec désactivation synchronisée via l'interrupteur `smtp_enabled`.

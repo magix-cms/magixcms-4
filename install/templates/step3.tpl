@@ -43,13 +43,26 @@
 
             <div class="col-md-6">
                 <label for="admin_password" class="form-label fw-bold">Mot de passe</label>
-                {* 🛡️ FIX : Utilisation de {ldelim} et {rdelim} pour éviter le crash Smarty avec la regex *}
-                <input type="password" class="form-control" id="admin_password" name="admin_password" required minlength="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{ldelim}12,{rdelim}" title="12 caractères minimum, incluant majuscule, minuscule, chiffre et caractère spécial">
+                <div class="input-group">
+                    {* 🛡️ FIX : Utilisation de {ldelim} et {rdelim} pour éviter le crash Smarty avec la regex *}
+                    <input type="password" class="form-control" id="admin_password" name="admin_password" required minlength="12" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{ldelim}12,{rdelim}" title="12 caractères minimum, incluant majuscule, minuscule, chiffre et caractère spécial">
+                    <button class="btn btn-outline-secondary" type="button" id="toggle_admin_password" title="Afficher/Masquer">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-primary" type="button" id="generate_admin_password" title="Générer un mot de passe">
+                        <i class="bi bi-magic"></i> Générer
+                    </button>
+                </div>
                 <div class="form-text">Min. 12 caractères (majuscule, minuscule, chiffre, symbole).</div>
             </div>
             <div class="col-md-6">
                 <label for="admin_password_conf" class="form-label fw-bold">Confirmer le mot de passe</label>
-                <input type="password" class="form-control" id="admin_password_conf" name="admin_password_conf" required>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="admin_password_conf" name="admin_password_conf" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggle_admin_password_conf" title="Afficher/Masquer">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
                 <div class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
             </div>
         </div>
@@ -73,8 +86,8 @@
             const pass2 = document.getElementById('admin_password_conf');
             const btn = document.getElementById('btnInstall');
 
-            // Vérification basique des mots de passe côté client
-            pass2.addEventListener('input', function() {
+            // --- VÉRIFICATION DES MOTS DE PASSE ---
+            function checkPasswordMatch() {
                 if (pass1.value !== pass2.value) {
                     pass2.classList.add('is-invalid');
                     pass2.setCustomValidity("Les mots de passe ne correspondent pas.");
@@ -82,17 +95,88 @@
                     pass2.classList.remove('is-invalid');
                     pass2.setCustomValidity("");
                 }
-            });
+            }
+            pass2.addEventListener('input', checkPasswordMatch);
+            pass1.addEventListener('input', checkPasswordMatch);
 
+            // --- ANIMATION BOUTON SUBMIT ---
             form.addEventListener('submit', function() {
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Installation en cours...';
                 btn.disabled = true;
             });
 
-            // Auto-remplissage du domaine en fonction de l'URL actuelle
+            // --- AUTO-REMPLISSAGE DOMAINE ---
             const domainInput = document.getElementById('url_domain');
             if (domainInput && !domainInput.value) {
                 domainInput.value = window.location.hostname;
+            }
+
+            // --- FONCTIONNALITÉS MOT DE PASSE (Inline) ---
+
+            // 1. Fonction pour basculer l'affichage (type password <-> text)
+            function togglePasswordVisibility(inputId, btnId) {
+                const input = document.getElementById(inputId);
+                const button = document.getElementById(btnId);
+                if (!input || !button) return;
+
+                button.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+
+                    const icon = button.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('bi-eye');
+                        icon.classList.toggle('bi-eye-slash');
+                    }
+                });
+            }
+
+            togglePasswordVisibility('admin_password', 'toggle_admin_password');
+            togglePasswordVisibility('admin_password_conf', 'toggle_admin_password_conf');
+
+            // 2. Générateur de mot de passe sécurisé (16 caractères)
+            const generateBtn = document.getElementById('generate_admin_password');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function() {
+                    const charset = {
+                        lowercase: "abcdefghijklmnopqrstuvwxyz",
+                        uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        numbers: "0123456789",
+                        // Retrait du backtick (`) et des accolades { } pour éviter le crash Smarty
+                        symbols: "!@#$%^&*()_+~|[];?><,./-="
+                    };
+
+                    let newPassword = "";
+                    // Garantir au moins un caractère de chaque type
+                    newPassword += charset.lowercase[Math.floor(Math.random() * charset.lowercase.length)];
+                    newPassword += charset.uppercase[Math.floor(Math.random() * charset.uppercase.length)];
+                    newPassword += charset.numbers[Math.floor(Math.random() * charset.numbers.length)];
+                    newPassword += charset.symbols[Math.floor(Math.random() * charset.symbols.length)];
+
+                    // Remplir jusqu'à 16 caractères
+                    const allChars = charset.lowercase + charset.uppercase + charset.numbers + charset.symbols;
+                    for (let i = newPassword.length; i < 16; i++) {
+                        newPassword += allChars[Math.floor(Math.random() * allChars.length)];
+                    }
+
+                    // Mélanger la chaîne
+                    newPassword = newPassword.split('').sort(() => 0.5 - Math.random()).join('');
+
+                    // Remplir les deux champs
+                    pass1.value = newPassword;
+                    pass2.value = newPassword;
+
+                    // Passer le premier champ en mode 'text' brièvement
+                    pass1.setAttribute('type', 'text');
+                    const toggleIcon = document.getElementById('toggle_admin_password').querySelector('i');
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('bi-eye');
+                        toggleIcon.classList.add('bi-eye-slash');
+                    }
+
+                    // Valider la correspondance
+                    checkPasswordMatch();
+                });
             }
         });
     </script>
