@@ -18,30 +18,7 @@
                 <input type="hidden" name="id_admin" value="{$employee.id_admin}">
 
                 {* --- INFORMATIONS PERSONNELLES --- *}
-                {* --- IDENTIFIANTS DE CONNEXION --- *}
-                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Identifiants de connexion</h5>
-
-                {* BLOC DE SÉCURITÉ : Re-authentification pour le compte actif *}
-                {if $employee.id_admin == $current_user.id_admin}
-                    <div class="alert alert-warning py-2 mb-3 small d-flex align-items-center">
-                        <i class="bi bi-shield-lock-fill fs-5 me-2"></i>
-                        <div><strong>Sécurité :</strong> Renseignez votre mot de passe actuel pour valider une modification de votre e-mail ou de votre mot de passe.</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="passwd_admin" class="form-label fw-medium">Nouveau mot de passe</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
-                                <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" minlength="12">
-                            </div>
-                            <div class="form-text text-muted small mt-1">
-                                <i class="bi bi-info-circle me-1"></i> Laissez vide pour conserver le mot de passe actuel.<br>
-                                <span class="text-danger">Si modifié :</span> Min. 12 caractères incluant majuscule, minuscule, chiffre et caractère spécial.
-                            </div>
-                        </div>
-                    </div>
-                {/if}
-
+                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Informations personnelles</h5>
                 <div class="row mb-4">
                     <div class="col-md-2 mb-3">
                         <label for="title_admin" class="form-label fw-medium">Civilité</label>
@@ -92,8 +69,9 @@
                     </div>
                 </div>
 
-                {* --- IDENTIFIANTS DE CONNEXION --- *}
-                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Identifiants de connexion</h5>
+                {* --- IDENTIFIANTS DE CONNEXION & SÉCURITÉ --- *}
+                <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Identifiants de connexion & Sécurité</h5>
+
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3 mb-md-0">
                         <label for="email_admin" class="form-label fw-medium">Adresse E-mail <span class="text-danger">*</span></label>
@@ -102,17 +80,70 @@
                             <input type="email" id="email_admin" name="email_admin" class="form-control" value="{$employee.email_admin}" required>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="passwd_admin" class="form-label fw-medium">Nouveau mot de passe</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
-                            <input type="password" id="passwd_admin" name="passwd_admin" class="form-control">
+                </div>
+
+                {* Si l'employé édite son PROPRE compte (Affichage des champs de sécurité) *}
+                {if $employee.id_admin == $current_user.id_admin}
+                    <div class="alert alert-warning py-2 mb-3 small d-flex align-items-center">
+                        <i class="bi bi-shield-lock-fill fs-5 me-2"></i>
+                        <div><strong>Sécurité :</strong> Renseignez votre mot de passe actuel pour valider une modification de votre e-mail ou de votre mot de passe.</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        {* Champ Mot de passe actuel *}
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label for="current_passwd_admin" class="form-label fw-medium text-warning-emphasis">Mot de passe actuel <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-shield-lock text-warning"></i></span>
+                                <input type="password" id="current_passwd_admin" name="current_passwd_admin" class="form-control">
+                                <button class="btn btn-outline-secondary" type="button" id="toggle_current_passwd_admin" title="Afficher/Masquer">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-text text-muted small mt-1">
-                            <i class="bi bi-info-circle me-1"></i> Laissez vide pour conserver le mot de passe actuel.
+
+                        {* Champ Nouveau mot de passe (avec générateur) *}
+                        <div class="col-md-6">
+                            <label for="passwd_admin" class="form-label fw-medium">Nouveau mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" minlength="12">
+                                <button class="btn btn-outline-secondary" type="button" id="toggle_passwd_admin" title="Afficher/Masquer">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" id="generate_passwd_admin" title="Générer un mot de passe">
+                                    <i class="bi bi-magic"></i> Générer
+                                </button>
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i> Laissez vide pour conserver le mot de passe actuel.<br>
+                                <span class="text-danger">Si modifié :</span> Min. 12 caractères incluant majuscule, minuscule, chiffre et caractère spécial.
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    {* Si l'employé édite un AUTRE compte (Super-Admin modifiant un employé) *}
+                {else}
+                    <div class="row mb-4">
+                        <div class="col-md-6 offset-md-6">
+                            <label for="passwd_admin" class="form-label fw-medium">Nouveau mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" minlength="12">
+                                <button class="btn btn-outline-secondary" type="button" id="toggle_passwd_admin" title="Afficher/Masquer">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" id="generate_passwd_admin" title="Générer un mot de passe">
+                                    <i class="bi bi-magic"></i> Générer
+                                </button>
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="bi bi-info-circle me-1"></i> Laissez vide pour conserver le mot de passe actuel.<br>
+                                <span class="text-danger">Si modifié :</span> Min. 12 caractères.
+                            </div>
+                        </div>
+                    </div>
+                {/if}
 
                 {* --- DROITS D'ACCÈS --- *}
                 <h5 class="mb-3 fw-bold text-primary border-bottom pb-2">Droits d'accès</h5>
@@ -160,4 +191,27 @@
             </form>
         </div>
     </div>
+{/block}
+
+{block name="javascripts" append}
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixPasswordUtility.min.js?v={$smarty.now}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation pour le champ 'Nouveau mot de passe'
+            if (document.getElementById('passwd_admin')) {
+                new MagixPasswordUtility('passwd_admin', {
+                    toggleBtnId: 'toggle_passwd_admin',
+                    generateBtnId: 'generate_passwd_admin',
+                    length: 16
+                });
+            }
+
+            // Initialisation pour le champ 'Mot de passe actuel'
+            if (document.getElementById('current_passwd_admin')) {
+                new MagixPasswordUtility('current_passwd_admin', {
+                    toggleBtnId: 'toggle_current_passwd_admin'
+                });
+            }
+        });
+    </script>
 {/block}

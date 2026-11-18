@@ -1,3 +1,19 @@
+## [4.0.3] - 2026-11-18
+
+### Ajouté
+- **Utilitaire de mots de passe (`MagixPasswordUtility.js`)** : Création d'une classe Vanilla JS générique permettant d'afficher ou masquer les mots de passe (`password` / `text`) et de générer des mots de passe robustes (16 caractères incluant minuscule, majuscule, chiffre et caractère spécial).
+- **Gestion des administrateurs (`employee/add.tpl`, `employee/edit.tpl`)** : Intégration de l'affichage/masquage et du générateur de mot de passe sur le champ `passwd_admin`, ainsi que du bouton d'affichage sur le champ `current_passwd_admin`.
+- **Configuration E-mails & SMTP (`mail_setting/index.tpl`)** : Intégration de `MagixPasswordUtility` (affichage/masquage et génération) sur le champ mot de passe SMTP (`settings[set_password]`), avec désactivation synchronisée via l'interrupteur `smtp_enabled`.
+- **TinyMCE 7 (`editor.js`)** : Génération dynamique des échelles complètes Bootstrap 5.3 pour les espacements internes (`p`, `px`, `py`, `pt`, `pb`, `ps`, `pe` de `0` à `5`) et les marges externes (`m`, `mx`, `my`, `mt`, `mb`, `ms`, `me` de `0` à `5` ainsi que `mx-auto`), applicables directement sur les balises `<a>`.
+- **TinyMCE 7 (`editor.js`)** : Ajout des tailles de police sémantiques Bootstrap (`fs-1` à `fs-6`) et des couleurs de fond pastel Bootstrap 5.3 (`bg-primary-subtle`, `bg-success-subtle`, `bg-secondary-subtle`, `bg-warning-subtle`, `bg-danger-subtle`) dans `style_formats`.
+
+### Modifié
+- **TinyMCE 7 (`editor.js`)** : Ajout d'un sélecteur ciblé (`a, button, h1, h2, h3, h4, h5, h6, span`) sur les formats de casse (`text-uppercase`, `text-lowercase`, `text-capitalize`) afin d'appliquer la classe directement sur la balise `<a>` ou le titre sans encapsuler dans un `<span>` ni cibler le `<p>` parent.
+- **TinyMCE 7 (`editor.js`)** : Mise à jour des expressions régulières exclusives dans l'événement `FormatApply` (`exclusiveRegexes`) afin de remplacer proprement les classes d'une même famille (paddings, marges, tailles `fs-*`, fonds `bg-*-subtle`) sans empilement.
+
+### Corrigé
+- **Édition d'administrateur (`employee/edit.tpl`)** : Ajout du champ de ré-authentification `current_passwd_admin` lors de la modification de son propre compte, affichage du champ `passwd_admin` avec générateur pour l'édition des autres comptes et suppression du champ de mot de passe dupliqué dans le formulaire.
+- 
 ## [4.0.2] - 2026-11-12
 
 ### Ajouté

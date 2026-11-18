@@ -66,7 +66,18 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-medium">Mot de passe</label>
-                        <input type="password" class="form-control smtp-field" name="settings[set_password]" value="{$settings.set_password.value|default:''}">
+                        <div class="input-group">
+                            <input type="password" id="smtp_password" class="form-control smtp-field" name="settings[set_password]" value="{$settings.set_password.value|default:''}">
+                            <button class="btn btn-outline-secondary smtp-field" type="button" id="toggle_smtp_password" title="Afficher/Masquer">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-primary smtp-field" type="button" id="generate_smtp_password" title="Générer un mot de passe">
+                                <i class="bi bi-magic"></i> Générer
+                            </button>
+                        </div>
+                        <div class="form-text small mt-1 text-muted">
+                            <i class="bi bi-info-circle me-1"></i> Si le mot de passe est affiché comme <code>********</code>, il est chiffré et sauvegardé.
+                        </div>
                     </div>
                 </div>
                 {* 3. ZONE DE TEST *}
@@ -94,8 +105,19 @@
 {/block}
 
 {block name="javascripts" append}
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixPasswordUtility.min.js?v={$smarty.now}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // Initialisation de l'utilitaire de mot de passe pour le SMTP
+            if (document.getElementById('smtp_password')) {
+                new MagixPasswordUtility('smtp_password', {
+                    toggleBtnId: 'toggle_smtp_password',
+                    generateBtnId: 'generate_smtp_password',
+                    length: 16 // Par défaut 16 caractères pour un mdp d'application
+                });
+            }
+
             const smtpSwitch = document.getElementById('smtp_enabled');
             const smtpFields = document.querySelectorAll('.smtp-field');
             const container = document.getElementById('smtp_fields_container');

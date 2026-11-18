@@ -83,6 +83,13 @@
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
                             <input type="password" id="passwd_admin" name="passwd_admin" class="form-control" required minlength="12">
+                            {* Nouveaux boutons *}
+                            <button class="btn btn-outline-secondary" type="button" id="toggle_passwd_admin" title="Afficher/Masquer">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" type="button" id="generate_passwd_admin" title="Générer un mot de passe">
+                                <i class="bi bi-magic"></i> Générer
+                            </button>
                         </div>
                         <div class="form-text text-muted small mt-1">
                             <i class="bi bi-info-circle me-1"></i> Min. 12 caractères incluant : 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
@@ -123,4 +130,20 @@
             </form>
         </div>
     </div>
+{/block}
+{block name="javascripts" append}
+    <script src="{$site_url}/{$baseadmin}/templates/js/MagixPasswordUtility.min.js?v={$smarty.now}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation pour le champ mot de passe principal
+            new MagixPasswordUtility('passwd_admin', {
+                toggleBtnId: 'toggle_passwd_admin',
+                generateBtnId: 'generate_passwd_admin',
+                length: 16 // Génère un mot de passe de 16 caractères par sécurité
+            });
+
+            // Si vous êtes dans edit.tpl et qu'il y a un 2ème champ (ex: mot de passe actuel pour la sécurité),
+            // il suffit d'instancier à nouveau la classe avec les bons IDs.
+        });
+    </script>
 {/block}
