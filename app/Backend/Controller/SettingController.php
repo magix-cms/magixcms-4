@@ -10,6 +10,7 @@ use Magepattern\Component\Tool\FormTool;
 use Magepattern\Component\HTTP\Url;
 use App\Backend\Db\DomainDb;
 use App\Component\Cache\CacheManager;
+use App\Backend\Model\ButtonScanner;
 
 class SettingController extends BaseController
 {
@@ -27,7 +28,21 @@ class SettingController extends BaseController
             return;
         }
 
+        if ($action === 'getButtons') {
+            $this->getButtons();
+            return;
+        }
+
         $this->index();
+    }
+
+    /**
+     * Retourne la liste des classes de boutons et l'URL de button.css pour TinyMCE 7
+     */
+    private function getButtons(): void
+    {
+        $data = ButtonScanner::getAvailableButtons();
+        $this->jsonResponse(true, 'OK', $data);
     }
 
     private function index(): void

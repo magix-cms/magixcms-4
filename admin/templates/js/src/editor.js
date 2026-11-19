@@ -23,20 +23,20 @@
     const magixCustomPlugins = [
         'youtube', 'loremipsum', 'mc_pages',
         'mc_cat', 'mc_news', 'mc_product', 'lazyloadimage', 'cryptmail',
-        'tabpanel', 'snippets', 'advreplace', 'mc_history', 'clists', 'bsicons'
+        'tabpanel', 'snippets', 'advreplace', 'mc_history', 'clists', 'bsicons', 'mcbuttons'
     ];
     magixPlugins = magixPlugins.concat(magixCustomPlugins);
 
     // 3. Toolbar
     let magixToolbar = 'undo redo | link unlink image bs_grid codesource advreplace | blocks styles | '
         +'bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | '
-        +'cbullist numlist | blockquote| bsicons | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
+        +'cbullist numlist | blockquote | bsicons mcbuttons | removeformat forecolor | mc_pages mc_cat mc_news mc_product | fullscreen';
 
     // 4. Menus
     let magixMenu = {
         view   : {title : 'View'  , items : 'codesource | visualaid visualblocks | preview fullscreen'},
         edit   : {title : 'Edit'  , items : 'undo redo | cut copy paste pastetext | selectall | searchreplace'},
-        insert : {title : 'Insert', items : 'link anchor | snippets | image media youtube | tabpanel | table | hr | loremipsum | codesample | bsicons'},
+        insert : {title : 'Insert', items : 'link anchor | snippets | image media youtube | tabpanel | table | hr | loremipsum | codesample | bsicons | mcbuttons'},
         format : {title : 'Format', items : 'styles | lazyloadimage cryptmail'},
         table  : {title : 'Table' , items : 'inserttable tableprops deletetable | cell row column'},
         tools  : {title : 'Tools' , items : 'codesource advreplace mc_history'}
@@ -468,7 +468,8 @@
         },
 
         // Embellit l'affichage du menu déroulant
-        preview_styles: 'font-family font-weight font-style text-decoration text-transform color background-color border border-radius outline text-shadow'
+        preview_styles: 'font-family font-weight font-style text-decoration text-transform color background-color border border-radius outline text-shadow',
+        mcbuttons_endpoint: '/' + baseadmin + '/index.php?controller=setting&action=getButtons'
     });
 
 })(window, document);
