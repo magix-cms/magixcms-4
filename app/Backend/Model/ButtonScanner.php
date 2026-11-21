@@ -53,9 +53,9 @@ class ButtonScanner
 
         // 2. Résolution du fichier CSS (thème actif -> fallback default)
         $candidates = [
-            //['theme' => $activeTheme, 'file' => 'button.css'],
+            ['theme' => $activeTheme, 'file' => 'button.css'],
             ['theme' => $activeTheme, 'file' => 'buttons.css'],
-            //['theme' => 'default',    'file' => 'button.css'],
+            ['theme' => 'default',    'file' => 'button.css'],
             ['theme' => 'default',    'file' => 'buttons.css'],
         ];
 

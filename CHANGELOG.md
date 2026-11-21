@@ -1,3 +1,20 @@
+## [4.0.3] - 2026-11-22
+
+### Modifié
+- **Moteur de templates (Smarty)** : Mise à jour de `smarty/smarty` de la version `5.8.4` vers la branche `5.9` (`composer.lock` et autoloader optimisé).
+
+## [4.0.3] - 2026-11-19
+
+### Ajouts
+- **TinyMCE 7 — Sélecteur visuel de boutons (`mcbuttons`)** :
+  - Ajout du modèle `App\Backend\Model\ButtonScanner` pour analyser dynamiquement le fichier `button.css` / `buttons.css` du thème actif (avec repli sur `default` et support des annotations `/* @label: ... */`).
+  - Ajout de l'action `getButtons` dans `SettingController` exposant les variantes et tailles disponibles en JSON.
+  - Création du plugin `mcbuttons` avec modale native TinyMCE 7 et aperçu isolé via **Shadow DOM** chargeant la feuille de style du thème courant.
+  - Intégration de filtres dynamiques par groupe de couleur (`Main`, `SD`, `Dark`, `Green`, `White`...), recherche instantanée et bascule fond clair / fond sombre.
+  - Ajout des sélecteurs Bootstrap 5.3 avec prévisualisation en direct : tailles (`btn-sm`, `btn-lg`), arrondis (`rounded-0` à `rounded-5`, `rounded-pill`, `rounded-circle`) et paddings (`px-0` à `px-5`, `py-0` à `py-5`).
+  - Support complet du mode édition sur les liens `a.btn` existants (pré-sélection de la variante et de la pastille couleur, centrage automatique du défilement, conservation des classes utilitaires et des icônes `bsicons`).
+  - Internationalisation complète du plugin (`langs/en_US.js` et `langs/fr_FR.js`).
+
 ## [4.0.3] - 2026-11-18
 
 ### Ajouté
