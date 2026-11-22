@@ -71,12 +71,22 @@ The plugin uses native `editor.translate()`. To add a new language, simply creat
 Example for `langs/fr_FR.js`:
 ```javascript
 tinymce.addI18n('fr_FR', {
-    'Insert Bootstrap Icons': 'Insérer une icône Bootstrap',
-    'Loading icons...': 'Chargement des icônes en cours...',
-    'No icon found or loading...': 'Aucune icône trouvée ou en cours de chargement...',
-    'Search (e.g., star, check, user)...': 'Rechercher (ex: star, check, user)...',
-    'Close': 'Fermer',
-    'Bootstrap Icons': 'Icônes Bootstrap'
+    bsicons_title: 'Insérer une icône Bootstrap',
+    bsicons_tooltip: 'Icônes Bootstrap',
+    bsicons_menu_item: 'Insérer une icône Bootstrap',
+    bsicons_close: 'Fermer',
+    bsicons_search_placeholder: 'Rechercher (ex: star, check, user)...',
+    bsicons_size_label: 'Taille de l\'icône',
+    bsicons_size_default: 'Taille par défaut',
+    bsicons_filter_all: 'Toutes',
+    bsicons_filter_outline: 'Contour',
+    bsicons_filter_fill: 'Plein',
+    bsicons_count_total: '{0} icônes',
+    bsicons_count_filtered: '{0} / {1} icônes',
+    bsicons_preview_hint: 'Cliquez sur une icône pour l\'insérer.',
+    bsicons_loading: 'Chargement des icônes en cours...',
+    bsicons_no_results: 'Aucune icône trouvée ou en cours de chargement...',
+    bsicons_error_load: 'Erreur lors du chargement des icônes via bridge.php :'
 });
 ```
 

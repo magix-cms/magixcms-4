@@ -1,0 +1,22 @@
+tinymce.addI18n('en_US', {
+    bsicons_title: 'Insert Bootstrap Icons',
+    bsicons_tooltip: 'Bootstrap Icons',
+    bsicons_menu_item: 'Insert Bootstrap Icons',
+    bsicons_close: 'Close',
+
+    bsicons_search_placeholder: 'Search (e.g., star, check, user)...',
+    bsicons_size_label: 'Icon size',
+    bsicons_size_default: 'Default size',
+
+    bsicons_filter_all: 'All',
+    bsicons_filter_outline: 'Outline',
+    bsicons_filter_fill: 'Fill',
+
+    bsicons_count_total: '{0} icons',
+    bsicons_count_filtered: '{0} / {1} icons',
+    bsicons_preview_hint: 'Click an icon to insert it.',
+
+    bsicons_loading: 'Loading icons...',
+    bsicons_no_results: 'No icon found or loading...',
+    bsicons_error_load: 'Error loading icons via bridge.php:'
+});
