@@ -1,6 +1,6 @@
 # Bootstrap Icons Fetcher for TinyMCE 7
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+[![release](https://img.shields.io/github/release/gtraxx/bsicons.svg)](https://github.com/gtraxx/bsicons/releases)
 ![TinyMCE](https://img.shields.io/badge/TinyMCE-7.x-brightgreen.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap_Icons-1.11.3+-purple.svg)
 ![License](https://img.shields.io/badge/license-GPLv3-lightgrey.svg)
