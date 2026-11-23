@@ -177,6 +177,16 @@ class ProductController extends BaseController
             'hashtoken'       => $this->session->getToken()
         ]);
 
+        $relatedProducts = $db->fetchRelatedProducts($id, $idLangDefault);
+
+        $this->view->assign([
+            'product'          => $product,
+            'category_tree'    => $categoryTree,
+            'related_products' => $relatedProducts,
+            'langs'            => $activeLangs,
+            'hashtoken'        => $this->session->getToken()
+        ]);
+
         $this->view->display('product/edit.tpl');
     }
 
@@ -264,6 +274,11 @@ class ProductController extends BaseController
             }
 
             $db->saveProductCategories($id, $categories, $defaultCat);
+            $relatedProducts = isset($_POST['related_products']) && is_array($_POST['related_products'])
+                ? array_map('intval', $_POST['related_products'])
+                : [];
+            $db->saveRelatedProducts($id, $relatedProducts);
+
             $publicUrls = $this->saveTranslations($db, $id, $defaultCat);
 
             CacheManager::clearFrontend('product');
@@ -598,5 +613,21 @@ class ProductController extends BaseController
         ]);
 
         $this->view->display('product/tinymce_popup.tpl');
+    }
+    public function searchRelated(): void
+    {
+        if (ob_get_length()) ob_clean();
+
+        $idProduct = (int)($_GET['id_product'] ?? 0);
+        $query     = FormTool::simpleClean((string)($_GET['q'] ?? ''));
+        $excludeRaw = (string)($_GET['exclude'] ?? '');
+        $excludeIds = $excludeRaw !== '' ? array_map('intval', explode(',', $excludeRaw)) : [];
+
+        $db = new ProductDb();
+        $idLangDefault = (int)$this->defaultLang['id_lang'];
+
+        $results = $db->searchProductsForRelation($idProduct, $query, $idLangDefault, $excludeIds, 15);
+
+        $this->jsonResponse(true, 'OK', ['items' => $results]);
     }
 }

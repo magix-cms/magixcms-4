@@ -351,13 +351,14 @@ CREATE TABLE IF NOT EXISTS `mc_catalog_product_img_content` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_catalog_product_rel` (
-    `id_rel` int NOT NULL AUTO_INCREMENT,
+    `id_rel` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_product` int UNSIGNED NOT NULL,
     `id_product_2` int UNSIGNED NOT NULL,
+    `order_rel` smallint UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_rel`),
-    KEY `idx_product_source` (`id_product`),
+    UNIQUE KEY `idx_product_rel_unique` (`id_product`, `id_product_2`),
     KEY `idx_product_target` (`id_product_2`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mc_cms_page` (
     `id_pages` int UNSIGNED NOT NULL AUTO_INCREMENT,

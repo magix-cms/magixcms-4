@@ -29,6 +29,14 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 fw-bold" id="related-tab" data-bs-toggle="tab" data-bs-target="#related_pane" type="button" role="tab">
+                        <i class="bi bi-diagram-3 me-2"></i>Produits associés
+                        <span id="related_count_badge" class="badge {if isset($related_products) && $related_products|count > 0}bg-primary{else}bg-secondary{/if} ms-1">
+                            {if isset($related_products)}{$related_products|count}{else}0{/if}
+                        </span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link py-3 fw-bold" id="gallery-tab" data-bs-toggle="tab" data-bs-target="#gallery_pane" type="button" role="tab">
                         <i class="bi bi-images me-2"></i>Galerie
                     </button>
@@ -297,6 +305,75 @@
                             </button>
                         </div>
                     </div>
+                    {* --- ONGLET 3 : PRODUITS ASSOCIÉS --- *}
+                    <div class="tab-pane fade" id="related_pane" role="tabpanel">
+                        <div class="alert alert-info border-0 shadow-sm d-flex mb-4">
+                            <i class="bi bi-info-circle-fill fs-4 me-3 mt-1"></i>
+                            <div>
+                                <strong>Comment associer des produits ?</strong><br>
+                                Recherchez un produit par nom, référence ou ID puis cliquez dessus pour l'ajouter. Glissez-déposez les lignes pour définir l'ordre d'affichage, puis cliquez sur <strong>Enregistrer</strong>.
+                            </div>
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            <label for="related_search_input" class="form-label fw-medium">Rechercher un produit à associer</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" class="form-control" id="related_search_input" placeholder="Nom du produit, référence (SKU) ou ID..." autocomplete="off">
+                                <button type="button" class="btn btn-outline-secondary d-none" id="related_search_clear" title="Effacer">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div id="related_search_results" class="list-group shadow position-absolute w-100 mt-1 d-none" style="z-index: 1050; max-height: 280px; overflow-y: auto;"></div>
+                        </div>
+
+                        <div class="card border">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center fw-bold">
+                                <span>Produits actuellement associés</span>
+                                <small class="text-muted fw-normal"><i class="bi bi-grip-vertical"></i> Glisser pour réordonner</small>
+                            </div>
+                            <ul class="list-group list-group-flush" id="related_products_list">
+                                {if isset($related_products) && $related_products|count > 0}
+                                    {foreach $related_products as $rel}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center related-item" data-id="{$rel.id_product}">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="related-drag-handle text-muted" style="cursor: grab;" title="Déplacer">
+                                                    <i class="bi bi-grip-vertical fs-5"></i>
+                                                </span>
+                                                <input type="hidden" name="related_products[]" value="{$rel.id_product}">
+                                                <div>
+                                                    <div class="fw-bold">
+                                                        {$rel.name_p|default:'(Sans nom)'|escape:'html'}
+                                                        {if $rel.published_p|default:0 == 0}
+                                                            <span class="badge bg-warning text-dark ms-1">Hors ligne</span>
+                                                        {/if}
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        ID : {$rel.id_product}
+                                                        {if !empty($rel.reference_p)} — Réf. : {$rel.reference_p|escape:'html'}{/if}
+                                                        — {$rel.price_p|default:'0.00'} € HT
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-danger btn-sm btn-remove-related" title="Retirer l'association">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </li>
+                                    {/foreach}
+                                {/if}
+                            </ul>
+                            <div id="related_empty_state" class="p-4 text-center text-muted {if isset($related_products) && $related_products|count > 0}d-none{/if}">
+                                Aucun produit associé pour le moment.
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-5">
+                                <i class="bi bi-save me-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form> {* 🟢 FIN DU FORMULAIRE GLOBAL *}
 
@@ -388,6 +465,154 @@
                     }
                 });
             });
+            // 6. Produits associés (Recherche AJAX + Sortable.js)
+            const relSearchInput = document.getElementById('related_search_input');
+            const relSearchClear = document.getElementById('related_search_clear');
+            const relResultsBox  = document.getElementById('related_search_results');
+            const relList        = document.getElementById('related_products_list');
+            const relEmptyState  = document.getElementById('related_empty_state');
+            const relBadge       = document.getElementById('related_count_badge');
+            const currentProdId  = {$product.id_product};
+
+            if (relList && typeof Sortable !== 'undefined') {
+                new Sortable(relList, {
+                    handle: '.related-drag-handle',
+                    animation: 150
+                });
+            }
+
+            function updateRelatedUiState() {
+                const count = relList.querySelectorAll('.related-item').length;
+                relBadge.textContent = count;
+                relBadge.classList.toggle('bg-primary', count > 0);
+                relBadge.classList.toggle('bg-secondary', count === 0);
+                relEmptyState.classList.toggle('d-none', count > 0);
+            }
+
+            function getSelectedRelatedIds() {
+                return Array.from(relList.querySelectorAll('input[name="related_products[]"]'))
+                    .map(function(input) { return input.value; });
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str == null ? '' : String(str);
+                return div.innerHTML;
+            }
+
+            function addRelatedItem(item) {
+                if (relList.querySelector('.related-item[data-id="' + item.id_product + '"]')) {
+                    return;
+                }
+
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center related-item';
+                li.setAttribute('data-id', item.id_product);
+
+                const statusBadge = String(item.published_p) === '0'
+                    ? ' <span class="badge bg-warning text-dark ms-1">Hors ligne</span>'
+                    : '';
+                const refText = item.reference_p ? ' — Réf. : ' + escapeHtml(item.reference_p) : '';
+
+                li.innerHTML =
+                    '<div class="d-flex align-items-center gap-3">' +
+                    '<span class="related-drag-handle text-muted" style="cursor: grab;" title="Déplacer">' +
+                    '<i class="bi bi-grip-vertical fs-5"></i>' +
+                    '</span>' +
+                    '<input type="hidden" name="related_products[]" value="' + parseInt(item.id_product, 10) + '">' +
+                    '<div>' +
+                    '<div class="fw-bold">' + escapeHtml(item.name_p || '(Sans nom)') + statusBadge + '</div>' +
+                    '<small class="text-muted">ID : ' + parseInt(item.id_product, 10) + refText + ' — ' + escapeHtml(item.price_p || '0.00') + ' € HT</small>' +
+                    '</div>' +
+                    '</div>' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm btn-remove-related" title="Retirer l\'association">' +
+                    '<i class="bi bi-trash"></i>' +
+                    '</button>';
+
+                relList.appendChild(li);
+                updateRelatedUiState();
+            }
+
+            if (relList) {
+                relList.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.btn-remove-related');
+                    if (btn) {
+                        btn.closest('.related-item').remove();
+                        updateRelatedUiState();
+                    }
+                });
+            }
+
+            if (relSearchInput) {
+                let searchTimer = null;
+
+                function performRelatedSearch() {
+                    const q = relSearchInput.value.trim();
+                    relSearchClear.classList.toggle('d-none', q === '');
+
+                    const exclude = getSelectedRelatedIds().join(',');
+                    const url = 'index.php?controller=Product&action=searchRelated'
+                        + '&id_product=' + currentProdId
+                        + '&q=' + encodeURIComponent(q)
+                        + '&exclude=' + encodeURIComponent(exclude);
+
+                    fetch(url)
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            relResultsBox.innerHTML = '';
+                            if (!data.success || !data.items || data.items.length === 0) {
+                                relResultsBox.innerHTML = '<div class="list-group-item text-muted small">Aucun produit trouvé.</div>';
+                            } else {
+                                data.items.forEach(function(item) {
+                                    const btn = document.createElement('button');
+                                    btn.type = 'button';
+                                    btn.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                                    btn.innerHTML =
+                                        '<div>' +
+                                        '<div class="fw-medium">' + escapeHtml(item.name_p || '(Sans nom)') + '</div>' +
+                                        '<small class="text-muted">ID : ' + parseInt(item.id_product, 10) + (item.reference_p ? ' — Réf. : ' + escapeHtml(item.reference_p) : '') + '</small>' +
+                                        '</div>' +
+                                        '<span class="badge bg-light text-dark border">' + escapeHtml(item.price_p || '0.00') + ' €</span>';
+
+                                    btn.addEventListener('click', function() {
+                                        addRelatedItem(item);
+                                        relResultsBox.classList.add('d-none');
+                                        relSearchInput.value = '';
+                                        relSearchClear.classList.add('d-none');
+                                    });
+                                    relResultsBox.appendChild(btn);
+                                });
+                            }
+                            relResultsBox.classList.remove('d-none');
+                        })
+                        .catch(function() {
+                            relResultsBox.classList.add('d-none');
+                        });
+                }
+
+                relSearchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(performRelatedSearch, 250);
+                });
+
+                relSearchInput.addEventListener('focus', function() {
+                    if (relSearchInput.value.trim().length >= 0) {
+                        performRelatedSearch();
+                    }
+                });
+
+                relSearchClear.addEventListener('click', function() {
+                    relSearchInput.value = '';
+                    relSearchClear.classList.add('d-none');
+                    relResultsBox.classList.add('d-none');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!relSearchInput.contains(e.target) && !relResultsBox.contains(e.target)) {
+                        relResultsBox.classList.add('d-none');
+                    }
+                });
+            }
         });
     </script>
 {/block}

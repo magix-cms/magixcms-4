@@ -89,6 +89,17 @@ class ProductController extends BaseController
                 $product['gallery'][] = $formattedTemp['img'];
             }
 
+            // Produits associés
+            $product['related'] = [];
+            $rawRelated = $db->getRelatedProducts($id, $idLang);
+
+            foreach ($rawRelated as $relRow) {
+                $formattedRel = ProductPresenter::format($relRow, $this->currentLang, $siteUrl, $companyInfo, $skinFolder, $this->siteSettings);
+                if ($formattedRel !== null) {
+                    $product['related'][] = $formattedRel;
+                }
+            }
+
             // GÉNÉRATION DU TABLEAU HREFLANG
             $allLangs = $this->view->getTemplateVars('langs');
             $hreflangUrls = [];

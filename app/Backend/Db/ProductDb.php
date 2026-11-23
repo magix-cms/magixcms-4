@@ -146,6 +146,14 @@ class ProductDb extends BaseDb
         $qbContent->delete('mc_catalog_product_content')->whereIn('id_product', $ids);
         $res2 = $this->executeDelete($qbContent);
 
+        $qbRelSource = new QueryBuilder();
+        $qbRelSource->delete('mc_catalog_product_rel')->whereIn('id_product', $ids);
+        $this->executeDelete($qbRelSource);
+
+        $qbRelTarget = new QueryBuilder();
+        $qbRelTarget->delete('mc_catalog_product_rel')->whereIn('id_product_2', $ids);
+        $this->executeDelete($qbRelTarget);
+
         return $res1 && $res2;
     }
 
@@ -467,5 +475,121 @@ class ProductDb extends BaseDb
 
         $result = $this->executeAll($qb);
         return $result ?: [];
+    }
+    // ==========================================
+    // GESTION DES PRODUITS ASSOCIÉS (RELATIFS)
+    // ==========================================
+
+    /**
+     * Récupère les produits associés à un produit donné (dans la langue par défaut pour l'admin)
+     */
+    public function fetchRelatedProducts(int $idProduct, int $idLang): array
+    {
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.id_product',
+            'p.reference_p',
+            'p.price_p',
+            'c.name_p',
+            'c.published_p',
+            'rel.order_rel'
+        ])
+            ->from('mc_catalog_product_rel', 'rel')
+            ->join('mc_catalog_product', 'p', 'rel.id_product_2 = p.id_product')
+            ->leftJoin('mc_catalog_product_content', 'c', 'p.id_product = c.id_product AND c.id_lang = :id_lang')
+            ->where('rel.id_product = :id_product', [
+                'id_lang'    => $idLang,
+                'id_product' => $idProduct
+            ])
+            ->orderBy('rel.order_rel', 'ASC');
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
+
+    /**
+     * Recherche AJAX de produits à associer (par nom, référence ou ID)
+     */
+    public function searchProductsForRelation(int $currentProductId, string $query, int $idLang, array $excludeIds = [], int $limit = 15): array
+    {
+        $excludeIds[] = $currentProductId;
+        $excludeIds = array_values(array_unique(array_filter(array_map('intval', $excludeIds))));
+
+        $qb = new QueryBuilder();
+        $qb->select([
+            'p.id_product',
+            'p.reference_p',
+            'p.price_p',
+            'c.name_p',
+            'c.published_p'
+        ])
+            ->from('mc_catalog_product', 'p')
+            ->leftJoin('mc_catalog_product_content', 'c', 'p.id_product = c.id_product AND c.id_lang = :id_lang')
+            ->where('1 = 1', ['id_lang' => $idLang]);
+
+        if (!empty($excludeIds)) {
+            $qb->whereIn('p.id_product', $excludeIds, 'NOT IN');
+        }
+
+        $trimmed = trim($query);
+        if ($trimmed !== '') {
+            $like = '%' . $trimmed . '%';
+            if (ctype_digit($trimmed)) {
+                $qb->where('(c.name_p LIKE :q_name OR p.reference_p LIKE :q_ref OR p.id_product = :q_id)', [
+                    'q_name' => $like,
+                    'q_ref'  => $like,
+                    'q_id'   => (int)$trimmed
+                ]);
+            } else {
+                $qb->where('(c.name_p LIKE :q_name OR p.reference_p LIKE :q_ref)', [
+                    'q_name' => $like,
+                    'q_ref'  => $like
+                ]);
+            }
+        }
+
+        $qb->orderBy('p.id_product', 'DESC')->limit($limit);
+
+        $result = $this->executeAll($qb);
+        return $result ?: [];
+    }
+
+    /**
+     * Sauvegarde les produits associés et leur ordre d'affichage
+     */
+    public function saveRelatedProducts(int $idProduct, array $relatedIds): bool
+    {
+        $qbDelete = new QueryBuilder();
+        $qbDelete->delete('mc_catalog_product_rel')
+            ->where('id_product = :id', ['id' => $idProduct]);
+        $this->executeDelete($qbDelete);
+
+        // Nettoyage : entiers uniques, sans auto-association
+        $cleanIds = [];
+        foreach ($relatedIds as $relId) {
+            $relId = (int)$relId;
+            if ($relId > 0 && $relId !== $idProduct && !in_array($relId, $cleanIds, true)) {
+                $cleanIds[] = $relId;
+            }
+        }
+
+        if (empty($cleanIds)) {
+            return true;
+        }
+
+        $success = true;
+        foreach ($cleanIds as $order => $targetId) {
+            $qbInsert = new QueryBuilder();
+            $qbInsert->insert('mc_catalog_product_rel', [
+                'id_product'   => $idProduct,
+                'id_product_2' => $targetId,
+                'order_rel'    => $order
+            ]);
+            if (!$this->executeInsert($qbInsert)) {
+                $success = false;
+            }
+        }
+
+        return $success;
     }
 }

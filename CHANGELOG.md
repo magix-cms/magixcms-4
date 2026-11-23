@@ -1,6 +1,9 @@
 ## [4.0.3] - 2026-11-22
 
 ### Ajouté
+- **Catalogue — Produits associés (`mc_catalog_product_rel`)** :
+  - **Administration (`ProductController`, `ProductDb`, `product/edit.tpl`)** : Ajout d'un onglet dédié sur la fiche produit permettant d'associer des produits via recherche AJAX instantanée (nom, référence SKU ou ID), de définir leur ordre d'affichage par glisser-déposer (`Sortable.js`) et de purger automatiquement les liaisons à la suppression.
+  - **Frontend (`ProductController`, `ProductDb`, `catalog/product.tpl`)** : Ajout de `ProductDb::getRelatedProducts()` (avec cache SQL et support du hook `extendProductList`) et affichage des produits associés via le composant de grille partagé `catalog/loop/product-grid.tpl` (`{#product_related_title#}`).
 - **TinyMCE 7 — Sélecteur visuel de boutons (`mcbuttons`)** :
   - Ajout du modèle `App\Backend\Model\ButtonScanner` pour analyser dynamiquement le fichier `button.css` / `buttons.css` du thème actif (avec repli sur `default` et support des annotations `/* @label: ... */`).
   - Ajout de l'action `getButtons` dans `SettingController` exposant les variantes et tailles disponibles en JSON.
@@ -17,6 +20,7 @@
 - **Installateur (`step3.tpl`)** : Intégration autonome (Vanilla JS compatible Smarty) de l'affichage/masquage sur les champs `admin_password` et `admin_password_conf`, ainsi que du générateur de mot de passe robuste (16 caractères) remplissant et validant automatiquement les deux champs.
 
 ### Modifié
+- **Structure SQL (`mc_catalog_product_rel`)** : Passage de `id_rel` en `int UNSIGNED`, ajout de l'index unique `idx_product_rel_unique` (`id_product`, `id_product_2`) et ajout de la colonne `order_rel` pour le tri personnalisé.
 - **Librairie interne (`Magepattern`)** : Mise à jour vers la version **3.1.0** intégrant `CryptTool` (AES-256-CBC), `SecurityTool` et `HTMLPurifier`, les timeouts de session (`Session`), le durcissement de `RedirectTool`, le Singleton PDO dans `Layer::connection()`, `QueryHelper`, les clauses `GROUP BY` / `HAVING` dans `QueryBuilder`, `FileTool::removeDirectory()` ainsi que `symfony/mailer` `7.4.22` (PHP 8.2+).
 - **Moteur de templates (`Smarty`)** : Mise à jour de `smarty/smarty` de la version `5.8.4` vers la branche `5.9` (`composer.lock` et autoloader optimisé).
 - **TinyMCE 7 (`editor.js`)** : Ajout d'un sélecteur ciblé (`a, button, h1, h2, h3, h4, h5, h6, span`) sur les formats de casse (`text-uppercase`, `text-lowercase`, `text-capitalize`) afin d'appliquer la classe directement sur la balise `<a>` ou le titre sans encapsuler dans un `<span>` ni cibler le `<p>` parent.

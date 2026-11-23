@@ -8,7 +8,7 @@
 {/block}
 {* --- CSS --- *}
 {block name="styleSheet" append}
-    {$page_css = ["splide.min", "gallery"] scope="parent"}
+    {$page_css = ["catalog", "splide.min", "gallery"] scope="parent"}
 {/block}
 
 {block name="article:content"}
@@ -156,6 +156,18 @@
         </div>
     </section>
     {hook name="displayProductExtraContent" id_product=$product.id}
+
+    {* --- PRODUITS ASSOCIÉS --- *}
+    {if isset($product.related) && $product.related|count > 0}
+        <section class="product-related mt-5 pt-4 border-top">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h2 class="fw-bold text-dark mb-0">{#product_related_title#}</h2>
+                </div>
+                {include file="catalog/loop/product-grid.tpl" data=$product.related classType="normal"}
+            </div>
+        </section>
+    {/if}
 {/block}
 
 {block name="javascript_data"}

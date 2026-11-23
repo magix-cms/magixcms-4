@@ -296,4 +296,56 @@ class ProductDb extends BaseDb
 
         return $res;
     }
+    /**
+     * Récupère les produits associés (publiés) d'un produit donné, triés par order_rel
+     */
+    public function getRelatedProducts(int $idProduct, int $idLang): array
+    {
+        $cache = $this->getSqlCache();
+        $qb = new QueryBuilder();
+
+        $qb->select([
+            'p.*',
+            'pc.*',
+            'def_cat.id_cat AS default_id_cat',
+            'def_cat_c.url_cat AS default_url_cat',
+            'def_cat_c.name_cat',
+            'i.name_img',
+            'ic.alt_img',
+            'ic.title_img'
+        ])
+            ->from('mc_catalog_product_rel', 'rel')
+            ->join('mc_catalog_product', 'p', 'rel.id_product_2 = p.id_product')
+            ->join('mc_catalog_product_content', 'pc', 'p.id_product = pc.id_product AND pc.id_lang = ' . (int)$idLang)
+            ->leftJoin('mc_catalog', 'def_link', 'p.id_product = def_link.id_product AND def_link.default_c = 1')
+            ->leftJoin('mc_catalog_cat', 'def_cat', 'def_link.id_cat = def_cat.id_cat')
+            ->leftJoin('mc_catalog_cat_content', 'def_cat_c', 'def_cat.id_cat = def_cat_c.id_cat AND def_cat_c.id_lang = ' . (int)$idLang)
+            ->leftJoin('mc_catalog_product_img', 'i', 'p.id_product = i.id_product AND i.default_img = 1')
+            ->leftJoin('mc_catalog_product_img_content', 'ic', 'i.id_img = ic.id_img AND ic.id_lang = ' . (int)$idLang)
+            ->where('rel.id_product = :id_product', ['id_product' => $idProduct])
+            ->where('pc.published_p = 1');
+
+        $overrides = HookManager::triggerFilter('extendProductList', []);
+        if (!empty($overrides)) {
+            foreach ($overrides as $pluginOverride) {
+                if (isset($pluginOverride['extendQueryParams'])) {
+                    QueryHelper::applyExtendParams($qb, $pluginOverride['extendQueryParams']);
+                }
+            }
+        }
+
+        $qb->orderBy('rel.order_rel', 'ASC');
+
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'product');
+        $cachedData = $cache->get($cacheKey);
+
+        if ($cachedData !== null) {
+            return $cachedData;
+        }
+
+        $res = $this->executeAll($qb) ?: [];
+        $cache->set($cacheKey, $res, 3600);
+
+        return $res;
+    }
 }
