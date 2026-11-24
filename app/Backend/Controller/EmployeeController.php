@@ -211,6 +211,16 @@ class EmployeeController extends BaseController
             $this->jsonResponse(false, 'Cet e-mail est déjà utilisé.');
         }
 
+        $password = $_POST['passwd_admin'] ?? '';
+
+        // Ré-authentification obligatoire si l'utilisateur modifie son propre e-mail ou mot de passe
+        if ($id === $currentUserId && (!empty($password) || $email !== $targetUser['email_admin'])) {
+            $currentPassword = $_POST['current_passwd_admin'] ?? '';
+            if (empty($currentPassword) || !password_verify($currentPassword, (string)($targetUser['passwd_admin'] ?? ''))) {
+                $this->jsonResponse(false, 'Le mot de passe actuel est incorrect.');
+            }
+        }
+
         $data = [
             'title_admin'     => in_array($_POST['title_admin'] ?? 'm', ['m', 'w']) ? $_POST['title_admin'] : 'm',
             'firstname_admin' => ($_POST['firstname_admin'] ?? ''),
