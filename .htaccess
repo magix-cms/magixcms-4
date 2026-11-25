@@ -214,7 +214,8 @@ ErrorDocument 500 /index.php?http_error=500
     # B. Suppression de l'AMP - Cas 2 : Sans langue (ex: /amp/...)
     RewriteRule ^amp/(.*)$ /$1 [R=301,L]
 
-
+    # A placer juste avant "5. RÉÉCRITURE EN CASCADE"
+    RewriteRule ^(.*)/Array/?$ /$1 [R=301,L]
     # ----------------------------------------------------------------------
     # 5. RÉÉCRITURE EN CASCADE (Logique URL Front-end Interne)
     # ----------------------------------------------------------------------
