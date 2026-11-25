@@ -475,9 +475,9 @@ class AboutController extends BaseController
         if ($idImg > 0 && isset($_POST['meta']) && is_array($_POST['meta'])) {
             foreach ($_POST['meta'] as $idLang => $values) {
                 $data = [
-                    'title_img'   => FormTool::simpleClean($values['title_img'] ?? ''),
-                    'alt_img'     => FormTool::simpleClean($values['alt_img'] ?? ''),
-                    'caption_img' => FormTool::simpleClean($values['caption_img'] ?? '')
+                    'title_img'   => mb_substr(FormTool::simpleClean($values['title_img'] ?? ''), 0, 150, 'UTF-8'),
+                    'alt_img'     => mb_substr(FormTool::simpleClean($values['alt_img'] ?? ''), 0, 150, 'UTF-8'),
+                    'caption_img' => mb_substr(FormTool::simpleClean($values['caption_img'] ?? ''), 0, 255, 'UTF-8')
                 ];
 
                 if (!$db->saveImageMeta($idImg, (int)$idLang, $data)) {

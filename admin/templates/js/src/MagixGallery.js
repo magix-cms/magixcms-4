@@ -110,7 +110,7 @@ class MagixGallery {
 
     // --- NOUVEAU : Gestion de la modale d'édition SEO ---
     openEditMetaModal(idImg, controller) {
-        fetch(`index.php?controller=${controller}&action=getImgMeta&id_img=${idImg}`)
+        fetch(`index.php?controller=${controller}&action=getImgMeta&id_img=${idImg}&t=${Date.now()}`)
             .then(res => res.json())
             .then(data => {
                 if (data.html) {
@@ -125,6 +125,10 @@ class MagixGallery {
                     const modalEl = document.getElementById('modalMetaImg');
                     const bsModal = new bootstrap.Modal(modalEl);
                     bsModal.show();
+
+                    // 3b. Initialiser les compteurs de caractères
+                    this.initMetaCounters(modalEl);
+
 
                     // 4. Gérer la soumission en AJAX
                     const form = document.getElementById('form-img-meta');
@@ -170,6 +174,37 @@ class MagixGallery {
                 }
             })
             .catch(err => console.error("Erreur chargement modale SEO:", err));
+    }
+
+    initMetaCounters(modalEl) {
+        if (!modalEl) return;
+
+        const fields = modalEl.querySelectorAll('.meta-char-counter');
+
+        const updateCounter = (field) => {
+            const targetSelector = field.dataset.target;
+            const badge = targetSelector ? modalEl.querySelector(targetSelector) : null;
+            if (!badge) return;
+
+            const max = parseInt(field.dataset.max || field.getAttribute('maxlength') || '0', 10);
+            const length = field.value.length;
+
+            badge.textContent = max > 0 ? `${length} / ${max}` : `${length}`;
+            badge.classList.remove('bg-success', 'bg-warning', 'text-dark', 'bg-danger');
+
+            if (max > 0 && length >= max) {
+                badge.classList.add('bg-danger');
+            } else if (max > 0 && length >= Math.floor(max * 0.85)) {
+                badge.classList.add('bg-warning', 'text-dark');
+            } else {
+                badge.classList.add('bg-success');
+            }
+        };
+
+        fields.forEach((field) => {
+            updateCounter(field);
+            field.addEventListener('input', () => updateCounter(field));
+        });
     }
 
     handleDelete(ids) {

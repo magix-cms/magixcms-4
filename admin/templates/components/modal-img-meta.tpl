@@ -46,21 +46,49 @@
                             <div class="tab-pane fade {if $iso@first}show active{/if}" id="meta-lang-{$id}" role="tabpanel" aria-labelledby="meta-tab-{$id}">
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-medium">Titre (title) :</label>
-                                    <input type="text" class="form-control" name="meta[{$id}][title_img]" value="{$meta.$id.title_img|default:''}">
+                                    <label for="meta_title_{$id}" class="form-label fw-medium d-flex justify-content-between align-items-center">
+                                        <span>Titre (title) :</span>
+                                        <span id="count-meta-title-{$id}" class="badge bg-success">0 / 70</span>
+                                    </label>
+                                    <input type="text"
+                                           class="form-control meta-char-counter"
+                                           id="meta_title_{$id}"
+                                           name="meta[{$id}][title_img]"
+                                           maxlength="70"
+                                           data-max="70"
+                                           data-target="#count-meta-title-{$id}"
+                                           value="{$meta.$id.title_img|default:''}">
                                     <div class="form-text small text-muted">Affiché au survol de la souris.</div>
                                 </div>
 
                                 <div class="mb-3">
-                                    {* Le "required" a été supprimé ici *}
-                                    <label class="form-label fw-medium">Texte alternatif (alt) :</label>
-                                    <input type="text" class="form-control" name="meta[{$id}][alt_img]" value="{$meta.$id.alt_img|default:''}">
+                                    <label for="meta_alt_{$id}" class="form-label fw-medium d-flex justify-content-between align-items-center">
+                                        <span>Texte alternatif (alt) :</span>
+                                        <span id="count-meta-alt-{$id}" class="badge bg-success">0 / 70</span>
+                                    </label>
+                                    <input type="text"
+                                           class="form-control meta-char-counter"
+                                           id="meta_alt_{$id}"
+                                           name="meta[{$id}][alt_img]"
+                                           maxlength="70"
+                                           data-max="70"
+                                           data-target="#count-meta-alt-{$id}"
+                                           value="{$meta.$id.alt_img|default:''}">
                                     <div class="form-text small text-muted">Crucial pour l'accessibilité et le SEO (Google Images).</div>
                                 </div>
 
                                 <div class="mb-0">
-                                    <label class="form-label fw-medium">Légende (caption) :</label>
-                                    <textarea class="form-control" name="meta[{$id}][caption_img]" rows="2">{$meta.$id.caption_img|default:''}</textarea>
+                                    <label for="meta_caption_{$id}" class="form-label fw-medium d-flex justify-content-between align-items-center">
+                                        <span>Légende (caption) :</span>
+                                        <span id="count-meta-caption-{$id}" class="badge bg-success">0 / 125</span>
+                                    </label>
+                                    <textarea class="form-control meta-char-counter"
+                                              id="meta_caption_{$id}"
+                                              name="meta[{$id}][caption_img]"
+                                              rows="2"
+                                              maxlength="125"
+                                              data-max="125"
+                                              data-target="#count-meta-caption-{$id}">{$meta.$id.caption_img|default:''}</textarea>
                                     <div class="form-text small text-muted">Texte affiché sous l'image dans l'article.</div>
                                 </div>
 

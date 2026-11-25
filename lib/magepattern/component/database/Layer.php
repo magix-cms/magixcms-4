@@ -287,10 +287,29 @@ class Layer
                     }
                 }
 
-                $prepare->execute();
+                $executed = $prepare->execute();
 
                 if ($setConfig['debugParams']) {
                     $prepare->debugDumpParams();
+                }
+
+                if (!$executed) {
+                    $errorInfo = $prepare->errorInfo();
+                    $errorMsg = sprintf(
+                        "%s SQL Error [%s / %s]: %s\n%s",
+                        $type,
+                        $errorInfo[0] ?? 'N/A',
+                        $errorInfo[1] ?? 'N/A',
+                        $errorInfo[2] ?? 'Unknown error',
+                        $sql
+                    );
+                    Logger::getInstance()->log($errorMsg, 'statement');
+
+                    if ($setConfig['closeCursor']) {
+                        $prepare->closeCursor();
+                    }
+
+                    return false;
                 }
 
                 $result = match ($type) {
@@ -451,7 +470,10 @@ class Layer
 
                     if ($prepare instanceof \PDOStatement) {
                         $prepare->setFetchMode($this->setMode($setConfig['mode']));
-                        $prepare->execute($value['params'] ?? []);
+                        if (!$prepare->execute($value['params'] ?? [])) {
+                            $errorInfo = $prepare->errorInfo();
+                            throw new \RuntimeException('Execute failed: ' . ($errorInfo[2] ?? $value['request']));
+                        }
                         $rslt[$key] = $prepare->fetchAll();
 
                         if ($setConfig['closeCursor']) {
@@ -461,7 +483,12 @@ class Layer
                         throw new \RuntimeException("Prepare failed: " . $value['request']);
                     }
                 } elseif ($config['type'] === 'exec') {
-                    $rslt[$key] = $transaction->exec($value);
+                    $execResult = $transaction->exec($value);
+                    if ($execResult === false) {
+                        $errorInfo = $transaction->errorInfo();
+                        throw new \RuntimeException('Exec failed: ' . ($errorInfo[2] ?? $value));
+                    }
+                    $rslt[$key] = $execResult;
                 }
             }
 
