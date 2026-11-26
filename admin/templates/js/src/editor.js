@@ -182,7 +182,7 @@
                     if (details.mceAction === 'insertFile') {
                         let finalUrl = details.content;
                         finalUrl = finalUrl.replace(/(\/media\/)a\//i, '$1');
-                        callback(finalUrl, { alt: '', width: '', height: '' });
+                        callback(finalUrl, { /*alt: '',*/ width: '', height: '' });
                         dialogApi.close();
                     }
                 }
@@ -218,7 +218,7 @@
 
         image_dimensions: true,
         image_advtab: true,
-        image_class_list: [
+        /*image_class_list: [
             {title: 'Aucune', value: ''},
             {title: 'Image Responsive (S\'adapte)', value: 'img-fluid'},
             {title: 'Coins Arrondis', value: 'rounded'},
@@ -226,7 +226,7 @@
             {title: 'Miniature (Bordure)', value: 'img-thumbnail'},
             {title: 'Flotter à Gauche', value: 'float-start'},
             {title: 'Flotter à Droite', value: 'float-end'}
-        ],
+        ],*/
 
         table_default_attributes: { class: 'table' },
         table_use_colgroups: false,
@@ -320,6 +320,12 @@
                 ]},
 
             {title: 'Images & Médias', items: [
+                    {title: 'Image Responsive (img-fluid)', selector: 'img', classes: 'img-fluid'},
+                    {title: 'Coins Arrondis (rounded)', selector: 'img', classes: 'rounded'},
+                    {title: 'Cercle Parfait (rounded-circle)', selector: 'img', classes: 'rounded-circle'},
+                    {title: 'Miniature / Bordure (img-thumbnail)', selector: 'img', classes: 'img-thumbnail'},
+                    {title: 'Flotter à Gauche (float-start)', selector: 'img', classes: 'float-start'},
+                    {title: 'Flotter à Droite (float-end)', selector: 'img', classes: 'float-end'},
                     {title: 'Activer Zoom (GLightbox)', selector: 'a, img', classes: 'glightbox'},
                     {title: 'Activer Galerie (GLightbox)', selector: 'a, img', classes: 'glightbox', attributes: {'data-gallery': 'gallery'}},
                     {title: 'Ajouter une Ombre', selector: 'img, div', classes: 'shadow-sm'},
@@ -442,7 +448,10 @@
                     /^pe-[0-5]$/,  // Paddings droite
                     /^m-[0-5]$/, /^mx-([0-5]|auto)$/, /^my-[0-5]$/, /^mt-[0-5]$/, /^mb-[0-5]$/, /^ms-[0-5]$/, /^me-[0-5]$/, // Marges
                     /^fs-[1-6]$/, // Tailles de polices
-                    /^bg-(primary|success|secondary|warning|danger)-subtle$/ // Fonds doux
+                    /^bg-(primary|success|secondary|warning|danger)-subtle$/, // Fonds doux
+                    /^bg-(primary|success|secondary|warning|danger)-subtle$/, // Fonds doux
+                    /^float-(start|end)$/, // Alignements flottants
+                    /^(rounded|rounded-circle)$/ // Forme des coins d'image
                 ];
 
                 appliedClasses.forEach(function(appliedClass) {
