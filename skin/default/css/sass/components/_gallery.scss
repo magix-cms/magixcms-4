@@ -59,3 +59,33 @@
     .splide__arrow--next { right: -1.5rem; }
   }
 }
+.magix-manual-gallery {
+  a.glightbox {
+    img {
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    &:hover img,
+    &:focus-visible img {
+      transform: scale(1.08);
+    }
+  }
+}
+/*
+.magix-manual-gallery {
+  a.glightbox {
+    img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    &:hover img,
+    &:focus-visible img {
+      transform: scale(1.08);
+    }
+  }
+}
+*/
