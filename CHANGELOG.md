@@ -1,3 +1,9 @@
+## [4.0.3] - 2026-11-27
+
+### Corrigé
+- **Statut de publication par défaut à la création (`news/add.tpl`, `pages/add.tpl`, `about/add.tpl`, `category/add.tpl`, `product/add.tpl`)** : Désactivation par défaut des interrupteurs de publication multilingues (`published_news`, `published_pages`, `published_about`, `published_cat`, `published_p`) lors de l'ajout d'un contenu afin d'éviter la mise en ligne automatique de langues non encore traduites.
+- **TinyMCE 7 — Extension IA (`mc_ai_gemini`)** : Transmission du jeton CSRF (`X-CSRF-Token` / `hashtoken`) vers le contrôleur `GeminiAI`, ajout d'un timeout client (`AbortController` à 65 s avec annulation à la fermeture de la modale) et sécurisation de l'analyse des réponses JSON.
+
 ## [4.0.3] - 2026-11-25
 
 ### Ajouté
@@ -29,7 +35,6 @@
 - **TinyMCE 7 (`editor.js`)** : Mise à jour des expressions régulières exclusives dans l'événement `FormatApply` (`exclusiveRegexes`) afin de remplacer proprement les classes d'une même famille (paddings, marges, tailles `fs-*`, fonds `bg-*-subtle`) sans empilement.
 
 ### Corrigé
-- **TinyMCE 7 — Extension IA (`mc_ai_gemini`)** : Transmission du jeton CSRF (`X-CSRF-Token` / `hashtoken`) vers le contrôleur `GeminiAI`, ajout d'un timeout client (`AbortController` à 65 s avec annulation à la fermeture de la modale) et sécurisation de l'analyse des réponses JSON.
 - **Modification du mot de passe administrateur (`EmployeeController`)** : Récupération effective de `$_POST['passwd_admin']` dans `processEdit()` permettant la mise à jour du mot de passe d'un autre administrateur, accompagnée du contrôle de ré-authentification (`current_passwd_admin`) lors de la modification de son propre compte.
 - **Sauvegarde des métadonnées d'images (`MagixGallery.js`, `modal-img-meta.tpl`)** : Correction de l'échec d'enregistrement en mode SQL strict lors du dépassement des anciennes limites de 70/125 caractères et ajout d'un paramètre anti-cache lors du chargement de la modale (`getImgMeta`).
 - **Exécution SQL (`Magepattern\Component\Database\Layer`)** : Vérification explicite du retour booléen de `PDOStatement::execute()` dans `execute()` et `transaction()` avec journalisation SQLSTATE (`Logger`) afin d'éviter tout faux positif lors d'un rejet SQL.

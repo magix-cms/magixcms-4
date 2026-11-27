@@ -84,13 +84,13 @@
                                         <label class="form-label fw-medium">Statut</label>
                                         <div class="form-check form-switch fs-5 mt-1">
                                             <input type="hidden" name="content[{$id}][published_about]" value="0">
-                                            {* Par défaut, une nouvelle traduction est publiée *}
+                                            {* Par défaut, une nouvelle traduction est désactivée *}
                                             <input class="form-check-input"
                                                    type="checkbox"
                                                    role="switch"
                                                    id="switch_pub_{$id}"
                                                    name="content[{$id}][published_about]"
-                                                   value="1" checked="checked" />
+                                                   value="1" />
                                             <label class="form-check-label fs-6 text-muted" for="switch_pub_{$id}">Publiée</label>
                                         </div>
                                     </div>

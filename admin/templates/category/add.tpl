@@ -74,7 +74,8 @@
                                         <label class="form-label fw-medium">Statut</label>
                                         <div class="form-check form-switch fs-5 mt-1">
                                             <input type="hidden" name="published_cat[{$id}]" value="0">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="switch_pub_{$id}" name="published_cat[{$id}]" value="1" checked="checked" />
+                                            {* Par défaut, une nouvelle traduction est désactivée *}
+                                            <input class="form-check-input" type="checkbox" role="switch" id="switch_pub_{$id}" name="published_cat[{$id}]" value="1" />
                                             <label class="form-check-label fs-6 text-muted" for="switch_pub_{$id}">Publiée</label>
                                         </div>
                                     </div>
