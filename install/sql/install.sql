@@ -642,7 +642,7 @@ CREATE TABLE IF NOT EXISTS `mc_news_content` (
     `seo_title_news` varchar(180) DEFAULT NULL,
     `seo_desc_news` text,
     `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `published_news` tinyint(1) UNSIGNED DEFAULT '0',
+    `published_news` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id_content`),
     UNIQUE KEY `idx_news_lang` (`id_news`,`id_lang`),
     KEY `id_lang` (`id_lang`),
