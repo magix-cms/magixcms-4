@@ -55,21 +55,29 @@ class CatalogController extends BaseController
             // S'assurer qu'on passe bien un tableau même si vide
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
 
-            // 2. Fallbacks SEO par défaut
+            // 2. Fallbacks SEO par défaut via .conf
             $siteName = $companyInfo['name'] ?? 'MagixCMS';
+
+            $defaultCatalogTitle    = (string)($this->view->getConfigVars('catalog_default_title') ?: 'Notre Catalogue');
+            $defaultCatalogSeoTitle = (string)($this->view->getConfigVars('catalog_seo_title') ?: 'Catalogue');
+            $defaultCatalogSeoDesc  = (string)($this->view->getConfigVars('catalog_seo_desc') ?: 'Découvrez tous nos produits.');
 
             if (!$rawHome) {
                 $catalogHome = [
-                    'title'   => 'Notre Catalogue',
+                    'title'   => $defaultCatalogTitle,
                     'content' => '',
-                    'seo'     => ['title' => 'Catalogue - ' . $siteName, 'description' => 'Découvrez tous nos produits.']
+                    'seo'     => [
+                        'title'       => $defaultCatalogSeoTitle . ' - ' . $siteName,
+                        'description' => $defaultCatalogSeoDesc
+                    ]
                 ];
                 $seoTitle = $catalogHome['seo']['title'];
-                $seoDesc = $catalogHome['seo']['description'];
+                $seoDesc  = $catalogHome['seo']['description'];
             } else {
                 $catalogHome = CatalogHomePresenter::format($rawHome);
-                $seoTitle = !empty($rawHome['seo_title_page']) ? $rawHome['seo_title_page'] : ($rawHome['title_page'] ?? 'Catalogue') . ' - ' . $siteName;
-                $seoDesc = !empty($rawHome['seo_desc_page']) ? $rawHome['seo_desc_page'] : '';
+                $titleFallback = !empty($rawHome['title_page']) ? $rawHome['title_page'] : $defaultCatalogSeoTitle;
+                $seoTitle = !empty($rawHome['seo_title_page']) ? $rawHome['seo_title_page'] : $titleFallback . ' - ' . $siteName;
+                $seoDesc  = !empty($rawHome['seo_desc_page']) ? $rawHome['seo_desc_page'] : '';
             }
 
             $skinFolder = $this->siteSettings['theme']['value'] ?? 'default';
@@ -132,7 +140,8 @@ class CatalogController extends BaseController
             }
 
             if ($page > 1) {
-                $seoTitle .= ' - Page ' . $page;
+                $pageLabel = (string)($this->view->getConfigVars('seo_page_label') ?: 'Page');
+                $seoTitle .= ' - ' . $pageLabel . ' ' . $page;
             }
 
             //  NOUVEAU : GÉNÉRATION DU TABLEAU HREFLANG (Racine Catalogue)

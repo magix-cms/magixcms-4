@@ -224,33 +224,46 @@ class NewsController extends BaseController
                 $newsHome = [];
             }
 
-            $newsHome['content_page'] = $newsHome['content_page'] ?? '';
-            $newsHome['title_page']   = $newsHome['title_page'] ?? 'Actualités';
+            $defaultNewsTitle = (string)($this->view->getConfigVars('news_default_title') ?: 'Actualités');
+
+            $newsHome['content_page']   = $newsHome['content_page'] ?? '';
+            $newsHome['title_page']     = !empty($newsHome['title_page']) ? $newsHome['title_page'] : $defaultNewsTitle;
             $newsHome['seo_title_page'] = $newsHome['seo_title_page'] ?? '';
             $newsHome['seo_desc_page']  = $newsHome['seo_desc_page'] ?? '';
 
-            $baseTitle = !empty($newsHome['seo_title_page']) ? $newsHome['seo_title_page'] : (!empty($newsHome['title_page']) ? $newsHome['title_page'] . ' - ' . $siteName : 'Actualités - ' . $siteName);
+            $baseTitle = !empty($newsHome['seo_title_page'])
+                ? $newsHome['seo_title_page']
+                : $newsHome['title_page'] . ' - ' . $siteName;
             $baseDesc = !empty($newsHome['seo_desc_page']) ? $newsHome['seo_desc_page'] : $siteDesc;
 
-            $seoTitle = $baseTitle;
-            $seoDesc = $baseDesc;
+            $seoTitle   = $baseTitle;
+            $seoDesc    = $baseDesc;
             $isRootNews = false;
 
             if ($idTag) {
                 $tagName = $this->db->getTagName($idTag, $idLang);
                 if ($tagName) {
-                    $seoTitle = 'Tag : ' . $tagName . ' - ' . $baseTitle;
-                    $seoDesc = 'Découvrez toutes nos actualités liées au tag ' . $tagName . '. ' . $baseDesc;
+                    $tagTitlePattern = (string)($this->view->getConfigVars('news_tag_seo_title') ?: 'Tag : %s');
+                    $tagDescPattern  = (string)($this->view->getConfigVars('news_tag_seo_desc') ?: 'Découvrez toutes nos actualités liées au tag %s.');
+
+                    $seoTitle = sprintf($tagTitlePattern, $tagName) . ' - ' . $baseTitle;
+                    $seoDesc  = trim(sprintf($tagDescPattern, $tagName) . ' ' . $baseDesc);
                 }
             } elseif ($year && $month) {
-                $monthName = date("F", mktime(0, 0, 0, (int)$month, 10));
-                $seoTitle = 'Archives ' . $monthName . ' ' . $year . ' - ' . $baseTitle;
-                $seoDesc = 'Retrouvez tous nos articles publiés en ' . $monthName . ' ' . $year . '. ' . $baseDesc;
+                $formatter = new \IntlDateFormatter($iso, \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, 'MMMM yyyy');
+                $monthYearLabel = ucfirst((string)$formatter->format(mktime(0, 0, 0, (int)$month, 1, (int)$year)));
+
+                $archiveTitlePattern = (string)($this->view->getConfigVars('news_archive_seo_title') ?: 'Archives %s');
+                $archiveDescPattern  = (string)($this->view->getConfigVars('news_archive_seo_desc') ?: 'Retrouvez tous nos articles publiés en %s.');
+
+                $seoTitle = sprintf($archiveTitlePattern, $monthYearLabel) . ' - ' . $baseTitle;
+                $seoDesc  = trim(sprintf($archiveDescPattern, $monthYearLabel) . ' ' . $baseDesc);
             } else {
                 if ($page === 1) {
                     $isRootNews = true;
                 } else {
-                    $seoTitle = $baseTitle . ' - Page ' . $page;
+                    $pageLabel = (string)($this->view->getConfigVars('seo_page_label') ?: 'Page');
+                    $seoTitle = $baseTitle . ' - ' . $pageLabel . ' ' . $page;
                 }
             }
 

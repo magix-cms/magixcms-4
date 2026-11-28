@@ -1,6 +1,10 @@
 ## [4.0.3] - 2026-11-27
 
+### Modifié
+- **Internationalisation SEO Frontend (`fr.conf`, `en.conf`, `BaseController`, `CatalogController`, `CategoryController`, `NewsController`)** : Externalisation des titres par défaut, libellés de pagination (`seo_page_label`) et métadonnées SEO (page 404, accueil catalogue, catégories, liste des actualités, tags et archives) via `$this->view->getConfigVars()`.
+
 ### Corrigé
+- **Localisation des archives et traductions agenda (`NewsController`, `en.conf`)** : Remplacement de `date('F')` par `\IntlDateFormatter` dans `NewsController::renderList()` pour afficher le mois des archives dans la langue active, et traduction anglaise complète des clés de la section `# News calendar` dans `en.conf`.
 - **Statut de publication par défaut à la création (`news/add.tpl`, `pages/add.tpl`, `about/add.tpl`, `category/add.tpl`, `product/add.tpl`)** : Désactivation par défaut des interrupteurs de publication multilingues (`published_news`, `published_pages`, `published_about`, `published_cat`, `published_p`) lors de l'ajout d'un contenu afin d'éviter la mise en ligne automatique de langues non encore traduites.
 - **TinyMCE 7 — Extension IA (`mc_ai_gemini`)** : Transmission du jeton CSRF (`X-CSRF-Token` / `hashtoken`) vers le contrôleur `GeminiAI`, ajout d'un timeout client (`AbortController` à 65 s avec annulation à la fermeture de la modale) et sécurisation de l'analyse des réponses JSON.
 

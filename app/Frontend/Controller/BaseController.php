@@ -675,18 +675,26 @@ abstract class BaseController
 
         return $hasActiveChild; // On prévient le niveau supérieur
     }
+
     /**
      * Affiche la page d'erreur 404 globale et stoppe le script.
+     */
+    /**
+     * @return void
+     * @throws \Smarty\Exception
      */
     protected function render404(): void
     {
         // 1. On envoie le code HTTP 404 au navigateur (crucial pour le SEO)
         header("HTTP/1.0 404 Not Found");
 
-        // 2. On assigne des variables SEO par défaut pour éviter que le template ne plante
+        // 2. Récupération des traductions SEO (.conf) avec fallback par défaut
+        $seoTitle = (string)($this->view->getConfigVars('error_404_seo_title') ?: 'Page introuvable - Erreur 404');
+        $seoDesc  = (string)($this->view->getConfigVars('error_404_seo_desc') ?: "La page que vous recherchez n'existe plus ou a été déplacée.");
+
         $this->view->assign([
-            'seo_title'     => 'Page introuvable - Erreur 404',
-            'seo_desc'      => 'La page que vous recherchez n\'existe plus ou a été déplacée.',
+            'seo_title'     => $seoTitle,
+            'seo_desc'      => $seoDesc,
             'canonical_url' => false // On ne veut pas de balise canonical sur une 404
         ]);
 
@@ -696,7 +704,7 @@ abstract class BaseController
             $this->view->display($tpl404);
         } else {
             // Sécurité ultime si le fichier tpl a été supprimé par erreur
-            die("<h1>Erreur 404</h1><p>La page demandée n'existe pas (Template manquant).</p>");
+            die('<h1>' . htmlspecialchars($seoTitle, ENT_QUOTES, 'UTF-8') . '</h1><p>' . htmlspecialchars($seoDesc, ENT_QUOTES, 'UTF-8') . '</p>');
         }
 
         // 4. TRÈS IMPORTANT : On coupe l'exécution de PHP ici !

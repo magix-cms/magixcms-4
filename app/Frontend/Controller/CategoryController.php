@@ -60,10 +60,11 @@ class CategoryController extends BaseController
             $companyInfo = $companyDb->getCompanyInfo() ?: [];
 
             $siteName = $companyInfo['name'] ?? 'MagixCMS';
+            $defaultCategoryTitle = (string)($this->view->getConfigVars('category_default_title') ?: 'Catégorie');
 
             $seoTitle = !empty($rawCategory['seo_title_cat'])
                 ? $rawCategory['seo_title_cat']
-                : ($rawCategory['name_cat'] ?? 'Catégorie') . ' - ' . $siteName;
+                : (!empty($rawCategory['name_cat']) ? $rawCategory['name_cat'] : $defaultCategoryTitle) . ' - ' . $siteName;
 
             $seoDesc = !empty($rawCategory['seo_desc_cat'])
                 ? $rawCategory['seo_desc_cat']
